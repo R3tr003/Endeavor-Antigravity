@@ -1,0 +1,31 @@
+# Xcode
+.DS_Store
+*/.DS_Store
+*.swp
+*~.nib
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.network
+*.mov
+*.xcuserstate
+xcuserdata/
+
+# Build generated
+Build/
+DerivedData/
+
+# Swift Package Manager
+.build/
+
+# CocoaPods
+Pods/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Misc
+.env
