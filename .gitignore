@@ -29,3 +29,6 @@ fastlane/test_output
 
 # Misc
 .env
+
+# Logs
+*.log
