@@ -54,10 +54,12 @@ fi
 
 # 3. Build with xcodebuild
 echo "🔨 Building with Xcode..."
+
 xcodebuild build \
   -project "$PROJECT_PATH" \
   -scheme "$SCHEME_NAME" \
   -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+  -sdk iphonesimulator \
   -derivedDataPath "$DERIVED_DATA_PATH" \
   -quiet
 
@@ -84,7 +86,14 @@ if [ "$FORCE_UNINSTALL" = true ]; then
     echo "🗑️  Uninstalling previous version..."
     xcrun simctl uninstall "$SIMULATOR_ID" "$BUNDLE_ID" 2>/dev/null || true
 elif [ "$SKIP_UNINSTALL" = false ]; then
-    true 
+    # Auto-yes for speed during dev loop, uncomment line below to skip prompt
+    # response="y"
+    echo "❓ Uninstall previous version? (y/N)"
+    read -r response
+    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        echo "🗑️  Uninstalling previous version..."
+        xcrun simctl uninstall "$SIMULATOR_ID" "$BUNDLE_ID" 2>/dev/null || true
+    fi
 fi
 
 # 6. Install and Launch
@@ -92,6 +101,17 @@ echo "💾 Installing..."
 xcrun simctl install "$SIMULATOR_ID" "$APP_BUNDLE"
 
 echo "🚀 Launching..."
+# Launch the app
 xcrun simctl launch "$SIMULATOR_ID" "$BUNDLE_ID"
 
+echo ""
 echo "🎉 Endeavor is running!"
+echo "🛑 Press [ENTER] to stop the app (Simulator will stay open)..."
+
+# Wait for user input
+read -r
+
+# Cleanup
+echo "🔌 Stopping app..."
+xcrun simctl terminate "$SIMULATOR_ID" "$BUNDLE_ID" 2>/dev/null
+echo "✅ App stopped. Simulator is ready for next run."

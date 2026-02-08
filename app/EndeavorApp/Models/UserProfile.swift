@@ -7,7 +7,9 @@ struct UserProfile: Codable, Identifiable {
     var role: String = ""
     var email: String = "alex@endeavor.org" // Default per spec
     var location: String = ""
+
     var timeZone: String = ""
+    var profileImageUrl: String = "" // Added for Google Sign In
     
     // Formatting helper
     var fullName: String {

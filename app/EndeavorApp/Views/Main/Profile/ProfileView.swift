@@ -11,41 +11,90 @@ struct ProfileView: View {
     
     var body: some View {
         StackNavigationView {
-            VStack(spacing: 0) {
-                // Header
-                HStack(spacing: 16) {
-                    // Profile Avatar with + button or tap menu
-                    ZStack(alignment: .bottomTrailing) {
-                        if let profileImage = profileImage {
-                            // Show existing photo - Menu for change/remove
+            mainContent
+        }
+        .sheet(isPresented: $showCamera) {
+            ImagePicker(image: $profileImage, sourceType: .camera)
+        }
+        .sheet(isPresented: $showPhotoLibrary) {
+            ImagePicker(image: $profileImage, sourceType: .photoLibrary)
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+                .environmentObject(appViewModel)
+        }
+        .onChange(of: profileImage) { newImage in
+            if let image = newImage {
+                appViewModel.updateProfileImage(image)
+            }
+        }
+        .overlay(loadingOverlay)
+    }
+    
+    var profileHeader: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack(spacing: 16) {
+                // Profile Avatar with + button or tap menu
+                ZStack(alignment: .bottomTrailing) {
+                    if let profileImage = profileImage {
+                        // Show locally selected photo
+                        Menu {
+                            Button(action: { showPhotoLibrary = true }) {
+                                Label("Choose from Library", systemImage: "photo.on.rectangle")
+                            }
+                            Button(action: { showCamera = true }) {
+                                Label("Take Photo", systemImage: "camera")
+                            }
+                            Button(role: .destructive, action: { self.profileImage = nil }) {
+                                Label("Remove Photo", systemImage: "trash")
+                            }
+                        } label: {
+                            Image(uiImage: profileImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 80, height: 80)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.brandPrimary, lineWidth: 2))
+                        }
+                    } else {
+                        if let profileUrl = appViewModel.currentUser?.profileImageUrl, !profileUrl.isEmpty {
+                            // Show remote profile image
                             Menu {
                                 Button(action: { showPhotoLibrary = true }) {
-                                    Label("Choose from Library", systemImage: "photo.on.rectangle")
+                                    Label("Change Photo", systemImage: "photo.on.rectangle")
                                 }
                                 Button(action: { showCamera = true }) {
                                     Label("Take Photo", systemImage: "camera")
                                 }
-                                Button(role: .destructive, action: { self.profileImage = nil }) {
-                                    Label("Remove Photo", systemImage: "trash")
-                                }
                             } label: {
-                                Image(uiImage: profileImage)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 80, height: 80)
-                                    .clipShape(Circle())
-                                    .overlay(
-                                        Circle()
-                                            .stroke(Color.brandPrimary, lineWidth: 2)
-                                    )
+                                AsyncImage(url: URL(string: profileUrl)) { phase in
+                                    switch phase {
+                                    case .empty:
+                                        ProgressView().frame(width: 80, height: 80)
+                                    case .success(let image):
+                                        image
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 80, height: 80)
+                                            .clipShape(Circle())
+                                            .overlay(Circle().stroke(Color.brandPrimary, lineWidth: 2))
+                                    case .failure:
+                                        Image(systemName: "person.circle.fill")
+                                            .resizable()
+                                            .foregroundColor(.gray)
+                                            .frame(width: 80, height: 80)
+                                    @unknown default:
+                                        EmptyView()
+                                    }
+                                }
                             }
                         } else {
-                            // Default silhouette with + button
+                            // Default silhouette
                             Circle()
                                 .fill(Color.textSecondary.opacity(0.3))
                                 .frame(width: 80, height: 80)
                                 .overlay(
-                                    // Default profile silhouette
                                     VStack(spacing: 0) {
                                         Circle()
                                             .fill(Color.textSecondary.opacity(0.5))
@@ -60,87 +109,100 @@ struct ProfileView: View {
                                 )
                                 .clipShape(Circle())
                         }
-                        
-                        // + Button - only show when no photo
-                        if profileImage == nil {
-                            Menu {
-                                Button(action: { showCamera = true }) {
-                                    Label("Take Photo", systemImage: "camera")
-                                }
-                                Button(action: { showPhotoLibrary = true }) {
-                                    Label("Choose from Library", systemImage: "photo.on.rectangle")
-                                }
-                            } label: {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.brandPrimary)
-                                        .frame(width: 26, height: 26)
-                                    
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(.white)
-                                }
+                    }
+                    
+                    // + Button - only show when no photo (local or remote)
+                    if profileImage == nil && (appViewModel.currentUser?.profileImageUrl.isEmpty ?? true) {
+                        Menu {
+                            Button(action: { showCamera = true }) {
+                                Label("Take Photo", systemImage: "camera")
                             }
-                            .offset(x: 2, y: 2)
+                            Button(action: { showPhotoLibrary = true }) {
+                                Label("Choose from Library", systemImage: "photo.on.rectangle")
+                            }
+                        } label: {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.brandPrimary)
+                                    .frame(width: 26, height: 26)
+                                
+                                Image(systemName: "plus")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(.white)
+                            }
                         }
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(appViewModel.currentUser?.fullName ?? "Alex Chen")
-                            .font(.branding.sectionTitle)
-                            .foregroundColor(.textPrimary)
-                        
-                        Text("\(appViewModel.currentUser?.role ?? "Founder") at \(appViewModel.companyProfile?.name ?? "Endeavor")")
-                            .font(.branding.inputLabel)
-                            .foregroundColor(.textSecondary)
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: { showSettings = true }) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.textSecondary)
+                        .offset(x: 2, y: 2)
                     }
                 }
-                .padding(24)
                 
-                // Tabs
-                HStack(spacing: 0) {
-                    profileTab(title: "Personal")
-                    profileTab(title: "Company")
-                    profileTab(title: "Focus")
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(appViewModel.currentUser?.fullName ?? "User Profile")
+                        .font(.branding.sectionTitle)
+                        .foregroundColor(.textPrimary)
+                    
+                    Text("\(appViewModel.currentUser?.role ?? "Founder") at \(appViewModel.companyProfile?.name ?? "Endeavor")")
+                        .font(.branding.inputLabel)
+                        .foregroundColor(.textSecondary)
                 }
-                .overlay(
-                    Rectangle().frame(height: 1).foregroundColor(Color.textSecondary.opacity(0.3)),
-                    alignment: .bottom
-                )
                 
-                // Content
-                ScrollView {
-                    VStack {
-                        if selectedTab == "Personal" {
-                            personalContent
-                        } else if selectedTab == "Company" {
-                            companyContent
-                        } else {
-                            focusContent
-                        }
-                    }
-                    .padding(24)
-                    .padding(.bottom, 80)
+                Spacer()
+                
+                Button(action: { showSettings = true }) {
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(.textSecondary)
                 }
             }
+            .padding(24)
+            
+            // Tabs
+            HStack(spacing: 0) {
+                profileTab(title: "Personal")
+                profileTab(title: "Company")
+                profileTab(title: "Focus")
+            }
+            .overlay(
+                Rectangle().frame(height: 1).foregroundColor(Color.textSecondary.opacity(0.3)),
+                alignment: .bottom
+            )
         }
-        .sheet(isPresented: $showCamera) {
-            ImagePicker(image: $profileImage, sourceType: .camera)
+    }
+    
+    var mainContent: some View {
+        VStack(spacing: 0) {
+            profileHeader
+            scrollViewContent
         }
-        .sheet(isPresented: $showPhotoLibrary) {
-            ImagePicker(image: $profileImage, sourceType: .photoLibrary)
+    }
+
+    var scrollViewContent: some View {
+        ScrollView {
+            VStack {
+                if selectedTab == "Personal" {
+                    personalContent
+                } else if selectedTab == "Company" {
+                    companyContent
+                } else {
+                    focusContent
+                }
+            }
+            .padding(24)
+            .padding(.bottom, 80)
         }
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
-                .environmentObject(appViewModel)
+    }
+
+    var loadingOverlay: some View {
+        Group {
+            if appViewModel.isLoading {
+                ZStack {
+                    Color.black.opacity(0.4)
+                        .edgesIgnoringSafeArea(.all)
+                    ProgressView("Uploading...")
+                        .padding()
+                        .background(Color(uiColor: .secondarySystemBackground))
+                        .cornerRadius(8)
+                }
+            }
         }
     }
     
@@ -172,7 +234,7 @@ struct ProfileView: View {
             
             profileSection(title: "CONTACT") {
                 VStack(spacing: 16) {
-                    profileInfoRow(icon: "envelope.fill", label: "Email", value: appViewModel.currentUser?.email ?? "alex@endeavor.tech")
+                    profileInfoRow(icon: "envelope.fill", label: "Email", value: appViewModel.currentUser?.email ?? "No Email")
                 }
             }
         }

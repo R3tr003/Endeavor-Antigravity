@@ -9,6 +9,7 @@ class OnboardingViewModel: ObservableObject {
     // Navigation State
     @Published var currentStep: Int = 1
     @Published var totalSteps: Int = 5 // Reduced from 6
+    @Published var isSocialLogin: Bool = false // Tracks if user came from Google/Apple
     
     // Consent - IMPLICIT on Login now
     // Removed explicit properties

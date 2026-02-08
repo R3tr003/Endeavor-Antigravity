@@ -97,7 +97,7 @@ struct ReviewFinishView: View {
 struct ReviewFinishView_Previews: PreviewProvider {
     static var previews: some View {
         let vm = OnboardingViewModel()
-        vm.user.firstName = "Alex"
+        // vm.user.firstName = "Alex" // REMOVED: Do not overwrite user input
         vm.user.lastName = "Chen"
         vm.company.name = "Endeavor"
         vm.company.website = "https://endeavor.org"

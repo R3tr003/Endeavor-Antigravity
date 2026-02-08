@@ -3,6 +3,9 @@ import SwiftUI
 struct CompanyBioLogoView: View {
     @ObservedObject var viewModel: OnboardingViewModel
     
+    /// If true, hide the image upload section (for Google users with existing profile image)
+    var hideImageUpload: Bool = false
+    
     // Focus State
     enum Field {
         case shortDescription
@@ -14,42 +17,72 @@ struct CompanyBioLogoView: View {
         DashboardCard {
             VStack(alignment: .leading, spacing: 24) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Company Bio & Logo")
+                    Text(hideImageUpload ? "Company Bio & Profile" : "Company Bio & Logo")
                         .font(.branding.largeTitle)
                         .foregroundColor(.textPrimary)
                     
-                    Text("Bring your company to life. Share your mission and brand.")
+                    Text(hideImageUpload ? "Share your mission and what makes your company unique." : "Bring your company to life. Share your mission and brand.")
                         .font(.branding.subtitle)
                         .foregroundColor(.textSecondary)
                 }
                 
                 VStack(spacing: 24) {
-                    // Logo Upload
-                    VStack(spacing: 16) {
-                        Circle()
-                            .fill(Color.inputBackground)
-                            .frame(width: 120, height: 120)
-                            .overlay(
-                                Image(systemName: "photo")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(.textSecondary)
-                            )
-                        
-                        Button(action: {
-                            // Placeholder upload action
-                        }) {
-                            Text("Upload Logo")
-                                .font(.branding.inputLabel.weight(.bold))
-                                .foregroundColor(.background)
-                                .frame(width: 160)
-                                .padding(.vertical, 12)
-                                .background(Color.brandPrimary)
-                                .cornerRadius(12)
+                    // Logo Upload or Profile Picture Display
+                    if !hideImageUpload {
+                        VStack(spacing: 16) {
+                            Circle()
+                                .fill(Color.inputBackground)
+                                .frame(width: 120, height: 120)
+                                .overlay(
+                                    Image(systemName: "photo")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.textSecondary)
+                                )
+                            
+                            Button(action: {
+                                // Placeholder upload action
+                            }) {
+                                Text("Upload Image")
+                                    .font(.branding.inputLabel.weight(.bold))
+                                    .foregroundColor(.background)
+                                    .frame(width: 160)
+                                    .padding(.vertical, 12)
+                                    .background(Color.brandPrimary)
+                                    .cornerRadius(12)
+                            }
+                            
+                            Text("PNG, JPG, SVG up to 5MB.")
+                                .font(.branding.caption)
+                                .foregroundColor(.textSecondary)
                         }
-                        
-                        Text("PNG, JPG, SVG up to 5MB.")
-                            .font(.branding.caption)
-                            .foregroundColor(.textSecondary)
+                    } else {
+                        // Show existing Google Profile Image
+                        VStack(spacing: 16) {
+                            AsyncImage(url: URL(string: viewModel.user.profileImageUrl)) { phase in
+                                switch phase {
+                                case .empty:
+                                    ProgressView()
+                                        .frame(width: 120, height: 120)
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 120, height: 120)
+                                        .clipShape(Circle())
+                                        .overlay(Circle().stroke(Color.brandPrimary, lineWidth: 2))
+                                case .failure:
+                                    Image(systemName: "person.circle.fill")
+                                        .font(.system(size: 120))
+                                        .foregroundColor(.gray)
+                                @unknown default:
+                                    EmptyView()
+                                }
+                            }
+                            
+                            Text("Using your Google Profile Picture")
+                                .font(.branding.caption)
+                                .foregroundColor(.brandPrimary)
+                        }
                     }
                     
                     // Short Description

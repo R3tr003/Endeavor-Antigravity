@@ -1,4 +1,5 @@
 import SwiftUI
+import GoogleSignIn
 
 @main
 struct EndeavorApp: App {
@@ -14,7 +15,12 @@ struct EndeavorApp: App {
             ZStack {
                 Color.background.edgesIgnoringSafeArea(.all)
                 
-                if appViewModel.isLoggedIn {
+                if appViewModel.isCheckingAuth {
+                    // Show loading while checking for existing user data
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(1.5)
+                } else if appViewModel.isLoggedIn {
                     if appViewModel.isOnboardingComplete {
                         MainTabView()
                             .environmentObject(appViewModel)
@@ -32,6 +38,9 @@ struct EndeavorApp: App {
             }
             .animation(.default, value: appViewModel.isOnboardingComplete)
             .preferredColorScheme(appViewModel.colorScheme)
+            .onOpenURL { url in
+                GIDSignIn.sharedInstance.handle(url)
+            }
         }
     }
 }

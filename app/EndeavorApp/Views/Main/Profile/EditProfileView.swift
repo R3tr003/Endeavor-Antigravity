@@ -201,7 +201,7 @@ struct EditProfileView: View {
                 Text("Work Email")
                     .font(.branding.inputLabel)
                     .foregroundColor(.textSecondary)
-                Text(appViewModel.currentUser?.email ?? "alex@endeavor.org")
+                Text(appViewModel.currentUser?.email ?? "No Email")
                     .font(.branding.body)
                     .foregroundColor(.textSecondary)
                     .padding(16)
