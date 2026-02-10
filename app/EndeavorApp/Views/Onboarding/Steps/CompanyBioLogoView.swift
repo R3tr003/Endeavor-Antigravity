@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 
 struct CompanyBioLogoView: View {
     @ObservedObject var viewModel: OnboardingViewModel
@@ -8,10 +9,17 @@ struct CompanyBioLogoView: View {
     
     // Focus State
     enum Field {
-        case shortDescription
-        case longDescription
+        case personalBio
+        case companyBio
     }
     @FocusState private var focusedField: Field?
+    
+    // Photo Picker State
+    @State private var selectedPhoto: PhotosPickerItem? = nil
+    @State private var selectedImage: Image? = nil
+    @State private var selectedUIImage: UIImage? = nil
+    @State private var showPhotoLibrary: Bool = false
+    @State private var showCamera: Bool = false
     
     var body: some View {
         DashboardCard {
@@ -30,18 +38,33 @@ struct CompanyBioLogoView: View {
                     // Logo Upload or Profile Picture Display
                     if !hideImageUpload {
                         VStack(spacing: 16) {
-                            Circle()
-                                .fill(Color.inputBackground)
-                                .frame(width: 120, height: 120)
-                                .overlay(
-                                    Image(systemName: "photo")
-                                        .font(.system(size: 40))
-                                        .foregroundColor(.textSecondary)
-                                )
+                            // Show selected image or placeholder
+                            if let selectedImage = selectedImage {
+                                selectedImage
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 120, height: 120)
+                                    .clipShape(Circle())
+                                    .overlay(Circle().stroke(Color.brandPrimary, lineWidth: 2))
+                            } else {
+                                Circle()
+                                    .fill(Color.inputBackground)
+                                    .frame(width: 120, height: 120)
+                                    .overlay(
+                                        Image(systemName: "photo")
+                                            .font(.system(size: 40))
+                                            .foregroundColor(.textSecondary)
+                                    )
+                            }
                             
-                            Button(action: {
-                                // Placeholder upload action
-                            }) {
+                            Menu {
+                                Button(action: { showCamera = true }) {
+                                    Label("Take Photo", systemImage: "camera")
+                                }
+                                Button(action: { showPhotoLibrary = true }) {
+                                    Label("Choose from Library", systemImage: "photo.on.rectangle")
+                                }
+                            } label: {
                                 Text("Upload Image")
                                     .font(.branding.inputLabel.weight(.bold))
                                     .foregroundColor(.background)
@@ -54,6 +77,27 @@ struct CompanyBioLogoView: View {
                             Text("PNG, JPG, SVG up to 5MB.")
                                 .font(.branding.caption)
                                 .foregroundColor(.textSecondary)
+                        }
+                        .photosPicker(isPresented: $showPhotoLibrary, selection: $selectedPhoto, matching: .images)
+                        .fullScreenCover(isPresented: $showCamera) {
+                            ImagePicker(image: $selectedUIImage, sourceType: .camera)
+                                .ignoresSafeArea()
+                        }
+                        .onChange(of: selectedPhoto) { _, newValue in
+                            Task {
+                                if let data = try? await newValue?.loadTransferable(type: Data.self),
+                                   let uiImage = UIImage(data: data) {
+                                    selectedUIImage = uiImage
+                                    selectedImage = Image(uiImage: uiImage)
+                                    viewModel.user.profileImageUrl = "pending_upload"
+                                }
+                            }
+                        }
+                        .onChange(of: selectedUIImage) { _, newValue in
+                            if let uiImage = newValue {
+                                selectedImage = Image(uiImage: uiImage)
+                                viewModel.user.profileImageUrl = "pending_upload"
+                            }
                         }
                     } else {
                         // Show existing Google Profile Image
@@ -85,64 +129,64 @@ struct CompanyBioLogoView: View {
                         }
                     }
                     
-                    // Short Description
+                    // About You (Personal Bio)
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 4) {
-                            Text("Short Description (Elevator Pitch)")
+                            Text("About You")
                                 .font(.branding.inputLabel)
-                                .foregroundColor(focusedField == .shortDescription ? .brandPrimary : .textSecondary)
+                                .foregroundColor(focusedField == .personalBio ? .brandPrimary : .textSecondary)
                             Text("*")
                                 .font(.branding.inputLabel)
                                 .foregroundColor(.error)
                         }
                         
                         ZStack(alignment: .bottomTrailing) {
-                            TextEditor(text: $viewModel.company.shortDescription)
+                            TextEditor(text: $viewModel.user.personalBio)
                                 .font(.branding.body)
                                 .foregroundColor(.textPrimary)
                                 .scrollContentBackground(.hidden) // Needed for custom background in SwiftUI
                                 .background(Color.inputBackground)
                                 .cornerRadius(12)
                                 .frame(height: 100) // approx 4 lines
-                                .focused($focusedField, equals: .shortDescription)
+                                .focused($focusedField, equals: .personalBio)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(focusedField == .shortDescription ? Color.brandPrimary : Color.clear, lineWidth: 1)
+                                        .stroke(focusedField == .personalBio ? Color.brandPrimary : Color.clear, lineWidth: 1)
                                 )
                             
-                            Text("\(viewModel.company.shortDescription.count)/300")
+                            Text("\(viewModel.user.personalBio.count)/300")
                                 .font(.branding.caption)
                                 .foregroundColor(.textSecondary)
                                 .padding(8)
                         }
                     }
                     
-                    // Long Description
+                    // About the Company
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 4) {
-                            Text("Long Description")
+                            Text("About the Company")
                                 .font(.branding.inputLabel)
-                                .foregroundColor(focusedField == .longDescription ? .brandPrimary : .textSecondary)
+                                .foregroundColor(focusedField == .companyBio ? .brandPrimary : .textSecondary)
                             Text("*")
                                 .font(.branding.inputLabel)
                                 .foregroundColor(.error)
                         }
                         
                         ZStack(alignment: .bottomTrailing) {
-                            TextEditor(text: $viewModel.company.longDescription)
+                            TextEditor(text: $viewModel.company.companyBio)
                                 .font(.branding.body)
                                 .foregroundColor(.textPrimary)
                                 .scrollContentBackground(.hidden)
                                 .background(Color.inputBackground)
                                 .cornerRadius(12)
                                 .frame(height: 180) // approx 8 lines
-                                .focused($focusedField, equals: .longDescription)
+                                .focused($focusedField, equals: .companyBio)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(focusedField == .longDescription ? Color.brandPrimary : Color.clear, lineWidth: 1)
+                                        .stroke(focusedField == .companyBio ? Color.brandPrimary : Color.clear, lineWidth: 1)
                                 )
                             
-                            Text("\(viewModel.company.longDescription.count)/1000")
+                            Text("\(viewModel.company.companyBio.count)/1000")
                                 .font(.branding.caption)
                                 .foregroundColor(.textSecondary)
                                 .padding(8)

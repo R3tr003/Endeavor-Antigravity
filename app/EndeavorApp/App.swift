@@ -25,15 +25,18 @@ struct EndeavorApp: App {
                         MainTabView()
                             .environmentObject(appViewModel)
                             .transition(.opacity)
+                            .preferredColorScheme(appViewModel.colorScheme)
                     } else {
                         OnboardingContainerView()
                             .environmentObject(appViewModel)
                             .transition(.opacity)
+                            .preferredColorScheme(appViewModel.colorScheme)
                     }
                 } else {
                     WelcomeView()
                         .environmentObject(appViewModel)
                         .transition(.opacity)
+                        .preferredColorScheme(appViewModel.colorScheme)
                 }
             }
             .animation(.default, value: appViewModel.isOnboardingComplete)

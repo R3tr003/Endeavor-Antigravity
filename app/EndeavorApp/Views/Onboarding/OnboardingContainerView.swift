@@ -143,62 +143,11 @@ struct OnboardingContainerView: View {
                 }
                 .ignoresSafeArea(.keyboard, edges: .bottom)
             }
-            
-            // Custom Exit Confirmation Overlay
-            if showExitConfirmation {
-                Color.black.opacity(0.4)
-                    .edgesIgnoringSafeArea(.all)
-                    .onTapGesture {
-                        withAnimation {
-                            showExitConfirmation = false
-                        }
-                    }
-                
-                VStack(spacing: 20) {
-                    Text("Are you sure to Exit the registration process?")
-                        .font(.branding.subtitle)
-                        .foregroundColor(.textPrimary)
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
-                    
-                    HStack(spacing: 16) {
-                        Button(action: {
-                            withAnimation {
-                                showExitConfirmation = false
-                            }
-                        }) {
-                            Text("Back")
-                                .font(.branding.body)
-                                .foregroundColor(.textPrimary)
-                                .padding(.vertical, 12)
-                                .padding(.horizontal, 24)
-                                .background(Color.cardBackground)
-                                .cornerRadius(8)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                )
-                        }
-                        
-                        Button(action: {
-                            appViewModel.logout()
-                        }) {
-                            Text("Exit")
-                                .font(.branding.body.weight(.bold))
-                                .foregroundColor(.white)
-                                .padding(.vertical, 12)
-                                .padding(.horizontal, 24)
-                                .background(Color.error)
-                                .cornerRadius(8)
-                        }
-                    }
-                }
-                .padding(24)
-                .background(Color.background)
-                .cornerRadius(16)
-                .shadow(radius: 20)
-                .padding(40)
-                .transition(.scale)
+        }
+        .alert("Are you sure to Exit the registration process?", isPresented: $showExitConfirmation) {
+            Button("Back", role: .cancel) { }
+            Button("Exit", role: .destructive) {
+                appViewModel.logout()
             }
         }
     }

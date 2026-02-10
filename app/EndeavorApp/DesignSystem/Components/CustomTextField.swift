@@ -45,6 +45,8 @@ struct CustomTextField: View {
                         .foregroundColor(.textPrimary)
                         .padding(16)
                         .keyboardType(keyboardType)
+                        .textInputAutocapitalization(keyboardType == .URL ? .never : .sentences)
+                        .autocorrectionDisabled(keyboardType == .URL)
                         .focused($isFocused)
                 }
             }

@@ -8,18 +8,24 @@ struct EditProfileView: View {
     @State private var firstName: String = ""
     @State private var lastName: String = ""
     @State private var role: String = ""
+    @State private var personalBio: String = "" // About You
     
     // Company info
     @State private var companyName: String = ""
     @State private var website: String = ""
     @State private var hqCountry: String = ""
     @State private var hqCity: String = ""
+    @State private var companyBio: String = "" // About Company
     
     // Focus info
     @State private var challenges: [String] = []
     @State private var desiredExpertise: [String] = []
     
     @State private var selectedTab: String = "Personal"
+    
+    // Alert state
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
     
     // Available options for Focus
     let availableChallenges = ["Hiring", "Fundraising", "Go-to-market", "Ops", "Product", "Intl Expansion"]
@@ -162,15 +168,20 @@ struct EditProfileView: View {
                 firstName = user.firstName
                 lastName = user.lastName
                 role = user.role
+                personalBio = user.personalBio
             }
             if let company = appViewModel.companyProfile {
                 companyName = company.name
                 website = company.website
                 hqCountry = company.hqCountry
                 hqCity = company.hqCity
+                companyBio = company.companyBio
                 challenges = company.challenges
                 desiredExpertise = company.desiredExpertise
             }
+        }
+        .alert(isPresented: $showingAlert) {
+            Alert(title: Text("Missing Information"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
     }
     
@@ -195,6 +206,8 @@ struct EditProfileView: View {
             CustomTextField(title: "First Name", placeholder: "", text: $firstName, isRequired: true)
             CustomTextField(title: "Last Name", placeholder: "", text: $lastName, isRequired: true)
             CustomTextField(title: "Role/Title", placeholder: "", text: $role, isRequired: true)
+            
+            CustomTextEditor(title: "About You", placeholder: "Tell us a bit about yourself...", text: $personalBio, characterLimit: 300, isRequired: true, height: 100)
             
             // Read only email
             VStack(alignment: .leading, spacing: 8) {
@@ -286,6 +299,10 @@ struct EditProfileView: View {
                 .transaction { $0.animation = nil }
                 .disabled(hqCountry.isEmpty)
             }
+
+            
+            // About Company
+            CustomTextEditor(title: "About Company", placeholder: "Describe your company mission and goals...", text: $companyBio, characterLimit: 1000, isRequired: true, height: 150)
         }
     }
     
@@ -354,18 +371,39 @@ struct EditProfileView: View {
     }
     
     func saveChanges() {
+        // Validation
+        let personalBioClean = personalBio.trimmingCharacters(in: .whitespacesAndNewlines)
+        let companyBioClean = companyBio.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if personalBioClean.isEmpty {
+            alertMessage = "Please enter 'About You' information."
+            showingAlert = true
+            return
+        }
+        
+        if companyBioClean.isEmpty {
+             alertMessage = "Please enter 'About Company' information."
+             showingAlert = true
+             return
+        }
+        
         // Save personal info
         appViewModel.currentUser?.firstName = firstName
         appViewModel.currentUser?.lastName = lastName
         appViewModel.currentUser?.role = role
+        appViewModel.currentUser?.personalBio = personalBio
         
         // Save company info
         appViewModel.companyProfile?.name = companyName
         appViewModel.companyProfile?.website = website
         appViewModel.companyProfile?.hqCountry = hqCountry
         appViewModel.companyProfile?.hqCity = hqCity
+        appViewModel.companyProfile?.companyBio = companyBio
         appViewModel.companyProfile?.challenges = challenges
         appViewModel.companyProfile?.desiredExpertise = desiredExpertise
+        
+        // Persist to Firestore
+        appViewModel.saveProfileChanges()
         
         presentationMode.wrappedValue.dismiss()
     }

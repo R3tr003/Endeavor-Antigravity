@@ -23,7 +23,7 @@ struct ProfileView: View {
             SettingsView()
                 .environmentObject(appViewModel)
         }
-        .onChange(of: profileImage) { newImage in
+        .onChange(of: profileImage) { _, newImage in
             if let image = newImage {
                 appViewModel.updateProfileImage(image)
             }
@@ -225,7 +225,9 @@ struct ProfileView: View {
         VStack(alignment: .leading, spacing: 24) {
             profileSection(title: "ABOUT") {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Serial entrepreneur passionate about AI and sustainable technology solutions.")
+                    Text(appViewModel.currentUser?.personalBio.isEmpty == false 
+                         ? appViewModel.currentUser!.personalBio 
+                         : "No bio added yet.")
                         .font(.branding.body)
                         .foregroundColor(.textPrimary)
                         .lineSpacing(4)
@@ -260,7 +262,9 @@ struct ProfileView: View {
             
             profileSection(title: "ABOUT COMPANY") {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(appViewModel.companyProfile?.shortDescription ?? "Building AI-powered solutions for sustainable business transformation.")
+                    Text(appViewModel.companyProfile?.companyBio.isEmpty == false 
+                         ? appViewModel.companyProfile!.companyBio 
+                         : "No company description added yet.")
                         .font(.branding.body)
                         .foregroundColor(.textPrimary)
                         .lineSpacing(4)

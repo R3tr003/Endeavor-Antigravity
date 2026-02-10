@@ -3,16 +3,13 @@ import SwiftUI
 
 struct WelcomeView: View {
     @EnvironmentObject var appViewModel: AppViewModel
-    @State private var email: String = ""
+    @AppStorage("userEmail") private var email: String = ""
     @State private var password: String = ""
+    @State private var showPassword: Bool = false
     @State private var showMailError: Bool = false
     @State private var showTerms: Bool = false
     @State private var showPrivacy: Bool = false
     @State private var showResetSentAlert: Bool = false
-    
-    // Email existence state
-    @State private var emailExists: Bool? = nil  // nil = not checked, true = exists (login), false = new (sign up)
-    @State private var isCheckingEmail: Bool = false
     
     @FocusState private var isFocused: Bool
     
@@ -50,7 +47,10 @@ struct WelcomeView: View {
                 VStack(spacing: 24) {
                     // Email Input
                     VStack(alignment: .leading, spacing: 8) {
-                        TextField("Enter your authorized email", text: $email)
+                        TextField("Enter your authorized email", text: Binding(
+                            get: { self.email },
+                            set: { self.email = $0.lowercased() }
+                        ))
                             .font(.branding.body)
                             .padding()
                             .background(Color.inputBackground)
@@ -80,7 +80,7 @@ struct WelcomeView: View {
                 // Password Input (Appears only when email is valid)
                 if isValidEmail {
                     VStack(alignment: .leading, spacing: 8) {
-                        SecureField(emailExists == true ? "Insert Password" : "Create a new Password", text: $password)
+                        SecureField("Password", text: $password)
                             .font(.branding.body)
                             .padding()
                             .background(Color.inputBackground)
@@ -105,8 +105,8 @@ struct WelcomeView: View {
                         }
                         
                         // Login Error Message (e.g., wrong password)
-                        if appViewModel.errorMessage != nil {
-                            Text("Password Incorrect")
+                        if let errorMessage = appViewModel.errorMessage {
+                            Text(errorMessage)
                                 .font(.branding.inputLabel)
                                 .foregroundColor(.error)
                         }
@@ -137,68 +137,28 @@ struct WelcomeView: View {
                     }
                 }
                 
-                // Dynamic Login/Sign Up Button
+                // Unified Sign In Button
                 Button(action: {
                     if isValidEmail && passwordErrorMessage.isEmpty {
-                        if emailExists == true {
-                            // Email exists - Login
-                            appViewModel.login(email: email, password: password)
-                        } else {
-                            // Email doesn't exist - Register
-                            appViewModel.signUpNewUser(email: email, password: password)
-                        }
+                        appViewModel.authenticate(email: email, password: password)
                     }
                 }) {
                     HStack {
-                        if isCheckingEmail {
+                        if appViewModel.isLoading {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .background))
                                 .scaleEffect(0.8)
                         }
-                        Text(isCheckingEmail ? "Checking..." : (emailExists == true ? "Sign In" : "Sign Up"))
+                        Text(appViewModel.isLoading ? "Please wait..." : "Sign In")
                             .font(.branding.body.weight(.bold))
                             .foregroundColor(.background)
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty && !isCheckingEmail) ? Color.brandPrimary : Color.textSecondary.opacity(0.3))
+                    .background((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty && !appViewModel.isLoading) ? Color.brandPrimary : Color.textSecondary.opacity(0.3))
                     .cornerRadius(8)
                 }
-                .disabled(!isValidEmail || !passwordErrorMessage.isEmpty || password.isEmpty || isCheckingEmail)
-                .disabled(!isValidEmail || !passwordErrorMessage.isEmpty || password.isEmpty || isCheckingEmail)
-                // Usiamo .task(id: email) per gestire debounce e cambiamenti dell'email
-                .task(id: email) {
-                    // Reset state immediately upon typing
-                    if !email.isEmpty {
-                        // Non resettiamo emailExists a nil subito visivamente per evitare flash, 
-                        // ma sappiamo che dobbiamo ricontrollare.
-                    }
-                    
-                    guard isValidEmail else {
-                        isCheckingEmail = false
-                        emailExists = nil
-                        return
-                    }
-                    
-                    // Debounce: aspetta 0.5 secondi che l'utente smetta di scrivere
-                    do {
-                        try await Task.sleep(nanoseconds: 500_000_000)
-                    } catch {
-                        return // Task cancellato, l'utente sta ancora scrivendo
-                    }
-                    
-                    isCheckingEmail = true
-                    
-                    // Eseguiamo il controllo su un thread background per sicurezza, anche se Firebase è async
-                    FirebaseService.shared.checkEmailExists(email: email) { exists in
-                        DispatchQueue.main.async {
-                            // Verifica che l'email non sia cambiata nel frattempo (doppio controllo)
-                            // Anche se .task dovrebbe cancellarsi, le callback di Firebase potrebbero tornare dopo
-                            self.emailExists = exists
-                            self.isCheckingEmail = false
-                        }
-                    }
-                }
+                .disabled(!isValidEmail || !passwordErrorMessage.isEmpty || password.isEmpty || appViewModel.isLoading)
                 
                 // OR Divider
                 HStack {
@@ -286,20 +246,12 @@ struct WelcomeView: View {
                 }
                 .buttonStyle(ContactFooterStyle())
                 .padding(.bottom, 24)
-                .alert("No Mail App Found", isPresented: $showMailError) {
-                    Button("OK", role: .cancel) { }
-                } message: {
-                    Text("The email 'help@endeavor.org' has been copied to your clipboard.")
-                }
+            .alert("No Mail App Found", isPresented: $showMailError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("The email 'help@endeavor.org' has been copied to your clipboard.")
             }
-            
-            // Loading Overlay
-            if appViewModel.isLoading {
-                Color.black.opacity(0.4)
-                    .edgesIgnoringSafeArea(.all)
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    .scaleEffect(1.5)
+
             }
         }
     }

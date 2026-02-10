@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CompanyBasicsView: View {
     @ObservedObject var viewModel: OnboardingViewModel
+    @State private var isWebsiteValid: Bool = true
     
     var body: some View {
         DashboardCard {
@@ -26,11 +27,24 @@ struct CompanyBasicsView: View {
                     
                     CustomTextField(
                         title: "Company Website",
-                        placeholder: "",
+                        placeholder: "e.g. https://endeavor.org",
                         text: $viewModel.company.website,
                         isRequired: true,
                         keyboardType: .URL
                     )
+                    .onChange(of: viewModel.company.website) { _, newValue in
+                        isWebsiteValid = newValue.isEmpty || isValidURL(newValue)
+                    }
+                    
+                    if !isWebsiteValid {
+                        HStack {
+                            Text("Enter a valid URL starting with https:// or http://")
+                                .font(.branding.caption)
+                                .foregroundColor(.red)
+                            Spacer()
+                        }
+                        .padding(.top, -8)
+                    }
                     
                     // HQ Country Dropdown
                     VStack(alignment: .leading, spacing: 8) {
@@ -188,6 +202,34 @@ struct CompanyBasicsView: View {
             }
         }
     }
+    
+    /// Validates URL format - requires http:// or https:// prefix
+    private func isValidURL(_ string: String) -> Bool {
+        let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        
+        // Must start with http:// or https://
+        guard trimmed.hasPrefix("http://") || trimmed.hasPrefix("https://") else {
+            return false
+        }
+        
+        // Must have at least one dot for a domain
+        guard trimmed.contains(".") else { return false }
+        
+        // Check if it can be parsed as URL with valid host
+        guard let url = URL(string: trimmed),
+              let host = url.host,
+              host.contains(".") else {
+            return false
+        }
+        
+        // Basic domain validation (at least 2 chars after last dot)
+        let parts = host.split(separator: ".")
+        if let lastPart = parts.last, lastPart.count < 2 {
+            return false
+        }
+        
+        return true
+    }
 }
 
 struct CompanyBasicsView_Previews: PreviewProvider {
@@ -197,3 +239,4 @@ struct CompanyBasicsView_Previews: PreviewProvider {
             .background(Color.background)
     }
 }
+

@@ -37,8 +37,8 @@ class OnboardingViewModel: ObservableObject {
     }
     
     var isStep4Valid: Bool {
-        // Old Step 5 (Bio)
-        !company.shortDescription.isEmpty && !company.longDescription.isEmpty
+        // Bio step - About You (personal) and About the Company (long description)
+        !user.personalBio.isEmpty && !company.companyBio.isEmpty
     }
     
     var isStep5Valid: Bool {

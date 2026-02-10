@@ -21,7 +21,8 @@
 		651788022F356B310095C184 /* FocusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787EA2F356B310095C184 /* FocusView.swift */; };
 		651788032F356B310095C184 /* CompanyBasicsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787E82F356B310095C184 /* CompanyBasicsView.swift */; };
 		651788042F356B310095C184 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787E32F356B310095C184 /* ProfileView.swift */; };
-		651788052F356B310095C184 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787CB2F356B310095C184 /* CustomTextField.swift */; };
+        651788052F356B310095C184 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787CB2F356B310095C184 /* CustomTextField.swift */; };
+        651789512F356B310095C184 /* CustomTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651789502F356B310095C184 /* CustomTextEditor.swift */; };
 		651788062F356B310095C184 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787C62F356B310095C184 /* ImagePicker.swift */; };
 		651788072F356B310095C184 /* CompanyBioLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787E92F356B310095C184 /* CompanyBioLogoView.swift */; };
 		651788082F356B310095C184 /* Colors+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787D02F356B310095C184 /* Colors+Extensions.swift */; };
@@ -41,10 +42,10 @@
 		651788192F356B6B0095C184 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 651788182F356B6B0095C184 /* FirebaseAuth */; };
 		6517881B2F356B6B0095C184 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 6517881A2F356B6B0095C184 /* FirebaseFirestore */; };
 		6517881C2F356EE50095C184 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 651787F42F356B310095C184 /* Assets.xcassets */; };
+		651789012F356B6B0095C184 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 651789002F356B6B0095C184 /* FirebaseStorage */; };
 		65EE72982F36157200E6F591 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 65EE72972F36157200E6F591 /* GoogleSignIn */; };
 		65EE729A2F36157200E6F591 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 65EE72992F36157200E6F591 /* GoogleSignInSwift */; };
 		65F4304F2F35F5DB00023B22 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 65F4304E2F35F5DB00023B22 /* FirebaseAnalytics */; };
-		651789012F356B6B0095C184 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 651789002F356B6B0095C184 /* FirebaseStorage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,7 +53,8 @@
 		651787C62F356B310095C184 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		651787C82F356B310095C184 /* BarChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarChartView.swift; sourceTree = "<group>"; };
 		651787C92F356B310095C184 /* LineChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineChartView.swift; sourceTree = "<group>"; };
-		651787CB2F356B310095C184 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
+        651787CB2F356B310095C184 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
+        651789502F356B310095C184 /* CustomTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextEditor.swift; sourceTree = "<group>"; };
 		651787CC2F356B310095C184 /* DashboardCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardCard.swift; sourceTree = "<group>"; };
 		651787CD2F356B310095C184 /* LinearProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearProgressView.swift; sourceTree = "<group>"; };
 		651787CE2F356B310095C184 /* SelectablePill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectablePill.swift; sourceTree = "<group>"; };
@@ -140,7 +142,8 @@
 			isa = PBXGroup;
 			children = (
 				651787CA2F356B310095C184 /* Charts */,
-				651787CB2F356B310095C184 /* CustomTextField.swift */,
+                651787CB2F356B310095C184 /* CustomTextField.swift */,
+                651789502F356B310095C184 /* CustomTextEditor.swift */,
 				651787CC2F356B310095C184 /* DashboardCard.swift */,
 				651787CD2F356B310095C184 /* LinearProgressView.swift */,
 				651787CE2F356B310095C184 /* SelectablePill.swift */,
@@ -392,7 +395,8 @@
 				651788022F356B310095C184 /* FocusView.swift in Sources */,
 				651788032F356B310095C184 /* CompanyBasicsView.swift in Sources */,
 				651788042F356B310095C184 /* ProfileView.swift in Sources */,
-				651788052F356B310095C184 /* CustomTextField.swift in Sources */,
+                651788052F356B310095C184 /* CustomTextField.swift in Sources */,
+                651789512F356B310095C184 /* CustomTextEditor.swift in Sources */,
 				651788062F356B310095C184 /* ImagePicker.swift in Sources */,
 				651788072F356B310095C184 /* CompanyBioLogoView.swift in Sources */,
 				651788082F356B310095C184 /* Colors+Extensions.swift in Sources */,
@@ -662,6 +666,11 @@
 			package = 651788172F356B6B0095C184 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
 		};
+		651789002F356B6B0095C184 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 651788172F356B6B0095C184 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
 		65EE72972F36157200E6F591 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 65EE72962F36157200E6F591 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
@@ -676,11 +685,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 651788172F356B6B0095C184 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
-		};
-		651789002F356B6B0095C184 /* FirebaseStorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 651788172F356B6B0095C184 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseStorage;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

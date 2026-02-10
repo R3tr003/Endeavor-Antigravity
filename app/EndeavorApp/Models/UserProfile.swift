@@ -10,6 +10,7 @@ struct UserProfile: Codable, Identifiable {
 
     var timeZone: String = ""
     var profileImageUrl: String = "" // Added for Google Sign In
+    var personalBio: String = "" // "About You" from onboarding
     
     // Formatting helper
     var fullName: String {
@@ -32,7 +33,6 @@ struct CompanyProfile: Codable, Identifiable {
     var desiredExpertise: [String] = []
     
     // Bio & Logo
-    var shortDescription: String = "" // Max 300 chars
-    var longDescription: String = "" // Max 1000 chars
+    var companyBio: String = "" // Max 1000 chars
     // Logo would typically be a URL or Data, simulating with placeholder logic in UI
 }

@@ -30,6 +30,7 @@ class FirebaseService {
             "app_version": "1.0.0"
         ])
         print("📊 Analytics: App Open event logged")
+
     }
     
     /// Helper to log custom events
@@ -78,20 +79,7 @@ class FirebaseService {
         }
     }
     
-    /// Check if an email is already registered (checks Firestore users collection)
-    func checkEmailExists(email: String, completion: @escaping (Bool) -> Void) {
-        let db = Firestore.firestore()
-        db.collection(usersCollection).whereField("email", isEqualTo: email).limit(to: 1).getDocuments { snapshot, error in
-            if let error = error {
-                print("❌ Error checking email: \(error.localizedDescription)")
-                completion(false)
-                return
-            }
-            let exists = !(snapshot?.documents.isEmpty ?? true)
-            print("📧 Email \(email) exists in Firestore: \(exists)")
-            completion(exists)
-        }
-    }
+
     
     // MARK: - Social Authentication
     
@@ -128,7 +116,8 @@ class FirebaseService {
             "email": user.email,
             "location": user.location,
             "timeZone": user.timeZone,
-            "profileImageUrl": user.profileImageUrl
+            "profileImageUrl": user.profileImageUrl,
+            "personalBio": user.personalBio
         ]
         
         db.collection(usersCollection).document(user.id.uuidString).setData(data) { error in
@@ -157,8 +146,8 @@ class FirebaseService {
             "employeeRange": company.employeeRange,
             "challenges": company.challenges,
             "desiredExpertise": company.desiredExpertise,
-            "shortDescription": company.shortDescription,
-            "longDescription": company.longDescription
+
+            "companyBio": company.companyBio
         ]
         
         db.collection(companiesCollection).document(company.id.uuidString).setData(data) { error in
@@ -278,7 +267,8 @@ class FirebaseService {
             email: data["email"] as? String ?? "",
             location: data["location"] as? String ?? "",
             timeZone: data["timeZone"] as? String ?? "",
-            profileImageUrl: data["profileImageUrl"] as? String ?? ""
+            profileImageUrl: data["profileImageUrl"] as? String ?? "",
+            personalBio: data["personalBio"] as? String ?? ""
         )
         
         // Check if this user has a company
@@ -319,8 +309,7 @@ class FirebaseService {
                 employeeRange: data["employeeRange"] as? String ?? "",
                 challenges: data["challenges"] as? [String] ?? [],
                 desiredExpertise: data["desiredExpertise"] as? [String] ?? [],
-                shortDescription: data["shortDescription"] as? String ?? "",
-                longDescription: data["longDescription"] as? String ?? ""
+                companyBio: data["companyBio"] as? String ?? ""
             )
             completion(company)
         }
@@ -354,8 +343,7 @@ class FirebaseService {
                 employeeRange: data["employeeRange"] as? String ?? "",
                 challenges: data["challenges"] as? [String] ?? [],
                 desiredExpertise: data["desiredExpertise"] as? [String] ?? [],
-                shortDescription: data["shortDescription"] as? String ?? "",
-                longDescription: data["longDescription"] as? String ?? ""
+                companyBio: data["companyBio"] as? String ?? ""
             )
             print("✅ Loaded company for userId: \(userId)")
             completion(company)
@@ -382,7 +370,8 @@ class FirebaseService {
                     email: data["email"] as? String ?? "",
                     location: data["location"] as? String ?? "",
                     timeZone: data["timeZone"] as? String ?? "",
-                    profileImageUrl: data["profileImageUrl"] as? String ?? ""
+                    profileImageUrl: data["profileImageUrl"] as? String ?? "",
+                    personalBio: data["personalBio"] as? String ?? ""
                 )
             } ?? []
             
@@ -426,4 +415,159 @@ class FirebaseService {
             }
         }
     }
+    
+    // MARK: - Account Deletion
+    
+    /// Delete all user data from Firestore (user profile and company profile)
+    /// Uses email to find documents reliably regardless of document ID
+    func deleteUserData(email: String, userId: String, completion: @escaping (Error?) -> Void) {
+        let db = Firestore.firestore()
+        let dispatchGroup = DispatchGroup()
+        var deletionError: Error?
+        var foundUserId: String? = nil
+        
+        // Step 1: Find and delete user profile by email
+        dispatchGroup.enter()
+        db.collection(usersCollection).whereField("email", isEqualTo: email).getDocuments { snapshot, error in
+            if let error = error {
+                print("❌ Error finding user profile: \(error.localizedDescription)")
+                deletionError = error
+                dispatchGroup.leave()
+                return
+            }
+            
+            guard let documents = snapshot?.documents, !documents.isEmpty else {
+                print("ℹ️ No user profile found for email: \(email)")
+                dispatchGroup.leave()
+                return
+            }
+            
+            // Delete all matching user documents
+            let deleteGroup = DispatchGroup()
+            for doc in documents {
+                deleteGroup.enter()
+                // Capture userId from the document for company lookup
+                if let docUserId = doc.data()["id"] as? String {
+                    foundUserId = docUserId
+                }
+                doc.reference.delete { error in
+                    if let error = error {
+                        print("❌ Error deleting user profile: \(error.localizedDescription)")
+                        deletionError = error
+                    } else {
+                        print("✅ User profile deleted from Firestore: \(doc.documentID)")
+                    }
+                    deleteGroup.leave()
+                }
+            }
+            deleteGroup.notify(queue: .main) {
+                dispatchGroup.leave()
+            }
+        }
+        
+        // Wait for user deletion to get foundUserId, then delete company
+        dispatchGroup.notify(queue: .main) {
+            let companyGroup = DispatchGroup()
+            
+            // Delete company profile by userId (try both the passed userId and foundUserId)
+            let userIdsToCheck = [userId, foundUserId].compactMap { $0 }
+            
+            for uid in userIdsToCheck {
+                companyGroup.enter()
+                db.collection(self.companiesCollection).whereField("userId", isEqualTo: uid).getDocuments { snapshot, error in
+                    if let error = error {
+                        print("❌ Error finding company profile: \(error.localizedDescription)")
+                        deletionError = error
+                        companyGroup.leave()
+                        return
+                    }
+                    
+                    guard let documents = snapshot?.documents, !documents.isEmpty else {
+                        print("ℹ️ No company profile found for userId: \(uid)")
+                        companyGroup.leave()
+                        return
+                    }
+                    
+                    for doc in documents {
+                        doc.reference.delete { error in
+                            if let error = error {
+                                print("❌ Error deleting company profile: \(error.localizedDescription)")
+                                deletionError = error
+                            } else {
+                                print("✅ Company profile deleted from Firestore: \(doc.documentID)")
+                            }
+                        }
+                    }
+                    companyGroup.leave()
+                }
+            }
+            
+            // Delete profile image from Storage
+            companyGroup.enter()
+            let imagePath = "profile_images/\(userId).jpg"
+            Storage.storage().reference().child(imagePath).delete { error in
+                if let error = error {
+                    print("ℹ️ Profile image deletion: \(error.localizedDescription)")
+                } else {
+                    print("✅ Profile image deleted from Storage")
+                }
+                companyGroup.leave()
+            }
+            
+            companyGroup.notify(queue: .main) {
+                completion(deletionError)
+            }
+        }
+    }
+    
+    /// Re-authenticate with email/password and delete Firebase Auth account
+    func deleteAuthAccount(password: String?, completion: @escaping (Error?) -> Void) {
+        guard let user = Auth.auth().currentUser else {
+            completion(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No authenticated user"]))
+            return
+        }
+        
+        // Check provider type
+        let providers = user.providerData.map { $0.providerID }
+        let isGoogleUser = providers.contains("google.com")
+        
+        if isGoogleUser {
+            // For Google users, we need to re-authenticate with Google credential
+            // This will be handled by AppViewModel which has access to GIDSignIn
+            user.delete { error in
+                if let error = error {
+                    print("❌ Error deleting auth account: \(error.localizedDescription)")
+                    completion(error)
+                } else {
+                    print("✅ Firebase Auth account deleted")
+                    completion(nil)
+                }
+            }
+        } else if let password = password, let email = user.email {
+            // For email/password users, re-authenticate first
+            let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+            user.reauthenticate(with: credential) { result, error in
+                if let error = error {
+                    print("❌ Re-authentication failed: \(error.localizedDescription)")
+                    completion(error)
+                    return
+                }
+                
+                user.delete { error in
+                    if let error = error {
+                        print("❌ Error deleting auth account: \(error.localizedDescription)")
+                        completion(error)
+                    } else {
+                        print("✅ Firebase Auth account deleted")
+                        completion(nil)
+                    }
+                }
+            }
+        } else {
+            completion(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Password required for email/password accounts"]))
+        }
+    }
+    
+
+
 }

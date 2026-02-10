@@ -11,6 +11,7 @@ class AppViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var isCheckingAuth: Bool = false  // True while checking if existing user
     @Published var errorMessage: String?
+    @Published var emailCollisionDetected: Bool = false
     @Published var selectedTheme: String = "Dark"
     @Published var failedLoginAttempts: Int = 0 // Track failed logins
     
@@ -140,6 +141,87 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Unified Authentication
+    
+    /// Unifies Login and Sign Up into a single flow.
+    /// Tries to Log In first.
+    /// If user not found (error 17011), it automatically attempts to Sign Up.
+    func authenticate(email: String, password: String) {
+        let email = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        
+        self.isLoading = true
+        self.errorMessage = nil
+        self.emailCollisionDetected = false
+        
+        // 1. Attempt Login
+        FirebaseService.shared.signIn(email: email, password: password) { [weak self] result in
+            switch result {
+            case .success(let user):
+                DispatchQueue.main.async {
+                    print("✅ Login Successful: \(user.uid)")
+                    self?.handleAuthSuccess(user: user, email: email)
+                }
+                
+            case .failure(let error):
+                let nsError = error as NSError
+                
+                // 2. Check if user doesn't exist (Code 17011 = FIRAuthErrorCodeUserNotFound)
+                // Note: 17004 is Invalid Credential, sometimes thrown for non-existent users, but also for bad formatting.
+                // We STRICTLY want to try Sign Up only if user definitely doesn't exist.
+                // 17009 is Wrong Password - definitely do NOT sign up in that case.
+                if nsError.code == 17011 || (nsError.code == 17004 && !nsError.localizedDescription.contains("format")) {
+                    print("ℹ️ User not found (code \(nsError.code)), attempting Sign Up...")
+                    
+                    // 3. Attempt Sign Up
+                    FirebaseService.shared.signUp(email: email, password: password) { [weak self] signUpResult in
+                        DispatchQueue.main.async {
+                            self?.isLoading = false
+                            
+                            switch signUpResult {
+                            case .success(let newUser):
+                                print("✅ Created new account: \(newUser.uid)")
+                                self?.handleAuthSuccess(user: newUser, email: email)
+                                
+                            case .failure(let signUpError):
+                                print("❌ Sign Up failed: \(signUpError.localizedDescription)")
+                                let signUpNsError = signUpError as NSError
+                                
+                                if signUpNsError.code == 17007 {
+                                    // This means account exists (so login should have worked if password was right)
+                                    // BUT login failed with "User Not Found" (17011) previously.
+                                    // This confirms the user EXISTS but the PASSWORD was WRONG.
+                                    // Firebase obfuscates this for security, but we can deduce it here.
+                                    self?.errorMessage = "Incorrect Password"
+                                    self?.failedLoginAttempts += 1
+                                    print("⚠️ Deduced Wrong Password from collision. Failed attempts: \(self?.failedLoginAttempts ?? 0)")
+                                } else if signUpNsError.code == 17026 {
+                                    self?.errorMessage = "Password is too weak. Use at least 6 characters."
+                                } else {
+                                    self?.errorMessage = "Registration failed: \(signUpError.localizedDescription)"
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // 4. Other Login Errors (e.g. Wrong Password for existing user)
+                    DispatchQueue.main.async {
+                        self?.isLoading = false
+                        print("❌ Login Failed: \(error.localizedDescription) (Code: \(nsError.code))")
+                        
+                        // Check for Wrong Password (17009) or any other credential issue
+                        if nsError.code == 17009 || error.localizedDescription.contains("password") {
+                            self?.errorMessage = "Incorrect Password"
+                            self?.failedLoginAttempts += 1
+                            print("⚠️ Failed attempts: \(self?.failedLoginAttempts ?? 0)")
+                        } else {
+                            self?.errorMessage = error.localizedDescription
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     // MARK: - Registration (New Users Only)
     
     func signUpNewUser(email: String, password: String) {
@@ -160,6 +242,7 @@ class AppViewModel: ObservableObject {
                     let nsError = error as NSError
                     if nsError.code == 17007 { // Email already in use
                         self?.errorMessage = "This email is already registered. Please login instead."
+                        self?.emailCollisionDetected = true
                     } else if nsError.code == 17026 { // Weak password
                         self?.errorMessage = "Password is too weak. Use at least 6 characters."
                     } else {
@@ -226,12 +309,16 @@ class AppViewModel: ObservableObject {
     }
     
     private func handleAuthSuccess(user: FirebaseAuth.User, email: String) {
-        // IMPORTANT: Set isCheckingAuth FIRST to prevent onboarding from flashing
-        self.isCheckingAuth = true
-        self.isLoading = false
-        self.isLoggedIn = true
-        UserDefaults.standard.set(true, forKey: "isLoggedIn")
+        // Keep isLoading true to show button spinner (User Request)
+        self.isLoading = true
+        self.failedLoginAttempts = 0 // Reset on success
+        
+        // Save basics (but don't set isLoggedIn=true until data is loaded, to prevent premature transition)
+        // Actually, saving isLoggedIn=true now is safe because if we crash, restoreSession fails and logs out.
+        // But for UI, we keep self.isLoggedIn = false to keep WelcomeView visible.
+        
         UserDefaults.standard.set(email, forKey: "userEmail")
+        print("💾 Saved email to UserDefaults: \(email)")
         UserDefaults.standard.set(user.uid, forKey: "firebaseUid") // Save Auth ID for reference
         
         // Extract Google Data if available
@@ -255,7 +342,6 @@ class AppViewModel: ObservableObject {
             FirebaseService.shared.findCompleteUserProfile(email: email) { [weak self] result in
                 DispatchQueue.main.async {
                     if let (profile, company) = result {
-                        print("✅ Found complete profile for email: \(email)")
                         self?.currentUser = profile
                         self?.companyProfile = company
                         
@@ -263,10 +349,11 @@ class AppViewModel: ObservableObject {
                         UserDefaults.standard.set(profile.id.uuidString, forKey: "userId")
                         UserDefaults.standard.set(company.id.uuidString, forKey: "companyId")
                         UserDefaults.standard.set(true, forKey: "isOnboardingComplete")
+                        UserDefaults.standard.set(true, forKey: "isLoggedIn")
                         
                         self?.isOnboardingComplete = true
+                        self?.isLoggedIn = true // Now transition to MainTabView
                         self?.isLoading = false
-                        self?.isCheckingAuth = false
                     } else {
                         // No complete profile found, start onboarding with Google Data
                         print("ℹ️ No complete profile - starting onboarding for: \(email)")
@@ -280,8 +367,9 @@ class AppViewModel: ObservableObject {
                             timeZone: "",
                             profileImageUrl: googlePhotoUrl
                         )
+                        UserDefaults.standard.set(true, forKey: "isLoggedIn")
+                        self?.isLoggedIn = true // Transition to Onboarding
                         self?.isLoading = false
-                        self?.isCheckingAuth = false
                     }
                 }
             }
@@ -289,7 +377,6 @@ class AppViewModel: ObservableObject {
             // No email available (shouldn't happen normally)
             print("⚠️ No email available for user")
             self.isLoading = false
-            self.isCheckingAuth = false
         }
     }
     
@@ -357,5 +444,110 @@ class AppViewModel: ObservableObject {
                 }
             }
         }
+    }
+    
+    func saveProfileChanges() {
+        guard let user = currentUser else { return }
+        
+        self.isLoading = true
+        
+        let dispatchGroup = DispatchGroup()
+        
+        // Save User
+        dispatchGroup.enter()
+        FirebaseService.shared.saveUserProfile(user) { [weak self] error in
+            if let error = error {
+                print("❌ Failed to save user profile: \(error)")
+                self?.errorMessage = "Failed to save profile changes."
+            }
+            dispatchGroup.leave()
+        }
+        
+        // Save Company (if exists)
+        if let company = companyProfile {
+            dispatchGroup.enter()
+            FirebaseService.shared.saveCompanyProfile(company, userId: user.id.uuidString) { [weak self] error in
+                if let error = error {
+                    print("❌ Failed to save company profile: \(error)")
+                    self?.errorMessage = "Failed to save company changes."
+                }
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.notify(queue: .main) {
+            self.isLoading = false
+            print("✅ Profile changes saved successfully.")
+        }
+    }
+    
+    /// Helper to check if user is using Google authentication
+    var isGoogleUser: Bool {
+        guard let user = Auth.auth().currentUser else { return false }
+        return user.providerData.contains { $0.providerID == "google.com" }
+    }
+    
+    /// Delete account: removes all Firestore data and Firebase Auth account
+    /// For email/password accounts, password is required for re-authentication
+    /// For Google accounts, Google Sign-In re-auth is handled separately
+    /// IMPORTANT: Auth is deleted FIRST - if password is wrong, nothing is deleted
+    func deleteAccount(password: String?, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let email = currentUser?.email, !email.isEmpty else {
+            completion(.failure(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No user email found"])))
+            return
+        }
+        
+        let userId = currentUser?.id.uuidString ?? ""
+        
+        self.isLoading = true
+        
+        // Step 1: Delete Firebase Auth account FIRST (requires correct password)
+        // If this fails, nothing else is deleted - safe rollback
+        FirebaseService.shared.deleteAuthAccount(password: password) { [weak self] authError in
+            if let error = authError {
+                DispatchQueue.main.async {
+                    self?.isLoading = false
+                    self?.errorMessage = "Failed to delete account: \(error.localizedDescription)"
+                    completion(.failure(error))
+                }
+                return
+            }
+            
+            // Step 2: Auth deleted successfully, now delete Firestore data
+            FirebaseService.shared.deleteUserData(email: email, userId: userId) { dataError in
+                DispatchQueue.main.async {
+                    self?.isLoading = false
+                    
+                    if let error = dataError {
+                        // Auth is already deleted, just log the Firestore error
+                        print("⚠️ Auth deleted but Firestore cleanup failed: \(error.localizedDescription)")
+                        // Don't fail the whole operation since Auth is gone
+                    }
+                    
+                    // Step 3: Clear all local state
+                    self?.clearAllLocalData()
+                    
+                    print("✅ Account fully deleted")
+                    completion(.success(()))
+                }
+            }
+        }
+    }
+    
+    /// Clears all local app data (UserDefaults, state)
+    private func clearAllLocalData() {
+        // Clear UserDefaults
+        let domain = Bundle.main.bundleIdentifier!
+        UserDefaults.standard.removePersistentDomain(forName: domain)
+        UserDefaults.standard.synchronize()
+        
+        // Reset state
+        self.currentUser = nil
+        self.companyProfile = nil
+        self.isLoggedIn = false
+        self.isOnboardingComplete = false
+        self.failedLoginAttempts = 0
+        self.selectedTheme = "Dark"
+        self.errorMessage = nil
     }
 }
