@@ -47,10 +47,7 @@ struct WelcomeView: View {
                 VStack(spacing: 24) {
                     // Email Input
                     VStack(alignment: .leading, spacing: 8) {
-                        TextField("Enter your authorized email", text: Binding(
-                            get: { self.email },
-                            set: { self.email = $0.lowercased() }
-                        ))
+                        TextField("Enter your authorized email", text: $email)
                             .font(.branding.body)
                             .padding()
                             .background(Color.inputBackground)
@@ -80,22 +77,43 @@ struct WelcomeView: View {
                 // Password Input (Appears only when email is valid)
                 if isValidEmail {
                     VStack(alignment: .leading, spacing: 8) {
-                        SecureField("Password", text: $password)
-                            .font(.branding.body)
-                            .padding()
-                            .background(Color.inputBackground)
-                            .cornerRadius(8)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(
-                                        !password.isEmpty && !passwordErrorMessage.isEmpty ? Color.error :
-                                        Color.textSecondary.opacity(0.3),
-                                        lineWidth: 1
-                                    )
-                            )
-                            .foregroundColor(.textPrimary)
-                            .tint(.brandPrimary)
-                            .transition(.move(edge: .top).combined(with: .opacity))
+                        ZStack(alignment: .trailing) {
+                            if showPassword {
+                                TextField("Password", text: $password)
+                                    .font(.branding.body)
+                                    .padding()
+                                    .padding(.trailing, 32) // Make room for eye icon
+                                    .background(Color.inputBackground)
+                                    .cornerRadius(8)
+                                    .foregroundColor(.textPrimary)
+                                    .tint(.brandPrimary)
+                            } else {
+                                SecureField("Password", text: $password)
+                                    .font(.branding.body)
+                                    .padding()
+                                    .padding(.trailing, 32) // Make room for eye icon
+                                    .background(Color.inputBackground)
+                                    .cornerRadius(8)
+                                    .foregroundColor(.textPrimary)
+                                    .tint(.brandPrimary)
+                            }
+                            
+                            // Visibility Toggle
+                            Button(action: { showPassword.toggle() }) {
+                                Image(systemName: showPassword ? "eye" : "eye.slash")
+                                    .foregroundColor(.textSecondary)
+                                    .padding(.trailing, 16)
+                            }
+                        }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(
+                                    !password.isEmpty && !passwordErrorMessage.isEmpty ? Color.error :
+                                    Color.textSecondary.opacity(0.3),
+                                    lineWidth: 1
+                                )
+                        )
+                        .transition(.move(edge: .top).combined(with: .opacity))
                         
                         if !password.isEmpty && !passwordErrorMessage.isEmpty {
                             Text(passwordErrorMessage)

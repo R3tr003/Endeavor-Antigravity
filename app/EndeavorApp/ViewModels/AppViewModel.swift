@@ -127,6 +127,7 @@ class AppViewModel: ObservableObject {
     }
     
     func sendPasswordReset(email: String) {
+        let email = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         self.isLoading = true
         FirebaseService.shared.resetPassword(email: email) { [weak self] error in
             DispatchQueue.main.async {
@@ -147,19 +148,21 @@ class AppViewModel: ObservableObject {
     /// Tries to Log In first.
     /// If user not found (error 17011), it automatically attempts to Sign Up.
     func authenticate(email: String, password: String) {
-        let email = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedEmail = trimmedEmail.lowercased()
         
         self.isLoading = true
         self.errorMessage = nil
         self.emailCollisionDetected = false
         
         // 1. Attempt Login
-        FirebaseService.shared.signIn(email: email, password: password) { [weak self] result in
+        FirebaseService.shared.signIn(email: normalizedEmail, password: password) { [weak self] result in
             switch result {
             case .success(let user):
                 DispatchQueue.main.async {
                     print("✅ Login Successful: \(user.uid)")
-                    self?.handleAuthSuccess(user: user, email: email)
+                    // Save the trimmed (original case) email to preserve UI state
+                    self?.handleAuthSuccess(user: user, email: trimmedEmail)
                 }
                 
             case .failure(let error):
@@ -173,14 +176,14 @@ class AppViewModel: ObservableObject {
                     print("ℹ️ User not found (code \(nsError.code)), attempting Sign Up...")
                     
                     // 3. Attempt Sign Up
-                    FirebaseService.shared.signUp(email: email, password: password) { [weak self] signUpResult in
+                    FirebaseService.shared.signUp(email: normalizedEmail, password: password) { [weak self] signUpResult in
                         DispatchQueue.main.async {
                             self?.isLoading = false
                             
                             switch signUpResult {
                             case .success(let newUser):
                                 print("✅ Created new account: \(newUser.uid)")
-                                self?.handleAuthSuccess(user: newUser, email: email)
+                                self?.handleAuthSuccess(user: newUser, email: trimmedEmail)
                                 
                             case .failure(let signUpError):
                                 print("❌ Sign Up failed: \(signUpError.localizedDescription)")
@@ -338,8 +341,9 @@ class AppViewModel: ObservableObject {
         // Check if we need to load existing profile or start fresh
         if self.currentUser == nil && !email.isEmpty {
             // Check if profile exists in Firestore by EMAIL (not Firebase UID)
-            // Use the new method that finds a complete profile (with company)
-            FirebaseService.shared.findCompleteUserProfile(email: email) { [weak self] result in
+            // Use lowercased email for consistency with backend storage
+            let emailForQuery = email.lowercased()
+            FirebaseService.shared.findCompleteUserProfile(email: emailForQuery) { [weak self] result in
                 DispatchQueue.main.async {
                     if let (profile, company) = result {
                         self?.currentUser = profile
@@ -362,7 +366,7 @@ class AppViewModel: ObservableObject {
                             firstName: googleFirstName,
                             lastName: googleLastName,
                             role: "",
-                            email: email,
+                            email: email.lowercased(), // Ensure stored email is lowercase
                             location: "",
                             timeZone: "",
                             profileImageUrl: googlePhotoUrl

@@ -32,3 +32,6 @@ fastlane/test_output
 
 # Logs
 *.log
+
+# Agents Skills
+.agents/skills/
