@@ -36,11 +36,48 @@ echo "🚀 Starting Build Process for $DISPLAY_NAME..."
 # rm -rf "$DERIVED_DATA_PATH" 
 
 # 2. Check/Boot Simulator
-# 2. Check/Boot Simulator
 echo "📱 Checking Simulator..."
-SIMULATOR_ID="0C3A9573-3B4B-4F90-B8D3-D50ECE76B712"
 
-echo "📲 Using Simulator ID: $SIMULATOR_ID"
+# Get available simulators and pick one
+# Priority: 1. Booted iPhone, 2. Named $SIMULATOR_NAME, 3. Any available iPhone
+SIMULATOR_ID=$(xcrun simctl list devices available -j | python3 -c '
+import json, sys
+data = json.load(sys.stdin)
+devices = data.get("devices", {})
+# 1. Look for booted iPhones
+for runtime, dlist in devices.items():
+    if "iOS" in runtime:
+        for d in dlist:
+            if d.get("state") == "Booted":
+                print(d.get("udid"))
+                sys.exit(0)
+# 2. Look for named simulator
+target_name = sys.argv[1] if len(sys.argv) > 1 else ""
+if target_name:
+    for runtime, dlist in devices.items():
+        if "iOS" in runtime:
+            for d in dlist:
+                if target_name in d.get("name", ""):
+                    print(d.get("udid"))
+                    sys.exit(0)
+# 3. Fallback to any available iPhone
+for runtime, dlist in devices.items():
+    if "iOS" in runtime:
+        for d in dlist:
+            print(d.get("udid"))
+            sys.exit(0)
+' "$SIMULATOR_NAME")
+
+if [ -z "$SIMULATOR_ID" ]; then
+    echo "❌ No available simulators found."
+    exit 1
+fi
+
+# Get details for the destination specifier
+ACTUAL_SIM_NAME=$(xcrun simctl list devices | grep "$SIMULATOR_ID" | head -n 1 | sed -E 's/^[[:space:]]*//; s/ \([A-Fa-f0-9-]+\).*//')
+SIM_OS_VERSION=$(xcrun simctl list devices | grep -B 10 "$SIMULATOR_ID" | grep "iOS" | head -n 1 | sed -E 's/-- iOS //; s/ --//')
+
+echo "📲 Using Simulator: $ACTUAL_SIM_NAME ($SIMULATOR_ID) on iOS $SIM_OS_VERSION"
 
 # Check if booted
 IS_BOOTED=$(xcrun simctl list devices | grep "$SIMULATOR_ID" | grep "Booted")
@@ -48,20 +85,21 @@ if [ -z "$IS_BOOTED" ]; then
     echo "🔌 Booting simulator..."
     xcrun simctl boot "$SIMULATOR_ID"
     echo "⏳ Waiting for simulator to boot..."
-    sleep 10 # Give it a moment
-    open -a Simulator # Ensure the Simulator.app GUI is visible
+    sleep 5
+    open -a Simulator
 fi
 
 # 3. Build with xcodebuild
 echo "🔨 Building with Xcode..."
 
+DESTINATION="platform=iOS Simulator,id=$SIMULATOR_ID"
+echo "📍 Destination: $DESTINATION"
+
 xcodebuild build \
   -project "$PROJECT_PATH" \
   -scheme "$SCHEME_NAME" \
-  -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
-  -sdk iphonesimulator \
-  -derivedDataPath "$DERIVED_DATA_PATH" \
-  -quiet
+  -destination "$DESTINATION" \
+  -derivedDataPath "$DERIVED_DATA_PATH"
 
 if [ $? -ne 0 ]; then
     echo "❌ Build failed."
@@ -71,11 +109,20 @@ fi
 echo "✅ Build successful!"
 
 # 4. Locate Application Bundle
-# The path inside DerivedData depends on the architecture/SDK
-APP_BUNDLE=$(find "$DERIVED_DATA_PATH/Build/Products" -name "$APP_NAME.app" | head -n 1)
+# Search in the derived data path for the .app bundle
+echo "🔍 Searching for App Bundle in $DERIVED_DATA_PATH..."
+APP_BUNDLE=$(find "$DERIVED_DATA_PATH" -name "$APP_NAME.app" -type d | head -n 1)
 
 if [ -z "$APP_BUNDLE" ]; then
-     echo "❌ Could not find .app bundle in $DERIVED_DATA_PATH"
+     echo "❌ Could not find $APP_NAME.app in $DERIVED_DATA_PATH"
+     # Fallback: check default DerivedData just in case
+     DEFAULT_DD="$HOME/Library/Developer/Xcode/DerivedData"
+     echo "🔍 Checking fallback location: $DEFAULT_DD..."
+     APP_BUNDLE=$(find "$DEFAULT_DD" -name "$APP_NAME.app" -type d -mmin -60 | head -n 1)
+fi
+
+if [ -z "$APP_BUNDLE" ]; then
+     echo "❌ Could not find .app bundle anywhere."
      exit 1
 fi
 
