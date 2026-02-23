@@ -14,12 +14,13 @@ struct CustomTextField: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 4) {
                 Text(title)
-                    .font(.branding.inputLabel)
-                    .foregroundColor(isFocused ? .brandPrimary : .textSecondary)
+                    .font(.caption)
+                    .textCase(.uppercase)
+                    .foregroundColor(isFocused ? .brandPrimary : .secondary)
                 
                 if isRequired {
                     Text("*")
-                        .font(.branding.inputLabel)
+                        .font(.caption)
                         .foregroundColor(.error)
                 }
             }
@@ -27,22 +28,22 @@ struct CustomTextField: View {
             ZStack(alignment: .leading) {
                 if text.isEmpty && !isFocused {
                     Text(placeholder)
-                        .font(.branding.body)
-                        .foregroundColor(.textSecondary.opacity(0.5))
+                        .font(.body)
+                        .foregroundColor(.secondary.opacity(0.5))
                         .padding(.horizontal, 16)
                 }
                 
                 if isSecure {
                     SecureField("", text: $text)
-                        .font(.branding.body)
-                        .foregroundColor(.textPrimary)
+                        .font(.body)
+                        .foregroundColor(.primary)
                         .padding(16)
                         .textContentType(.none)
                         .focused($isFocused)
                 } else {
                     TextField("", text: $text)
-                        .font(.branding.body)
-                        .foregroundColor(.textPrimary)
+                        .font(.body)
+                        .foregroundColor(.primary)
                         .padding(16)
                         .keyboardType(keyboardType)
                         .textInputAutocapitalization(keyboardType == .URL ? .never : .sentences)
@@ -50,12 +51,12 @@ struct CustomTextField: View {
                         .focused($isFocused)
                 }
             }
-            .background(Color.inputBackground)
-            .cornerRadius(12)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(isFocused ? Color.brandPrimary : Color.clear, lineWidth: 1)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(isFocused ? Color.brandPrimary : Color.primary.opacity(0.05), lineWidth: isFocused ? 2 : 1)
             )
+            .shadow(color: isFocused ? Color.brandPrimary.opacity(0.2) : Color.clear, radius: 8, x: 0, y: 4)
             .animation(.easeInOut(duration: 0.2), value: isFocused)
         }
     }
@@ -68,6 +69,8 @@ struct CustomTextField_Previews: PreviewProvider {
             CustomTextField(title: "Last Name", placeholder: "e.g., Doe", text: .constant("Doe"), isRequired: true)
         }
         .padding()
-        .background(Color.background)
+        .background(
+            LinearGradient(colors: [.teal.opacity(0.2), .blue.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
+        )
     }
 }

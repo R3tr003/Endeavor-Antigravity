@@ -11,27 +11,79 @@ struct SettingsView: View {
     @State private var showDeleteError: Bool = false
     @State private var deleteErrorMessage: String = ""
     
+    // For scroll tracking
+    @State private var scrollOffset: CGFloat = 0
+    
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 24) {
-                    profileSection
-                    appearanceSection
-                    accountSection
-                    aboutSection
-                    deleteAccountSection
-                }
-                .padding(24)
-            }
-            .background(Color.background)
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        presentationMode.wrappedValue.dismiss()
+        StackNavigationView {
+            ZStack(alignment: .top) {
+                Color.background.edgesIgnoringSafeArea(.all)
+                
+                // Ambient Glow
+                Circle()
+                    .fill(Color.brandPrimary.opacity(0.15))
+                    .frame(width: 400, height: 400)
+                    .blur(radius: 100)
+                    .offset(x: 100, y: -200)
+                    .ignoresSafeArea()
+                
+                ScrollView(showsIndicators: false) {
+                    GeometryReader { proxy in
+                        Color.clear.preference(key: ScrollOffsetPreferenceKey.self, value: proxy.frame(in: .named("settingsScroll")).minY)
                     }
-                    .foregroundColor(.brandPrimary)
+                    .frame(height: 0)
+                    
+                    VStack(alignment: .leading, spacing: 32) {
+                        // Title
+                        Text("Settings")
+                            .font(.system(size: 40, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+                            .tracking(-1)
+                            .padding(.top, 40)
+                            .padding(.horizontal, 24)
+                        
+                        VStack(spacing: 24) {
+                            profileSection
+                            appearanceSection
+                            accountSection
+                            aboutSection
+                            deleteAccountSection
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 60)
+                    }
+                }
+                .coordinateSpace(name: "settingsScroll")
+                
+                // Floating navigation bar on scroll
+                if scrollOffset < -40 {
+                    HStack {
+                        Spacer()
+                        Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                            Text("Done")
+                                .font(.headline)
+                                .foregroundColor(.brandPrimary)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(.ultraThinMaterial, in: Capsule())
+                        }
+                    }
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .overlay(Rectangle().frame(height: 1).foregroundColor(.white.opacity(0.1)), alignment: .bottom)
+                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
+                    .ignoresSafeArea(edges: .top)
+                } else {
+                    HStack {
+                        Spacer()
+                        Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 28))
+                                .foregroundColor(.secondary)
+                                .symbolRenderingMode(.hierarchical)
+                        }
+                    }
+                    .padding()
                 }
             }
         }
@@ -51,10 +103,8 @@ struct SettingsView: View {
         .confirmationDialog("Delete Account", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
             Button("Delete Account", role: .destructive) {
                 if appViewModel.isGoogleUser {
-                    // Google users don't need password
                     performDeleteAccount(password: nil)
                 } else {
-                    // Email/password users need to enter password
                     showPasswordInput = true
                 }
             }
@@ -87,7 +137,6 @@ struct SettingsView: View {
             case .success:
                 presentationMode.wrappedValue.dismiss()
             case .failure(let error):
-                // Check if it's an authentication error (wrong password)
                 let nsError = error as NSError
                 if nsError.domain == "FIRAuthErrorDomain" || error.localizedDescription.contains("credential") || error.localizedDescription.contains("password") {
                     deleteErrorMessage = "Incorrect Password. Insert the correct password."
@@ -100,51 +149,72 @@ struct SettingsView: View {
         }
     }
     
+    // MARK: - Reusable Section Builder
+    private func settingsSection<Content: View>(title: String, isDestructive: Bool = false, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(title)
+                .font(.caption.weight(.bold))
+                .textCase(.uppercase)
+                .foregroundColor(isDestructive ? .red.opacity(0.8) : .secondary)
+                .padding(.leading, 8)
+            
+            VStack(spacing: 0) {
+                content()
+            }
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .stroke(isDestructive ? Color.red.opacity(0.2) : Color.white.opacity(0.15), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+        }
+    }
+    
     // MARK: - Profile Section
     private var profileSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("PROFILE")
-                .font(.branding.inputLabel)
-                .foregroundColor(.textSecondary)
-            
+        settingsSection(title: "Profile") {
             Button(action: { showEditProfile = true }) {
                 HStack {
-                    Image(systemName: "person.fill")
-                        .foregroundColor(.brandPrimary)
-                        .frame(width: 24)
+                    ZStack {
+                        Circle()
+                            .fill(Color.brandPrimary.opacity(0.15))
+                            .frame(width: 36, height: 36)
+                        Image(systemName: "person.fill")
+                            .foregroundColor(.brandPrimary)
+                            .font(.system(size: 16))
+                    }
                     
-                    Text("Edit Profile")
-                        .font(.branding.body)
-                        .foregroundColor(.textPrimary)
+                    Text("Edit Profile Data")
+                        .font(.body.weight(.medium))
+                        .foregroundColor(.primary)
                     
                     Spacer()
                     
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 14))
-                        .foregroundColor(.textSecondary)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.secondary.opacity(0.5))
                 }
                 .padding(16)
-                .background(Color.textSecondary.opacity(0.1))
-                .cornerRadius(12)
             }
         }
     }
     
     // MARK: - Appearance Section
     private var appearanceSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("APPEARANCE")
-                .font(.branding.inputLabel)
-                .foregroundColor(.textSecondary)
-            
+        settingsSection(title: "Appearance") {
             HStack {
-                Image(systemName: "paintbrush.fill")
-                    .foregroundColor(.brandPrimary)
-                    .frame(width: 24)
+                ZStack {
+                    Circle()
+                        .fill(Color.blue.opacity(0.15))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "paintbrush.fill")
+                        .foregroundColor(.blue)
+                        .font(.system(size: 16))
+                }
                 
                 Text("Theme")
-                    .font(.branding.body)
-                    .foregroundColor(.textPrimary)
+                    .font(.body.weight(.medium))
+                    .foregroundColor(.primary)
                 
                 Spacer()
                 
@@ -157,94 +227,89 @@ struct SettingsView: View {
                     Text("System").tag("System")
                 }
                 .pickerStyle(.menu)
-                .tint(.brandPrimary)
+                .tint(.primary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.primary.opacity(0.05), in: Capsule())
             }
             .padding(16)
-            .background(Color.textSecondary.opacity(0.1))
-            .cornerRadius(12)
         }
     }
     
     // MARK: - Account Section
     private var accountSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("ACCOUNT")
-                .font(.branding.inputLabel)
-                .foregroundColor(.textSecondary)
-            
+        settingsSection(title: "Account") {
             Button(action: { showLogoutConfirmation = true }) {
                 HStack {
-                    Image(systemName: "rectangle.portrait.and.arrow.right")
-                        .foregroundColor(.red)
-                        .frame(width: 24)
+                    ZStack {
+                        Circle()
+                            .fill(Color.red.opacity(0.15))
+                            .frame(width: 36, height: 36)
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .foregroundColor(.red)
+                            .font(.system(size: 16))
+                    }
                     
                     Text("Log Out")
-                        .font(.branding.body)
-                        .foregroundColor(.red)
+                        .font(.body.weight(.medium))
+                        .foregroundColor(.primary)
                     
                     Spacer()
                 }
                 .padding(16)
-                .background(Color.textSecondary.opacity(0.1))
-                .cornerRadius(12)
             }
         }
     }
     
     // MARK: - Delete Account Section
     private var deleteAccountSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("DANGER ZONE")
-                .font(.branding.inputLabel)
-                .foregroundColor(.red.opacity(0.8))
-            
+        settingsSection(title: "Danger Zone", isDestructive: true) {
             Button(action: { showDeleteConfirmation = true }) {
                 HStack {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.red)
-                        .frame(width: 24)
+                    ZStack {
+                        Circle()
+                            .fill(Color.red.opacity(0.15))
+                            .frame(width: 36, height: 36)
+                        Image(systemName: "trash.fill")
+                            .foregroundColor(.red)
+                            .font(.system(size: 16))
+                    }
                     
                     Text("Delete Account")
-                        .font(.branding.body)
+                        .font(.body.weight(.bold))
                         .foregroundColor(.red)
                     
                     Spacer()
                     
                     if appViewModel.isLoading {
                         ProgressView()
-                            .scaleEffect(0.8)
                     }
                 }
                 .padding(16)
-                .background(Color.red.opacity(0.1))
-                .cornerRadius(12)
             }
             .disabled(appViewModel.isLoading)
         }
-        .padding(.top, 40) // Extra spacing to push it further down
+        .padding(.top, 24)
     }
     
     // MARK: - About Section
     private var aboutSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("ABOUT")
-                .font(.branding.inputLabel)
-                .foregroundColor(.textSecondary)
-            
+        settingsSection(title: "About") {
             HStack {
                 Text("Version")
-                    .font(.branding.body)
-                    .foregroundColor(.textPrimary)
+                    .font(.body.weight(.medium))
+                    .foregroundColor(.primary)
                 
                 Spacer()
                 
-                Text("0.0.1")
-                    .font(.branding.body)
-                    .foregroundColor(.textSecondary)
+                Text("0.1.1")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(Color.primary.opacity(0.05), in: Capsule())
             }
             .padding(16)
-            .background(Color.textSecondary.opacity(0.1))
-            .cornerRadius(12)
         }
     }
 }

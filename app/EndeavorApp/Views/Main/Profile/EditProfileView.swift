@@ -27,6 +27,19 @@ struct EditProfileView: View {
     @State private var showingAlert = false
     @State private var alertMessage = ""
     
+    // Background animation
+    @State private var animateGlow = false
+    
+    // Email change state
+    @State private var showEmailChange = false
+    @State private var newEmail = ""
+    @State private var emailChangePassword = ""
+    @State private var showEmailChangeSuccess = false
+    @State private var showEmailChangeError = false
+    @State private var emailChangeErrorMessage = ""
+    @FocusState private var newEmailFocused: Bool
+    @FocusState private var passwordFocused: Bool
+    
     // Available options for Focus
     let availableChallenges = ["Hiring", "Fundraising", "Go-to-market", "Ops", "Product", "Intl Expansion"]
     let availableExpertise = ["Scaling", "Product", "Marketing", "Investment", "Strategy", "Operations", "Sales", "Legal"]
@@ -109,46 +122,89 @@ struct EditProfileView: View {
     
     var body: some View {
         ZStack {
+            // Immersive background
             Color.background.edgesIgnoringSafeArea(.all)
             
+            // Ambient glow
+            Circle()
+                .fill(Color.brandPrimary.opacity(0.12))
+                .frame(width: 400, height: 400)
+                .blur(radius: 100)
+                .offset(y: animateGlow ? -280 : -250)
+                .ignoresSafeArea()
+            
             VStack(spacing: 0) {
-                // Header
+                // MARK: - Floating Glass Header
                 HStack {
                     Button(action: { presentationMode.wrappedValue.dismiss() }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(.textSecondary)
+                        ZStack {
+                            Circle()
+                                .fill(.ultraThinMaterial)
+                                .frame(width: 36, height: 36)
+                                .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                            
+                            Image(systemName: "xmark")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.primary)
+                        }
                     }
                     
                     Spacer()
                     
                     Text("Edit Profile")
-                        .font(.branding.cardTitle)
-                        .foregroundColor(.textPrimary)
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
                     
                     Spacer()
                     
                     Button(action: saveChanges) {
                         Text("Save")
-                            .font(.branding.body.weight(.bold))
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(.brandPrimary)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(.ultraThinMaterial, in: Capsule())
+                            .overlay(Capsule().stroke(Color.brandPrimary.opacity(0.3), lineWidth: 1))
                     }
                 }
-                .padding(24)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+                .background(.regularMaterial)
                 
-                // Tabs
-                HStack(spacing: 0) {
-                    editTab(title: "Personal")
-                    editTab(title: "Company")
-                    editTab(title: "Focus")
+                // MARK: - Glass Pill Tabs
+                HStack(spacing: 12) {
+                    ForEach(["Personal", "Company", "Focus"], id: \.self) { tab in
+                        Button(action: {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                selectedTab = tab
+                            }
+                        }) {
+                            Text(tab)
+                                .font(.system(size: 14, weight: selectedTab == tab ? .bold : .medium, design: .rounded))
+                                .foregroundColor(selectedTab == tab ? .white : .primary)
+                                .padding(.vertical, 10)
+                                .padding(.horizontal, 20)
+                                .background(
+                                    ZStack {
+                                        if selectedTab == tab {
+                                            Capsule().fill(Color.brandPrimary)
+                                        } else {
+                                            Capsule().fill(.ultraThinMaterial)
+                                        }
+                                    }
+                                )
+                                .overlay(
+                                    Capsule().stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                )
+                        }
+                    }
                 }
-                .overlay(
-                    Rectangle().frame(height: 1).foregroundColor(Color.textSecondary.opacity(0.3)),
-                    alignment: .bottom
-                )
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
                 
-                ScrollView {
-                    VStack {
+                // MARK: - Content
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
                         if selectedTab == "Personal" {
                             personalEditContent
                         } else if selectedTab == "Company" {
@@ -157,8 +213,9 @@ struct EditProfileView: View {
                             focusEditContent
                         }
                     }
-                    .padding(24)
+                    .padding(20)
                     .padding(.bottom, 40)
+                    .animation(.easeInOut(duration: 0.3), value: selectedTab)
                 }
             }
         }
@@ -179,102 +236,258 @@ struct EditProfileView: View {
                 challenges = company.challenges
                 desiredExpertise = company.desiredExpertise
             }
+            
+            withAnimation(.easeInOut(duration: 5).repeatForever(autoreverses: true)) {
+                animateGlow.toggle()
+            }
         }
         .alert(isPresented: $showingAlert) {
             Alert(title: Text("Missing Information"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
         }
-    }
-    
-    func editTab(title: String) -> some View {
-        Button(action: { selectedTab = title }) {
-            VStack(spacing: 12) {
-                Text(title)
-                    .font(.branding.body.weight(selectedTab == title ? .bold : .regular))
-                    .foregroundColor(selectedTab == title ? .brandPrimary : .textSecondary)
-                
-                Rectangle()
-                    .fill(selectedTab == title ? Color.brandPrimary : Color.clear)
-                    .frame(height: 2)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .background(Color.background)
-    }
-    
-    var personalEditContent: some View {
-        VStack(spacing: 16) {
-            CustomTextField(title: "First Name", placeholder: "", text: $firstName, isRequired: true)
-            CustomTextField(title: "Last Name", placeholder: "", text: $lastName, isRequired: true)
-            CustomTextField(title: "Role/Title", placeholder: "", text: $role, isRequired: true)
-            
-            CustomTextEditor(title: "About You", placeholder: "Tell us a bit about yourself...", text: $personalBio, characterLimit: 300, isRequired: true, height: 100)
-            
-            // Read only email
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Work Email")
-                    .font(.branding.inputLabel)
-                    .foregroundColor(.textSecondary)
-                Text(appViewModel.currentUser?.email ?? "No Email")
-                    .font(.branding.body)
-                    .foregroundColor(.textSecondary)
-                    .padding(16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.inputBackground.opacity(0.5))
-                    .cornerRadius(12)
-            }
-        }
-    }
-    
-    var companyEditContent: some View {
-        VStack(spacing: 16) {
-            CustomTextField(title: "Company Name", placeholder: "", text: $companyName, isRequired: true)
-            CustomTextField(title: "Website", placeholder: "", text: $website, isRequired: true)
-            
-            // HQ Country Dropdown
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 4) {
-                    Text("HQ Country")
-                        .font(.branding.inputLabel)
-                        .foregroundColor(.textSecondary)
-                    Text("*")
-                        .font(.branding.inputLabel)
-                        .foregroundColor(.error)
+        .alert("Verification Email Sent", isPresented: $showEmailChangeSuccess) {
+            Button("OK", role: .cancel) {
+                withAnimation {
+                    showEmailChange = false
+                    newEmail = ""
+                    emailChangePassword = ""
                 }
-                
-                Menu {
+            }
+        } message: {
+            Text("A verification link has been sent to your new email. Please check your inbox and click the link to complete the change.")
+        }
+        .alert("Email Change Failed", isPresented: $showEmailChangeError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(emailChangeErrorMessage)
+        }
+    }
+    
+    // MARK: - Glass Input Helper
+    func glassTextField(title: String, placeholder: String, text: Binding<String>, isRequired: Bool = false) -> some View {
+        GlassTextFieldView(title: title, placeholder: placeholder, text: text, isRequired: isRequired)
+    }
+    
+    func glassTextEditor(title: String, placeholder: String, text: Binding<String>, charLimit: Int, isRequired: Bool = false) -> some View {
+        GlassTextEditorView(title: title, placeholder: placeholder, text: text, charLimit: charLimit, isRequired: isRequired)
+    }
+    
+    func glassDropdown(title: String, selection: String, placeholder: String, isRequired: Bool = false, @ViewBuilder menuContent: () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 4) {
+                Text(title)
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary.opacity(0.8))
+                if isRequired {
+                    Text("*")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.red)
+                }
+            }
+            
+            Menu {
+                menuContent()
+            } label: {
+                HStack {
+                    Text(selection.isEmpty ? placeholder : selection)
+                        .font(.system(size: 16, design: .rounded))
+                        .foregroundColor(selection.isEmpty ? .secondary.opacity(0.5) : .primary)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.secondary)
+                }
+                .padding(16)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+            }
+            .transaction { $0.animation = nil }
+        }
+    }
+    
+    // MARK: - Sections wrapped in glass card
+    func glassSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(title)
+                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .textCase(.uppercase)
+                .foregroundColor(.primary.opacity(0.7))
+                .kerning(1)
+                .padding(.horizontal, 4)
+            
+            VStack(spacing: 16) {
+                content()
+            }
+            .padding(20)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+            )
+        }
+    }
+    
+    // MARK: - Personal Tab
+    var personalEditContent: some View {
+        VStack(spacing: 24) {
+            glassSection(title: "Identity") {
+                glassTextField(title: "First Name", placeholder: "Enter your first name", text: $firstName, isRequired: true)
+                glassTextField(title: "Last Name", placeholder: "Enter your last name", text: $lastName, isRequired: true)
+                glassTextField(title: "Role/Title", placeholder: "e.g. CEO, CTO", text: $role, isRequired: true)
+            }
+            
+            glassSection(title: "About You") {
+                glassTextEditor(title: "Bio", placeholder: "Tell us a bit about yourself...", text: $personalBio, charLimit: 300, isRequired: true)
+            }
+            
+            glassSection(title: "Contact") {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Work Email")
+                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary.opacity(0.8))
+                    
+                    Text(appViewModel.currentUser?.email ?? "No Email")
+                        .font(.system(size: 16, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .padding(16)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                        )
+                    
+                    Button(action: {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                            showEmailChange.toggle()
+                        }
+                    }) {
+                        HStack(spacing: 4) {
+                            Text("Do you want to change the email?")
+                                .foregroundColor(.brandPrimary)
+                            Image(systemName: showEmailChange ? "chevron.up" : "chevron.down")
+                                .foregroundColor(.brandPrimary)
+                                .font(.system(size: 11, weight: .semibold))
+                        }
+                        .font(.system(size: 13, design: .rounded))
+                    }
+                    
+                    if showEmailChange {
+                        VStack(spacing: 16) {
+                            // New Email field with focus glow
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack(spacing: 4) {
+                                    Text("New Email")
+                                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                                        .foregroundColor(.primary.opacity(0.8))
+                                    Text("*")
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .foregroundColor(.red)
+                                }
+                                
+                                TextField("Enter your new email", text: $newEmail)
+                                    .font(.system(size: 16, design: .rounded))
+                                    .foregroundColor(.primary)
+                                    .autocapitalization(.none)
+                                    .keyboardType(.emailAddress)
+                                    .focused($newEmailFocused)
+                                    .padding(16)
+                                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .stroke(
+                                                newEmailFocused ? Color.brandPrimary :
+                                                Color.white.opacity(0.15),
+                                                lineWidth: newEmailFocused ? 1.5 : 1
+                                            )
+                                    )
+                                    .animation(.easeInOut(duration: 0.2), value: newEmailFocused)
+                            }
+                            
+                            if !appViewModel.isGoogleUser {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("Current Password")
+                                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                                        .foregroundColor(.primary.opacity(0.8))
+                                    
+                                    SecureField("Enter your current password", text: $emailChangePassword)
+                                        .font(.system(size: 16, design: .rounded))
+                                        .foregroundColor(.primary)
+                                        .focused($passwordFocused)
+                                        .disabled(!isNewEmailValid)
+                                        .padding(16)
+                                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 16)
+                                                .stroke(
+                                                    passwordFocused ? Color.brandPrimary :
+                                                    Color.white.opacity(isNewEmailValid ? 0.15 : 0.05),
+                                                    lineWidth: passwordFocused ? 1.5 : 1
+                                                )
+                                        )
+                                        .opacity(isNewEmailValid ? 1.0 : 0.4)
+                                        .animation(.easeInOut(duration: 0.25), value: isNewEmailValid)
+                                        .animation(.easeInOut(duration: 0.2), value: passwordFocused)
+                                }
+                            }
+                            
+                            Text("A verification link will be sent to the new email. Your email will only be updated after you verify it.")
+                                .font(.system(size: 12, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                            
+                            Button(action: sendEmailChange) {
+                                HStack {
+                                    if appViewModel.isLoading {
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                            .scaleEffect(0.8)
+                                    }
+                                    Text("Send Verification Email")
+                                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 14)
+                                .background(isEmailChangeValid ? Color.brandPrimary : Color.primary.opacity(0.2))
+                                .clipShape(RoundedRectangle(cornerRadius: 14))
+                            }
+                            .disabled(!isEmailChangeValid || appViewModel.isLoading)
+                        }
+                        .padding(16)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.brandPrimary.opacity(0.2), lineWidth: 1)
+                        )
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Company Tab
+    var companyEditContent: some View {
+        VStack(spacing: 24) {
+            glassSection(title: "Company Info") {
+                glassTextField(title: "Company Name", placeholder: "Enter company name", text: $companyName, isRequired: true)
+                glassTextField(title: "Website", placeholder: "https://example.com", text: $website, isRequired: true)
+            }
+            
+            glassSection(title: "Headquarters") {
+                glassDropdown(title: "HQ Country", selection: hqCountry, placeholder: "Select a country", isRequired: true) {
                     ForEach(availableCountries, id: \.self) { country in
                         Button(country) {
                             hqCountry = country
-                            hqCity = "" // Reset city when country changes
+                            hqCity = ""
                         }
                     }
-                } label: {
-                    HStack {
-                        Text(hqCountry.isEmpty ? "Select a country" : hqCountry)
-                            .foregroundColor(hqCountry.isEmpty ? .textSecondary.opacity(0.5) : .textPrimary)
-                        Spacer()
-                        Image(systemName: "chevron.down")
-                            .foregroundColor(.textSecondary)
-                    }
-                    .padding(16)
-                    .background(Color.inputBackground)
-                    .cornerRadius(12)
-                }
-                .transaction { $0.animation = nil }
-            }
-            
-            // HQ City Dropdown
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 4) {
-                    Text("HQ City")
-                        .font(.branding.inputLabel)
-                        .foregroundColor(.textSecondary)
-                    Text("*")
-                        .font(.branding.inputLabel)
-                        .foregroundColor(.error)
                 }
                 
-                Menu {
+                glassDropdown(title: "HQ City", selection: hqCity, placeholder: hqCountry.isEmpty ? "Select a country first" : "Select a city", isRequired: true) {
                     if hqCountry.isEmpty {
                         Button("Select a country first", action: {})
                     } else {
@@ -284,70 +497,67 @@ struct EditProfileView: View {
                             }
                         }
                     }
-                } label: {
-                    HStack {
-                        Text(hqCity.isEmpty ? "Select a city" : hqCity)
-                            .foregroundColor(hqCity.isEmpty ? .textSecondary.opacity(0.5) : .textPrimary)
-                        Spacer()
-                        Image(systemName: "chevron.down")
-                            .foregroundColor(.textSecondary)
-                    }
-                    .padding(16)
-                    .background(Color.inputBackground)
-                    .cornerRadius(12)
                 }
-                .transaction { $0.animation = nil }
                 .disabled(hqCountry.isEmpty)
             }
-
             
-            // About Company
-            CustomTextEditor(title: "About Company", placeholder: "Describe your company mission and goals...", text: $companyBio, characterLimit: 1000, isRequired: true, height: 150)
+            glassSection(title: "About Company") {
+                glassTextEditor(title: "Company Bio", placeholder: "Describe your company mission and goals...", text: $companyBio, charLimit: 1000, isRequired: true)
+            }
         }
     }
     
+    // MARK: - Focus Tab
     var focusEditContent: some View {
         VStack(spacing: 24) {
-            // Challenges
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 4) {
-                    Text("Your Top 3 Challenges")
-                        .font(.branding.inputLabel)
-                        .foregroundColor(.textSecondary)
-                    Text("*")
-                        .font(.branding.inputLabel)
-                        .foregroundColor(.error)
-                }
-                
+            glassSection(title: "Your Top 3 Challenges") {
                 FlowLayout(spacing: 8) {
                     ForEach(availableChallenges, id: \.self) { challenge in
-                        SelectablePill(
-                            title: challenge,
-                            isSelected: challenges.contains(challenge),
-                            action: { toggleChallenge(challenge) }
-                        )
+                        Button(action: { toggleChallenge(challenge) }) {
+                            Text(challenge)
+                                .font(.system(size: 14, weight: challenges.contains(challenge) ? .bold : .medium, design: .rounded))
+                                .foregroundColor(challenges.contains(challenge) ? .white : .primary)
+                                .padding(.vertical, 10)
+                                .padding(.horizontal, 16)
+                                .background(
+                                    challenges.contains(challenge)
+                                    ? AnyShapeStyle(Color.brandPrimary)
+                                    : AnyShapeStyle(.ultraThinMaterial),
+                                    in: Capsule()
+                                )
+                                .overlay(
+                                    Capsule().stroke(
+                                        challenges.contains(challenge) ? Color.brandPrimary.opacity(0.5) : Color.white.opacity(0.15),
+                                        lineWidth: 1
+                                    )
+                                )
+                        }
                     }
                 }
             }
             
-            // Desired Expertise
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 4) {
-                    Text("Desired Mentor Expertise")
-                        .font(.branding.inputLabel)
-                        .foregroundColor(.textSecondary)
-                    Text("*")
-                        .font(.branding.inputLabel)
-                        .foregroundColor(.error)
-                }
-                
+            glassSection(title: "Desired Mentor Expertise") {
                 FlowLayout(spacing: 8) {
                     ForEach(availableExpertise, id: \.self) { expertise in
-                        SelectablePill(
-                            title: expertise,
-                            isSelected: desiredExpertise.contains(expertise),
-                            action: { toggleExpertise(expertise) }
-                        )
+                        Button(action: { toggleExpertise(expertise) }) {
+                            Text(expertise)
+                                .font(.system(size: 14, weight: desiredExpertise.contains(expertise) ? .bold : .medium, design: .rounded))
+                                .foregroundColor(desiredExpertise.contains(expertise) ? .white : .primary)
+                                .padding(.vertical, 10)
+                                .padding(.horizontal, 16)
+                                .background(
+                                    desiredExpertise.contains(expertise)
+                                    ? AnyShapeStyle(Color.brandPrimary)
+                                    : AnyShapeStyle(.ultraThinMaterial),
+                                    in: Capsule()
+                                )
+                                .overlay(
+                                    Capsule().stroke(
+                                        desiredExpertise.contains(expertise) ? Color.brandPrimary.opacity(0.5) : Color.white.opacity(0.15),
+                                        lineWidth: 1
+                                    )
+                                )
+                        }
                     }
                 }
             }
@@ -406,6 +616,140 @@ struct EditProfileView: View {
         appViewModel.saveProfileChanges()
         
         presentationMode.wrappedValue.dismiss()
+    }
+    
+    var isEmailChangeValid: Bool {
+        let hasPassword = appViewModel.isGoogleUser || !emailChangePassword.isEmpty
+        return isNewEmailValid && hasPassword
+    }
+    
+    var isNewEmailValid: Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,64}"
+        let emailPred = NSPredicate(format: "SELF MATCHES %@", emailRegEx)
+        return emailPred.evaluate(with: newEmail)
+    }
+    
+    func sendEmailChange() {
+        let password = appViewModel.isGoogleUser ? nil : emailChangePassword
+        appViewModel.changeEmail(newEmail: newEmail.lowercased(), password: password) { result in
+            switch result {
+            case .success:
+                showEmailChangeSuccess = true
+            case .failure(let error):
+                let nsError = error as NSError
+                let desc = error.localizedDescription
+                // Firebase error code 17007 = email already in use
+                if nsError.code == 17007 || desc.contains("email-already-in-use") || desc.contains("EMAIL_ALREADY_IN_USE") || desc.contains("already in use") {
+                    emailChangeErrorMessage = "This email is already associated with another account. Please enter a different email."
+                } else if nsError.code == 17004 || nsError.code == 17009 || desc.contains("INVALID_LOGIN_CREDENTIALS") || desc.contains("credential") || desc.contains("wrong-password") {
+                    emailChangeErrorMessage = "Incorrect password. Please try again."
+                } else if desc.contains("email") || nsError.code == 17008 {
+                    emailChangeErrorMessage = "Invalid email address. Please check and try again."
+                } else {
+                    emailChangeErrorMessage = desc
+                }
+                showEmailChangeError = true
+            }
+        }
+    }
+}
+
+// MARK: - Glass TextField with Focus Glow
+struct GlassTextFieldView: View {
+    let title: String
+    let placeholder: String
+    @Binding var text: String
+    var isRequired: Bool = false
+    @FocusState private var isFocused: Bool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 4) {
+                Text(title)
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary.opacity(0.8))
+                if isRequired {
+                    Text("*")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.red)
+                }
+            }
+            
+            TextField(placeholder, text: $text)
+                .font(.system(size: 16, design: .rounded))
+                .foregroundColor(.primary)
+                .focused($isFocused)
+                .padding(16)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(
+                            isFocused ? Color.brandPrimary : Color.white.opacity(0.15),
+                            lineWidth: isFocused ? 1.5 : 1
+                        )
+                )
+                .animation(.easeInOut(duration: 0.2), value: isFocused)
+        }
+    }
+}
+
+// MARK: - Glass TextEditor with Focus Glow
+struct GlassTextEditorView: View {
+    let title: String
+    let placeholder: String
+    @Binding var text: String
+    var charLimit: Int
+    var isRequired: Bool = false
+    @FocusState private var isFocused: Bool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 4) {
+                Text(title)
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary.opacity(0.8))
+                if isRequired {
+                    Text("*")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.red)
+                }
+            }
+            
+            ZStack(alignment: .topLeading) {
+                TextEditor(text: $text)
+                    .font(.system(size: 16, design: .rounded))
+                    .foregroundColor(.primary)
+                    .scrollContentBackground(.hidden)
+                    .frame(minHeight: 100, maxHeight: 160)
+                    .padding(12)
+                    .focused($isFocused)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(
+                                isFocused ? Color.brandPrimary : Color.white.opacity(0.15),
+                                lineWidth: isFocused ? 1.5 : 1
+                            )
+                    )
+                    .animation(.easeInOut(duration: 0.2), value: isFocused)
+                
+                if text.isEmpty {
+                    Text(placeholder)
+                        .font(.system(size: 16, design: .rounded))
+                        .foregroundColor(.secondary.opacity(0.5))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 20)
+                        .allowsHitTesting(false)
+                }
+            }
+            
+            HStack {
+                Spacer()
+                Text("\(text.count)/\(charLimit)")
+                    .font(.system(size: 11, design: .rounded))
+                    .foregroundColor(text.count > charLimit ? .red : .secondary)
+            }
+        }
     }
 }
 

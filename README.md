@@ -2,6 +2,16 @@
 
 Endeavor is a native iOS application built with SwiftUI, designed to support entrepreneurs with tools for networking, growth tracking, and AI-guided assistance.
 
+## ✨ Recent Updates (Liquid Glass Redesign & Firebase Integration)
+The application has recently undergone a major UI/UX overhaul and backend integration:
+- **Liquid Glass Aesthetic:** Implemented a modern, dark-themed UI featuring ultra-thin materials, glassmorphism effects, and vibrant brand primary accents (teal/green).
+- **Smooth Animations & Focus Tracking:** Added custom focus glows to all text inputs (Login, Onboarding, Profile Editing) and fluid background animations.
+- **Firebase Authentication:** fully functional Email/Password and Google Sign-In flows, including password reset functionality.
+- **Firestore Integration:** User and Company profiles are now fully synchronized with Firestore. Data is safely read and written asynchronously.
+- **Robust Profile Editing:** Users can edit their personal and company details. Modifications are buffered locally and only saved to Firestore upon explicit confirmation.
+- **Advanced Email Management:** Implemented a secure email change flow that checks Firestore for duplicate emails *before* re-authenticating the user and sending a verification link, bypassing Firebase Auth enumeration protection limits.
+- **Onboarding Flow:** Polished multi-step onboarding process saving directly to the centralized `AppViewModel` and Firestore.
+
 ## 📋 Prerequisites
 - **Xcode 15+** (iOS 17+ SDK)
 - **Swift 5.9+**

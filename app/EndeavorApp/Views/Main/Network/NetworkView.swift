@@ -2,6 +2,7 @@ import SwiftUI
 
 struct NetworkView: View {
     @State private var searchText: String = ""
+    @State private var animateGlow = false
     
     // Mock Data
     private let profiles = [
@@ -11,113 +12,146 @@ struct NetworkView: View {
     ]
     
     var body: some View {
-        StackNavigationView { // Helper for navigation bar
-            VStack(spacing: 24) {
-                // Header
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Mentor & Entrepreneur Network")
-                        .font(.branding.largeTitle)
-                        .foregroundColor(.textPrimary)
-                    
-                    Text("Find the right expert to help you grow.")
-                        .font(.branding.subtitle)
-                        .foregroundColor(.textSecondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+        StackNavigationView {
+            ZStack(alignment: .top) {
+                // Immersive Background
+                Color.background.edgesIgnoringSafeArea(.all)
                 
-                // Search Bar
-                HStack(spacing: 12) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.textSecondary)
-                    TextField("", text: $searchText)
-                        .placeholder(when: searchText.isEmpty) {
-                            Text("Search by name, sector, or expertise...")
-                                .foregroundColor(.textSecondary.opacity(0.5))
-                        }
-                        .foregroundColor(.textPrimary)
-                }
-                .padding()
-                .background(Color.inputBackground)
-                .cornerRadius(12)
-                .frame(height: 48)
-                
-                // Content List
-                ScrollView {
-                    VStack(spacing: 16) {
-                        // Card 1
-                        networkCard(
-                            imageName: "",
-                            name: "Sarah Chen",
-                            role: "CEO at Innovate Inc.",
-                            tags: ["Scaling", "Fundraising"]
-                        )
+                GeometryReader { proxy in
+                    ZStack {
+                        Circle()
+                            .fill(Color("TealDark", bundle: nil).opacity(0.15))
+                            .frame(width: proxy.size.width * 1.5, height: proxy.size.width * 1.5)
+                            .blur(radius: 100)
+                            .offset(x: animateGlow ? -100 : 50, y: animateGlow ? 150 : -50)
                         
-                        // Card 2 (Placeholder)
-                       networkCard(
-                           imageName: "",
-                           name: "David Miller",
-                           role: "Partner at Greylock",
-                           tags: ["Investment", "Strategy"]
-                       )
+                        Circle()
+                            .fill(Color.orange.opacity(0.1))
+                            .frame(width: proxy.size.width * 1.2, height: proxy.size.width * 1.2)
+                            .blur(radius: 120)
+                            .offset(x: animateGlow ? 100 : -100, y: animateGlow ? -200 : -100)
                     }
-                    .padding(.bottom, 80)
+                    .ignoresSafeArea()
+                    .onAppear {
+                        withAnimation(.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
+                            animateGlow = true
+                        }
+                    }
+                }
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 32) {
+                        // Header
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Mentor\nNetwork")
+                                .font(.system(size: 42, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                                .tracking(-1.5)
+                                .lineSpacing(-4)
+                            
+                            Text("Find the right expert to help you grow.")
+                                .font(.headline)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.top, 16)
+                        
+                        // Glass Search Bar
+                        HStack(spacing: 12) {
+                            Image(systemName: "magnifyingglass")
+                                .foregroundColor(.secondary)
+                            TextField("", text: $searchText)
+                                .placeholder(when: searchText.isEmpty) {
+                                    Text("Search by name or sector...")
+                                        .foregroundColor(.secondary.opacity(0.6))
+                                }
+                                .foregroundColor(.primary)
+                        }
+                        .padding()
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        )
+                        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+                        
+                        // Content List
+                        VStack(spacing: 20) {
+                            networkCard(
+                                imageName: "",
+                                name: "Sarah Chen",
+                                role: "CEO at Innovate Inc.",
+                                tags: ["Scaling", "Fundraising"]
+                            )
+                            
+                            networkCard(
+                                imageName: "",
+                                name: "David Miller",
+                                role: "Partner at Greylock",
+                                tags: ["Investment", "Strategy"]
+                            )
+                        }
+                        .padding(.bottom, 120) // Space for floating tab bar
+                    }
+                    .padding(.horizontal, 24)
                 }
             }
-            .padding(24)
         }
     }
     
     @ViewBuilder
     func networkCard(imageName: String, name: String, role: String, tags: [String]) -> some View {
         DashboardCard {
-            VStack(spacing: 16) {
-                // Avatar
-                Circle()
-                    .fill(Color.inputBackground)
-                    .frame(width: 80, height: 80)
-                    .overlay(
-                        // Placeholder image or real image
-                        Image(systemName: "person.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.textSecondary)
-                    )
-                
-                // Info
-                VStack(spacing: 4) {
-                    Text(name)
-                        .font(.branding.profileName)
-                        .foregroundColor(.textPrimary)
+            VStack(spacing: 20) {
+                // Top section: Avatar and Info
+                HStack(spacing: 16) {
+                    Circle()
+                        .fill(Color.primary.opacity(0.05))
+                        .frame(width: 60, height: 60)
+                        .overlay(
+                            Image(systemName: "person.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(.secondary.opacity(0.5))
+                        )
+                        .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
                     
-                    Text(role)
-                        .font(.branding.inputLabel)
-                        .foregroundColor(.textSecondary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(name)
+                            .font(.title3.weight(.bold))
+                            .foregroundColor(.primary)
+                        
+                        Text(role)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
                 }
                 
                 // Tags
                 HStack(spacing: 8) {
                     ForEach(tags, id: \.self) { tag in
                         Text(tag)
-                            .font(.branding.caption)
-                            .foregroundColor(.textSecondary)
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 16)
-                            .background(Color.inputBackground)
-                            .cornerRadius(20)
+                            .font(.caption.weight(.medium))
+                            .foregroundColor(.primary)
+                            .padding(.vertical, 6)
+                            .padding(.horizontal, 12)
+                            .background(Color.primary.opacity(0.05), in: Capsule())
                     }
+                    Spacer()
                 }
                 
-                // Button
+                // Action Button
                 Button(action: {}) {
                     Text("View Profile")
-                        .font(.branding.body.weight(.bold))
-                        .foregroundColor(.background)
+                        .font(.headline)
+                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
+                        .padding(.vertical, 14)
                         .background(Color.brandPrimary)
-                        .cornerRadius(12)
+                        .clipShape(Capsule())
+                        .shadow(color: Color.brandPrimary.opacity(0.3), radius: 8, x: 0, y: 4)
                 }
             }
-            .padding(20)
+            .padding(24)
         }
     }
 }
@@ -152,7 +186,6 @@ struct StackNavigationView<Content: View>: View {
         .edgesIgnoringSafeArea(.bottom) // Allow scrolling under tab bar
     }
 }
-
 
 struct NetworkView_Previews: PreviewProvider {
     static var previews: some View {

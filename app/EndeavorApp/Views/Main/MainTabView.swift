@@ -4,12 +4,19 @@ struct MainTabView: View {
     @State private var selectedTab: Int = 0
     @EnvironmentObject var appViewModel: AppViewModel
     
+    // Hide native tab bar helper for iOS 16+
+    init() {
+        UITabBar.appearance().isHidden = true
+    }
+    
     var body: some View {
         ZStack(alignment: .bottom) {
             Color.background.edgesIgnoringSafeArea(.all)
             
             // Content
             TabView(selection: $selectedTab) {
+                // Ensure the content scrolls under the floating tab bar by adding bottom padding internally if needed,
+                // or letting it just underlap.
                 HomeView()
                     .tag(0)
                 
@@ -19,9 +26,13 @@ struct MainTabView: View {
                 // AI Guide (Placeholder)
                 ZStack {
                     Color.background.edgesIgnoringSafeArea(.all)
-                    Text("AI Guide Coming Soon")
-                        .font(.branding.cardTitle)
-                        .foregroundColor(.textPrimary)
+                    VStack {
+                        Spacer()
+                        Text("AI Guide Coming Soon")
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundColor(.textPrimary)
+                        Spacer()
+                    }
                 }
                 .tag(2)
                 
@@ -31,49 +42,49 @@ struct MainTabView: View {
                 ProfileView()
                     .tag(4)
             }
-            // Hiding standard tab bar to use custom one if needed, 
-            // but for simplicity and native behavior we can use .toolbar or standard TabView
-            // However, spec asks for "custom tab bar" behavior/look.
-            // Using standard TabView with UITabBarAppearance is usually safer, 
-            // but for exact "5 tab icons equalized" and specific colors, standard might work.
-            // Let's customize the standard one via init() in App or here.
-            .onAppear {
-                let appearance = UITabBarAppearance()
-                appearance.configureWithOpaqueBackground()
-                appearance.backgroundColor = UIColor(Color.background)
-                appearance.shadowColor = UIColor(Color.textSecondary.opacity(0.1)) // Border top
-                
-                UITabBar.appearance().standardAppearance = appearance
-                UITabBar.appearance().scrollEdgeAppearance = appearance
-            }
-            .tabViewStyle(DefaultTabViewStyle())
-            
-            // Custom Tab Bar Overlay (Creating a custom one to ensure exact spec match)
-            VStack {
-                Spacer()
-                HStack(spacing: 0) {
-                    TabItem(icon: "house", title: "Home", isSelected: selectedTab == 0) { selectedTab = 0 }
-                    TabItem(icon: "person.3", title: "Network", isSelected: selectedTab == 1) { selectedTab = 1 }
-                    TabItem(icon: "lightbulb", title: "AI Guide", isSelected: selectedTab == 2) { selectedTab = 2 } // "AI Guide" is long, might need spacing check
-                    TabItem(icon: "chart.bar", title: "Growth", isSelected: selectedTab == 3) { selectedTab = 3 }
-                    TabItem(icon: "person", title: "Profile", isSelected: selectedTab == 4) { selectedTab = 4 }
-                }
-                .padding(.top, 12)
-                .padding(.bottom, 34) // Safe area
-                .background(Color.background)
-                .overlay(
-                    Rectangle()
-                        .frame(height: 1)
-                        .foregroundColor(Color.textSecondary.opacity(0.2)),
-                    alignment: .top
-                )
-            }
             .edgesIgnoringSafeArea(.bottom)
+            
+            // Floating Liquid Glass Tab Bar
+            HStack(spacing: 0) {
+                TabItem(icon: "house", title: "Home", isSelected: selectedTab == 0) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 0 }
+                }
+                Spacer()
+                TabItem(icon: "person.3", title: "Network", isSelected: selectedTab == 1) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 1 }
+                }
+                Spacer()
+                TabItem(icon: "sparkles", title: "AI Guide", isSelected: selectedTab == 2) { // Changed icon to 'sparkles' for AI
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 2 }
+                }
+                Spacer()
+                TabItem(icon: "chart.bar", title: "Growth", isSelected: selectedTab == 3) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 3 }
+                }
+                Spacer()
+                TabItem(icon: "person", title: "Profile", isSelected: selectedTab == 4) {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 4 }
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 14)
+            .background(.regularMaterial, in: Capsule())
+            .overlay(
+                Capsule()
+                    .stroke(LinearGradient(
+                        colors: [.white.opacity(0.3), .clear, .white.opacity(0.1)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 0) // Sit right above the home indicator
         }
     }
 }
 
-// Custom Tab Item logic avoiding standard TabView limitations
+// Custom Floating Tab Item
 struct TabItem: View {
     let icon: String
     let title: String
@@ -83,13 +94,17 @@ struct TabItem: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 4) {
+                // Animated icon
                 Image(systemName: isSelected ? icon + ".fill" : icon)
-                    .font(.system(size: 24))
+                    .font(.system(size: 22, weight: isSelected ? .bold : .regular))
+                    .symbolEffect(.bounce, value: isSelected) // iOS 17+ subtle micro-interaction
+                
+                // Optional: show text only if selected or always show text
                 Text(title)
-                    .font(.system(size: 10))
+                    .font(.system(size: 10, weight: isSelected ? .bold : .medium))
             }
-            .foregroundColor(isSelected ? .brandPrimary : .textSecondary)
-            .frame(maxWidth: .infinity)
+            .foregroundColor(isSelected ? .brandPrimary : .primary.opacity(0.5))
+            .frame(width: 50) // Fixed width to prevent shifting when text bold state changes
         }
     }
 }

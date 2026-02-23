@@ -14,6 +14,7 @@ class AppViewModel: ObservableObject {
     @Published var emailCollisionDetected: Bool = false
     @Published var selectedTheme: String = "Dark"
     @Published var failedLoginAttempts: Int = 0 // Track failed logins
+    @Published var passwordResetSent: Bool = false // Track password reset success
     
     var colorScheme: ColorScheme? {
         switch selectedTheme {
@@ -128,15 +129,21 @@ class AppViewModel: ObservableObject {
     
     func sendPasswordReset(email: String) {
         let email = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !email.isEmpty else { return }
         self.isLoading = true
         FirebaseService.shared.resetPassword(email: email) { [weak self] error in
             DispatchQueue.main.async {
                 self?.isLoading = false
                 if let error = error {
-                    self?.errorMessage = "Failed to send reset email: \(error.localizedDescription)"
+                    let nsError = error as NSError
+                    if nsError.code == 17011 {
+                        self?.errorMessage = "No account found with this email."
+                    } else {
+                        self?.errorMessage = "Failed to send reset email: \(error.localizedDescription)"
+                    }
                 } else {
-                    // Success is handled by UI alert, but we can clear error
                     self?.errorMessage = nil
+                    self?.passwordResetSent = true
                 }
             }
         }
@@ -193,14 +200,14 @@ class AppViewModel: ObservableObject {
                                     // This means account exists (so login should have worked if password was right)
                                     // BUT login failed with "User Not Found" (17011) previously.
                                     // This confirms the user EXISTS but the PASSWORD was WRONG.
-                                    // Firebase obfuscates this for security, but we can deduce it here.
                                     self?.errorMessage = "Incorrect Password"
                                     self?.failedLoginAttempts += 1
                                     print("⚠️ Deduced Wrong Password from collision. Failed attempts: \(self?.failedLoginAttempts ?? 0)")
                                 } else if signUpNsError.code == 17026 {
                                     self?.errorMessage = "Password is too weak. Use at least 6 characters."
                                 } else {
-                                    self?.errorMessage = "Registration failed: \(signUpError.localizedDescription)"
+                                    self?.errorMessage = "Incorrect Password" // User explicitly requested only this generic error
+                                    self?.failedLoginAttempts += 1
                                 }
                             }
                         }
@@ -212,12 +219,13 @@ class AppViewModel: ObservableObject {
                         print("❌ Login Failed: \(error.localizedDescription) (Code: \(nsError.code))")
                         
                         // Check for Wrong Password (17009) or any other credential issue
-                        if nsError.code == 17009 || error.localizedDescription.contains("password") {
+                        if nsError.code == 17009 || error.localizedDescription.lowercased().contains("password") || error.localizedDescription.lowercased().contains("credential") {
                             self?.errorMessage = "Incorrect Password"
                             self?.failedLoginAttempts += 1
                             print("⚠️ Failed attempts: \(self?.failedLoginAttempts ?? 0)")
                         } else {
-                            self?.errorMessage = error.localizedDescription
+                            self?.errorMessage = "Incorrect Password" // Safe default per user request
+                            self?.failedLoginAttempts += 1
                         }
                     }
                 }
@@ -268,6 +276,17 @@ class AppViewModel: ObservableObject {
         
         GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { [weak self] result, error in
             if let error = error {
+                let nsError = error as NSError
+                // Ignore Google Sign-In user cancellation
+                if nsError.domain == "com.google.GIDSignIn" && nsError.code == -5 {
+                    print("ℹ️ Google Sign-In canceled by user.")
+                    return
+                }
+                if error.localizedDescription.lowercased().contains("cancel") {
+                    print("ℹ️ Sign-In canceled.")
+                    return
+                }
+                
                 print("❌ Google Sign In Error: \(error.localizedDescription)")
                 self?.errorMessage = error.localizedDescription
                 return
@@ -450,6 +469,44 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    func removeProfileImage() {
+        guard let currentUser = currentUser else { return }
+        
+        self.isLoading = true
+        let path = "profile_images/\(currentUser.id.uuidString).jpg"
+        
+        // Delete from Firebase Storage
+        FirebaseService.shared.deleteStorageFile(path: path) { [weak self] error in
+            if let error = error {
+                print("ℹ️ Storage deletion: \(error.localizedDescription)")
+                // Continue even if storage delete fails (file may not exist)
+            } else {
+                print("✅ Profile image deleted from Storage")
+            }
+            
+            DispatchQueue.main.async {
+                // Clear the URL from the user profile
+                self?.currentUser?.profileImageUrl = ""
+                
+                // Save updated profile to Firestore
+                if let updatedUser = self?.currentUser {
+                    FirebaseService.shared.saveUserProfile(updatedUser) { error in
+                        DispatchQueue.main.async {
+                            self?.isLoading = false
+                            if let error = error {
+                                print("❌ Failed to clear profile URL in Firestore: \(error)")
+                            } else {
+                                print("✅ Profile image URL cleared in Firestore")
+                            }
+                        }
+                    }
+                } else {
+                    self?.isLoading = false
+                }
+            }
+        }
+    }
+    
     func saveProfileChanges() {
         guard let user = currentUser else { return }
         
@@ -482,6 +539,23 @@ class AppViewModel: ObservableObject {
         dispatchGroup.notify(queue: .main) {
             self.isLoading = false
             print("✅ Profile changes saved successfully.")
+        }
+    }
+    
+    /// Request email change via Firebase Auth verification flow.
+    /// Sends a verification email to the new address. Email is updated only after user verifies.
+    func changeEmail(newEmail: String, password: String?, completion: @escaping (Result<Void, Error>) -> Void) {
+        self.isLoading = true
+        
+        FirebaseService.shared.changeUserEmail(newEmail: newEmail, password: password) { [weak self] error in
+            DispatchQueue.main.async {
+                self?.isLoading = false
+                if let error = error {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(()))
+                }
+            }
         }
     }
     

@@ -6,146 +6,187 @@ struct OnboardingContainerView: View {
     @State private var hasInitialized = false
     @State private var showExitConfirmation = false
     
+    // Ambient animation
+    @State private var animateBackground = false
+    
     var body: some View {
         ZStack {
-            ZStack(alignment: .top) {
-                Color.background.edgesIgnoringSafeArea(.all)
-                
-                VStack(spacing: 0) {
-                    // Header
-                    HStack(spacing: 8) {
-                        if !viewModel.user.profileImageUrl.isEmpty {
-                            AsyncImage(url: URL(string: viewModel.user.profileImageUrl)) { phase in
-                                switch phase {
-                                case .empty:
-                                    Circle().fill(Color.gray.opacity(0.3)).frame(width: 32, height: 32)
-                                case .success(let image):
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 32, height: 32)
-                                        .clipShape(Circle())
-                                case .failure:
-                                    Image("ProfileIcon")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 32, height: 32)
-                                        .clipShape(Circle())
-                                @unknown default:
-                                    EmptyView()
-                                }
+            // Immersive Background matching WelcomeView
+            Color.background.edgesIgnoringSafeArea(.all)
+            
+            GeometryReader { proxy in
+                ZStack {
+                    Circle()
+                        .fill(Color.brandPrimary.opacity(0.3))
+                        .frame(width: proxy.size.width * 1.5, height: proxy.size.width * 1.5)
+                        .blur(radius: 120)
+                        .offset(x: animateBackground ? -100 : 100, y: animateBackground ? -200 : -100)
+                    
+                    Circle()
+                        .fill(Color("TealDark", bundle: nil).opacity(0.15)) // Fallback to safe color if missing
+                        .frame(width: proxy.size.width * 1.2, height: proxy.size.width * 1.2)
+                        .blur(radius: 100)
+                        .offset(x: animateBackground ? 100 : -50, y: animateBackground ? 200 : 50)
+                }
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
+                        animateBackground = true
+                    }
+                }
+            }
+            .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Modern Header
+                HStack(spacing: 12) {
+                    if !viewModel.user.profileImageUrl.isEmpty {
+                        AsyncImage(url: URL(string: viewModel.user.profileImageUrl)) { phase in
+                            switch phase {
+                            case .empty:
+                                Circle().fill(Color.white.opacity(0.2)).frame(width: 40, height: 40)
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                                    .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 1))
+                            case .failure:
+                                Image(systemName: "person.circle.fill")
+                                    .resizable()
+                                    .foregroundColor(.white.opacity(0.5))
+                                    .frame(width: 40, height: 40)
+                            @unknown default:
+                                EmptyView()
                             }
-                        } else {
-                            Image("ProfileIcon")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 32, height: 32)
-                                .clipShape(Circle())
                         }
-                        Text("Profile")
-                            .font(.branding.cardTitle)
-                            .foregroundColor(.textPrimary)
-                        Spacer()
+                    } else {
+                        Image(systemName: "person.crop.circle")
+                            .resizable()
+                            .foregroundColor(.primary)
+                            .frame(width: 32, height: 32)
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.top, 16)
-                    .padding(.bottom, 16)
                     
-                    // Progress Bar - animated only for step changes
-                    LinearProgressView(
-                        progress: Double(viewModel.currentStep) / Double(viewModel.totalSteps),
-                        color: .brandPrimary,
-                        trackColor: .cardBackground,
-                        height: 4
-                    )
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 24)
-                    .animation(.default, value: viewModel.currentStep)
-                    
-                    // Content - NO animation for scroll content
-                    ScrollView(showsIndicators: false) {
+                    Text("Setup Profile")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                    Spacer()
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 16)
+                .padding(.bottom, 16)
+                
+                // Progress Bar - animated only for step changes
+                LinearProgressView(
+                    progress: Double(viewModel.currentStep) / Double(viewModel.totalSteps),
+                    color: .brandPrimary,
+                    trackColor: Color.primary.opacity(0.1),
+                    height: 5
+                )
+                .clipShape(Capsule())
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
+                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.currentStep)
+                
+                // Content mapped inside a floating panel
+                ScrollView(showsIndicators: false) {
+                    VStack {
                         stepContent
-                            .padding(.horizontal, 24)
-                            .padding(.bottom, 100) // Space for bottom bar
-                            .frame(maxWidth: .infinity)
                     }
+                    .padding(24)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 32, style: .continuous)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    )
+                    .shadow(color: Color.black.opacity(0.15), radius: 20, x: 0, y: 10)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 120) // Space for bottom bar
+                    .frame(maxWidth: .infinity)
                 }
             }
             .opacity(hasInitialized ? 1 : 0) // Fade in when ready
             .onAppear {
                 syncUserData()
-                withAnimation(.easeIn(duration: 0.2)) {
+                withAnimation(.easeIn(duration: 0.4)) {
                     hasInitialized = true
                 }
             }
             .onChange(of: appViewModel.currentUser?.id) { _, _ in
                 syncUserData()
             }
-            .overlay(alignment: .bottom) {
-                // Bottom Navigation
-                VStack(spacing: 0) {
-                    Divider()
-                        .background(Color.white.opacity(0.1))
-                    
-                    HStack {
-                        if viewModel.currentStep > 1 {
-                            Button(action: {
-                                withAnimation(.default) {
-                                    viewModel.previousStep()
-                                }
-                            }) {
-                                Text("Back")
-                                    .font(.branding.body)
-                                    .foregroundColor(.textSecondary)
-                                    .padding()
-                            }
-                        } else {
-                            // Exit Button for Step 1
-                            Button(action: {
-                                withAnimation {
-                                    showExitConfirmation = true
-                                }
-                            }) {
-                                Text("Exit")
-                                    .font(.branding.body)
-                                    .foregroundColor(.error)
-                                    .padding()
-                            }
-                        }
-                        
-                        Spacer()
-                        
+            
+            // Floating Bottom Navigation
+            VStack {
+                Spacer()
+                HStack {
+                    if viewModel.currentStep > 1 {
                         Button(action: {
-                            if viewModel.currentStep == viewModel.totalSteps {
-                                appViewModel.completeOnboarding(user: viewModel.user, company: viewModel.company)
-                            } else {
-                                if viewModel.currentStep == 1 {
-                                    // Explicitly handle Step 1 transition validation logic if needed
-                                }
-                                withAnimation(.default) {
-                                    viewModel.nextStep()
-                                }
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                viewModel.previousStep()
                             }
                         }) {
-                            Text(viewModel.currentStep == viewModel.totalSteps ? "Finish & Enter App" : "Next")
-                                .font(.branding.body.weight(.bold))
-                                .foregroundColor(.background)
-                                .padding(.vertical, 16)
-                                .padding(.horizontal, 32)
-                                .background(isNextEnabled ? Color.brandPrimary : Color.cardBackground)
-                                .cornerRadius(12)
+                            Text("Back")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 14)
+                                .background(.ultraThinMaterial, in: Capsule())
+                                .overlay(Capsule().stroke(Color.primary.opacity(0.1), lineWidth: 1))
                         }
-                        .disabled(!isNextEnabled)
+                    } else {
+                        // Exit Button for Step 1
+                        Button(action: {
+                            withAnimation {
+                                showExitConfirmation = true
+                            }
+                        }) {
+                            Text("Exit")
+                                .font(.headline)
+                                .foregroundColor(.red)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 14)
+                                .background(.ultraThinMaterial, in: Capsule())
+                                .overlay(Capsule().stroke(Color.red.opacity(0.2), lineWidth: 1))
+                        }
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 16)
-                    .background(Color.background.opacity(0.95))
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        if viewModel.currentStep == viewModel.totalSteps {
+                            appViewModel.completeOnboarding(user: viewModel.user, company: viewModel.company)
+                        } else {
+                            if viewModel.currentStep == 1 {
+                                // Explicitly handle Step 1 transition validation logic if needed
+                            }
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                viewModel.nextStep()
+                            }
+                        }
+                    }) {
+                        Text(viewModel.currentStep == viewModel.totalSteps ? "Enter App" : "Next")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.vertical, 14)
+                            .padding(.horizontal, 32)
+                            .background(isNextEnabled ? Color.brandPrimary : Color.primary.opacity(0.2))
+                            .clipShape(Capsule())
+                            .shadow(color: isNextEnabled ? Color.brandPrimary.opacity(0.3) : .clear, radius: 8, x: 0, y: 4)
+                    }
+                    .disabled(!isNextEnabled)
                 }
-                .ignoresSafeArea(.keyboard, edges: .bottom)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 20)
+                .background(
+                    LinearGradient(colors: [.background, .background.opacity(0)], startPoint: .bottom, endPoint: .top)
+                        .ignoresSafeArea()
+                )
             }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .alert("Are you sure to Exit the registration process?", isPresented: $showExitConfirmation) {
-            Button("Back", role: .cancel) { }
+            Button("Cancel", role: .cancel) { }
             Button("Exit", role: .destructive) {
                 appViewModel.logout()
             }
@@ -154,27 +195,22 @@ struct OnboardingContainerView: View {
     
     private func syncUserData() {
         if let currentUser = appViewModel.currentUser {
-            // Check if we already have data (implies Social Login or re-entry)
-            
             if !currentUser.firstName.isEmpty {
                 if viewModel.user.firstName.isEmpty {
                     viewModel.user.firstName = currentUser.firstName
                 }
                 viewModel.isSocialLogin = true
             }
-            
             if !currentUser.lastName.isEmpty {
                 if viewModel.user.lastName.isEmpty {
                     viewModel.user.lastName = currentUser.lastName
                 }
             }
-            
             if !currentUser.email.isEmpty {
                 if viewModel.user.email.isEmpty {
                     viewModel.user.email = currentUser.email
                 }
             }
-            
             if !currentUser.profileImageUrl.isEmpty {
                 if viewModel.user.profileImageUrl.isEmpty {
                     viewModel.user.profileImageUrl = currentUser.profileImageUrl
@@ -184,7 +220,6 @@ struct OnboardingContainerView: View {
         }
     }
     
-    // Extracted to separate computed property to prevent animation inheritance
     @ViewBuilder
     private var stepContent: some View {
         switch viewModel.currentStep {

@@ -184,7 +184,8 @@ class FirebaseService {
                 email: data["email"] as? String ?? "",
                 location: data["location"] as? String ?? "",
                 timeZone: data["timeZone"] as? String ?? "",
-                profileImageUrl: data["profileImageUrl"] as? String ?? ""
+                profileImageUrl: data["profileImageUrl"] as? String ?? "",
+                personalBio: data["personalBio"] as? String ?? ""
             )
             completion(user)
         }
@@ -215,7 +216,8 @@ class FirebaseService {
                 email: data["email"] as? String ?? "",
                 location: data["location"] as? String ?? "",
                 timeZone: data["timeZone"] as? String ?? "",
-                profileImageUrl: data["profileImageUrl"] as? String ?? ""
+                profileImageUrl: data["profileImageUrl"] as? String ?? "",
+                personalBio: data["personalBio"] as? String ?? ""
             )
             print("✅ Loaded user for email: \(email)")
             completion(user)
@@ -416,6 +418,13 @@ class FirebaseService {
         }
     }
     
+    /// Delete a file from Firebase Storage
+    func deleteStorageFile(path: String, completion: @escaping (Error?) -> Void) {
+        Storage.storage().reference().child(path).delete { error in
+            completion(error)
+        }
+    }
+    
     // MARK: - Account Deletion
     
     /// Delete all user data from Firestore (user profile and company profile)
@@ -516,6 +525,59 @@ class FirebaseService {
             
             companyGroup.notify(queue: .main) {
                 completion(deletionError)
+            }
+        }
+    }
+    
+    /// Change user email via Firebase Auth's verifyBeforeUpdateEmail flow.
+    /// First checks Firestore for duplicate emails, then re-authenticates, then sends verification.
+    func changeUserEmail(newEmail: String, password: String?, completion: @escaping (Error?) -> Void) {
+        guard let user = Auth.auth().currentUser else {
+            completion(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No authenticated user"]))
+            return
+        }
+        
+        let db = Firestore.firestore()
+        
+        // Step 1: Check if the new email already exists in our Firestore users collection
+        db.collection(usersCollection).whereField("email", isEqualTo: newEmail).limit(to: 1).getDocuments { [self] snapshot, error in
+            if let docs = snapshot?.documents, !docs.isEmpty {
+                // Email already exists in our database
+                print("❌ Email \(newEmail) already in use by another account")
+                completion(NSError(domain: "AppError", code: 17007, userInfo: [NSLocalizedDescriptionKey: "EMAIL_ALREADY_IN_USE"]))
+                return
+            }
+            
+            // Step 2: Re-authenticate if needed, then send verification
+            let providers = user.providerData.map { $0.providerID }
+            let isGoogleUser = providers.contains("google.com")
+            
+            let sendVerification = {
+                user.sendEmailVerification(beforeUpdatingEmail: newEmail) { error in
+                    if let error = error {
+                        print("❌ Error sending email change verification: \(error.localizedDescription)")
+                        completion(error)
+                    } else {
+                        print("✅ Verification email sent to \(newEmail)")
+                        completion(nil)
+                    }
+                }
+            }
+            
+            if isGoogleUser {
+                sendVerification()
+            } else if let password = password, let email = user.email {
+                let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+                user.reauthenticate(with: credential) { result, error in
+                    if let error = error {
+                        print("❌ Re-authentication failed: \(error.localizedDescription)")
+                        completion(error)
+                        return
+                    }
+                    sendVerification()
+                }
+            } else {
+                completion(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Password required for email/password accounts"]))
             }
         }
     }
