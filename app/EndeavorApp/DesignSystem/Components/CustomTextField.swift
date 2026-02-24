@@ -4,11 +4,10 @@ struct CustomTextField: View {
     var title: String
     var placeholder: String
     @Binding var text: String
+    var isHighlighted: Bool
     var isRequired: Bool = false
     var keyboardType: UIKeyboardType = .default
     var isSecure: Bool = false
-    
-    @FocusState private var isFocused: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -16,7 +15,8 @@ struct CustomTextField: View {
                 Text(title)
                     .font(.caption)
                     .textCase(.uppercase)
-                    .foregroundColor(isFocused ? .brandPrimary : .secondary)
+                    .foregroundColor(isHighlighted ? .brandPrimary : .secondary)
+                    .animation(.easeInOut(duration: 0.2), value: isHighlighted)
                 
                 if isRequired {
                     Text("*")
@@ -26,12 +26,13 @@ struct CustomTextField: View {
             }
             
             ZStack(alignment: .leading) {
-                if text.isEmpty && !isFocused {
-                    Text(placeholder)
-                        .font(.body)
-                        .foregroundColor(.secondary.opacity(0.5))
-                        .padding(.horizontal, 16)
-                }
+                Text(placeholder)
+                    .font(.body)
+                    .foregroundColor(.secondary.opacity(0.5))
+                    .padding(.horizontal, 16)
+                    .opacity(text.isEmpty && !isHighlighted ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.2), value: isHighlighted)
+                    .animation(.easeInOut(duration: 0.2), value: text.isEmpty)
                 
                 if isSecure {
                     SecureField("", text: $text)
@@ -39,7 +40,6 @@ struct CustomTextField: View {
                         .foregroundColor(.primary)
                         .padding(16)
                         .textContentType(.none)
-                        .focused($isFocused)
                 } else {
                     TextField("", text: $text)
                         .font(.body)
@@ -48,16 +48,19 @@ struct CustomTextField: View {
                         .keyboardType(keyboardType)
                         .textInputAutocapitalization(keyboardType == .URL ? .never : .sentences)
                         .autocorrectionDisabled(keyboardType == .URL)
-                        .focused($isFocused)
                 }
             }
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(.regularMaterial)
+                    .shadow(color: isHighlighted ? Color.brandPrimary.opacity(0.2) : Color.clear, radius: 8, x: 0, y: 4)
+                    .animation(.easeInOut(duration: 0.2), value: isHighlighted)
+            )
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(isFocused ? Color.brandPrimary : Color.borderGlare.opacity(0.15), lineWidth: isFocused ? 2 : 1)
+                    .stroke(isHighlighted ? Color.brandPrimary : Color.borderGlare.opacity(0.15), lineWidth: isHighlighted ? 2 : 1)
+                    .animation(.easeInOut(duration: 0.2), value: isHighlighted)
             )
-            .shadow(color: isFocused ? Color.brandPrimary.opacity(0.2) : Color.clear, radius: 8, x: 0, y: 4)
-            .animation(.easeInOut(duration: 0.2), value: isFocused)
         }
     }
 }
@@ -65,8 +68,8 @@ struct CustomTextField: View {
 struct CustomTextField_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 20) {
-            CustomTextField(title: "First Name", placeholder: "e.g., John", text: .constant(""), isRequired: true)
-            CustomTextField(title: "Last Name", placeholder: "e.g., Doe", text: .constant("Doe"), isRequired: true)
+            CustomTextField(title: "First Name", placeholder: "e.g., John", text: .constant(""), isHighlighted: false, isRequired: true)
+            CustomTextField(title: "Last Name", placeholder: "e.g., Doe", text: .constant("Doe"), isHighlighted: true, isRequired: true)
         }
         .padding()
         .background(

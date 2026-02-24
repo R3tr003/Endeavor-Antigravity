@@ -1,11 +1,21 @@
 import SwiftUI
-
+import SDWebImageSwiftUI
 struct PersonalInformationView: View {
     @ObservedObject var viewModel: OnboardingViewModel
     
+    enum Field: Hashable {
+        case firstName, lastName, role
+    }
+    @FocusState private var focusedField: Field?
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 8) {
+        ZStack {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = nil }
+                
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                 Text("Personal Information")
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
@@ -23,24 +33,17 @@ struct PersonalInformationView: View {
                 }
             }
             
-            VStack(spacing: 16) {
+            VStack(spacing: DesignSystem.Spacing.standard) {
                 if viewModel.isSocialLogin {
                     // Social Login Mode: Show Profile Pic & Hidden Name Fields
                     if !viewModel.user.profileImageUrl.isEmpty,
                        let url = URL(string: viewModel.user.profileImageUrl) {
-                        HStack(spacing: 16) {
-                            AsyncImage(url: url) { phase in
-                                switch phase {
-                                case .empty:
-                                    Color.primary.opacity(0.1)
-                                case .success(let image):
-                                    image.resizable()
-                                         .aspectRatio(contentMode: .fill)
-                                case .failure:
-                                    Image(systemName: "person.fill")
-                                @unknown default:
-                                    EmptyView()
-                                }
+                        HStack(spacing: DesignSystem.Spacing.standard) {
+                            WebImage(url: url) { image in
+                                image.resizable()
+                                     .aspectRatio(contentMode: .fill)
+                            } placeholder: {
+                                Image(systemName: "person.fill")
                             }
                             .frame(width: 60, height: 60)
                             .clipShape(Circle())
@@ -52,7 +55,7 @@ struct PersonalInformationView: View {
                             
                             Spacer()
                         }
-                        .padding(.bottom, 8)
+                        .padding(.bottom, DesignSystem.Spacing.xSmall)
                     }
                 } else {
                     // Regular Mode: Show Name Fields
@@ -60,23 +63,35 @@ struct PersonalInformationView: View {
                         title: "First Name",
                         placeholder: "",
                         text: $viewModel.user.firstName,
+                        isHighlighted: focusedField == .firstName,
                         isRequired: true
                     )
+                    .focused($focusedField, equals: .firstName)
+                    .submitLabel(.next)
+                    .onSubmit { focusedField = .lastName }
                     
                     CustomTextField(
                         title: "Last Name",
                         placeholder: "",
                         text: $viewModel.user.lastName,
+                        isHighlighted: focusedField == .lastName,
                         isRequired: true
                     )
+                    .focused($focusedField, equals: .lastName)
+                    .submitLabel(.next)
+                    .onSubmit { focusedField = .role }
                 }
                 
                 CustomTextField(
                     title: "Role / Title",
                     placeholder: "e.g., CEO, Founder, CTO",
                     text: $viewModel.user.role,
+                    isHighlighted: focusedField == .role,
                     isRequired: true
                 )
+                .focused($focusedField, equals: .role)
+                .submitLabel(.done)
+                .onSubmit { focusedField = nil }
             }
             .onAppear {
                 // Auto-detect timezone from device
@@ -84,6 +99,8 @@ struct PersonalInformationView: View {
                     viewModel.user.timeZone = TimeZone.current.identifier
                 }
             }
+            }
+            .padding(.bottom, 20)
         }
     }
 }

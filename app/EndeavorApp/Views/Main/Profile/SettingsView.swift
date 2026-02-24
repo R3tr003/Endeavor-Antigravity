@@ -33,23 +33,23 @@ struct SettingsView: View {
                     }
                     .frame(height: 0)
                     
-                    VStack(alignment: .leading, spacing: 32) {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xLarge) {
                         // Title
                         Text("Settings")
                             .font(.system(size: 40, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
                             .tracking(-1)
-                            .padding(.top, 40)
-                            .padding(.horizontal, 24)
+                            .padding(.top, DesignSystem.Spacing.xxLarge)
+                            .padding(.horizontal, DesignSystem.Spacing.large)
                         
-                        VStack(spacing: 24) {
+                        VStack(spacing: DesignSystem.Spacing.large) {
                             profileSection
                             appearanceSection
                             accountSection
                             aboutSection
                             deleteAccountSection
                         }
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, DesignSystem.Spacing.large)
                         .padding(.bottom, 60)
                     }
                 }
@@ -63,8 +63,8 @@ struct SettingsView: View {
                             Text("Done")
                                 .font(.headline)
                                 .foregroundColor(.brandPrimary)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
+                                .padding(.horizontal, DesignSystem.Spacing.standard)
+                                .padding(.vertical, DesignSystem.Spacing.xSmall)
                                 .background(.ultraThinMaterial, in: Capsule())
                         }
                     }
@@ -151,12 +151,12 @@ struct SettingsView: View {
     
     // MARK: - Reusable Section Builder
     private func settingsSection<Content: View>(title: String, isDestructive: Bool = false, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
             Text(title)
                 .font(.caption.weight(.bold))
                 .textCase(.uppercase)
                 .foregroundColor(isDestructive ? .red.opacity(0.8) : .secondary)
-                .padding(.leading, 8)
+                .padding(.leading, DesignSystem.Spacing.xSmall)
             
             VStack(spacing: 0) {
                 content()
@@ -194,7 +194,7 @@ struct SettingsView: View {
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.secondary.opacity(0.5))
                 }
-                .padding(16)
+                .padding(DesignSystem.Spacing.standard)
             }
         }
     }
@@ -228,7 +228,7 @@ struct SettingsView: View {
                 }
                 .pickerStyle(.menu)
                 .tint(.primary)
-                .padding(.horizontal, 12)
+                .padding(.horizontal, DesignSystem.Spacing.small)
                 .padding(.vertical, 6)
                 .background(Color.primary.opacity(0.05), in: Capsule())
             }
@@ -256,7 +256,7 @@ struct SettingsView: View {
                     
                     Spacer()
                 }
-                .padding(16)
+                .padding(DesignSystem.Spacing.standard)
             }
         }
     }
@@ -285,11 +285,11 @@ struct SettingsView: View {
                         ProgressView()
                     }
                 }
-                .padding(16)
+                .padding(DesignSystem.Spacing.standard)
             }
             .disabled(appViewModel.isLoading)
         }
-        .padding(.top, 24)
+        .padding(.top, DesignSystem.Spacing.large)
     }
     
     // MARK: - About Section
@@ -305,11 +305,11 @@ struct SettingsView: View {
                 Text("0.1.1")
                     .font(.subheadline.weight(.semibold))
                     .foregroundColor(.secondary)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
+                    .padding(.horizontal, DesignSystem.Spacing.small)
+                    .padding(.vertical, DesignSystem.Spacing.xxSmall)
                     .background(Color.primary.opacity(0.05), in: Capsule())
             }
-            .padding(16)
+            .padding(DesignSystem.Spacing.standard)
         }
     }
 }

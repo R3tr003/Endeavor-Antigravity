@@ -1,15 +1,23 @@
 import SwiftUI
-
+import SDWebImageSwiftUI
 struct NetworkView: View {
     @State private var searchText: String = ""
     @State private var animateGlow = false
     
-    // Mock Data
-    private let profiles = [
-        UserProfile(firstName: "Sarah", lastName: "Chen", role: "CEO at Innovate Inc.", location: "", timeZone: ""),
-        UserProfile(firstName: "Michael", lastName: "Ross", role: "Founder at FinG", location: "", timeZone: ""),
-        UserProfile(firstName: "Jessica", lastName: "Lee", role: "CTO at HealthLink", location: "", timeZone: "")
-    ]
+    @StateObject private var viewModel = NetworkViewModel(repository: FirebaseNetworkRepository())
+
+    
+    private var filteredProfiles: [UserProfile] {
+        if searchText.isEmpty {
+            return viewModel.profiles
+        } else {
+            return viewModel.profiles.filter { profile in
+                profile.firstName.localizedCaseInsensitiveContains(searchText) ||
+                profile.lastName.localizedCaseInsensitiveContains(searchText) ||
+                profile.role.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+    }
     
     var body: some View {
         StackNavigationView {
@@ -20,7 +28,7 @@ struct NetworkView: View {
                 GeometryReader { proxy in
                     ZStack {
                         Circle()
-                            .fill(Color("TealDark", bundle: nil).opacity(0.15))
+                            .fill(Color.brandPrimary.opacity(0.15))
                             .frame(width: proxy.size.width * 1.5, height: proxy.size.width * 1.5)
                             .blur(radius: 100)
                             .offset(x: animateGlow ? -100 : 50, y: animateGlow ? 150 : -50)
@@ -40,9 +48,9 @@ struct NetworkView: View {
                 }
                 
                 ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 32) {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xLarge) {
                         // Header
-                        VStack(alignment: .leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
                             Text("Mentor\nNetwork")
                                 .font(.system(size: 42, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
@@ -53,10 +61,10 @@ struct NetworkView: View {
                                 .font(.headline)
                                 .foregroundColor(.secondary)
                         }
-                        .padding(.top, 16)
+                        .padding(.top, DesignSystem.Spacing.standard)
                         
                         // Glass Search Bar
-                        HStack(spacing: 12) {
+                        HStack(spacing: DesignSystem.Spacing.small) {
                             Image(systemName: "magnifyingglass")
                                 .foregroundColor(.secondary)
                             TextField("", text: $searchText)
@@ -67,32 +75,47 @@ struct NetworkView: View {
                                 .foregroundColor(.primary)
                         }
                         .padding()
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
                                 .stroke(Color.white.opacity(0.15), lineWidth: 1)
                         )
                         .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
                         
                         // Content List
-                        VStack(spacing: 20) {
-                            networkCard(
-                                imageName: "",
-                                name: "Sarah Chen",
-                                role: "CEO at Innovate Inc.",
-                                tags: ["Scaling", "Fundraising"]
-                            )
+                        VStack(spacing: DesignSystem.Spacing.medium) {
+                            ForEach(filteredProfiles, id: \.id) { profile in
+                                networkCard(
+                                    imageName: profile.profileImageUrl,
+                                    name: "\(profile.firstName) \(profile.lastName)",
+                                    role: profile.role,
+                                    tags: [profile.location].filter { !$0.isEmpty } // using location as a tag placeholder
+                                )
+                            }
                             
-                            networkCard(
-                                imageName: "",
-                                name: "David Miller",
-                                role: "Partner at Greylock",
-                                tags: ["Investment", "Strategy"]
-                            )
+                            // Pagination Trigger
+                            if viewModel.isLoading {
+                                ProgressView()
+                                    .padding(.vertical, DesignSystem.Spacing.medium)
+                            } else if viewModel.hasMoreData {
+                                Color.clear
+                                    .frame(height: DesignSystem.Layout.buttonHeight)
+                                    .onAppear {
+                                        // Only fetch more if we aren't actively filtering
+                                        if searchText.isEmpty {
+                                            viewModel.fetchUsers()
+                                        }
+                                    }
+                            }
                         }
-                        .padding(.bottom, 120) // Space for floating tab bar
+                        .padding(.bottom, DesignSystem.Spacing.bottomSafePadding) // Space for floating tab bar
                     }
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, DesignSystem.Spacing.large)
+                }
+                .onAppear {
+                    if viewModel.profiles.isEmpty {
+                        viewModel.fetchUsers(isInitial: true)
+                    }
                 }
                 
                 // Status bar blur
@@ -107,20 +130,41 @@ struct NetworkView: View {
     @ViewBuilder
     func networkCard(imageName: String, name: String, role: String, tags: [String]) -> some View {
         DashboardCard {
-            VStack(spacing: 20) {
+            VStack(spacing: DesignSystem.Spacing.medium) {
                 // Top section: Avatar and Info
-                HStack(spacing: 16) {
-                    Circle()
-                        .fill(Color.primary.opacity(0.05))
-                        .frame(width: 60, height: 60)
-                        .overlay(
-                            Image(systemName: "person.fill")
-                                .font(.system(size: 30))
-                                .foregroundColor(.secondary.opacity(0.5))
-                        )
-                        .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                HStack(spacing: DesignSystem.Spacing.standard) {
+                    if imageName.isEmpty {
+                        Circle()
+                            .fill(Color.primary.opacity(0.05))
+                            .frame(width: 60, height: 60)
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.secondary.opacity(0.5))
+                            )
+                            .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                    } else {
+                        WebImage(url: URL(string: imageName)) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 60, height: 60)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                        } placeholder: {
+                            Circle()
+                                .fill(Color.primary.opacity(0.05))
+                                .frame(width: 60, height: 60)
+                                .overlay(
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(.secondary.opacity(0.5))
+                                )
+                                .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                        }
+                    }
                     
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxSmall) {
                         Text(name)
                             .font(.title3.weight(.bold))
                             .foregroundColor(.primary)
@@ -133,13 +177,13 @@ struct NetworkView: View {
                 }
                 
                 // Tags
-                HStack(spacing: 8) {
+                HStack(spacing: DesignSystem.Spacing.xSmall) {
                     ForEach(tags, id: \.self) { tag in
                         Text(tag)
                             .font(.caption.weight(.medium))
                             .foregroundColor(.primary)
                             .padding(.vertical, 6)
-                            .padding(.horizontal, 12)
+                            .padding(.horizontal, DesignSystem.Spacing.small)
                             .background(Color.primary.opacity(0.05), in: Capsule())
                     }
                     Spacer()
@@ -157,7 +201,7 @@ struct NetworkView: View {
                         .shadow(color: Color.brandPrimary.opacity(0.3), radius: 8, x: 0, y: 4)
                 }
             }
-            .padding(24)
+            .padding(DesignSystem.Spacing.large)
         }
     }
 }
@@ -176,22 +220,7 @@ extension View {
     }
 }
 
-// Simple wrapper to ensure background color covers everything if needed
-struct StackNavigationView<Content: View>: View {
-    let content: Content
-    
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
-    
-    var body: some View {
-        ZStack {
-            Color.background.edgesIgnoringSafeArea(.all)
-            content
-        }
-        .edgesIgnoringSafeArea(.bottom) // Allow scrolling under tab bar
-    }
-}
+
 
 struct NetworkView_Previews: PreviewProvider {
     static var previews: some View {

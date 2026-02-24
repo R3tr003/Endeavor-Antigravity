@@ -1,8 +1,9 @@
 import SwiftUI
-
+import SDWebImageSwiftUI
 struct OnboardingContainerView: View {
     @StateObject private var viewModel = OnboardingViewModel()
     @EnvironmentObject var appViewModel: AppViewModel
+    @Environment(\.scenePhase) private var scenePhase
     @State private var hasInitialized = false
     @State private var showExitConfirmation = false
     
@@ -23,7 +24,7 @@ struct OnboardingContainerView: View {
                         .offset(x: animateBackground ? -100 : 100, y: animateBackground ? -200 : -100)
                     
                     Circle()
-                        .fill(Color("TealDark", bundle: nil).opacity(0.15)) // Fallback to safe color if missing
+                        .fill(Color.brandPrimary.opacity(0.15)) // Fallback to safe color if missing
                         .frame(width: proxy.size.width * 1.2, height: proxy.size.width * 1.2)
                         .blur(radius: 100)
                         .offset(x: animateBackground ? 100 : -50, y: animateBackground ? 200 : 50)
@@ -38,33 +39,29 @@ struct OnboardingContainerView: View {
             
             VStack(spacing: 0) {
                 // Modern Header
-                HStack(spacing: 12) {
+                HStack(spacing: DesignSystem.Spacing.small) {
                     if !viewModel.user.profileImageUrl.isEmpty {
-                        AsyncImage(url: URL(string: viewModel.user.profileImageUrl)) { phase in
-                            switch phase {
-                            case .empty:
-                                Circle().fill(Color.white.opacity(0.2)).frame(width: 40, height: 40)
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 40, height: 40)
-                                    .clipShape(Circle())
-                                    .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 1))
-                            case .failure:
+                        WebImage(url: URL(string: viewModel.user.profileImageUrl)) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: DesignSystem.Spacing.xxLarge, height: DesignSystem.Spacing.xxLarge)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 1))
+                        } placeholder: {
+                            ZStack {
                                 Image(systemName: "person.circle.fill")
                                     .resizable()
                                     .foregroundColor(.white.opacity(0.5))
-                                    .frame(width: 40, height: 40)
-                            @unknown default:
-                                EmptyView()
+                                    .frame(width: DesignSystem.Spacing.xxLarge, height: DesignSystem.Spacing.xxLarge)
+                                Circle().fill(Color.white.opacity(0.2)).frame(width: DesignSystem.Spacing.xxLarge, height: DesignSystem.Spacing.xxLarge)
                             }
                         }
                     } else {
                         Image(systemName: "person.crop.circle")
                             .resizable()
                             .foregroundColor(.primary)
-                            .frame(width: 32, height: 32)
+                            .frame(width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large)
                     }
                     
                     Text("Setup Profile")
@@ -72,9 +69,9 @@ struct OnboardingContainerView: View {
                         .foregroundColor(.primary)
                     Spacer()
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 16)
-                .padding(.bottom, 16)
+                .padding(.horizontal, DesignSystem.Spacing.large)
+                .padding(.top, DesignSystem.Spacing.standard)
+                .padding(.bottom, DesignSystem.Spacing.standard)
                 
                 // Progress Bar - animated only for step changes
                 LinearProgressView(
@@ -84,8 +81,8 @@ struct OnboardingContainerView: View {
                     height: 5
                 )
                 .clipShape(Capsule())
-                .padding(.horizontal, 24)
-                .padding(.bottom, 24)
+                .padding(.horizontal, DesignSystem.Spacing.large)
+                .padding(.bottom, DesignSystem.Spacing.large)
                 .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.currentStep)
                 
                 // Content mapped inside a floating panel
@@ -93,15 +90,15 @@ struct OnboardingContainerView: View {
                     VStack {
                         stepContent
                     }
-                    .padding(24)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
+                    .padding(DesignSystem.Spacing.large)
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.Spacing.xLarge, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 32, style: .continuous)
+                        RoundedRectangle(cornerRadius: DesignSystem.Spacing.xLarge, style: .continuous)
                             .stroke(Color.white.opacity(0.2), lineWidth: 1)
                     )
                     .shadow(color: Color.black.opacity(0.15), radius: 20, x: 0, y: 10)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 120) // Space for bottom bar
+                    .padding(.horizontal, DesignSystem.Spacing.large)
+                    .padding(.bottom, DesignSystem.Spacing.bottomSafePadding) // Space for bottom bar
                     .frame(maxWidth: .infinity)
                 }
             }
@@ -122,6 +119,7 @@ struct OnboardingContainerView: View {
                 HStack {
                     if viewModel.currentStep > 1 {
                         Button(action: {
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                                 viewModel.previousStep()
                             }
@@ -129,7 +127,7 @@ struct OnboardingContainerView: View {
                             Text("Back")
                                 .font(.headline)
                                 .foregroundColor(.primary)
-                                .padding(.horizontal, 20)
+                                .padding(.horizontal, DesignSystem.Spacing.medium)
                                 .padding(.vertical, 14)
                                 .background(.ultraThinMaterial, in: Capsule())
                                 .overlay(Capsule().stroke(Color.primary.opacity(0.1), lineWidth: 1))
@@ -137,6 +135,7 @@ struct OnboardingContainerView: View {
                     } else {
                         // Exit Button for Step 1
                         Button(action: {
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                             withAnimation {
                                 showExitConfirmation = true
                             }
@@ -144,7 +143,7 @@ struct OnboardingContainerView: View {
                             Text("Exit")
                                 .font(.headline)
                                 .foregroundColor(.red)
-                                .padding(.horizontal, 20)
+                                .padding(.horizontal, DesignSystem.Spacing.medium)
                                 .padding(.vertical, 14)
                                 .background(.ultraThinMaterial, in: Capsule())
                                 .overlay(Capsule().stroke(Color.red.opacity(0.2), lineWidth: 1))
@@ -154,8 +153,10 @@ struct OnboardingContainerView: View {
                     Spacer()
                     
                     Button(action: {
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                         if viewModel.currentStep == viewModel.totalSteps {
-                            appViewModel.completeOnboarding(user: viewModel.user, company: viewModel.company)
+                            viewModel.clearDraft()
+                            appViewModel.completeOnboarding(user: viewModel.user, company: viewModel.company, profileImage: viewModel.selectedProfileImage)
                         } else {
                             if viewModel.currentStep == 1 {
                                 // Explicitly handle Step 1 transition validation logic if needed
@@ -169,26 +170,33 @@ struct OnboardingContainerView: View {
                             .font(.headline)
                             .foregroundColor(.white)
                             .padding(.vertical, 14)
-                            .padding(.horizontal, 32)
+                            .padding(.horizontal, DesignSystem.Spacing.xLarge)
                             .background(isNextEnabled ? Color.brandPrimary : Color.primary.opacity(0.2))
                             .clipShape(Capsule())
                             .shadow(color: isNextEnabled ? Color.brandPrimary.opacity(0.3) : .clear, radius: 8, x: 0, y: 4)
                     }
                     .disabled(!isNextEnabled)
                 }
-                .padding(.horizontal, 24)
-                .padding(.vertical, 20)
+                .padding(.horizontal, DesignSystem.Spacing.large)
+                .padding(.vertical, DesignSystem.Spacing.medium)
                 .background(
                     LinearGradient(colors: [.background, .background.opacity(0)], startPoint: .bottom, endPoint: .top)
                         .ignoresSafeArea()
                 )
             }
-            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .alert("Are you sure to Exit the registration process?", isPresented: $showExitConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("Exit", role: .destructive) {
                 appViewModel.logout()
+            }
+        }
+        .onAppear {
+            viewModel.loadDraft()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background {
+                viewModel.saveDraft()
             }
         }
     }
@@ -249,6 +257,8 @@ struct OnboardingContainerView: View {
         }
     }
 }
+
+
 
 struct OnboardingContainerView_Previews: PreviewProvider {
     static var previews: some View {

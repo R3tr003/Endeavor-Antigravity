@@ -7,8 +7,8 @@ struct ReviewFinishView: View {
     @State private var isCompanyExpanded: Bool = true
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                 Text("Review & Finish")
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
@@ -31,17 +31,17 @@ struct ReviewFinishView: View {
                                 .font(.subheadline.weight(.medium))
                                 .foregroundColor(.brandPrimary)
                         }
-                        .padding(.vertical, 12)
+                        .padding(.vertical, DesignSystem.Spacing.small)
                     }
                     
                     if isPersonalExpanded {
-                        VStack(alignment: .leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
                             reviewRow(label: "Full Name", value: viewModel.user.fullName)
                             reviewRow(label: "Role", value: viewModel.user.role)
                             reviewRow(label: "Email", value: viewModel.user.email)
                             reviewRow(label: "Location", value: "\(viewModel.company.hqCountry), \(viewModel.company.hqCity)")
                         }
-                        .padding(.bottom, 24)
+                        .padding(.bottom, DesignSystem.Spacing.large)
                     }
                 }
                 
@@ -59,17 +59,17 @@ struct ReviewFinishView: View {
                                 .font(.subheadline.weight(.medium))
                                 .foregroundColor(.brandPrimary)
                         }
-                        .padding(.vertical, 12)
+                        .padding(.vertical, DesignSystem.Spacing.small)
                     }
                     
                     if isCompanyExpanded {
-                        VStack(alignment: .leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
                             reviewRow(label: "Company Name", value: viewModel.company.name)
                             reviewRow(label: "Website", value: viewModel.company.website)
                             reviewRow(label: "Industry", value: viewModel.company.industries.joined(separator: ", "))
                             reviewRow(label: "Stage", value: viewModel.company.stage)
                         }
-                        .padding(.bottom, 24)
+                        .padding(.bottom, DesignSystem.Spacing.large)
                     }
                 }
             }

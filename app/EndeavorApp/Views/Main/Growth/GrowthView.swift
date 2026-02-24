@@ -2,6 +2,10 @@ import SwiftUI
 
 struct GrowthView: View {
     @State private var animateGlow = false
+    @StateObject private var viewModel = GrowthViewModel(repository: FirebaseGrowthRepository())
+    
+    // In a real app we'd pass the actual userId from the environment/AppViewModel
+    private let currentUserId = "mock_user_id"
     
     var body: some View {
         StackNavigationView {
@@ -32,9 +36,9 @@ struct GrowthView: View {
                 }
                 
                 ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 32) {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xLarge) {
                         // Header
-                        VStack(alignment: .leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
                             Text("Impact\nDashboard")
                                 .font(.system(size: 42, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
@@ -45,43 +49,57 @@ struct GrowthView: View {
                                 .font(.headline)
                                 .foregroundColor(.secondary)
                         }
-                        .padding(.top, 16)
-                        .padding(.horizontal, 24)
+                        .padding(.top, DesignSystem.Spacing.standard)
+                        .padding(.horizontal, DesignSystem.Spacing.large)
                         
                         // Charts in Glass Cards
-                        VStack(spacing: 24) {
-                            DashboardCard {
-                                VStack(alignment: .leading, spacing: 16) {
-                                    Text("Monthly Activity")
-                                        .font(.headline.weight(.semibold))
-                                        .foregroundColor(.primary)
-                                    
-                                    BarChartView(
-                                        data: [4, 7, 5, 8, 6, 12],
-                                        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
-                                    )
-                                    .frame(height: 200)
+                        VStack(spacing: DesignSystem.Spacing.large) {
+                            if viewModel.isLoading {
+                                ProgressView("Loading metrics...")
+                                    .padding(.top, DesignSystem.Spacing.xxLarge)
+                            } else if let error = viewModel.appError {
+                                Text(error.localizedDescription)
+                                    .foregroundColor(.red)
+                                    .padding()
+                            } else if let metrics = viewModel.metrics {
+                                DashboardCard {
+                                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
+                                        Text("Monthly Activity")
+                                            .font(.headline.weight(.semibold))
+                                            .foregroundColor(.primary)
+                                        
+                                        BarChartView(
+                                            data: metrics.monthlyActivity,
+                                            labels: metrics.monthlyLabels
+                                        )
+                                        .frame(height: 200)
+                                    }
+                                    .padding(DesignSystem.Spacing.large)
                                 }
-                                .padding(24)
-                            }
-                            
-                            DashboardCard {
-                                VStack(alignment: .leading, spacing: 16) {
-                                    Text("Growth Trajectory")
-                                        .font(.headline.weight(.semibold))
-                                        .foregroundColor(.primary)
-                                    
-                                    LineChartView(
-                                        data: [7.2, 7.8, 8.1, 8.7]
-                                    )
-                                    .frame(height: 200)
-                                    .padding(.vertical, 8)
+                                
+                                DashboardCard {
+                                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
+                                        Text("Growth Trajectory")
+                                            .font(.headline.weight(.semibold))
+                                            .foregroundColor(.primary)
+                                        
+                                        LineChartView(
+                                            data: metrics.growthTrajectory
+                                        )
+                                        .frame(height: 200)
+                                        .padding(.vertical, DesignSystem.Spacing.xSmall)
+                                    }
+                                    .padding(DesignSystem.Spacing.large)
                                 }
-                                .padding(24)
                             }
                         }
-                        .padding(.horizontal, 24)
-                        .padding(.bottom, 100) // Space for floating tab bar
+                        .padding(.horizontal, DesignSystem.Spacing.large)
+                        .padding(.bottom, DesignSystem.Spacing.bottomSafePadding) // Space for floating tab bar
+                    }
+                }
+                .onAppear {
+                    if viewModel.metrics == nil {
+                        viewModel.fetchMetrics(userId: currentUserId)
                     }
                 }
                 

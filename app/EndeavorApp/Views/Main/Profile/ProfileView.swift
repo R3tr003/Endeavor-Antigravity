@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import SDWebImageSwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var appViewModel: AppViewModel
@@ -41,15 +42,15 @@ struct ProfileView: View {
                                 }
                             }
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 8)
+                        .padding(.horizontal, DesignSystem.Spacing.medium)
+                        .padding(.top, DesignSystem.Spacing.xSmall)
                         
                         profileHeader
-                            .padding(.top, 8)
+                            .padding(.top, DesignSystem.Spacing.xSmall)
                         
                         glassTabs
-                            .padding(.vertical, 24)
-                            .padding(.horizontal, 24)
+                            .padding(.vertical, DesignSystem.Spacing.large)
+                            .padding(.horizontal, DesignSystem.Spacing.large)
                         
                         scrollViewContent
                     }
@@ -84,7 +85,7 @@ struct ProfileView: View {
     }
     
     var profileHeader: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.standard) {
             // Profile Avatar Floating
             ZStack(alignment: .bottomTrailing) {
                 avatarImage
@@ -125,7 +126,7 @@ struct ProfileView: View {
                 .offset(x: -4, y: -4)
             }
             
-            VStack(spacing: 4) {
+            VStack(spacing: DesignSystem.Spacing.xxSmall) {
                 Text(appViewModel.currentUser?.fullName ?? "User Profile")
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
@@ -138,7 +139,7 @@ struct ProfileView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, DesignSystem.Spacing.large)
         }
     }
     
@@ -151,20 +152,16 @@ struct ProfileView: View {
                 .scaledToFill()
         } else if let profileUrl = appViewModel.currentUser?.profileImageUrl, !profileUrl.isEmpty {
             // Show remote profile image
-            AsyncImage(url: URL(string: profileUrl)) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView()
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                case .failure:
+            WebImage(url: URL(string: profileUrl)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } placeholder: {
+                ZStack {
                     Image(systemName: "person.crop.circle.fill")
                         .resizable()
                         .foregroundColor(.gray)
-                @unknown default:
-                    EmptyView()
+                    ProgressView()
                 }
             }
         } else {
@@ -180,7 +177,7 @@ struct ProfileView: View {
     
     // Modern Pills replacing underline tabs
     var glassTabs: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: DesignSystem.Spacing.small) {
             ForEach(["Personal", "Company", "Focus"], id: \.self) { tab in
                 Button(action: {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -191,7 +188,7 @@ struct ProfileView: View {
                         .font(.system(size: 14, weight: selectedTab == tab ? .bold : .medium, design: .rounded))
                         .foregroundColor(selectedTab == tab ? .white : .primary)
                         .padding(.vertical, 10)
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, DesignSystem.Spacing.standard)
                         .background(
                             ZStack {
                                 if selectedTab == tab {
@@ -219,9 +216,9 @@ struct ProfileView: View {
             } else {
                 focusContent
             }
-            Spacer(minLength: 120) // Tab bar clearance
+            Spacer(minLength: DesignSystem.Spacing.bottomSafePadding) // Tab bar clearance
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, DesignSystem.Spacing.large)
         .animation(.easeInOut(duration: 0.3), value: selectedTab)
         .transition(.opacity.combined(with: .slide))
     }
@@ -233,8 +230,8 @@ struct ProfileView: View {
                     Color.black.opacity(0.4)
                         .edgesIgnoringSafeArea(.all)
                     ProgressView(loadingMessage)
-                        .padding(24)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        .padding(DesignSystem.Spacing.large)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                 }
             }
         }
@@ -242,20 +239,20 @@ struct ProfileView: View {
     
     // Extracted Section UI
     func profileSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
             Text(title)
                 .font(.caption.weight(.bold))
                 .textCase(.uppercase)
                 .foregroundColor(.secondary)
-                .padding(.horizontal, 4)
+                .padding(.horizontal, DesignSystem.Spacing.xxSmall)
             
             VStack(spacing: 0) {
                 content()
             }
-            .padding(20)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .padding(DesignSystem.Spacing.medium)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous)
                     .stroke(Color.brandPrimary.opacity(0.4), lineWidth: 1.5)
             )
             .shadow(color: Color.brandPrimary.opacity(0.15), radius: 15, x: 0, y: 8)
@@ -263,18 +260,18 @@ struct ProfileView: View {
     }
     
     func profileInfoRow(icon: String, label: String, value: String, showDivider: Bool = true) -> some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 16) {
+        VStack(spacing: DesignSystem.Spacing.small) {
+            HStack(spacing: DesignSystem.Spacing.standard) {
                 Circle()
                     .fill(Color.brandPrimary.opacity(0.15))
-                    .frame(width: 40, height: 40)
+                    .frame(width: DesignSystem.Spacing.xxLarge, height: DesignSystem.Spacing.xxLarge)
                     .overlay(
                         Image(systemName: icon)
                             .font(.system(size: 16))
                             .foregroundColor(.brandPrimary)
                     )
                 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxSmall) {
                     Text(label)
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -297,7 +294,7 @@ struct ProfileView: View {
     }
     
     var personalContent: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
             profileSection(title: "About") {
                 Text(appViewModel.currentUser?.personalBio.isEmpty == false 
                      ? appViewModel.currentUser!.personalBio 
@@ -317,7 +314,7 @@ struct ProfileView: View {
     }
     
     var companyContent: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
             profileSection(title: "Headquarters") {
                 profileInfoRow(icon: "mappin.and.ellipse", label: "Location", value: "\(appViewModel.companyProfile?.hqCity ?? "San Francisco"), \(appViewModel.companyProfile?.hqCountry ?? "USA")")
                 profileInfoRow(icon: "globe", label: "Website", value: appViewModel.companyProfile?.website ?? "endeavor.tech", showDivider: false)
@@ -345,16 +342,16 @@ struct ProfileView: View {
     }
     
     var focusContent: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
             profileSection(title: "Current Challenges") {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
                     let challenges = appViewModel.companyProfile?.challenges ?? ["Scaling Operations", "Finding Product-Market Fit", "Building Team Culture"]
                     ForEach(Array(challenges.enumerated()), id: \.offset) { index, challenge in
-                        HStack(spacing: 16) {
+                        HStack(spacing: DesignSystem.Spacing.standard) {
                             Text("\(index + 1)")
                                 .font(.caption.weight(.bold))
                                 .foregroundColor(.brandPrimary)
-                                .frame(width: 24, height: 24)
+                                .frame(width: DesignSystem.Spacing.large, height: DesignSystem.Spacing.large)
                                 .background(Color.brandPrimary.opacity(0.15), in: Circle())
                             
                             Text(challenge)
@@ -368,10 +365,10 @@ struct ProfileView: View {
             }
             
             profileSection(title: "Desired Expertise") {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
                     let expertise = appViewModel.companyProfile?.desiredExpertise ?? ["Growth Strategy", "Fundraising", "Technical Architecture"]
                     ForEach(expertise, id: \.self) { item in
-                        HStack(spacing: 16) {
+                        HStack(spacing: DesignSystem.Spacing.standard) {
                             Image(systemName: "star.circle.fill")
                                 .foregroundColor(.brandPrimary)
                                 .font(.title3)

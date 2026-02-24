@@ -82,3 +82,12 @@ extension UIColor {
         )
     }
 }
+
+// MARK: - Scroll Preference Key
+// Reusable preference key for scroll offset tracking across different views
+struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
+    }
+}

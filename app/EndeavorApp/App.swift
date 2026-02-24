@@ -1,13 +1,27 @@
 import SwiftUI
 import GoogleSignIn
+import FirebaseCore
+import FirebaseAppCheck
 
 @main
 struct EndeavorApp: App {
     @StateObject private var appViewModel = AppViewModel()
+    @Environment(\.scenePhase) private var scenePhase
     
     init() {
+        // --- Firebase App Check Setup ---
+        // For development/simulator testing, use the DebugProvider.
+        // It will print a local debug token in the Xcode console that you must
+        // manually register in the Firebase Console under App Check -> Apps -> Manage Debug Tokens.
+        
+        // Uncomment the line below for PRODUCTION release using Apple's DeviceCheck/AppAttest:
+        // AppCheck.setAppCheckProviderFactory(AppAttestProviderFactory())
+        
+        let providerFactory = AppCheckDebugProviderFactory()
+        AppCheck.setAppCheckProviderFactory(providerFactory)
+        
         // Initialize Firebase when the app launches
-        FirebaseService.configure()
+        FirebaseApp.configure()
     }
     
     var body: some Scene {
@@ -43,6 +57,18 @@ struct EndeavorApp: App {
             .preferredColorScheme(appViewModel.colorScheme)
             .onOpenURL { url in
                 GIDSignIn.sharedInstance.handle(url)
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                switch newPhase {
+                case .background:
+                    print("📱 App moved to background")
+                case .active:
+                    print("📱 App became active")
+                case .inactive:
+                    print("📱 App became inactive")
+                @unknown default:
+                    break
+                }
             }
         }
     }

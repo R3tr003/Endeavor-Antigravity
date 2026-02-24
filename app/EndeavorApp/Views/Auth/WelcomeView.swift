@@ -8,9 +8,10 @@ struct WelcomeView: View {
     @State private var showMailError: Bool = false
     @State private var showTerms: Bool = false
     @State private var showPrivacy: Bool = false
-    
-    @FocusState private var isFocused: Bool
-    @FocusState private var isPasswordFocused: Bool
+    enum Field: Hashable {
+        case email, password
+    }
+    @FocusState private var focusedField: Field?
     
     // Animation states for the fluid background
     @State private var animateGradient1 = false
@@ -22,19 +23,20 @@ struct WelcomeView: View {
             // 1. Immersive, edge-to-edge fluid background
             backgroundMesh
                 .edgesIgnoringSafeArea(.all)
+                .onTapGesture { focusedField = nil }
             
             VStack {
                 Spacer()
                 
                 // 2. Modern Branding Header
-                VStack(spacing: 8) {
+                VStack(spacing: DesignSystem.Spacing.xSmall) {
                     Image("WelcomeLogo") // Ensure you have this in Assets
                         .resizable()
                         .scaledToFit()
                         .frame(width: 80, height: 80)
                         .clipShape(Circle())
                         .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
-                        .padding(.bottom, 8)
+                        .padding(.bottom, DesignSystem.Spacing.xSmall)
                     
                     Text("Endeavor")
                         .font(.system(size: 40, weight: .bold, design: .rounded))
@@ -45,16 +47,16 @@ struct WelcomeView: View {
                         .font(.subheadline)
                         .foregroundColor(.white.opacity(0.85))
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
+                        .padding(.horizontal, DesignSystem.Spacing.xxLarge)
                 }
-                .padding(.bottom, 40)
+                .padding(.bottom, DesignSystem.Spacing.xxLarge)
                 
                 Spacer()
                 
                 // 3. Floating Liquid Glass Login Panel
                 floatingLoginPanel
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 40)
+                    .padding(.horizontal, DesignSystem.Spacing.large)
+                    .padding(.bottom, DesignSystem.Spacing.xxLarge)
             }
             .alert("No Mail App Found", isPresented: $showMailError) {
                 Button("OK", role: .cancel) { }
@@ -103,73 +105,93 @@ struct WelcomeView: View {
     
     // MARK: - Floating Liquid Glass Login Panel
     private var floatingLoginPanel: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: DesignSystem.Spacing.medium) {
             // Email Input
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                 TextField("Enter your authorized email", text: $email)
                     .padding()
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                             .stroke(
-                                isFocused ? Color.brandPrimary :
+                                focusedField == .email ? Color.brandPrimary :
                                 (!isValidEmail && !email.isEmpty) ? Color.error.opacity(0.7) :
                                 Color.borderGlare.opacity(0.15),
                                 lineWidth: 1
                             )
+                            .animation(.easeInOut(duration: 0.2), value: focusedField == .email)
                     )
-                    .animation(.easeInOut(duration: 0.2), value: isFocused)
                     .foregroundColor(.white)
                     .accentColor(.brandPrimary)
                     .autocapitalization(.none)
                     .keyboardType(.emailAddress)
-                    .focused($isFocused)
+                    .textContentType(.username)
+                    .focused($focusedField, equals: .email)
+                    .submitLabel(.next)
+                    .onSubmit { focusedField = .password }
                 
-                if !isValidEmail && !email.isEmpty && !isFocused {
+                if !isValidEmail && !email.isEmpty && focusedField != .email {
                     Text("Please enter a valid email address.")
                         .font(.caption)
                         .foregroundColor(.error)
                 }
             }
             
-            // Password Input
             if isValidEmail {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                     ZStack(alignment: .trailing) {
                         if showPassword {
                             TextField("Password", text: $password)
                                 .padding()
-                                .padding(.trailing, 40)
-                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                                .padding(.trailing, DesignSystem.Spacing.xxLarge)
+                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                                 .foregroundColor(.white)
                                 .accentColor(.brandPrimary)
-                                .focused($isPasswordFocused)
+                                .autocorrectionDisabled(true)
+                                .textInputAutocapitalization(.never)
+                                .focused($focusedField, equals: .password)
+                                .submitLabel(.done)
+                                .onSubmit {
+                                    focusedField = nil
+                                    if isValidEmail && passwordErrorMessage.isEmpty {
+                                        appViewModel.authenticate(email: email, password: password)
+                                    }
+                                }
                         } else {
                             SecureField("Password", text: $password)
                                 .padding()
-                                .padding(.trailing, 40)
-                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                                .padding(.trailing, DesignSystem.Spacing.xxLarge)
+                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                                 .foregroundColor(.white)
                                 .accentColor(.brandPrimary)
-                                .focused($isPasswordFocused)
+                                .autocorrectionDisabled(true)
+                                .textInputAutocapitalization(.never)
+                                .focused($focusedField, equals: .password)
+                                .submitLabel(.done)
+                                .onSubmit {
+                                    focusedField = nil
+                                    if isValidEmail && passwordErrorMessage.isEmpty {
+                                        appViewModel.authenticate(email: email, password: password)
+                                    }
+                                }
                         }
                         
                         Button(action: { showPassword.toggle() }) {
                             Image(systemName: showPassword ? "eye" : "eye.slash")
                                 .foregroundColor(.white.opacity(0.7))
-                                .padding(.trailing, 16)
+                                .padding(.trailing, DesignSystem.Spacing.standard)
                         }
                     }
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                             .stroke(
-                                isPasswordFocused ? Color.brandPrimary :
+                                focusedField == .password ? Color.brandPrimary :
                                 !password.isEmpty && !passwordErrorMessage.isEmpty ? Color.error.opacity(0.7) :
                                 Color.borderGlare.opacity(0.15),
-                                lineWidth: isPasswordFocused ? 1.5 : 1
+                                lineWidth: focusedField == .password ? 1.5 : 1
                             )
+                            .animation(.easeInOut(duration: 0.2), value: focusedField == .password)
                     )
-                    .animation(.easeInOut(duration: 0.2), value: isPasswordFocused)
                     .transition(.move(edge: .top).combined(with: .opacity))
                     
                     if !password.isEmpty && !passwordErrorMessage.isEmpty {
@@ -178,19 +200,25 @@ struct WelcomeView: View {
                             .foregroundColor(.error)
                     }
                     
-                    if let errorMessage = appViewModel.errorMessage {
-                        Text(errorMessage)
+                    if let appError = appViewModel.appError {
+                        Text(appError.localizedDescription)
                             .font(.caption)
                             .foregroundColor(.error)
                     }
                 }
                 .animation(.easeInOut, value: passwordErrorMessage)
+                .onChange(of: password) { _, _ in
+                    appViewModel.appError = nil
+                }
+                .onChange(of: email) { _, _ in
+                    appViewModel.appError = nil
+                }
                 
                 if appViewModel.failedLoginAttempts >= 2 {
                     Button(action: {
                         appViewModel.sendPasswordReset(email: email)
                     }) {
-                        HStack(spacing: 4) {
+                        HStack(spacing: DesignSystem.Spacing.xxSmall) {
                             Text("Forgot Password?")
                                 .foregroundColor(.white.opacity(0.8))
                             Text("Reset it here")
@@ -198,13 +226,14 @@ struct WelcomeView: View {
                         }
                         .font(.subheadline.weight(.semibold))
                     }
-                    .padding(.top, 4)
+                    .padding(.top, DesignSystem.Spacing.xxSmall)
                     .transition(.opacity)
                 }
             }
             
             // Sign In Button
             Button(action: {
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                 if isValidEmail && passwordErrorMessage.isEmpty {
                     appViewModel.authenticate(email: email, password: password)
                 }
@@ -220,11 +249,11 @@ struct WelcomeView: View {
                         .foregroundColor((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty) ? .textInverted : .white.opacity(0.5))
                 }
                 .frame(maxWidth: .infinity)
-                .padding()
+                .frame(height: DesignSystem.Layout.buttonHeight)
                 .background((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty && !appViewModel.isLoading) ? Color.brandPrimary : Color.white.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                         .stroke(Color.white.opacity(0.1), lineWidth: 1)
                 )
             }
@@ -233,29 +262,30 @@ struct WelcomeView: View {
             .animation(.easeInOut(duration: 0.25), value: isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty)
             
             // Social & Terms
-            VStack(spacing: 16) {
+            VStack(spacing: DesignSystem.Spacing.standard) {
                 Button(action: {
+                    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                     appViewModel.startGoogleSignIn()
                 }) {
                     HStack {
                         Image("GoogleLogo")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 20, height: 20)
+                            .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                         Text("Continue with Google")
                             .font(.subheadline.weight(.medium))
                     }
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .frame(height: DesignSystem.Layout.buttonHeight)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                             .stroke(Color.white.opacity(0.2), lineWidth: 1)
                     )
                 }
                 
-                HStack(spacing: 4) {
+                HStack(spacing: DesignSystem.Spacing.xxSmall) {
                     Text("By continuing, you agree to our")
                         .foregroundColor(.white.opacity(0.7))
                     Button("Terms") { showTerms = true }
@@ -267,7 +297,7 @@ struct WelcomeView: View {
                 }
                 .font(.caption2)
             }
-            .padding(.top, 8)
+            .padding(.top, DesignSystem.Spacing.xSmall)
             
             // Help link
             Button(action: {
@@ -280,7 +310,7 @@ struct WelcomeView: View {
                     }
                 }
             }) {
-                HStack(spacing: 4) {
+                HStack(spacing: DesignSystem.Spacing.xxSmall) {
                     Text("Having troubles?")
                         .foregroundColor(.white.opacity(0.6))
                     Text("Get Help")
@@ -291,9 +321,9 @@ struct WelcomeView: View {
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.85), value: isValidEmail)
         .animation(.easeInOut(duration: 0.3), value: appViewModel.failedLoginAttempts)
-        .padding(24)
+        .padding(DesignSystem.Spacing.large)
         // LIQUID GLASS EFFECT applied to the panel container
-        .modifier(LiquidGlassEffect(cornerRadius: 32))
+        .modifier(LiquidGlassEffect(cornerRadius: DesignSystem.Spacing.xLarge))
         .alert("Reset Email Sent", isPresented: $appViewModel.passwordResetSent) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -318,8 +348,13 @@ struct WelcomeView: View {
         if password.isEmpty { return "" }
         var errors: [String] = []
         if password.count < 8 || password.count > 16 { errors.append("8-16 chars") }
+        
         let uppercasePred = NSPredicate(format:"SELF MATCHES %@", ".*[A-Z]+.*")
         if !uppercasePred.evaluate(with: password) { errors.append("1 uppercase") }
+        
+        let lowercasePred = NSPredicate(format:"SELF MATCHES %@", ".*[a-z]+.*")
+        if !lowercasePred.evaluate(with: password) { errors.append("1 lowercase") }
+        
         let numberPred = NSPredicate(format:"SELF MATCHES %@", ".*[0-9]+.*")
         if !numberPred.evaluate(with: password) { errors.append("1 number") }
         

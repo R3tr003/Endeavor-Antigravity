@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import SDWebImageSwiftUI
 
 struct CompanyBioLogoView: View {
     @ObservedObject var viewModel: OnboardingViewModel
@@ -17,13 +18,16 @@ struct CompanyBioLogoView: View {
     // Photo Picker State
     @State private var selectedPhoto: PhotosPickerItem? = nil
     @State private var selectedImage: Image? = nil
-    @State private var selectedUIImage: UIImage? = nil
     @State private var showPhotoLibrary: Bool = false
     @State private var showCamera: Bool = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 8) {
+        ZStack {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture { focusedField = nil }
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                 Text(hideImageUpload ? "Company Bio & Profile" : "Company Bio & Logo")
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
@@ -33,10 +37,10 @@ struct CompanyBioLogoView: View {
                     .foregroundColor(.secondary)
             }
             
-            VStack(spacing: 24) {
+            VStack(spacing: DesignSystem.Spacing.large) {
                 // Logo Upload or Profile Picture Display
                 if !hideImageUpload {
-                    VStack(spacing: 16) {
+                    VStack(spacing: DesignSystem.Spacing.standard) {
                         // Show selected image or placeholder
                         if let selectedImage = selectedImage {
                             selectedImage
@@ -68,9 +72,9 @@ struct CompanyBioLogoView: View {
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(width: 160)
-                                .padding(.vertical, 12)
+                                .padding(.vertical, DesignSystem.Spacing.small)
                                 .background(Color.brandPrimary)
-                                .cornerRadius(12)
+                                .cornerRadius(DesignSystem.CornerRadius.medium)
                         }
                         
                         Text("PNG, JPG, SVG up to 5MB.")
@@ -79,20 +83,20 @@ struct CompanyBioLogoView: View {
                     }
                     .photosPicker(isPresented: $showPhotoLibrary, selection: $selectedPhoto, matching: .images)
                     .fullScreenCover(isPresented: $showCamera) {
-                        ImagePicker(image: $selectedUIImage, sourceType: .camera)
+                        ImagePicker(image: $viewModel.selectedProfileImage, sourceType: .camera)
                             .ignoresSafeArea()
                     }
                     .onChange(of: selectedPhoto) { _, newValue in
                         Task {
                             if let data = try? await newValue?.loadTransferable(type: Data.self),
                                let uiImage = UIImage(data: data) {
-                                selectedUIImage = uiImage
+                                viewModel.selectedProfileImage = uiImage
                                 selectedImage = Image(uiImage: uiImage)
                                 viewModel.user.profileImageUrl = "pending_upload"
                             }
                         }
                     }
-                    .onChange(of: selectedUIImage) { _, newValue in
+                    .onChange(of: viewModel.selectedProfileImage) { _, newValue in
                         if let uiImage = newValue {
                             selectedImage = Image(uiImage: uiImage)
                             viewModel.user.profileImageUrl = "pending_upload"
@@ -100,25 +104,20 @@ struct CompanyBioLogoView: View {
                     }
                 } else {
                     // Show existing Google Profile Image
-                    VStack(spacing: 16) {
-                        AsyncImage(url: URL(string: viewModel.user.profileImageUrl)) { phase in
-                            switch phase {
-                            case .empty:
-                                ProgressView()
-                                    .frame(width: 120, height: 120)
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 120, height: 120)
-                                    .clipShape(Circle())
-                                    .overlay(Circle().stroke(Color.brandPrimary, lineWidth: 2))
-                            case .failure:
+                    VStack(spacing: DesignSystem.Spacing.standard) {
+                        WebImage(url: URL(string: viewModel.user.profileImageUrl)) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 120, height: 120)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.brandPrimary, lineWidth: 2))
+                        } placeholder: {
+                            ZStack {
                                 Image(systemName: "person.circle.fill")
                                     .font(.system(size: 120))
                                     .foregroundColor(.gray)
-                            @unknown default:
-                                EmptyView()
+                                ProgressView()
                             }
                         }
                         
@@ -129,8 +128,8 @@ struct CompanyBioLogoView: View {
                 }
                 
                 // About You (Personal Bio)
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack(spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
+                    HStack(spacing: DesignSystem.Spacing.xxSmall) {
                         Text("About You")
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(focusedField == .personalBio ? .brandPrimary : .secondary)
@@ -145,24 +144,29 @@ struct CompanyBioLogoView: View {
                             .foregroundColor(.primary)
                             .scrollContentBackground(.hidden) // Needed for custom background in SwiftUI
                             .background(.ultraThinMaterial)
-                            .cornerRadius(12)
+                            .cornerRadius(DesignSystem.CornerRadius.medium)
                             .frame(height: 100) // approx 4 lines
                             .focused($focusedField, equals: .personalBio)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
                                     .stroke(focusedField == .personalBio ? Color.brandPrimary : Color.borderGlare.opacity(0.15), lineWidth: 1)
                             )
                         
                         Text("\(viewModel.user.personalBio.count)/300")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                            .padding(8)
+                            .padding(DesignSystem.Spacing.xSmall)
+                    }
+                    .onChange(of: viewModel.user.personalBio) { _, newValue in
+                        if newValue.count > 300 {
+                            viewModel.user.personalBio = String(newValue.prefix(300))
+                        }
                     }
                 }
                 
                 // About the Company
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack(spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
+                    HStack(spacing: DesignSystem.Spacing.xxSmall) {
                         Text("About the Company")
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(focusedField == .companyBio ? .brandPrimary : .secondary)
@@ -177,21 +181,28 @@ struct CompanyBioLogoView: View {
                             .foregroundColor(.primary)
                             .scrollContentBackground(.hidden)
                             .background(.ultraThinMaterial)
-                            .cornerRadius(12)
+                            .cornerRadius(DesignSystem.CornerRadius.medium)
                             .frame(height: 180) // approx 8 lines
                             .focused($focusedField, equals: .companyBio)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 12)
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
                                     .stroke(focusedField == .companyBio ? Color.brandPrimary : Color.borderGlare.opacity(0.15), lineWidth: 1)
                             )
                         
                         Text("\(viewModel.company.companyBio.count)/1000")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                            .padding(8)
+                            .padding(DesignSystem.Spacing.xSmall)
+                    }
+                    .onChange(of: viewModel.company.companyBio) { _, newValue in
+                        if newValue.count > 1000 {
+                            viewModel.company.companyBio = String(newValue.prefix(1000))
+                        }
                     }
                 }
             }
+            }
+            .padding(.bottom, 20)
         }
     }
 }

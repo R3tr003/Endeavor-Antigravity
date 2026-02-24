@@ -37,93 +37,30 @@ struct EditProfileView: View {
     @State private var showEmailChangeSuccess = false
     @State private var showEmailChangeError = false
     @State private var emailChangeErrorMessage = ""
-    @FocusState private var newEmailFocused: Bool
-    @FocusState private var passwordFocused: Bool
+    
+    enum Field: Hashable {
+        case firstName, lastName, role, personalBio
+        case companyName, website, companyBio
+        case newEmail, password
+    }
+    @FocusState private var focusedField: Field?
     
     // Available options for Focus
     let availableChallenges = ["Hiring", "Fundraising", "Go-to-market", "Ops", "Product", "Intl Expansion"]
     let availableExpertise = ["Scaling", "Product", "Marketing", "Investment", "Strategy", "Operations", "Sales", "Legal"]
     
     // Country/City data
-    let availableCountries = [
-        "Spain", "Italy", "Germany", "France", "United Kingdom",
-        "Argentina", "Australia", "Austria", "Bahrain", "Belgium", "Brazil",
-        "Canada", "Chile", "China", "Colombia", "Czech Republic", "Denmark",
-        "Egypt", "Finland", "Greece", "Hong Kong", "Hungary", "India",
-        "Indonesia", "Ireland", "Israel", "Japan", "Jordan", "Kuwait",
-        "Lebanon", "Malaysia", "Mexico", "Morocco", "Netherlands", "New Zealand",
-        "Norway", "Oman", "Peru", "Philippines", "Poland", "Portugal",
-        "Qatar", "Romania", "Saudi Arabia", "Singapore", "South Korea", "Sweden",
-        "Switzerland", "Taiwan", "Thailand", "Tunisia", "Turkey",
-        "United Arab Emirates", "United States", "Vietnam"
-    ]
-    
-    let citiesByCountry: [String: [String]] = [
-        "Italy": ["Milan", "Rome", "Turin", "Florence", "Naples", "Bologna", "Venice", "Genoa", "Verona", "Palermo"],
-        "Spain": ["Madrid", "Barcelona", "Valencia", "Seville", "Bilbao", "Malaga", "Zaragoza", "Murcia", "Palma"],
-        "Germany": ["Berlin", "Munich", "Frankfurt", "Hamburg", "Cologne", "Düsseldorf", "Stuttgart", "Leipzig", "Dresden", "Nuremberg"],
-        "France": ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Nantes", "Strasbourg", "Bordeaux", "Lille", "Montpellier"],
-        "United Kingdom": ["London", "Manchester", "Birmingham", "Edinburgh", "Glasgow", "Bristol", "Leeds", "Liverpool", "Cambridge", "Oxford"],
-        "Netherlands": ["Amsterdam", "Rotterdam", "The Hague", "Utrecht", "Eindhoven"],
-        "Belgium": ["Brussels", "Antwerp", "Ghent", "Bruges", "Leuven"],
-        "Switzerland": ["Zurich", "Geneva", "Basel", "Bern", "Lausanne"],
-        "Austria": ["Vienna", "Salzburg", "Innsbruck", "Graz", "Linz"],
-        "Portugal": ["Lisbon", "Porto", "Braga", "Coimbra", "Faro"],
-        "Poland": ["Warsaw", "Krakow", "Wroclaw", "Gdansk", "Poznan"],
-        "Sweden": ["Stockholm", "Gothenburg", "Malmö", "Uppsala", "Lund"],
-        "Norway": ["Oslo", "Bergen", "Trondheim", "Stavanger"],
-        "Denmark": ["Copenhagen", "Aarhus", "Odense", "Aalborg"],
-        "Finland": ["Helsinki", "Espoo", "Tampere", "Turku", "Oulu"],
-        "Ireland": ["Dublin", "Cork", "Galway", "Limerick"],
-        "Greece": ["Athens", "Thessaloniki", "Patras", "Heraklion"],
-        "Czech Republic": ["Prague", "Brno", "Ostrava", "Pilsen"],
-        "Romania": ["Bucharest", "Cluj-Napoca", "Timisoara", "Iasi"],
-        "Hungary": ["Budapest", "Debrecen", "Szeged", "Miskolc", "Pécs"],
-        "United States": ["New York", "San Francisco", "Los Angeles", "Chicago", "Boston", "Seattle", "Austin", "Miami", "Denver", "Atlanta", "Washington D.C.", "Philadelphia", "San Diego", "Dallas", "Houston"],
-        "Canada": ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa", "Edmonton"],
-        "Mexico": ["Mexico City", "Guadalajara", "Monterrey", "Puebla", "Tijuana", "Cancún"],
-        "Brazil": ["São Paulo", "Rio de Janeiro", "Brasília", "Belo Horizonte", "Porto Alegre", "Curitiba", "Salvador", "Recife", "Florianópolis"],
-        "Argentina": ["Buenos Aires", "Córdoba", "Rosario", "Mendoza", "Mar del Plata"],
-        "Chile": ["Santiago", "Valparaíso", "Concepción", "Viña del Mar"],
-        "Colombia": ["Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena"],
-        "Peru": ["Lima", "Arequipa", "Cusco", "Trujillo"],
-        "Japan": ["Tokyo", "Osaka", "Kyoto", "Yokohama", "Nagoya", "Fukuoka", "Sapporo", "Kobe"],
-        "South Korea": ["Seoul", "Busan", "Incheon", "Daegu", "Daejeon"],
-        "China": ["Shanghai", "Beijing", "Shenzhen", "Guangzhou", "Hangzhou", "Chengdu", "Nanjing", "Wuhan", "Xi'an", "Suzhou"],
-        "India": ["Mumbai", "Bangalore", "Delhi", "Hyderabad", "Chennai", "Pune", "Kolkata", "Ahmedabad", "Gurgaon", "Noida"],
-        "Singapore": ["Singapore"],
-        "Hong Kong": ["Hong Kong"],
-        "Taiwan": ["Taipei", "Kaohsiung", "Taichung", "Tainan", "Hsinchu"],
-        "Indonesia": ["Jakarta", "Surabaya", "Bandung", "Bali", "Medan"],
-        "Thailand": ["Bangkok", "Chiang Mai", "Phuket", "Pattaya"],
-        "Vietnam": ["Ho Chi Minh City", "Hanoi", "Da Nang", "Hai Phong"],
-        "Malaysia": ["Kuala Lumpur", "Penang", "Johor Bahru", "Melaka"],
-        "Philippines": ["Manila", "Cebu", "Davao", "Quezon City"],
-        "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah"],
-        "Israel": ["Tel Aviv", "Jerusalem", "Haifa", "Herzliya"],
-        "Saudi Arabia": ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"],
-        "Bahrain": ["Manama", "Riffa", "Muharraq"],
-        "Egypt": ["Cairo", "Alexandria", "Giza", "Sharm El Sheikh", "Luxor"],
-        "Jordan": ["Amman", "Aqaba", "Irbid", "Zarqa"],
-        "Kuwait": ["Kuwait City", "Hawalli", "Salmiya"],
-        "Lebanon": ["Beirut", "Tripoli", "Sidon", "Byblos"],
-        "Morocco": ["Casablanca", "Marrakech", "Rabat", "Fez", "Tangier"],
-        "Oman": ["Muscat", "Salalah", "Sohar", "Nizwa"],
-        "Qatar": ["Doha", "Al Wakrah", "Al Khor"],
-        "Tunisia": ["Tunis", "Sfax", "Sousse", "Kairouan"],
-        "Turkey": ["Istanbul", "Ankara", "Izmir", "Antalya", "Bursa", "Adana"],
-        "Australia": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Canberra", "Gold Coast"],
-        "New Zealand": ["Auckland", "Wellington", "Christchurch", "Hamilton", "Queenstown"]
-    ]
+    var availableCountries: [String] { LocationData.shared.availableCountries }
     
     func citiesForCountry(_ country: String) -> [String] {
-        return citiesByCountry[country] ?? []
+        return LocationData.shared.citiesForCountry(country)
     }
     
     var body: some View {
         ZStack {
             // Immersive background
             Color.background.edgesIgnoringSafeArea(.all)
+                .onTapGesture { focusedField = nil }
             
             // Ambient glow
             Circle()
@@ -161,14 +98,14 @@ struct EditProfileView: View {
                         Text("Save")
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(.brandPrimary)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, DesignSystem.Spacing.standard)
+                            .padding(.vertical, DesignSystem.Spacing.xSmall)
                             .background(.ultraThinMaterial, in: Capsule())
                             .overlay(Capsule().stroke(Color.brandPrimary.opacity(0.3), lineWidth: 1))
                     }
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
+                .padding(.horizontal, DesignSystem.Spacing.medium)
+                .padding(.vertical, DesignSystem.Spacing.standard)
                 .background(.regularMaterial)
                 
                 // MARK: - Glass Pill Tabs
@@ -183,7 +120,7 @@ struct EditProfileView: View {
                                 .font(.system(size: 14, weight: selectedTab == tab ? .bold : .medium, design: .rounded))
                                 .foregroundColor(selectedTab == tab ? .white : .primary)
                                 .padding(.vertical, 10)
-                                .padding(.horizontal, 20)
+                                .padding(.horizontal, DesignSystem.Spacing.medium)
                                 .background(
                                     ZStack {
                                         if selectedTab == tab {
@@ -199,12 +136,12 @@ struct EditProfileView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
+                .padding(.horizontal, DesignSystem.Spacing.medium)
+                .padding(.vertical, DesignSystem.Spacing.standard)
                 
                 // MARK: - Content
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 20) {
+                    VStack(spacing: DesignSystem.Spacing.medium) {
                         if selectedTab == "Personal" {
                             personalEditContent
                         } else if selectedTab == "Company" {
@@ -213,33 +150,14 @@ struct EditProfileView: View {
                             focusEditContent
                         }
                     }
-                    .padding(20)
-                    .padding(.bottom, 40)
+                    .padding(DesignSystem.Spacing.medium)
+                    .padding(.bottom, DesignSystem.Spacing.xxLarge)
                     .animation(.easeInOut(duration: 0.3), value: selectedTab)
                 }
             }
         }
         .onAppear {
-            // Load current values
-            if let user = appViewModel.currentUser {
-                firstName = user.firstName
-                lastName = user.lastName
-                role = user.role
-                personalBio = user.personalBio
-            }
-            if let company = appViewModel.companyProfile {
-                companyName = company.name
-                website = company.website
-                hqCountry = company.hqCountry
-                hqCity = company.hqCity
-                companyBio = company.companyBio
-                challenges = company.challenges
-                desiredExpertise = company.desiredExpertise
-            }
-            
-            withAnimation(.easeInOut(duration: 5).repeatForever(autoreverses: true)) {
-                animateGlow.toggle()
-            }
+            loadCurrentData()
         }
         .alert(isPresented: $showingAlert) {
             Alert(title: Text("Missing Information"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
@@ -263,17 +181,17 @@ struct EditProfileView: View {
     }
     
     // MARK: - Glass Input Helper
-    func glassTextField(title: String, placeholder: String, text: Binding<String>, isRequired: Bool = false) -> some View {
-        GlassTextFieldView(title: title, placeholder: placeholder, text: text, isRequired: isRequired)
+    func glassTextField(title: String, placeholder: String, text: Binding<String>, field: Field, isRequired: Bool = false) -> some View {
+        GlassTextFieldView(title: title, placeholder: placeholder, text: text, isHighlighted: focusedField == field, isRequired: isRequired)
     }
     
-    func glassTextEditor(title: String, placeholder: String, text: Binding<String>, charLimit: Int, isRequired: Bool = false) -> some View {
-        GlassTextEditorView(title: title, placeholder: placeholder, text: text, charLimit: charLimit, isRequired: isRequired)
+    func glassTextEditor(title: String, placeholder: String, text: Binding<String>, charLimit: Int, field: Field, isRequired: Bool = false) -> some View {
+        GlassTextEditorView(title: title, placeholder: placeholder, text: text, charLimit: charLimit, isHighlighted: focusedField == field, isRequired: isRequired)
     }
     
     func glassDropdown(title: String, selection: String, placeholder: String, isRequired: Bool = false, @ViewBuilder menuContent: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 4) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
+            HStack(spacing: DesignSystem.Spacing.xxSmall) {
                 Text(title)
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundColor(.primary.opacity(0.8))
@@ -296,10 +214,10 @@ struct EditProfileView: View {
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundColor(.secondary)
                 }
-                .padding(16)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .padding(DesignSystem.Spacing.standard)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                         .stroke(Color.white.opacity(0.15), lineWidth: 1)
                 )
             }
@@ -309,21 +227,21 @@ struct EditProfileView: View {
     
     // MARK: - Sections wrapped in glass card
     func glassSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
             Text(title)
                 .font(.system(size: 14, weight: .bold, design: .rounded))
                 .textCase(.uppercase)
                 .foregroundColor(.primary.opacity(0.7))
                 .kerning(1)
-                .padding(.horizontal, 4)
+                .padding(.horizontal, DesignSystem.Spacing.xxSmall)
             
-            VStack(spacing: 16) {
+            VStack(spacing: DesignSystem.Spacing.standard) {
                 content()
             }
-            .padding(20)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .padding(DesignSystem.Spacing.medium)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous)
                     .stroke(Color.brandPrimary.opacity(0.4), lineWidth: 1.5)
             )
             .shadow(color: Color.brandPrimary.opacity(0.15), radius: 15, x: 0, y: 8)
@@ -332,19 +250,31 @@ struct EditProfileView: View {
     
     // MARK: - Personal Tab
     var personalEditContent: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: DesignSystem.Spacing.large) {
             glassSection(title: "Personal Information") {
-                glassTextField(title: "First Name", placeholder: "Enter your first name", text: $firstName, isRequired: true)
-                glassTextField(title: "Last Name", placeholder: "Enter your last name", text: $lastName, isRequired: true)
-                glassTextField(title: "Role/Title", placeholder: "e.g. CEO, CTO", text: $role, isRequired: true)
+                glassTextField(title: "First Name", placeholder: "Enter your first name", text: $firstName, field: .firstName, isRequired: true)
+                    .focused($focusedField, equals: .firstName)
+                    .submitLabel(.next)
+                    .onSubmit { focusedField = .lastName }
+                
+                glassTextField(title: "Last Name", placeholder: "Enter your last name", text: $lastName, field: .lastName, isRequired: true)
+                    .focused($focusedField, equals: .lastName)
+                    .submitLabel(.next)
+                    .onSubmit { focusedField = .role }
+                
+                glassTextField(title: "Role/Title", placeholder: "e.g. CEO, CTO", text: $role, field: .role, isRequired: true)
+                    .focused($focusedField, equals: .role)
+                    .submitLabel(.next)
+                    .onSubmit { focusedField = .personalBio }
             }
             
             glassSection(title: "About You") {
-                glassTextEditor(title: "Bio", placeholder: "Tell us a bit about yourself...", text: $personalBio, charLimit: 300, isRequired: true)
+                glassTextEditor(title: "Bio", placeholder: "Tell us a bit about yourself...", text: $personalBio, charLimit: 300, field: .personalBio, isRequired: true)
+                    .focused($focusedField, equals: .personalBio)
             }
             
             glassSection(title: "Contact") {
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
                     Text("Work Email")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.primary.opacity(0.8))
@@ -352,11 +282,11 @@ struct EditProfileView: View {
                     Text(appViewModel.currentUser?.email ?? "No Email")
                         .font(.system(size: 16, design: .rounded))
                         .foregroundColor(.secondary)
-                        .padding(16)
+                        .padding(DesignSystem.Spacing.standard)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 16)
+                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                                 .stroke(Color.white.opacity(0.1), lineWidth: 1)
                         )
                     
@@ -365,7 +295,7 @@ struct EditProfileView: View {
                             showEmailChange.toggle()
                         }
                     }) {
-                        HStack(spacing: 4) {
+                        HStack(spacing: DesignSystem.Spacing.xxSmall) {
                             Text("Do you want to change the email?")
                                 .foregroundColor(.brandPrimary)
                             Image(systemName: showEmailChange ? "chevron.up" : "chevron.down")
@@ -379,7 +309,7 @@ struct EditProfileView: View {
                         VStack(spacing: 16) {
                             // New Email field with focus glow
                             VStack(alignment: .leading, spacing: 8) {
-                                HStack(spacing: 4) {
+                                HStack(spacing: DesignSystem.Spacing.xxSmall) {
                                     Text("New Email")
                                         .font(.system(size: 14, weight: .bold, design: .rounded))
                                         .foregroundColor(.primary.opacity(0.8))
@@ -393,18 +323,20 @@ struct EditProfileView: View {
                                     .foregroundColor(.primary)
                                     .autocapitalization(.none)
                                     .keyboardType(.emailAddress)
-                                    .focused($newEmailFocused)
-                                    .padding(16)
-                                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                                    .focused($focusedField, equals: .newEmail)
+                                    .submitLabel(.next)
+                                    .onSubmit { focusedField = .password }
+                                    .padding(DesignSystem.Spacing.standard)
+                                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: 16)
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                                             .stroke(
-                                                newEmailFocused ? Color.brandPrimary :
+                                                focusedField == .newEmail ? Color.brandPrimary :
                                                 Color.white.opacity(0.15),
-                                                lineWidth: newEmailFocused ? 1.5 : 1
+                                                lineWidth: focusedField == .newEmail ? 1.5 : 1
                                             )
+                                            .animation(.easeInOut(duration: 0.2), value: focusedField == .newEmail)
                                     )
-                                    .animation(.easeInOut(duration: 0.2), value: newEmailFocused)
                             }
                             
                             if !appViewModel.isGoogleUser {
@@ -416,21 +348,23 @@ struct EditProfileView: View {
                                     SecureField("Enter your current password", text: $emailChangePassword)
                                         .font(.system(size: 16, design: .rounded))
                                         .foregroundColor(.primary)
-                                        .focused($passwordFocused)
+                                        .focused($focusedField, equals: .password)
+                                        .submitLabel(.done)
+                                        .onSubmit { sendEmailChange() }
                                         .disabled(!isNewEmailValid)
-                                        .padding(16)
-                                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                                        .padding(DesignSystem.Spacing.standard)
+                                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                                         .overlay(
-                                            RoundedRectangle(cornerRadius: 16)
+                                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                                                 .stroke(
-                                                    passwordFocused ? Color.brandPrimary :
+                                                    focusedField == .password ? Color.brandPrimary :
                                                     Color.white.opacity(isNewEmailValid ? 0.15 : 0.05),
-                                                    lineWidth: passwordFocused ? 1.5 : 1
+                                                    lineWidth: focusedField == .password ? 1.5 : 1
                                                 )
+                                                .animation(.easeInOut(duration: 0.2), value: focusedField == .password)
                                         )
                                         .opacity(isNewEmailValid ? 1.0 : 0.4)
                                         .animation(.easeInOut(duration: 0.25), value: isNewEmailValid)
-                                        .animation(.easeInOut(duration: 0.2), value: passwordFocused)
                                 }
                             }
                             
@@ -457,10 +391,10 @@ struct EditProfileView: View {
                             }
                             .disabled(!isEmailChangeValid || appViewModel.isLoading)
                         }
-                        .padding(16)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
+                        .padding(DesignSystem.Spacing.standard)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.Spacing.medium))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 20)
+                            RoundedRectangle(cornerRadius: DesignSystem.Spacing.medium)
                                 .stroke(Color.brandPrimary.opacity(0.2), lineWidth: 1)
                         )
                         .transition(.opacity.combined(with: .move(edge: .top)))
@@ -472,10 +406,17 @@ struct EditProfileView: View {
     
     // MARK: - Company Tab
     var companyEditContent: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: DesignSystem.Spacing.large) {
             glassSection(title: "Company Info") {
-                glassTextField(title: "Company Name", placeholder: "Enter company name", text: $companyName, isRequired: true)
-                glassTextField(title: "Website", placeholder: "https://example.com", text: $website, isRequired: true)
+                glassTextField(title: "Company Name", placeholder: "Enter company name", text: $companyName, field: .companyName, isRequired: true)
+                    .focused($focusedField, equals: .companyName)
+                    .submitLabel(.next)
+                    .onSubmit { focusedField = .website }
+                
+                glassTextField(title: "Website", placeholder: "https://example.com", text: $website, field: .website, isRequired: true)
+                    .focused($focusedField, equals: .website)
+                    .submitLabel(.next)
+                    .onSubmit { focusedField = .companyBio }
             }
             
             glassSection(title: "Headquarters") {
@@ -503,23 +444,24 @@ struct EditProfileView: View {
             }
             
             glassSection(title: "About Company") {
-                glassTextEditor(title: "Company Bio", placeholder: "Describe your company mission and goals...", text: $companyBio, charLimit: 1000, isRequired: true)
+                glassTextEditor(title: "Company Bio", placeholder: "Describe your company mission and goals...", text: $companyBio, charLimit: 1000, field: .companyBio, isRequired: true)
+                    .focused($focusedField, equals: .companyBio)
             }
         }
     }
     
     // MARK: - Focus Tab
     var focusEditContent: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: DesignSystem.Spacing.large) {
             glassSection(title: "Your Top 3 Challenges") {
-                FlowLayout(spacing: 8) {
+                FlowLayout(spacing: DesignSystem.Spacing.xSmall) {
                     ForEach(availableChallenges, id: \.self) { challenge in
                         Button(action: { toggleChallenge(challenge) }) {
                             Text(challenge)
                                 .font(.system(size: 14, weight: challenges.contains(challenge) ? .bold : .medium, design: .rounded))
                                 .foregroundColor(challenges.contains(challenge) ? .white : .primary)
                                 .padding(.vertical, 10)
-                                .padding(.horizontal, 16)
+                                .padding(.horizontal, DesignSystem.Spacing.standard)
                                 .background(
                                     challenges.contains(challenge)
                                     ? AnyShapeStyle(Color.brandPrimary)
@@ -538,14 +480,14 @@ struct EditProfileView: View {
             }
             
             glassSection(title: "Desired Mentor Expertise") {
-                FlowLayout(spacing: 8) {
+                FlowLayout(spacing: DesignSystem.Spacing.xSmall) {
                     ForEach(availableExpertise, id: \.self) { expertise in
                         Button(action: { toggleExpertise(expertise) }) {
                             Text(expertise)
                                 .font(.system(size: 14, weight: desiredExpertise.contains(expertise) ? .bold : .medium, design: .rounded))
                                 .foregroundColor(desiredExpertise.contains(expertise) ? .white : .primary)
                                 .padding(.vertical, 10)
-                                .padding(.horizontal, 16)
+                                .padding(.horizontal, DesignSystem.Spacing.standard)
                                 .background(
                                     desiredExpertise.contains(expertise)
                                     ? AnyShapeStyle(Color.brandPrimary)
@@ -582,6 +524,7 @@ struct EditProfileView: View {
     }
     
     func saveChanges() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         // Validation
         let personalBioClean = personalBio.trimmingCharacters(in: .whitespacesAndNewlines)
         let companyBioClean = companyBio.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -631,6 +574,7 @@ struct EditProfileView: View {
     }
     
     func sendEmailChange() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         let password = appViewModel.isGoogleUser ? nil : emailChangePassword
         appViewModel.changeEmail(newEmail: newEmail.lowercased(), password: password) { result in
             switch result {
@@ -653,6 +597,33 @@ struct EditProfileView: View {
             }
         }
     }
+    
+    // MARK: - Helper Methods
+    
+    private func loadCurrentData() {
+        if let user = appViewModel.currentUser {
+            firstName = user.firstName
+            lastName = user.lastName
+            role = user.role
+            personalBio = user.personalBio
+        }
+        if let company = appViewModel.companyProfile {
+            companyName = company.name
+            website = company.website
+            hqCountry = company.hqCountry
+            hqCity = company.hqCity
+            companyBio = company.companyBio
+            challenges = company.challenges
+            desiredExpertise = company.desiredExpertise
+        }
+        
+        // Ensure animation happens only once or is handled correctly
+        if !animateGlow {
+            withAnimation(.easeInOut(duration: 5).repeatForever(autoreverses: true)) {
+                animateGlow = true
+            }
+        }
+    }
 }
 
 // MARK: - Glass TextField with Focus Glow
@@ -660,12 +631,12 @@ struct GlassTextFieldView: View {
     let title: String
     let placeholder: String
     @Binding var text: String
+    var isHighlighted: Bool
     var isRequired: Bool = false
-    @FocusState private var isFocused: Bool
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 4) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
+            HStack(spacing: DesignSystem.Spacing.xxSmall) {
                 Text(title)
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundColor(.primary.opacity(0.8))
@@ -679,17 +650,16 @@ struct GlassTextFieldView: View {
             TextField(placeholder, text: $text)
                 .font(.system(size: 16, design: .rounded))
                 .foregroundColor(.primary)
-                .focused($isFocused)
-                .padding(16)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .padding(DesignSystem.Spacing.standard)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                         .stroke(
-                            isFocused ? Color.brandPrimary : Color.borderGlare.opacity(0.15),
-                            lineWidth: isFocused ? 1.5 : 1
+                            isHighlighted ? Color.brandPrimary : Color.borderGlare.opacity(0.15),
+                            lineWidth: isHighlighted ? 1.5 : 1
                         )
+                        .animation(.easeInOut(duration: 0.2), value: isHighlighted)
                 )
-                .animation(.easeInOut(duration: 0.2), value: isFocused)
         }
     }
 }
@@ -700,8 +670,8 @@ struct GlassTextEditorView: View {
     let placeholder: String
     @Binding var text: String
     var charLimit: Int
+    var isHighlighted: Bool
     var isRequired: Bool = false
-    @FocusState private var isFocused: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -722,24 +692,23 @@ struct GlassTextEditorView: View {
                     .foregroundColor(.primary)
                     .scrollContentBackground(.hidden)
                     .frame(minHeight: 100, maxHeight: 160)
-                    .padding(12)
-                    .focused($isFocused)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    .padding(DesignSystem.Spacing.small)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                             .stroke(
-                                isFocused ? Color.brandPrimary : Color.borderGlare.opacity(0.15),
-                                lineWidth: isFocused ? 1.5 : 1
+                                isHighlighted ? Color.brandPrimary : Color.borderGlare.opacity(0.15),
+                                lineWidth: isHighlighted ? 1.5 : 1
                             )
+                            .animation(.easeInOut(duration: 0.2), value: isHighlighted)
                     )
-                    .animation(.easeInOut(duration: 0.2), value: isFocused)
                 
                 if text.isEmpty {
                     Text(placeholder)
                         .font(.system(size: 16, design: .rounded))
                         .foregroundColor(.secondary.opacity(0.5))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 20)
+                        .padding(.horizontal, DesignSystem.Spacing.standard)
+                        .padding(.vertical, DesignSystem.Spacing.medium)
                         .allowsHitTesting(false)
                 }
             }

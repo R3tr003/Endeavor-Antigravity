@@ -4,8 +4,8 @@ struct FocusView: View {
     @ObservedObject var viewModel: OnboardingViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                 Text("Focus")
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
@@ -15,10 +15,10 @@ struct FocusView: View {
                     .foregroundColor(.secondary)
             }
             
-            VStack(spacing: 24) {
+            VStack(spacing: DesignSystem.Spacing.large) {
                 // Challenges
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
+                    HStack(spacing: DesignSystem.Spacing.xxSmall) {
                         Text("Your Top 3 Challenges")
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(.secondary)
@@ -27,7 +27,7 @@ struct FocusView: View {
                             .foregroundColor(.red)
                     }
                     
-                    FlowLayout(spacing: 8) {
+                    FlowLayout(spacing: DesignSystem.Spacing.xSmall) {
                         ForEach(viewModel.availableChallenges, id: \.self) { challenge in
                             SelectablePill(
                                 title: challenge,
@@ -39,8 +39,8 @@ struct FocusView: View {
                 }
                 
                 // Desired Expertise
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 4) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
+                    HStack(spacing: DesignSystem.Spacing.xxSmall) {
                         Text("Desired Mentor Expertise")
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(.secondary)
@@ -49,7 +49,7 @@ struct FocusView: View {
                             .foregroundColor(.red)
                     }
                     
-                    FlowLayout(spacing: 8) {
+                    FlowLayout(spacing: DesignSystem.Spacing.xSmall) {
                         ForEach(viewModel.availableExpertise, id: \.self) { expertise in
                             SelectablePill(
                                 title: expertise,

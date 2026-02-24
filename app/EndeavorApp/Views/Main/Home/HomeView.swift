@@ -32,9 +32,9 @@ struct HomeView: View {
                 }
                 .frame(height: 0)
                 
-                VStack(alignment: .leading, spacing: 32) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xLarge) {
                     // Modern Header with Large Typography
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                         Text("Welcome back,")
                             .font(.system(size: 20, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
@@ -44,14 +44,14 @@ struct HomeView: View {
                             .foregroundColor(.primary)
                             .tracking(-1)
                     }
-                    .padding(.top, 16)
-                    .padding(.horizontal, 24)
+                    .padding(.top, DesignSystem.Spacing.standard)
+                    .padding(.horizontal, DesignSystem.Spacing.large)
                     
                     // Cards Grid Area
-                    VStack(spacing: 20) {
+                    VStack(spacing: DesignSystem.Spacing.medium) {
                         DashboardCard {
                             HStack {
-                                VStack(alignment: .leading, spacing: 12) {
+                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
                                     Text("Impact Score")
                                         .font(.caption)
                                         .textCase(.uppercase)
@@ -77,12 +77,12 @@ struct HomeView: View {
                                     )
                             }
                         }
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, DesignSystem.Spacing.large)
                         
                         // Side-by-side metrics
-                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 20), GridItem(.flexible(), spacing: 20)], spacing: 20) {
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: DesignSystem.Spacing.medium), GridItem(.flexible(), spacing: DesignSystem.Spacing.medium)], spacing: DesignSystem.Spacing.medium) {
                             DashboardCard {
-                                VStack(alignment: .leading, spacing: 12) {
+                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
                                     Image(systemName: "clock.fill")
                                         .font(.title2)
                                         .foregroundColor(.brandPrimary)
@@ -97,7 +97,7 @@ struct HomeView: View {
                             }
                             
                             DashboardCard {
-                                VStack(alignment: .leading, spacing: 12) {
+                                VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
                                     Image(systemName: "person.2.fill")
                                         .font(.title2)
                                         .foregroundColor(.blue) // Variation
@@ -111,18 +111,18 @@ struct HomeView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
                         }
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, DesignSystem.Spacing.large)
                     }
                     
                     // Upcoming Events Section
-                    VStack(alignment: .leading, spacing: 20) {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
                         Text("Upcoming Sessions")
                             .font(.system(size: 24, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
-                            .padding(.horizontal, 24)
+                            .padding(.horizontal, DesignSystem.Spacing.large)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
+                            HStack(spacing: DesignSystem.Spacing.standard) {
                                 // Event Card 1
                                 EventCard(
                                     title: "Founder's Circle",
@@ -137,13 +137,13 @@ struct HomeView: View {
                                     color: .purple
                                 )
                             }
-                            .padding(.horizontal, 24)
-                            .padding(.bottom, 20) // For shadow clearance
+                            .padding(.horizontal, DesignSystem.Spacing.large)
+                            .padding(.bottom, DesignSystem.Spacing.medium) // For shadow clearance
                         }
                     }
-                    .padding(.top, 16)
+                    .padding(.top, DesignSystem.Spacing.standard)
                     
-                    Spacer(minLength: 120) // Deep padding for the floating tab bar
+                    Spacer(minLength: DesignSystem.Spacing.bottomSafePadding) // Deep padding for the floating tab bar
                 }
             }
             .coordinateSpace(name: "scroll")
@@ -182,11 +182,11 @@ struct EventCard: View {
     let color: Color
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
             HStack {
                 Circle()
                     .fill(color.opacity(0.2))
-                    .frame(width: 40, height: 40)
+                    .frame(width: DesignSystem.Spacing.xxLarge, height: DesignSystem.Spacing.xxLarge)
                     .overlay(
                         Image(systemName: "calendar")
                             .foregroundColor(color)
@@ -196,7 +196,7 @@ struct EventCard: View {
                     .foregroundColor(.secondary)
             }
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxSmall) {
                 Text(title)
                     .font(.system(size: 18, weight: .semibold, design: .rounded))
                     .foregroundColor(.primary)
@@ -210,27 +210,19 @@ struct EventCard: View {
                     .font(.headline)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
+                    .padding(.vertical, DesignSystem.Spacing.small)
                     .background(color)
                     .clipShape(Capsule())
             }
         }
-        .padding(20)
+        .padding(DesignSystem.Spacing.medium)
         .frame(width: 260)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous)
                 .stroke(Color.white.opacity(0.15), lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
-    }
-}
-
-// Scroll Preference Key
-struct ScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
     }
 }
 

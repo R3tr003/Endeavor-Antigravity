@@ -5,16 +5,15 @@ struct UserProfile: Codable, Identifiable {
     var firstName: String = ""
     var lastName: String = ""
     var role: String = ""
-    var email: String = "alex@endeavor.org" // Default per spec
+    var email: String = "" // Removed hardcoded default
     var location: String = ""
 
     var timeZone: String = ""
     var profileImageUrl: String = "" // Added for Google Sign In
     var personalBio: String = "" // "About You" from onboarding
     
-    // Formatting helper
     var fullName: String {
-        "\(firstName) \(lastName)"
+        "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
     }
 }
 

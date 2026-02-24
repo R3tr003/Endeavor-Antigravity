@@ -5,6 +5,7 @@ class OnboardingViewModel: ObservableObject {
     // Data being collected
     @Published var user = UserProfile()
     @Published var company = CompanyProfile()
+    @Published var selectedProfileImage: UIImage? = nil
     
     // Navigation State
     @Published var currentStep: Int = 1
@@ -23,7 +24,7 @@ class OnboardingViewModel: ObservableObject {
     }
 
     var isStep1Valid: Bool {
-        !user.firstName.isEmpty && !user.lastName.isEmpty && !user.role.isEmpty
+        isSocialLogin ? !user.role.isEmpty : (!user.firstName.isEmpty && !user.lastName.isEmpty && !user.role.isEmpty)
     }
     
     var isStep2Valid: Bool {
@@ -70,89 +71,10 @@ class OnboardingViewModel: ObservableObject {
     let availableChallenges = ["Hiring", "Fundraising", "Go-to-market", "Ops", "Product", "Intl Expansion"]
     let availableExpertise = ["Scaling", "Product", "Marketing", "Investment", "Strategy", "Operations", "Sales", "Legal"]
     
-    // Countries (Top 5 prioritized, then alphabetical order)
-    let availableCountries = [
-        // Top 5 Priority
-        "Spain", "Italy", "Germany", "France", "United Kingdom",
-        // Rest alphabetically
-        "Argentina", "Australia", "Austria", "Bahrain", "Belgium", "Brazil",
-        "Canada", "Chile", "China", "Colombia", "Czech Republic", "Denmark",
-        "Egypt", "Finland", "Greece", "Hong Kong", "Hungary", "India",
-        "Indonesia", "Ireland", "Israel", "Japan", "Jordan", "Kuwait",
-        "Lebanon", "Malaysia", "Mexico", "Morocco", "Netherlands", "New Zealand",
-        "Norway", "Oman", "Peru", "Philippines", "Poland", "Portugal",
-        "Qatar", "Romania", "Saudi Arabia", "Singapore", "South Korea", "Sweden",
-        "Switzerland", "Taiwan", "Thailand", "Tunisia", "Turkey",
-        "United Arab Emirates", "United States", "Vietnam"
-    ]
-    
-    // Cities by country (5-15 major cities each)
-    let citiesByCountry: [String: [String]] = [
-        // Europe - Priority
-        "Italy": ["Milan", "Rome", "Turin", "Florence", "Naples", "Bologna", "Venice", "Genoa", "Verona", "Palermo"],
-        "Spain": ["Madrid", "Barcelona", "Valencia", "Seville", "Bilbao", "Malaga", "Zaragoza", "Murcia", "Palma"],
-        "Germany": ["Berlin", "Munich", "Frankfurt", "Hamburg", "Cologne", "Düsseldorf", "Stuttgart", "Leipzig", "Dresden", "Nuremberg"],
-        "France": ["Paris", "Lyon", "Marseille", "Toulouse", "Nice", "Nantes", "Strasbourg", "Bordeaux", "Lille", "Montpellier"],
-        "United Kingdom": ["London", "Manchester", "Birmingham", "Edinburgh", "Glasgow", "Bristol", "Leeds", "Liverpool", "Cambridge", "Oxford"],
-        // Europe - Other
-        "Netherlands": ["Amsterdam", "Rotterdam", "The Hague", "Utrecht", "Eindhoven"],
-        "Belgium": ["Brussels", "Antwerp", "Ghent", "Bruges", "Leuven"],
-        "Switzerland": ["Zurich", "Geneva", "Basel", "Bern", "Lausanne"],
-        "Austria": ["Vienna", "Salzburg", "Innsbruck", "Graz", "Linz"],
-        "Portugal": ["Lisbon", "Porto", "Braga", "Coimbra", "Faro"],
-        "Poland": ["Warsaw", "Krakow", "Wroclaw", "Gdansk", "Poznan"],
-        "Sweden": ["Stockholm", "Gothenburg", "Malmö", "Uppsala", "Lund"],
-        "Norway": ["Oslo", "Bergen", "Trondheim", "Stavanger"],
-        "Denmark": ["Copenhagen", "Aarhus", "Odense", "Aalborg"],
-        "Finland": ["Helsinki", "Espoo", "Tampere", "Turku", "Oulu"],
-        "Ireland": ["Dublin", "Cork", "Galway", "Limerick"],
-        "Greece": ["Athens", "Thessaloniki", "Patras", "Heraklion"],
-        "Czech Republic": ["Prague", "Brno", "Ostrava", "Pilsen"],
-        "Romania": ["Bucharest", "Cluj-Napoca", "Timisoara", "Iasi"],
-        "Hungary": ["Budapest", "Debrecen", "Szeged", "Miskolc", "Pécs"],
-        // Americas
-        "United States": ["New York", "San Francisco", "Los Angeles", "Chicago", "Boston", "Seattle", "Austin", "Miami", "Denver", "Atlanta", "Washington D.C.", "Philadelphia", "San Diego", "Dallas", "Houston"],
-        "Canada": ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa", "Edmonton"],
-        "Mexico": ["Mexico City", "Guadalajara", "Monterrey", "Puebla", "Tijuana", "Cancún"],
-        "Brazil": ["São Paulo", "Rio de Janeiro", "Brasília", "Belo Horizonte", "Porto Alegre", "Curitiba", "Salvador", "Recife", "Florianópolis"],
-        "Argentina": ["Buenos Aires", "Córdoba", "Rosario", "Mendoza", "Mar del Plata"],
-        "Chile": ["Santiago", "Valparaíso", "Concepción", "Viña del Mar"],
-        "Colombia": ["Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena"],
-        "Peru": ["Lima", "Arequipa", "Cusco", "Trujillo"],
-        // Asia
-        "Japan": ["Tokyo", "Osaka", "Kyoto", "Yokohama", "Nagoya", "Fukuoka", "Sapporo", "Kobe"],
-        "South Korea": ["Seoul", "Busan", "Incheon", "Daegu", "Daejeon"],
-        "China": ["Shanghai", "Beijing", "Shenzhen", "Guangzhou", "Hangzhou", "Chengdu", "Nanjing", "Wuhan", "Xi'an", "Suzhou"],
-        "India": ["Mumbai", "Bangalore", "Delhi", "Hyderabad", "Chennai", "Pune", "Kolkata", "Ahmedabad", "Gurgaon", "Noida"],
-        "Singapore": ["Singapore"],
-        "Hong Kong": ["Hong Kong"],
-        "Taiwan": ["Taipei", "Kaohsiung", "Taichung", "Tainan", "Hsinchu"],
-        "Indonesia": ["Jakarta", "Surabaya", "Bandung", "Bali", "Medan"],
-        "Thailand": ["Bangkok", "Chiang Mai", "Phuket", "Pattaya"],
-        "Vietnam": ["Ho Chi Minh City", "Hanoi", "Da Nang", "Hai Phong"],
-        "Malaysia": ["Kuala Lumpur", "Penang", "Johor Bahru", "Melaka"],
-        "Philippines": ["Manila", "Cebu", "Davao", "Quezon City"],
-        "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah"],
-        "Israel": ["Tel Aviv", "Jerusalem", "Haifa", "Herzliya"],
-        "Saudi Arabia": ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"],
-        // Middle East - Additional
-        "Bahrain": ["Manama", "Riffa", "Muharraq"],
-        "Egypt": ["Cairo", "Alexandria", "Giza", "Sharm El Sheikh", "Luxor"],
-        "Jordan": ["Amman", "Aqaba", "Irbid", "Zarqa"],
-        "Kuwait": ["Kuwait City", "Hawalli", "Salmiya"],
-        "Lebanon": ["Beirut", "Tripoli", "Sidon", "Byblos"],
-        "Morocco": ["Casablanca", "Marrakech", "Rabat", "Fez", "Tangier"],
-        "Oman": ["Muscat", "Salalah", "Sohar", "Nizwa"],
-        "Qatar": ["Doha", "Al Wakrah", "Al Khor"],
-        "Tunisia": ["Tunis", "Sfax", "Sousse", "Kairouan"],
-        "Turkey": ["Istanbul", "Ankara", "Izmir", "Antalya", "Bursa", "Adana"],
-        // Oceania
-        "Australia": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Canberra", "Gold Coast"],
-        "New Zealand": ["Auckland", "Wellington", "Christchurch", "Hamilton", "Queenstown"]
-    ]
+    var availableCountries: [String] { LocationData.shared.availableCountries }
     
     func citiesForCountry(_ country: String) -> [String] {
-        return citiesByCountry[country] ?? []
+        return LocationData.shared.citiesForCountry(country)
     }
     
     func toggleIndustry(_ industry: String) {
@@ -181,5 +103,70 @@ class OnboardingViewModel: ObservableObject {
         } else {
             company.desiredExpertise.append(expertise)
         }
+    }
+    
+    // MARK: - Draft Persistence (App Lifecycle)
+    
+    private static let draftKey = "onboarding_draft"
+    
+    /// Saves the current onboarding state to UserDefaults so it survives app backgrounding
+    func saveDraft() {
+        let draft: [String: Any] = [
+            "currentStep": currentStep,
+            "firstName": user.firstName,
+            "lastName": user.lastName,
+            "role": user.role,
+            "email": user.email,
+            "personalBio": user.personalBio,
+            "companyName": company.name,
+            "companyWebsite": company.website,
+            "hqCountry": company.hqCountry,
+            "hqCity": company.hqCity,
+            "industries": company.industries,
+            "stage": company.stage,
+            "employeeRange": company.employeeRange,
+            "companyBio": company.companyBio,
+            "challenges": company.challenges,
+            "desiredExpertise": company.desiredExpertise,
+            "isSocialLogin": isSocialLogin
+        ]
+        UserDefaults.standard.set(draft, forKey: Self.draftKey)
+        print("📝 Onboarding draft saved at step \(currentStep)")
+    }
+    
+    /// Restores onboarding state from a previously saved draft
+    func loadDraft() {
+        guard let draft = UserDefaults.standard.dictionary(forKey: Self.draftKey) else { return }
+        
+        currentStep = draft["currentStep"] as? Int ?? 1
+        user.firstName = draft["firstName"] as? String ?? ""
+        user.lastName = draft["lastName"] as? String ?? ""
+        user.role = draft["role"] as? String ?? ""
+        user.email = draft["email"] as? String ?? ""
+        user.personalBio = draft["personalBio"] as? String ?? ""
+        company.name = draft["companyName"] as? String ?? ""
+        company.website = draft["companyWebsite"] as? String ?? ""
+        company.hqCountry = draft["hqCountry"] as? String ?? ""
+        company.hqCity = draft["hqCity"] as? String ?? ""
+        company.industries = draft["industries"] as? [String] ?? []
+        company.stage = draft["stage"] as? String ?? ""
+        company.employeeRange = draft["employeeRange"] as? String ?? ""
+        company.companyBio = draft["companyBio"] as? String ?? ""
+        company.challenges = draft["challenges"] as? [String] ?? []
+        company.desiredExpertise = draft["desiredExpertise"] as? [String] ?? []
+        isSocialLogin = draft["isSocialLogin"] as? Bool ?? false
+        
+        print("📋 Onboarding draft restored at step \(currentStep)")
+    }
+    
+    /// Clears the saved draft (call after successful onboarding completion)
+    func clearDraft() {
+        UserDefaults.standard.removeObject(forKey: Self.draftKey)
+        print("🗑️ Onboarding draft cleared")
+    }
+    
+    /// Whether a saved draft exists
+    static var hasDraft: Bool {
+        UserDefaults.standard.dictionary(forKey: draftKey) != nil
     }
 }

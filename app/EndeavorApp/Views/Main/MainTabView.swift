@@ -66,7 +66,7 @@ struct MainTabView: View {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 4 }
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, DesignSystem.Spacing.medium)
             .padding(.vertical, 14)
             .background(.regularMaterial, in: Capsule())
             .overlay(
@@ -78,7 +78,7 @@ struct MainTabView: View {
                     ), lineWidth: 1)
             )
             .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
-            .padding(.horizontal, 24)
+            .padding(.horizontal, DesignSystem.Spacing.large)
             .padding(.bottom, 0) // Sit right above the home indicator
         }
     }
@@ -93,7 +93,7 @@ struct TabItem: View {
     
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 4) {
+            VStack(spacing: DesignSystem.Spacing.xxSmall) {
                 // Animated icon
                 Image(systemName: isSelected ? icon + ".fill" : icon)
                     .font(.system(size: 22, weight: isSelected ? .bold : .regular))
@@ -104,7 +104,7 @@ struct TabItem: View {
                     .font(.system(size: 10, weight: isSelected ? .bold : .medium))
             }
             .foregroundColor(isSelected ? .brandPrimary : .primary.opacity(0.5))
-            .frame(width: 50) // Fixed width to prevent shifting when text bold state changes
+            .frame(width: DesignSystem.Layout.buttonHeight) // Fixed width to prevent shifting when text bold state changes
         }
     }
 }

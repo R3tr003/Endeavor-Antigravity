@@ -86,9 +86,10 @@ if [ -z "$IS_BOOTED" ]; then
     xcrun simctl boot "$SIMULATOR_ID"
     echo "⏳ Waiting for simulator to boot..."
     sleep 5
-    open -a Simulator
 fi
 
+# Always ensure the Simulator app is open and in the foreground
+open -a Simulator
 # 3. Build with xcodebuild
 echo "🔨 Building with Xcode..."
 
@@ -99,7 +100,8 @@ xcodebuild build \
   -project "$PROJECT_PATH" \
   -scheme "$SCHEME_NAME" \
   -destination "$DESTINATION" \
-  -derivedDataPath "$DERIVED_DATA_PATH"
+  -derivedDataPath "$DERIVED_DATA_PATH" \
+  -quiet
 
 if [ $? -ne 0 ]; then
     echo "❌ Build failed."
