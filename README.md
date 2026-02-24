@@ -17,33 +17,50 @@ The application has recently undergone a major UI/UX overhaul and backend integr
 - **Swift 5.9+**
 - **Firebase Account** (for backend services)
 
-## 🚀 Setup
-1. **Clone the repository** to your local machine.
-2. **Firebase Configuration**:
-   - Ensure `GoogleService-Info.plist` is present in `app/EndeavorApp/`.
-   - This file contains the configuration for Firebase Auth and Firestore.
-   - *Note: If this file is missing, the app will crash on launch.*
+## 🚀 Setup & Installation
+Follow these exact steps in your terminal to get the app running from scratch.
+
+**1. Clone the repository**
+```bash
+git clone https://github.com/R3tr003/Endeavor-Antigravity.git
+cd "Endeavor-Antigravity"
+```
+
+**2. Firebase Configuration**
+You must have the `GoogleService-Info.plist` file (provided by the team or downloaded from Firebase Console) placed in the project directory:
+```bash
+# Ensure you copy your plist file into the correct directory:
+cp ~/Downloads/GoogleService-Info.plist "app/EndeavorApp/"
+```
+*(Note: If this file is missing, the app will crash on launch.)*
+
+**3. Make the run script executable**
+Give execution permissions to the build script:
+```bash
+chmod +x run_app.sh
+```
 
 ## 🏃‍♂️ How to Run
 
-### Option 1: Using Xcode (Recommended for Development)
-1. Open the project file: `app/app.xcodeproj`.
-2. Wait for Swift Package Manager (SPM) to resolve dependencies (Firebase).
-3. Select the `app` scheme from the top bar.
-4. Choose a Simulator (e.g., **iPhone 17 Pro**).
-5. Press `Cmd + R` or click the Play button to build and run.
-
-### Option 2: Using CLI Script (Fast Launch)
-For a quick build and launch without opening the full Xcode UI, use the provided script:
-
+### Option 1: Fast CLI Launch (Recommended)
+From the root of the project folder (`Endeavor-Antigravity`), simply run:
 ```bash
 ./run_app.sh
 ```
+This script will automatically:
+- Boot an iOS 17/iPhone 17 Pro simulator.
+- Resolve Swift Package Manager (SPM) dependencies.
+- Build the app via `xcodebuild` (showing only warnings/errors).
+- Install and launch the `.app` bundle.
 
-This script will:
-1. Automatically boot the **iPhone 17 Pro** simulator.
-2. Build the project using `xcodebuild`.
-3. Install and launch the app.
+### Option 2: Using Xcode UI
+1. Open the project file: 
+```bash
+open "app/app.xcodeproj"
+```
+2. Wait for Xcode to finish resolving the Firebase SPM dependencies.
+3. Select the `app` scheme and an `iPhone` simulator from the top bar.
+4. Press `Cmd + R` to build and run.
 
 ## 📂 Project Structure
 - **`app/`**: The main project folder.
