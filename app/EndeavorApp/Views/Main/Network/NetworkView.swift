@@ -94,6 +94,12 @@ struct NetworkView: View {
                     }
                     .padding(.horizontal, 24)
                 }
+                
+                // Status bar blur
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .frame(height: 0)
+                    .ignoresSafeArea(edges: .top)
             }
         }
     }

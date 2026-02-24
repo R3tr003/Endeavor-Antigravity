@@ -150,7 +150,7 @@ struct CompanyBioLogoView: View {
                             .focused($focusedField, equals: .personalBio)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(focusedField == .personalBio ? Color.brandPrimary : Color.primary.opacity(0.1), lineWidth: 1)
+                                    .stroke(focusedField == .personalBio ? Color.brandPrimary : Color.borderGlare.opacity(0.15), lineWidth: 1)
                             )
                         
                         Text("\(viewModel.user.personalBio.count)/300")
@@ -182,7 +182,7 @@ struct CompanyBioLogoView: View {
                             .focused($focusedField, equals: .companyBio)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(focusedField == .companyBio ? Color.brandPrimary : Color.primary.opacity(0.1), lineWidth: 1)
+                                    .stroke(focusedField == .companyBio ? Color.brandPrimary : Color.borderGlare.opacity(0.15), lineWidth: 1)
                             )
                         
                         Text("\(viewModel.company.companyBio.count)/1000")

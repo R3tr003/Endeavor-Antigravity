@@ -15,9 +15,10 @@ extension Color {
     static let brandPrimary = dynamicColor(light: "00B8A5", dark: "00D9C5") // Slightly darker for light mode contrast
     
     // Backgrounds
-    static let background = dynamicColor(light: "F5F7FA", dark: "0A1628") // Off-White Light (reduced glare) / Dark Blue Dark
-    static let cardBackground = dynamicColor(light: "FFFFFF", dark: "1E2A3A") // White Light (pop) / Blue Gray Dark
-    static let inputBackground = dynamicColor(light: "EFF1F5", dark: "2A3647") // Light Gray Input Light / Dark Blue Gray Dark
+    static let background = dynamicColor(light: "E2E8F0", dark: "0A1628") // Softer grayish-blue Light / Dark Blue Dark
+    static let cardBackground = dynamicColor(light: "F1F5F9", dark: "1E2A3A") // Slight off-white Light / Blue Gray Dark
+    static let inputBackground = dynamicColor(light: "E2E8F0", dark: "2A3647") // Deepest Gray Input Light / Dark Blue Gray Dark
+    static let borderGlare = dynamicColor(light: "0F172A", dark: "FFFFFF") // Very Dark Slate border for light mode, White for dark mode
     
     // Text Colors
     static let textPrimary = dynamicColor(light: "0F172A", dark: "FFFFFF") // Very Dark Slate Light / White Dark

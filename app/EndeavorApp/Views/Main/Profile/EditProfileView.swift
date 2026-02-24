@@ -321,18 +321,19 @@ struct EditProfileView: View {
                 content()
             }
             .padding(20)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    .stroke(Color.brandPrimary.opacity(0.4), lineWidth: 1.5)
             )
+            .shadow(color: Color.brandPrimary.opacity(0.15), radius: 15, x: 0, y: 8)
         }
     }
     
     // MARK: - Personal Tab
     var personalEditContent: some View {
         VStack(spacing: 24) {
-            glassSection(title: "Identity") {
+            glassSection(title: "Personal Information") {
                 glassTextField(title: "First Name", placeholder: "Enter your first name", text: $firstName, isRequired: true)
                 glassTextField(title: "Last Name", placeholder: "Enter your last name", text: $lastName, isRequired: true)
                 glassTextField(title: "Role/Title", placeholder: "e.g. CEO, CTO", text: $role, isRequired: true)
@@ -684,7 +685,7 @@ struct GlassTextFieldView: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(
-                            isFocused ? Color.brandPrimary : Color.white.opacity(0.15),
+                            isFocused ? Color.brandPrimary : Color.borderGlare.opacity(0.15),
                             lineWidth: isFocused ? 1.5 : 1
                         )
                 )
@@ -727,7 +728,7 @@ struct GlassTextEditorView: View {
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(
-                                isFocused ? Color.brandPrimary : Color.white.opacity(0.15),
+                                isFocused ? Color.brandPrimary : Color.borderGlare.opacity(0.15),
                                 lineWidth: isFocused ? 1.5 : 1
                             )
                     )

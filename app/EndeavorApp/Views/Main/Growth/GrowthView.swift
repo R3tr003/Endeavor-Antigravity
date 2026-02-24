@@ -84,6 +84,12 @@ struct GrowthView: View {
                         .padding(.bottom, 100) // Space for floating tab bar
                     }
                 }
+                
+                // Status bar blur
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .frame(height: 0)
+                    .ignoresSafeArea(edges: .top)
             }
         }
     }

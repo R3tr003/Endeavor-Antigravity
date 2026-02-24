@@ -54,7 +54,7 @@ struct CustomTextField: View {
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(isFocused ? Color.brandPrimary : Color.primary.opacity(0.05), lineWidth: isFocused ? 2 : 1)
+                    .stroke(isFocused ? Color.brandPrimary : Color.borderGlare.opacity(0.15), lineWidth: isFocused ? 2 : 1)
             )
             .shadow(color: isFocused ? Color.brandPrimary.opacity(0.2) : Color.clear, radius: 8, x: 0, y: 4)
             .animation(.easeInOut(duration: 0.2), value: isFocused)

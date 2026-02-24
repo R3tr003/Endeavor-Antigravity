@@ -114,7 +114,7 @@ struct WelcomeView: View {
                             .stroke(
                                 isFocused ? Color.brandPrimary :
                                 (!isValidEmail && !email.isEmpty) ? Color.error.opacity(0.7) :
-                                Color.white.opacity(0.2),
+                                Color.borderGlare.opacity(0.15),
                                 lineWidth: 1
                             )
                     )
@@ -165,7 +165,7 @@ struct WelcomeView: View {
                             .stroke(
                                 isPasswordFocused ? Color.brandPrimary :
                                 !password.isEmpty && !passwordErrorMessage.isEmpty ? Color.error.opacity(0.7) :
-                                Color.white.opacity(0.2),
+                                Color.borderGlare.opacity(0.15),
                                 lineWidth: isPasswordFocused ? 1.5 : 1
                             )
                     )

@@ -8,6 +8,7 @@ struct ProfileView: View {
     @State private var showPhotoLibrary: Bool = false
     @State private var profileImage: UIImage? = nil
     @State private var showSettings: Bool = false
+    @State private var loadingMessage: String = "Uploading..."
     
     var body: some View {
         StackNavigationView {
@@ -55,6 +56,12 @@ struct ProfileView: View {
                     .containerRelativeFrame(.horizontal)
                     .clipped()
                 }
+                
+                // Status bar blur
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .frame(height: 0)
+                    .ignoresSafeArea(edges: .top)
             }
             .sheet(isPresented: $showCamera) {
                 ImagePicker(image: $profileImage, sourceType: .camera)
@@ -68,6 +75,7 @@ struct ProfileView: View {
             }
             .onChange(of: profileImage) { _, newImage in
                 if let image = newImage {
+                    loadingMessage = "Uploading..."
                     appViewModel.updateProfileImage(image)
                 }
             }
@@ -95,6 +103,7 @@ struct ProfileView: View {
                     }
                     if profileImage != nil || !(appViewModel.currentUser?.profileImageUrl.isEmpty ?? true) {
                         Button(role: .destructive, action: {
+                            loadingMessage = "Removing..."
                             profileImage = nil
                             appViewModel.removeProfileImage()
                         }) {
@@ -223,7 +232,7 @@ struct ProfileView: View {
                 ZStack {
                     Color.black.opacity(0.4)
                         .edgesIgnoringSafeArea(.all)
-                    ProgressView("Uploading...")
+                    ProgressView(loadingMessage)
                         .padding(24)
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
                 }
@@ -244,11 +253,12 @@ struct ProfileView: View {
                 content()
             }
             .padding(20)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                    .stroke(Color.brandPrimary.opacity(0.4), lineWidth: 1.5)
             )
+            .shadow(color: Color.brandPrimary.opacity(0.15), radius: 15, x: 0, y: 8)
         }
     }
     

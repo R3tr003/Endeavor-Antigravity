@@ -540,7 +540,7 @@ class FirebaseService {
         let db = Firestore.firestore()
         
         // Step 1: Check if the new email already exists in our Firestore users collection
-        db.collection(usersCollection).whereField("email", isEqualTo: newEmail).limit(to: 1).getDocuments { [self] snapshot, error in
+        db.collection(usersCollection).whereField("email", isEqualTo: newEmail).limit(to: 1).getDocuments { snapshot, error in
             if let docs = snapshot?.documents, !docs.isEmpty {
                 // Email already exists in our database
                 print("❌ Email \(newEmail) already in use by another account")
