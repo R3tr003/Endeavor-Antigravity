@@ -13,16 +13,12 @@ struct WelcomeView: View {
     }
     @FocusState private var focusedField: Field?
     
-    // Animation states for the fluid background
-    @State private var animateGradient1 = false
-    @State private var animateGradient2 = false
-    @State private var animateGradient3 = false
+    // 
 
     var body: some View {
         ZStack {
             // 1. Immersive, edge-to-edge fluid background
-            backgroundMesh
-                .edgesIgnoringSafeArea(.all)
+            FluidBackgroundView()
                 .onTapGesture { focusedField = nil }
             
             VStack {
@@ -64,43 +60,6 @@ struct WelcomeView: View {
                 Text("The email 'help@endeavor.org' has been copied to your clipboard.")
             }
         }
-        .onAppear {
-            withAnimation(.easeInOut(duration: 7.0).repeatForever(autoreverses: true)) {
-                animateGradient1.toggle()
-            }
-            withAnimation(.easeInOut(duration: 5.0).repeatForever(autoreverses: true).delay(1.0)) {
-                animateGradient2.toggle()
-            }
-            withAnimation(.easeInOut(duration: 6.0).repeatForever(autoreverses: true).delay(2.0)) {
-                animateGradient3.toggle()
-            }
-        }
-    }
-    
-    // MARK: - Fluid Background
-    private var backgroundMesh: some View {
-        ZStack {
-            Color.background // Base color
-            
-            // Teal dynamic blobs
-            Circle()
-                .fill(Color.brandPrimary.opacity(0.6))
-                .blur(radius: 60)
-                .frame(width: 300, height: 300)
-                .offset(x: animateGradient1 ? -100 : 100, y: animateGradient1 ? -150 : 50)
-            
-            Circle()
-                .fill(Color(hex: "00D9C5").opacity(0.5)) // Slightly different teal
-                .blur(radius: 80)
-                .frame(width: 400, height: 400)
-                .offset(x: animateGradient2 ? 150 : -50, y: animateGradient2 ? 200 : -200)
-                
-            Circle()
-                .fill(Color.chartAccent.opacity(0.3)) // Subtle purple accent
-                .blur(radius: 90)
-                .frame(width: 250, height: 250)
-                .offset(x: animateGradient3 ? -50 : 150, y: animateGradient3 ? 300 : 0)
-        }
     }
     
     // MARK: - Floating Liquid Glass Login Panel
@@ -110,15 +69,21 @@ struct WelcomeView: View {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                 TextField("Enter your authorized email", text: $email)
                     .padding()
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
+                    .background(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                            .fill(.ultraThinMaterial)
+                            .shadow(color: focusedField == .email ? Color.brandPrimary.opacity(0.15) : .clear, radius: 10, x: 0, y: 0)
+                            .animation(.easeInOut(duration: 0.2), value: focusedField == .email)
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                             .stroke(
                                 focusedField == .email ? Color.brandPrimary :
                                 (!isValidEmail && !email.isEmpty) ? Color.error.opacity(0.7) :
                                 Color.borderGlare.opacity(0.15),
-                                lineWidth: 1
+                                lineWidth: focusedField == .email ? 1.5 : 1
                             )
+                            .shadow(color: focusedField == .email ? Color.brandPrimary.opacity(0.5) : .clear, radius: 4, x: 0, y: 0)
                             .animation(.easeInOut(duration: 0.2), value: focusedField == .email)
                     )
                     .foregroundColor(.white)
@@ -128,7 +93,11 @@ struct WelcomeView: View {
                     .textContentType(.username)
                     .focused($focusedField, equals: .email)
                     .submitLabel(.next)
-                    .onSubmit { focusedField = .password }
+                    .onSubmit {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                            focusedField = .password
+                        }
+                    }
                 
                 if !isValidEmail && !email.isEmpty && focusedField != .email {
                     Text("Please enter a valid email address.")
@@ -140,41 +109,51 @@ struct WelcomeView: View {
             if isValidEmail {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                     ZStack(alignment: .trailing) {
-                        if showPassword {
-                            TextField("Password", text: $password)
-                                .padding()
-                                .padding(.trailing, DesignSystem.Spacing.xxLarge)
-                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
-                                .foregroundColor(.white)
-                                .accentColor(.brandPrimary)
-                                .autocorrectionDisabled(true)
-                                .textInputAutocapitalization(.never)
-                                .focused($focusedField, equals: .password)
-                                .submitLabel(.done)
-                                .onSubmit {
-                                    focusedField = nil
-                                    if isValidEmail && passwordErrorMessage.isEmpty {
-                                        appViewModel.authenticate(email: email, password: password)
-                                    }
+                        TextField("Password", text: $password)
+                            .padding()
+                            .padding(.trailing, DesignSystem.Spacing.xxLarge)
+                            .background(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                                    .fill(.ultraThinMaterial)
+                                    .shadow(color: focusedField == .password ? Color.brandPrimary.opacity(0.15) : .clear, radius: 10, x: 0, y: 0)
+                                    .animation(.easeInOut(duration: 0.2), value: focusedField == .password)
+                            )
+                            .foregroundColor(.white)
+                            .accentColor(.brandPrimary)
+                            .autocorrectionDisabled(true)
+                            .textInputAutocapitalization(.never)
+                            .focused($focusedField, equals: .password)
+                            .submitLabel(.done)
+                            .onSubmit {
+                                focusedField = nil
+                                if isValidEmail && passwordErrorMessage.isEmpty {
+                                    appViewModel.authenticate(email: email, password: password)
                                 }
-                        } else {
-                            SecureField("Password", text: $password)
-                                .padding()
-                                .padding(.trailing, DesignSystem.Spacing.xxLarge)
-                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
-                                .foregroundColor(.white)
-                                .accentColor(.brandPrimary)
-                                .autocorrectionDisabled(true)
-                                .textInputAutocapitalization(.never)
-                                .focused($focusedField, equals: .password)
-                                .submitLabel(.done)
-                                .onSubmit {
-                                    focusedField = nil
-                                    if isValidEmail && passwordErrorMessage.isEmpty {
-                                        appViewModel.authenticate(email: email, password: password)
-                                    }
+                            }
+                            .opacity(showPassword ? 1 : 0)
+                            
+                        SecureField("Password", text: $password)
+                            .padding()
+                            .padding(.trailing, DesignSystem.Spacing.xxLarge)
+                            .background(
+                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                                    .fill(.ultraThinMaterial)
+                                    .shadow(color: focusedField == .password ? Color.brandPrimary.opacity(0.15) : .clear, radius: 10, x: 0, y: 0)
+                                    .animation(.easeInOut(duration: 0.2), value: focusedField == .password)
+                            )
+                            .foregroundColor(.white)
+                            .accentColor(.brandPrimary)
+                            .autocorrectionDisabled(true)
+                            .textInputAutocapitalization(.never)
+                            .focused($focusedField, equals: .password)
+                            .submitLabel(.done)
+                            .onSubmit {
+                                focusedField = nil
+                                if isValidEmail && passwordErrorMessage.isEmpty {
+                                    appViewModel.authenticate(email: email, password: password)
                                 }
-                        }
+                            }
+                            .opacity(showPassword ? 0 : 1)
                         
                         Button(action: { showPassword.toggle() }) {
                             Image(systemName: showPassword ? "eye" : "eye.slash")
@@ -190,6 +169,7 @@ struct WelcomeView: View {
                                 Color.borderGlare.opacity(0.15),
                                 lineWidth: focusedField == .password ? 1.5 : 1
                             )
+                            .shadow(color: focusedField == .password ? Color.brandPrimary.opacity(0.5) : .clear, radius: 4, x: 0, y: 0)
                             .animation(.easeInOut(duration: 0.2), value: focusedField == .password)
                     )
                     .transition(.move(edge: .top).combined(with: .opacity))

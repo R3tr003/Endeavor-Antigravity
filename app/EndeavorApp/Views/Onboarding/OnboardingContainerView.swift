@@ -7,35 +7,14 @@ struct OnboardingContainerView: View {
     @State private var hasInitialized = false
     @State private var showExitConfirmation = false
     
-    // Ambient animation
-    @State private var animateBackground = false
+    
+
     
     var body: some View {
         ZStack {
-            // Immersive Background matching WelcomeView
-            Color.background.edgesIgnoringSafeArea(.all)
+            // Immersive Animated Background
+            FluidBackgroundView()
             
-            GeometryReader { proxy in
-                ZStack {
-                    Circle()
-                        .fill(Color.brandPrimary.opacity(0.3))
-                        .frame(width: proxy.size.width * 1.5, height: proxy.size.width * 1.5)
-                        .blur(radius: 120)
-                        .offset(x: animateBackground ? -100 : 100, y: animateBackground ? -200 : -100)
-                    
-                    Circle()
-                        .fill(Color.brandPrimary.opacity(0.15)) // Fallback to safe color if missing
-                        .frame(width: proxy.size.width * 1.2, height: proxy.size.width * 1.2)
-                        .blur(radius: 100)
-                        .offset(x: animateBackground ? 100 : -50, y: animateBackground ? 200 : 50)
-                }
-                .onAppear {
-                    withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
-                        animateBackground = true
-                    }
-                }
-            }
-            .ignoresSafeArea()
             
             VStack(spacing: 0) {
                 // Modern Header
@@ -91,12 +70,7 @@ struct OnboardingContainerView: View {
                         stepContent
                     }
                     .padding(DesignSystem.Spacing.large)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.Spacing.xLarge, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: DesignSystem.Spacing.xLarge, style: .continuous)
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                    )
-                    .shadow(color: Color.black.opacity(0.15), radius: 20, x: 0, y: 10)
+                    .modifier(LiquidGlassEffect(cornerRadius: DesignSystem.Spacing.xLarge))
                     .padding(.horizontal, DesignSystem.Spacing.large)
                     .padding(.bottom, DesignSystem.Spacing.bottomSafePadding) // Space for bottom bar
                     .frame(maxWidth: .infinity)

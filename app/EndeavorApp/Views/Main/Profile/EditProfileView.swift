@@ -38,12 +38,15 @@ struct EditProfileView: View {
     @State private var showEmailChangeError = false
     @State private var emailChangeErrorMessage = ""
     
-    enum Field: Hashable {
-        case firstName, lastName, role, personalBio
-        case companyName, website, companyBio
-        case newEmail, password
-    }
-    @FocusState private var focusedField: Field?
+    @FocusState private var focusFirstName: Bool
+    @FocusState private var focusLastName: Bool
+    @FocusState private var focusRole: Bool
+    @FocusState private var focusPersonalBio: Bool
+    @FocusState private var focusCompanyName: Bool
+    @FocusState private var focusWebsite: Bool
+    @FocusState private var focusCompanyBio: Bool
+    @FocusState private var focusNewEmail: Bool
+    @FocusState private var focusPassword: Bool
     
     // Available options for Focus
     let availableChallenges = ["Hiring", "Fundraising", "Go-to-market", "Ops", "Product", "Intl Expansion"]
@@ -60,7 +63,17 @@ struct EditProfileView: View {
         ZStack {
             // Immersive background
             Color.background.edgesIgnoringSafeArea(.all)
-                .onTapGesture { focusedField = nil }
+                .onTapGesture {
+                    focusFirstName = false
+                    focusLastName = false
+                    focusRole = false
+                    focusPersonalBio = false
+                    focusCompanyName = false
+                    focusWebsite = false
+                    focusCompanyBio = false
+                    focusNewEmail = false
+                    focusPassword = false
+                }
             
             // Ambient glow
             Circle()
@@ -181,12 +194,12 @@ struct EditProfileView: View {
     }
     
     // MARK: - Glass Input Helper
-    func glassTextField(title: String, placeholder: String, text: Binding<String>, field: Field, isRequired: Bool = false) -> some View {
-        GlassTextFieldView(title: title, placeholder: placeholder, text: text, isHighlighted: focusedField == field, isRequired: isRequired)
+    func glassTextField(title: String, placeholder: String, text: Binding<String>, isFocused: FocusState<Bool>.Binding, isRequired: Bool = false) -> some View {
+        GlassTextFieldView(title: title, placeholder: placeholder, text: text, isFocused: isFocused, isRequired: isRequired)
     }
     
-    func glassTextEditor(title: String, placeholder: String, text: Binding<String>, charLimit: Int, field: Field, isRequired: Bool = false) -> some View {
-        GlassTextEditorView(title: title, placeholder: placeholder, text: text, charLimit: charLimit, isHighlighted: focusedField == field, isRequired: isRequired)
+    func glassTextEditor(title: String, placeholder: String, text: Binding<String>, charLimit: Int, isHighlighted: Bool, isRequired: Bool = false) -> some View {
+        GlassTextEditorView(title: title, placeholder: placeholder, text: text, charLimit: charLimit, isHighlighted: isHighlighted, isRequired: isRequired)
     }
     
     func glassDropdown(title: String, selection: String, placeholder: String, isRequired: Bool = false, @ViewBuilder menuContent: () -> some View) -> some View {
@@ -252,25 +265,22 @@ struct EditProfileView: View {
     var personalEditContent: some View {
         VStack(spacing: DesignSystem.Spacing.large) {
             glassSection(title: "Personal Information") {
-                glassTextField(title: "First Name", placeholder: "Enter your first name", text: $firstName, field: .firstName, isRequired: true)
-                    .focused($focusedField, equals: .firstName)
+                glassTextField(title: "First Name", placeholder: "Enter your first name", text: $firstName, isFocused: $focusFirstName, isRequired: true)
                     .submitLabel(.next)
-                    .onSubmit { focusedField = .lastName }
+                    .onSubmit { focusLastName = true }
                 
-                glassTextField(title: "Last Name", placeholder: "Enter your last name", text: $lastName, field: .lastName, isRequired: true)
-                    .focused($focusedField, equals: .lastName)
+                glassTextField(title: "Last Name", placeholder: "Enter your last name", text: $lastName, isFocused: $focusLastName, isRequired: true)
                     .submitLabel(.next)
-                    .onSubmit { focusedField = .role }
+                    .onSubmit { focusRole = true }
                 
-                glassTextField(title: "Role/Title", placeholder: "e.g. CEO, CTO", text: $role, field: .role, isRequired: true)
-                    .focused($focusedField, equals: .role)
+                glassTextField(title: "Role/Title", placeholder: "e.g. CEO, CTO", text: $role, isFocused: $focusRole, isRequired: true)
                     .submitLabel(.next)
-                    .onSubmit { focusedField = .personalBio }
+                    .onSubmit { focusPersonalBio = true }
             }
             
             glassSection(title: "About You") {
-                glassTextEditor(title: "Bio", placeholder: "Tell us a bit about yourself...", text: $personalBio, charLimit: 300, field: .personalBio, isRequired: true)
-                    .focused($focusedField, equals: .personalBio)
+                glassTextEditor(title: "Bio", placeholder: "Tell us a bit about yourself...", text: $personalBio, charLimit: 300, isHighlighted: focusPersonalBio, isRequired: true)
+                    .focused($focusPersonalBio)
             }
             
             glassSection(title: "Contact") {
@@ -323,19 +333,19 @@ struct EditProfileView: View {
                                     .foregroundColor(.primary)
                                     .autocapitalization(.none)
                                     .keyboardType(.emailAddress)
-                                    .focused($focusedField, equals: .newEmail)
+                                    .focused($focusNewEmail)
                                     .submitLabel(.next)
-                                    .onSubmit { focusedField = .password }
+                                    .onSubmit { focusPassword = true }
                                     .padding(DesignSystem.Spacing.standard)
                                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                                             .stroke(
-                                                focusedField == .newEmail ? Color.brandPrimary :
+                                                focusNewEmail ? Color.brandPrimary :
                                                 Color.white.opacity(0.15),
-                                                lineWidth: focusedField == .newEmail ? 1.5 : 1
+                                                lineWidth: focusNewEmail ? 1.5 : 1
                                             )
-                                            .animation(.easeInOut(duration: 0.2), value: focusedField == .newEmail)
+                                            .animation(.easeInOut(duration: 0.2), value: focusNewEmail)
                                     )
                             }
                             
@@ -348,7 +358,7 @@ struct EditProfileView: View {
                                     SecureField("Enter your current password", text: $emailChangePassword)
                                         .font(.system(size: 16, design: .rounded))
                                         .foregroundColor(.primary)
-                                        .focused($focusedField, equals: .password)
+                                        .focused($focusPassword)
                                         .submitLabel(.done)
                                         .onSubmit { sendEmailChange() }
                                         .disabled(!isNewEmailValid)
@@ -357,11 +367,11 @@ struct EditProfileView: View {
                                         .overlay(
                                             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                                                 .stroke(
-                                                    focusedField == .password ? Color.brandPrimary :
+                                                    focusPassword ? Color.brandPrimary :
                                                     Color.white.opacity(isNewEmailValid ? 0.15 : 0.05),
-                                                    lineWidth: focusedField == .password ? 1.5 : 1
+                                                    lineWidth: focusPassword ? 1.5 : 1
                                                 )
-                                                .animation(.easeInOut(duration: 0.2), value: focusedField == .password)
+                                                .animation(.easeInOut(duration: 0.2), value: focusPassword)
                                         )
                                         .opacity(isNewEmailValid ? 1.0 : 0.4)
                                         .animation(.easeInOut(duration: 0.25), value: isNewEmailValid)
@@ -408,15 +418,13 @@ struct EditProfileView: View {
     var companyEditContent: some View {
         VStack(spacing: DesignSystem.Spacing.large) {
             glassSection(title: "Company Info") {
-                glassTextField(title: "Company Name", placeholder: "Enter company name", text: $companyName, field: .companyName, isRequired: true)
-                    .focused($focusedField, equals: .companyName)
+                glassTextField(title: "Company Name", placeholder: "Enter company name", text: $companyName, isFocused: $focusCompanyName, isRequired: true)
                     .submitLabel(.next)
-                    .onSubmit { focusedField = .website }
+                    .onSubmit { focusWebsite = true }
                 
-                glassTextField(title: "Website", placeholder: "https://example.com", text: $website, field: .website, isRequired: true)
-                    .focused($focusedField, equals: .website)
+                glassTextField(title: "Website", placeholder: "https://example.com", text: $website, isFocused: $focusWebsite, isRequired: true)
                     .submitLabel(.next)
-                    .onSubmit { focusedField = .companyBio }
+                    .onSubmit { focusCompanyBio = true }
             }
             
             glassSection(title: "Headquarters") {
@@ -444,8 +452,8 @@ struct EditProfileView: View {
             }
             
             glassSection(title: "About Company") {
-                glassTextEditor(title: "Company Bio", placeholder: "Describe your company mission and goals...", text: $companyBio, charLimit: 1000, field: .companyBio, isRequired: true)
-                    .focused($focusedField, equals: .companyBio)
+                glassTextEditor(title: "Company Bio", placeholder: "Describe your company mission and goals...", text: $companyBio, charLimit: 1000, isHighlighted: focusCompanyBio, isRequired: true)
+                    .focused($focusCompanyBio)
             }
         }
     }
@@ -518,7 +526,7 @@ struct EditProfileView: View {
     func toggleExpertise(_ expertise: String) {
         if desiredExpertise.contains(expertise) {
             desiredExpertise.removeAll { $0 == expertise }
-        } else {
+        } else if desiredExpertise.count < 3 {
             desiredExpertise.append(expertise)
         }
     }
@@ -526,8 +534,29 @@ struct EditProfileView: View {
     func saveChanges() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         // Validation
+        let firstNameClean = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lastNameClean = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let roleClean = role.trimmingCharacters(in: .whitespacesAndNewlines)
         let personalBioClean = personalBio.trimmingCharacters(in: .whitespacesAndNewlines)
         let companyBioClean = companyBio.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if firstNameClean.isEmpty {
+            alertMessage = "Please enter your first name."
+            showingAlert = true
+            return
+        }
+        
+        if lastNameClean.isEmpty {
+            alertMessage = "Please enter your last name."
+            showingAlert = true
+            return
+        }
+        
+        if roleClean.isEmpty {
+            alertMessage = "Please enter your role."
+            showingAlert = true
+            return
+        }
         
         if personalBioClean.isEmpty {
             alertMessage = "Please enter 'About You' information."
@@ -557,9 +586,11 @@ struct EditProfileView: View {
         appViewModel.companyProfile?.desiredExpertise = desiredExpertise
         
         // Persist to Firestore
-        appViewModel.saveProfileChanges()
-        
-        presentationMode.wrappedValue.dismiss()
+        appViewModel.saveProfileChanges { success in
+            if success {
+                presentationMode.wrappedValue.dismiss()
+            }
+        }
     }
     
     var isEmailChangeValid: Bool {
@@ -631,7 +662,7 @@ struct GlassTextFieldView: View {
     let title: String
     let placeholder: String
     @Binding var text: String
-    var isHighlighted: Bool
+    @FocusState.Binding var isFocused: Bool
     var isRequired: Bool = false
     
     var body: some View {
@@ -651,14 +682,15 @@ struct GlassTextFieldView: View {
                 .font(.system(size: 16, design: .rounded))
                 .foregroundColor(.primary)
                 .padding(DesignSystem.Spacing.standard)
+                .focused($isFocused)
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                 .overlay(
                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                         .stroke(
-                            isHighlighted ? Color.brandPrimary : Color.borderGlare.opacity(0.15),
-                            lineWidth: isHighlighted ? 1.5 : 1
+                            isFocused ? Color.brandPrimary : Color.borderGlare.opacity(0.15),
+                            lineWidth: isFocused ? 1.5 : 1
                         )
-                        .animation(.easeInOut(duration: 0.2), value: isHighlighted)
+                        .animation(.easeInOut(duration: 0.2), value: isFocused)
                 )
         }
     }

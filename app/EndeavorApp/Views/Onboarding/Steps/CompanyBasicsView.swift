@@ -4,16 +4,17 @@ struct CompanyBasicsView: View {
     @ObservedObject var viewModel: OnboardingViewModel
     @State private var isWebsiteValid: Bool = true
     
-    enum Field: Hashable {
-        case name, website
-    }
-    @FocusState private var focusedField: Field?
+    @FocusState private var focusName: Bool
+    @FocusState private var focusWebsite: Bool
     
     var body: some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
-                .onTapGesture { focusedField = nil }
+                .onTapGesture {
+                    focusName = false
+                    focusWebsite = false
+                }
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                 Text("Company Basics")
@@ -26,28 +27,22 @@ struct CompanyBasicsView: View {
             }
             
             VStack(spacing: DesignSystem.Spacing.standard) {
-                CustomTextField(
-                    title: "Company Name",
-                    placeholder: "",
-                    text: $viewModel.company.name,
-                    isHighlighted: focusedField == .name,
-                    isRequired: true
-                )
-                .focused($focusedField, equals: .name)
-                .submitLabel(.next)
-                .onSubmit { focusedField = .website }
+                CustomTextField(title: "Company Name", placeholder: "Enter company name", text: $viewModel.company.name, isFocused: $focusName, isRequired: true)
+                    .submitLabel(.next)
+                    .onSubmit {
+                        focusWebsite = true
+                    }
                 
-                CustomTextField(
-                    title: "Company Website",
-                    placeholder: "e.g. https://endeavor.org",
-                    text: $viewModel.company.website,
-                    isHighlighted: focusedField == .website,
-                    isRequired: true,
-                    keyboardType: .URL
-                )
-                .focused($focusedField, equals: .website)
-                .submitLabel(.done)
-                .onSubmit { focusedField = nil }
+                CustomTextField(title: "Website", placeholder: "https://example.com", text: $viewModel.company.website, isFocused: $focusWebsite, isRequired: false, keyboardType: .URL)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        focusWebsite = false
+                        if viewModel.isStep2Valid {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                viewModel.currentStep += 1
+                            }
+                        }
+                    }
                 .onChange(of: viewModel.company.website) { _, newValue in
                     isWebsiteValid = newValue.isEmpty || isValidURL(newValue)
                 }

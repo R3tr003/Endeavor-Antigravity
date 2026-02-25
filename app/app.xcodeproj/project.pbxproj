@@ -23,7 +23,6 @@
 		651788032F356B310095C184 /* CompanyBasicsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787E82F356B310095C184 /* CompanyBasicsView.swift */; };
 		651788042F356B310095C184 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787E32F356B310095C184 /* ProfileView.swift */; };
         651788052F356B310095C184 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787CB2F356B310095C184 /* CustomTextField.swift */; };
-        651789512F356B310095C184 /* CustomTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651789502F356B310095C184 /* CustomTextEditor.swift */; };
 		651788062F356B310095C184 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787C62F356B310095C184 /* ImagePicker.swift */; };
 		651788072F356B310095C184 /* CompanyBioLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787E92F356B310095C184 /* CompanyBioLogoView.swift */; };
 		651788082F356B310095C184 /* Colors+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787D02F356B310095C184 /* Colors+Extensions.swift */; };
@@ -66,6 +65,7 @@
              9DDFC94358278C11BC59002A /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F0828F4DD68EDE36D047EBAC /* SDWebImageSwiftUI */; };
       8F3D1F3C4E5E4E309D5E7A2A /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 1F8E1C2B4C3D4D1A9F7E8D9C /* FirebaseAppCheck */; };
 		254D1A0AC26246C1A6C7BB54 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3502CA0542164640B87EF1DF /* DesignSystem.swift */; };
+        F393F8F54A77468098980786 /* FluidBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26846CEDDA264CC8A0C99A22 /* FluidBackgroundView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -75,7 +75,6 @@
 		651787C82F356B310095C184 /* BarChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarChartView.swift; sourceTree = "<group>"; };
 		651787C92F356B310095C184 /* LineChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineChartView.swift; sourceTree = "<group>"; };
         651787CB2F356B310095C184 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
-        651789502F356B310095C184 /* CustomTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextEditor.swift; sourceTree = "<group>"; };
 		651787CC2F356B310095C184 /* DashboardCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardCard.swift; sourceTree = "<group>"; };
 		651787CD2F356B310095C184 /* LinearProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinearProgressView.swift; sourceTree = "<group>"; };
 		651787CE2F356B310095C184 /* SelectablePill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectablePill.swift; sourceTree = "<group>"; };
@@ -123,6 +122,7 @@
 		0869204D72B241A091FDE4FF /* GrowthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthViewModel.swift; sourceTree = "<group>"; };
 		B0411572E4594794827E298E /* GrowthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthViewModel.swift; sourceTree = "<group>"; };
 		3502CA0542164640B87EF1DF /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+        26846CEDDA264CC8A0C99A22 /* FluidBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FluidBackgroundView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -186,7 +186,7 @@
 				992788012F356B310095C184 /* StackNavigationView.swift */,
 				651787CA2F356B310095C184 /* Charts */,
                 651787CB2F356B310095C184 /* CustomTextField.swift */,
-                651789502F356B310095C184 /* CustomTextEditor.swift */,
+                26846CEDDA264CC8A0C99A22 /* FluidBackgroundView.swift */,
 				651787CC2F356B310095C184 /* DashboardCard.swift */,
 				651787CD2F356B310095C184 /* LinearProgressView.swift */,
 				651787CE2F356B310095C184 /* SelectablePill.swift */,
@@ -479,7 +479,7 @@
 				651788032F356B310095C184 /* CompanyBasicsView.swift in Sources */,
 				651788042F356B310095C184 /* ProfileView.swift in Sources */,
                 651788052F356B310095C184 /* CustomTextField.swift in Sources */,
-                651789512F356B310095C184 /* CustomTextEditor.swift in Sources */,
+                F393F8F54A77468098980786 /* FluidBackgroundView.swift in Sources */,
 				651788062F356B310095C184 /* ImagePicker.swift in Sources */,
 				651788072F356B310095C184 /* CompanyBioLogoView.swift in Sources */,
 				651788082F356B310095C184 /* Colors+Extensions.swift in Sources */,

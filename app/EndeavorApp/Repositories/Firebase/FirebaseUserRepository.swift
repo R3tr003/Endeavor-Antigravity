@@ -22,7 +22,7 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                 return
             }
             
-            let user = UserProfile(
+            var user = UserProfile(
                 id: UUID(uuidString: data["id"] as? String ?? "") ?? UUID(),
                 firstName: data["firstName"] as? String ?? "",
                 lastName: data["lastName"] as? String ?? "",
@@ -33,6 +33,14 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                 profileImageUrl: data["profileImageUrl"] as? String ?? "",
                 personalBio: data["personalBio"] as? String ?? ""
             )
+            
+            if let createdAtTimestamp = data["createdAt"] as? Timestamp {
+                user.createdAt = createdAtTimestamp.dateValue()
+            }
+            if let lastLoginAtTimestamp = data["lastLoginAt"] as? Timestamp {
+                user.lastLoginAt = lastLoginAtTimestamp.dateValue()
+            }
+            
             completion(.success(user))
         }
     }
@@ -91,7 +99,7 @@ class FirebaseUserRepository: UserRepositoryProtocol {
         let data = documents[index].data()
         let userId = data["id"] as? String ?? ""
         
-        let user = UserProfile(
+        var user = UserProfile(
             id: UUID(uuidString: userId) ?? UUID(),
             firstName: data["firstName"] as? String ?? "",
             lastName: data["lastName"] as? String ?? "",
@@ -102,6 +110,13 @@ class FirebaseUserRepository: UserRepositoryProtocol {
             profileImageUrl: data["profileImageUrl"] as? String ?? "",
             personalBio: data["personalBio"] as? String ?? ""
         )
+        
+        if let createdAtTimestamp = data["createdAt"] as? Timestamp {
+            user.createdAt = createdAtTimestamp.dateValue()
+        }
+        if let lastLoginAtTimestamp = data["lastLoginAt"] as? Timestamp {
+            user.lastLoginAt = lastLoginAtTimestamp.dateValue()
+        }
         
         db.collection(companiesCollection).whereField("userId", isEqualTo: userId).limit(to: 1).getDocuments { [weak self] snapshot, error in
             if let document = snapshot?.documents.first {
@@ -127,7 +142,7 @@ class FirebaseUserRepository: UserRepositoryProtocol {
     }
     
     func saveUserProfile(_ user: UserProfile, completion: @escaping (Error?) -> Void) {
-        let data: [String: Any] = [
+        var data: [String: Any] = [
             "id": user.id.uuidString,
             "firstName": user.firstName,
             "lastName": user.lastName,
@@ -138,6 +153,14 @@ class FirebaseUserRepository: UserRepositoryProtocol {
             "profileImageUrl": user.profileImageUrl,
             "personalBio": user.personalBio
         ]
+        
+        if let createdAt = user.createdAt {
+            data["createdAt"] = Timestamp(date: createdAt)
+        }
+        if let lastLoginAt = user.lastLoginAt {
+            data["lastLoginAt"] = Timestamp(date: lastLoginAt)
+        }
+        
         db.collection(usersCollection).document(user.id.uuidString).setData(data, completion: completion)
     }
     

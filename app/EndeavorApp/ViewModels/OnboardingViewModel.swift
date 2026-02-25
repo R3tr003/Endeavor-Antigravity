@@ -24,7 +24,7 @@ class OnboardingViewModel: ObservableObject {
     }
 
     var isStep1Valid: Bool {
-        isSocialLogin ? !user.role.isEmpty : (!user.firstName.isEmpty && !user.lastName.isEmpty && !user.role.isEmpty)
+        isSocialLogin ? (!user.role.isEmpty) : (!user.firstName.isEmpty && !user.lastName.isEmpty && !user.role.isEmpty)
     }
     
     var isStep2Valid: Bool {
@@ -117,6 +117,7 @@ class OnboardingViewModel: ObservableObject {
             "lastName": user.lastName,
             "role": user.role,
             "email": user.email,
+            "timeZone": user.timeZone,
             "personalBio": user.personalBio,
             "companyName": company.name,
             "companyWebsite": company.website,
@@ -143,6 +144,7 @@ class OnboardingViewModel: ObservableObject {
         user.lastName = draft["lastName"] as? String ?? ""
         user.role = draft["role"] as? String ?? ""
         user.email = draft["email"] as? String ?? ""
+        user.timeZone = draft["timeZone"] as? String ?? ""
         user.personalBio = draft["personalBio"] as? String ?? ""
         company.name = draft["companyName"] as? String ?? ""
         company.website = draft["companyWebsite"] as? String ?? ""

@@ -12,6 +12,10 @@ struct UserProfile: Codable, Identifiable {
     var profileImageUrl: String = "" // Added for Google Sign In
     var personalBio: String = "" // "About You" from onboarding
     
+    // Tracking
+    var createdAt: Date? = nil
+    var lastLoginAt: Date? = nil
+    
     var fullName: String {
         "\(firstName) \(lastName)".trimmingCharacters(in: .whitespaces)
     }

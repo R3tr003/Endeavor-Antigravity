@@ -3,16 +3,19 @@ import SDWebImageSwiftUI
 struct PersonalInformationView: View {
     @ObservedObject var viewModel: OnboardingViewModel
     
-    enum Field: Hashable {
-        case firstName, lastName, role
-    }
-    @FocusState private var focusedField: Field?
+    @FocusState private var focusFirstName: Bool
+    @FocusState private var focusLastName: Bool
+    @FocusState private var focusRole: Bool
     
     var body: some View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
-                .onTapGesture { focusedField = nil }
+                .onTapGesture {
+                    focusFirstName = false
+                    focusLastName = false
+                    focusRole = false
+                }
                 
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
@@ -59,39 +62,25 @@ struct PersonalInformationView: View {
                     }
                 } else {
                     // Regular Mode: Show Name Fields
-                    CustomTextField(
-                        title: "First Name",
-                        placeholder: "",
-                        text: $viewModel.user.firstName,
-                        isHighlighted: focusedField == .firstName,
-                        isRequired: true
-                    )
-                    .focused($focusedField, equals: .firstName)
-                    .submitLabel(.next)
-                    .onSubmit { focusedField = .lastName }
+                    CustomTextField(title: "First Name", placeholder: "Enter your first name", text: $viewModel.user.firstName, isFocused: $focusFirstName, isRequired: true)
+                        .submitLabel(.next)
+                        .onSubmit { focusLastName = true }
                     
-                    CustomTextField(
-                        title: "Last Name",
-                        placeholder: "",
-                        text: $viewModel.user.lastName,
-                        isHighlighted: focusedField == .lastName,
-                        isRequired: true
-                    )
-                    .focused($focusedField, equals: .lastName)
-                    .submitLabel(.next)
-                    .onSubmit { focusedField = .role }
+                    CustomTextField(title: "Last Name", placeholder: "Enter your last name", text: $viewModel.user.lastName, isFocused: $focusLastName, isRequired: true)
+                        .submitLabel(.next)
+                        .onSubmit { focusRole = true }
                 }
                 
-                CustomTextField(
-                    title: "Role / Title",
-                    placeholder: "e.g., CEO, Founder, CTO",
-                    text: $viewModel.user.role,
-                    isHighlighted: focusedField == .role,
-                    isRequired: true
-                )
-                .focused($focusedField, equals: .role)
-                .submitLabel(.done)
-                .onSubmit { focusedField = nil }
+                CustomTextField(title: "Role / Title", placeholder: "e.g., CEO, Founder, CTO", text: $viewModel.user.role, isFocused: $focusRole, isRequired: true)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        focusRole = false
+                        if viewModel.isStep1Valid {
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                                viewModel.currentStep += 1
+                            }
+                        }
+                    }
             }
             .onAppear {
                 // Auto-detect timezone from device

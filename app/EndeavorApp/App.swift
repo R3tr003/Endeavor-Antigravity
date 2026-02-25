@@ -53,6 +53,7 @@ struct EndeavorApp: App {
                         .preferredColorScheme(appViewModel.colorScheme)
                 }
             }
+            .animation(.default, value: appViewModel.isLoggedIn)
             .animation(.default, value: appViewModel.isOnboardingComplete)
             .preferredColorScheme(appViewModel.colorScheme)
             .onOpenURL { url in

@@ -9,11 +9,8 @@ struct CompanyBioLogoView: View {
     var hideImageUpload: Bool = false
     
     // Focus State
-    enum Field {
-        case personalBio
-        case companyBio
-    }
-    @FocusState private var focusedField: Field?
+    @FocusState private var isFocusedPersonalBio: Bool
+    @FocusState private var isFocusedCompanyBio: Bool
     
     // Photo Picker State
     @State private var selectedPhoto: PhotosPickerItem? = nil
@@ -25,7 +22,10 @@ struct CompanyBioLogoView: View {
         ZStack {
             Color.clear
                 .contentShape(Rectangle())
-                .onTapGesture { focusedField = nil }
+                .onTapGesture { 
+                    isFocusedPersonalBio = false
+                    isFocusedCompanyBio = false
+                }
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                 Text(hideImageUpload ? "Company Bio & Profile" : "Company Bio & Logo")
@@ -132,7 +132,7 @@ struct CompanyBioLogoView: View {
                     HStack(spacing: DesignSystem.Spacing.xxSmall) {
                         Text("About You")
                             .font(.subheadline.weight(.medium))
-                            .foregroundColor(focusedField == .personalBio ? .brandPrimary : .secondary)
+                            .foregroundColor(isFocusedPersonalBio ? .brandPrimary : .secondary)
                         Text("*")
                             .font(.subheadline.weight(.bold))
                             .foregroundColor(.red)
@@ -146,10 +146,10 @@ struct CompanyBioLogoView: View {
                             .background(.ultraThinMaterial)
                             .cornerRadius(DesignSystem.CornerRadius.medium)
                             .frame(height: 100) // approx 4 lines
-                            .focused($focusedField, equals: .personalBio)
+                            .focused($isFocusedPersonalBio)
                             .overlay(
                                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                                    .stroke(focusedField == .personalBio ? Color.brandPrimary : Color.borderGlare.opacity(0.15), lineWidth: 1)
+                                    .stroke(isFocusedPersonalBio ? Color.brandPrimary : Color.borderGlare.opacity(0.15), lineWidth: 1)
                             )
                         
                         Text("\(viewModel.user.personalBio.count)/300")
@@ -169,7 +169,7 @@ struct CompanyBioLogoView: View {
                     HStack(spacing: DesignSystem.Spacing.xxSmall) {
                         Text("About the Company")
                             .font(.subheadline.weight(.medium))
-                            .foregroundColor(focusedField == .companyBio ? .brandPrimary : .secondary)
+                            .foregroundColor(isFocusedCompanyBio ? .brandPrimary : .secondary)
                         Text("*")
                             .font(.subheadline.weight(.bold))
                             .foregroundColor(.red)
@@ -183,10 +183,10 @@ struct CompanyBioLogoView: View {
                             .background(.ultraThinMaterial)
                             .cornerRadius(DesignSystem.CornerRadius.medium)
                             .frame(height: 180) // approx 8 lines
-                            .focused($focusedField, equals: .companyBio)
+                            .focused($isFocusedCompanyBio)
                             .overlay(
                                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                                    .stroke(focusedField == .companyBio ? Color.brandPrimary : Color.borderGlare.opacity(0.15), lineWidth: 1)
+                                    .stroke(isFocusedCompanyBio ? Color.brandPrimary : Color.borderGlare.opacity(0.15), lineWidth: 1)
                             )
                         
                         Text("\(viewModel.company.companyBio.count)/1000")

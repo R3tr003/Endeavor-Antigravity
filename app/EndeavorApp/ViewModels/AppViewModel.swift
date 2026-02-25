@@ -70,6 +70,7 @@ class AppViewModel: ObservableObject {
     
     // MARK: - Initialization
     private func checkInitialAuthState() {
+        self.isCheckingAuth = true
         let savedIsLoggedIn = UserDefaults.standard.bool(forKey: "isLoggedIn")
         
         // Stale Firebase Session Check
@@ -77,6 +78,7 @@ class AppViewModel: ObservableObject {
             print("⚠️ Stale Firebase session detected. Signing out.")
             authService.logout()
             router.clearState()
+            self.isCheckingAuth = false
             return
         }
         
@@ -89,6 +91,9 @@ class AppViewModel: ObservableObject {
                 print("⚠️ Stale session detected (No Firebase User). Logging out.")
                 logout()
             }
+            self.isCheckingAuth = false
+        } else {
+            self.isCheckingAuth = false
         }
     }
     
@@ -100,6 +105,7 @@ class AppViewModel: ObservableObject {
                 print("⚠️ Invalid session state. Logging out.")
                 self?.logout()
             }
+            self?.isCheckingAuth = false
         }
     }
     
@@ -219,8 +225,13 @@ class AppViewModel: ObservableObject {
             userRepository.findCompleteUserProfile(email: email.lowercased()) { [weak self] result in
                 DispatchQueue.main.async {
                     if case .success(let (profile, company)) = result {
-                        self?.userRepo.currentUser = profile
+                        var updatedProfile = profile
+                        updatedProfile.lastLoginAt = Date()
+                        self?.userRepo.currentUser = updatedProfile
                         self?.userRepo.companyProfile = company
+                        
+                        // Update last login in Firestore silently
+                        self?.userRepository.saveUserProfile(updatedProfile) { _ in }
                         
                         UserDefaults.standard.set(profile.id.uuidString, forKey: "userId")
                         UserDefaults.standard.set(company.id.uuidString, forKey: "companyId")
@@ -231,7 +242,7 @@ class AppViewModel: ObservableObject {
                         self?.authService.isLoggedIn = true
                         self?.router.isLoading = false
                     } else {
-                        self?.userRepo.currentUser = UserProfile(
+                        var newUser = UserProfile(
                             id: UUID(),
                             firstName: googleFirstName,
                             lastName: googleLastName,
@@ -241,6 +252,10 @@ class AppViewModel: ObservableObject {
                             timeZone: "",
                             profileImageUrl: googlePhotoUrl
                         )
+                        newUser.createdAt = Date()
+                        newUser.lastLoginAt = Date()
+                        
+                        self?.userRepo.currentUser = newUser
                         UserDefaults.standard.set(true, forKey: "isLoggedIn")
                         self?.authService.isLoggedIn = true
                         self?.router.isLoading = false
@@ -258,6 +273,20 @@ class AppViewModel: ObservableObject {
     
     func completeOnboarding(user: UserProfile, company: CompanyProfile, profileImage: UIImage? = nil) {
         var finalUser = user
+        
+        // Preserve tracking fields and ID from existing auth user
+        if let existingUser = self.userRepo.currentUser {
+            finalUser.id = existingUser.id
+            finalUser.createdAt = existingUser.createdAt
+            finalUser.lastLoginAt = existingUser.lastLoginAt
+            if finalUser.profileImageUrl.isEmpty || finalUser.profileImageUrl == "pending_upload" {
+                // Keep the google image if available and no new image was uploaded
+                if profileImage == nil {
+                    finalUser.profileImageUrl = existingUser.profileImageUrl
+                }
+            }
+        }
+        
         userRepo.companyProfile = company
         router.isOnboardingComplete = true
         
@@ -319,8 +348,11 @@ class AppViewModel: ObservableObject {
         }
     }
     
-    func saveProfileChanges() {
-        guard let user = self.currentUser, let company = self.companyProfile else { return }
+    func saveProfileChanges(completion: ((Bool) -> Void)? = nil) {
+        guard let user = self.currentUser, let company = self.companyProfile else { 
+            completion?(false)
+            return 
+        }
         
         // Sync the changes back to the underlying repository state
         self.userRepo.currentUser = user
@@ -329,15 +361,31 @@ class AppViewModel: ObservableObject {
         router.isLoading = true
         
         let dispatchGroup = DispatchGroup()
+        var hasError = false
         
         dispatchGroup.enter()
-        userRepository.saveUserProfile(user) { _ in dispatchGroup.leave() }
+        userRepository.saveUserProfile(user) { [weak self] error in 
+            if let error = error {
+                hasError = true
+                print("Error saving user profile: \(error)")
+                DispatchQueue.main.async { self?.router.appError = .unknown(reason: "Failed to save user profile.") }
+            }
+            dispatchGroup.leave() 
+        }
         
         dispatchGroup.enter()
-        userRepository.saveCompanyProfile(company, userId: user.id.uuidString) { _ in dispatchGroup.leave() }
+        userRepository.saveCompanyProfile(company, userId: user.id.uuidString) { [weak self] error in 
+            if let error = error {
+                hasError = true
+                print("Error saving company profile: \(error)")
+                DispatchQueue.main.async { self?.router.appError = .unknown(reason: "Failed to save company profile.") }
+            }
+            dispatchGroup.leave() 
+        }
         
         dispatchGroup.notify(queue: .main) { [weak self] in
             self?.router.isLoading = false
+            completion?(!hasError)
         }
     }
     
