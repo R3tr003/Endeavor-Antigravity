@@ -1,12 +1,13 @@
 import SwiftUI
 import SDWebImageSwiftUI
+
 struct NetworkView: View {
     @State private var searchText: String = ""
     @State private var animateGlow = false
+    @State private var selectedCategory: String = "All"
     
     @StateObject private var viewModel = NetworkViewModel(repository: FirebaseNetworkRepository())
 
-    
     private var filteredProfiles: [UserProfile] {
         if searchText.isEmpty {
             return viewModel.profiles
@@ -19,14 +20,34 @@ struct NetworkView: View {
         }
     }
     
+    private var categoryFilteredProfiles: [UserProfile] {
+        let baseProfiles = filteredProfiles
+        
+        switch selectedCategory {
+        case "Mentors":
+            return baseProfiles.filter { $0.role.localizedCaseInsensitiveContains("mentor") }
+        case "CEOs & Founders":
+            return baseProfiles.filter { 
+                $0.role.localizedCaseInsensitiveContains("ceo") || 
+                $0.role.localizedCaseInsensitiveContains("founder") 
+            }
+        case "Endeavor Team":
+            return baseProfiles.filter { $0.role.localizedCaseInsensitiveContains("endeavor") }
+        default:
+            return baseProfiles
+        }
+    }
+    
+    let categories = ["All", "Mentors", "CEOs & Founders", "Endeavor Team"]
+    
     var body: some View {
         StackNavigationView {
             ZStack(alignment: .top) {
-                // Immersive Background
                 Color.background.edgesIgnoringSafeArea(.all)
                 
                 GeometryReader { proxy in
                     ZStack {
+                        // Ambient glows
                         Circle()
                             .fill(Color.brandPrimary.opacity(0.15))
                             .frame(width: proxy.size.width * 1.5, height: proxy.size.width * 1.5)
@@ -49,6 +70,7 @@ struct NetworkView: View {
                 
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xLarge) {
+                        
                         // Header
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
                             Text("Mentor\nNetwork")
@@ -62,6 +84,7 @@ struct NetworkView: View {
                                 .foregroundColor(.secondary)
                         }
                         .padding(.top, DesignSystem.Spacing.standard)
+                        .padding(.horizontal, DesignSystem.Spacing.large)
                         
                         // Glass Search Bar
                         HStack(spacing: DesignSystem.Spacing.small) {
@@ -81,16 +104,48 @@ struct NetworkView: View {
                                 .stroke(Color.white.opacity(0.15), lineWidth: 1)
                         )
                         .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+                        .padding(.horizontal, DesignSystem.Spacing.large)
+                        
+                        // Category Filters
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: DesignSystem.Spacing.small) {
+                                ForEach(categories, id: \.self) { category in
+                                    Button(action: {
+                                        withAnimation(.easeInOut) {
+                                            selectedCategory = category
+                                        }
+                                    }) {
+                                        Text(category)
+                                            .font(.system(size: 14, weight: selectedCategory == category ? .bold : .medium, design: .rounded))
+                                            .foregroundColor(selectedCategory == category ? .white : .primary)
+                                            .padding(.vertical, 10)
+                                            .padding(.horizontal, DesignSystem.Spacing.standard)
+                                            .background(
+                                                selectedCategory == category ? AnyShapeStyle(Color.brandPrimary) : AnyShapeStyle(.ultraThinMaterial),
+                                                in: Capsule()
+                                            )
+                                            .overlay(
+                                                Capsule().stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                            )
+                                    }
+                                }
+                            }
+                            .padding(.horizontal, DesignSystem.Spacing.large)
+                        }
+                        
+                        // Results Counter
+                        if !(viewModel.isLoading && categoryFilteredProfiles.isEmpty) {
+                            Text("\(categoryFilteredProfiles.count) members")
+                                .font(.system(size: 13, weight: .medium, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, DesignSystem.Spacing.large)
+                                .padding(.top, -DesignSystem.Spacing.small) // pulls it closer to filters
+                        }
                         
                         // Content List
                         VStack(spacing: DesignSystem.Spacing.medium) {
-                            ForEach(filteredProfiles, id: \.id) { profile in
-                                networkCard(
-                                    imageName: profile.profileImageUrl,
-                                    name: "\(profile.firstName) \(profile.lastName)",
-                                    role: profile.role,
-                                    tags: [profile.location].filter { !$0.isEmpty } // using location as a tag placeholder
-                                )
+                            ForEach(categoryFilteredProfiles, id: \.id) { profile in
+                                networkCard(profile: profile)
                             }
                             
                             // Pagination Trigger
@@ -99,18 +154,18 @@ struct NetworkView: View {
                                     .padding(.vertical, DesignSystem.Spacing.medium)
                             } else if viewModel.hasMoreData {
                                 Color.clear
-                                    .frame(height: DesignSystem.Layout.buttonHeight)
+                                    .frame(height: 44) // standard height instead of layout struct parameter
                                     .onAppear {
-                                        // Only fetch more if we aren't actively filtering
+                                        // Trigger only if we aren't filtering locally by text
                                         if searchText.isEmpty {
                                             viewModel.fetchUsers()
                                         }
                                     }
                             }
                         }
-                        .padding(.bottom, DesignSystem.Spacing.bottomSafePadding) // Space for floating tab bar
+                        .padding(.horizontal, DesignSystem.Spacing.large)
+                        .padding(.bottom, DesignSystem.Spacing.bottomSafePadding)
                     }
-                    .padding(.horizontal, DesignSystem.Spacing.large)
                 }
                 .onAppear {
                     if viewModel.profiles.isEmpty {
@@ -118,7 +173,6 @@ struct NetworkView: View {
                     }
                 }
                 
-                // Status bar blur
                 Rectangle()
                     .fill(.ultraThinMaterial)
                     .frame(height: 0)
@@ -128,12 +182,13 @@ struct NetworkView: View {
     }
     
     @ViewBuilder
-    func networkCard(imageName: String, name: String, role: String, tags: [String]) -> some View {
+    private func networkCard(profile: UserProfile) -> some View {
         DashboardCard {
             VStack(spacing: DesignSystem.Spacing.medium) {
-                // Top section: Avatar and Info
+                
+                // Avatar, Name, Role
                 HStack(spacing: DesignSystem.Spacing.standard) {
-                    if imageName.isEmpty {
+                    if profile.profileImageUrl.isEmpty {
                         Circle()
                             .fill(Color.primary.opacity(0.05))
                             .frame(width: 60, height: 60)
@@ -144,7 +199,7 @@ struct NetworkView: View {
                             )
                             .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
                     } else {
-                        WebImage(url: URL(string: imageName)) { image in
+                        WebImage(url: URL(string: profile.profileImageUrl)) { image in
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -165,48 +220,84 @@ struct NetworkView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxSmall) {
-                        Text(name)
+                        Text("\(profile.firstName) \(profile.lastName)")
                             .font(.title3.weight(.bold))
                             .foregroundColor(.primary)
                         
-                        Text(role)
+                        Text(profile.role)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
+                            .lineLimit(2) // ensure long roles don't break layout
                     }
                     Spacer()
                 }
                 
-                // Tags
-                HStack(spacing: DesignSystem.Spacing.xSmall) {
-                    ForEach(tags, id: \.self) { tag in
-                        Text(tag)
-                            .font(.caption.weight(.medium))
-                            .foregroundColor(.primary)
-                            .padding(.vertical, 6)
-                            .padding(.horizontal, DesignSystem.Spacing.small)
-                            .background(Color.primary.opacity(0.05), in: Capsule())
+                // Computed Tags
+                let tags = computedTags(for: profile)
+                if !tags.isEmpty {
+                    HStack(spacing: DesignSystem.Spacing.xSmall) {
+                        ForEach(tags, id: \.self) { tag in
+                            Text(tag)
+                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .foregroundColor(Color.brandPrimary)
+                                .padding(.vertical, 5)
+                                .padding(.horizontal, 10)
+                                .background(Color.brandPrimary.opacity(0.12), in: Capsule())
+                                .overlay(Capsule().stroke(Color.brandPrimary.opacity(0.25), lineWidth: 1))
+                        }
+                        Spacer()
                     }
-                    Spacer()
                 }
                 
-                // Action Button
-                Button(action: {}) {
-                    Text("View Profile")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color.brandPrimary)
-                        .clipShape(Capsule())
-                        .shadow(color: Color.brandPrimary.opacity(0.3), radius: 8, x: 0, y: 4)
+                // Action Buttons (Side by Side)
+                HStack(spacing: DesignSystem.Spacing.small) {
+                    // View Profile Button
+                    Button(action: {}) {
+                        Text("View Profile")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(Color.brandPrimary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .overlay(Capsule().stroke(Color.brandPrimary, lineWidth: 1.5))
+                    }
+                    
+                    // Connect Button
+                    Button(action: {}) {
+                        Text("Connect")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.brandPrimary)
+                            .clipShape(Capsule())
+                    }
                 }
             }
             .padding(DesignSystem.Spacing.large)
         }
     }
+    
+    /// Helper to extract up to 3 tags (location + 2 chunks from role)
+    private func computedTags(for profile: UserProfile) -> [String] {
+        var tags: [String] = []
+        if !profile.location.isEmpty {
+            tags.append(profile.location)
+        }
+        
+        if !profile.role.isEmpty {
+            let roleTokens = profile.role
+                .components(separatedBy: CharacterSet(charactersIn: ",/|"))
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+            
+            // Limit to max 2 extracted roles, making max 3 tags total
+            tags.append(contentsOf: roleTokens.prefix(2))
+        }
+        
+        return tags
+    }
 }
 
-// Helper for search placeholder color
 extension View {
     func placeholder<Content: View>(
         when shouldShow: Bool,
@@ -219,8 +310,6 @@ extension View {
         }
     }
 }
-
-
 
 struct NetworkView_Previews: PreviewProvider {
     static var previews: some View {
