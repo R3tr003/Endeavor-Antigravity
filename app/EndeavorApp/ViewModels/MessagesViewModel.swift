@@ -1,28 +1,28 @@
 import Foundation
 import Combine
 
-class GrowthViewModel: ObservableObject {
-    @Published var metrics: GrowthMetrics?
+class MessagesViewModel: ObservableObject {
+    @Published var messageMetrics: MessageMetrics?
     @Published var isLoading = false
     @Published var appError: AppError?
     
-    private let repository: GrowthRepositoryProtocol
+    private let repository: MessagesRepositoryProtocol
     
-    init(repository: GrowthRepositoryProtocol) {
+    init(repository: MessagesRepositoryProtocol) {
         self.repository = repository
     }
     
-    func fetchMetrics(userId: String) {
+    func fetchMessages(userId: String) {
         guard !isLoading else { return }
         isLoading = true
         appError = nil
         
-        repository.fetchGrowthMetrics(userId: userId) { [weak self] result in
+        repository.fetchMessages(userId: userId) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isLoading = false
                 switch result {
                 case .success(let data):
-                    self?.metrics = data
+                    self?.messageMetrics = data
                 case .failure(let error):
                     self?.appError = .unknown(reason: error.localizedDescription)
                 }

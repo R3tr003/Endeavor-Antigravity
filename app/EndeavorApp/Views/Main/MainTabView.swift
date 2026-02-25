@@ -23,20 +23,11 @@ struct MainTabView: View {
                 NetworkView()
                     .tag(1)
                 
-                // AI Guide (Placeholder)
-                ZStack {
-                    Color.background.edgesIgnoringSafeArea(.all)
-                    VStack {
-                        Spacer()
-                        Text("AI Guide Coming Soon")
-                            .font(.system(size: 24, weight: .bold, design: .rounded))
-                            .foregroundColor(.textPrimary)
-                        Spacer()
-                    }
-                }
-                .tag(2)
+                // Mentor Discovery
+                MentorDiscoveryView()
+                    .tag(2)
                 
-                GrowthView()
+                MessagesView()
                     .tag(3)
                 
                 ProfileView()
@@ -54,11 +45,11 @@ struct MainTabView: View {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 1 }
                 }
                 Spacer()
-                TabItem(icon: "sparkles", title: "AI Guide", isSelected: selectedTab == 2) { // Changed icon to 'sparkles' for AI
+                TabItem(icon: "sparkles", title: "Discover", isSelected: selectedTab == 2, selectedIcon: "sparkles") {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 2 }
                 }
                 Spacer()
-                TabItem(icon: "chart.bar", title: "Growth", isSelected: selectedTab == 3) {
+                TabItem(icon: "message", title: "Messages", isSelected: selectedTab == 3) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 3 }
                 }
                 Spacer()
@@ -89,22 +80,36 @@ struct TabItem: View {
     let icon: String
     let title: String
     let isSelected: Bool
+    let selectedIcon: String?   // ← opzionale: icona custom per stato selezionato
     let action: () -> Void
-    
+
+    @State private var bounceTrigger: Int = 0
+
+    init(icon: String, title: String, isSelected: Bool, selectedIcon: String? = nil, action: @escaping () -> Void) {
+        self.icon = icon
+        self.title = title
+        self.isSelected = isSelected
+        self.selectedIcon = selectedIcon
+        self.action = action
+    }
+
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            bounceTrigger += 1
+            action()
+        }) {
             VStack(spacing: DesignSystem.Spacing.xxSmall) {
-                // Animated icon
-                Image(systemName: isSelected ? icon + ".fill" : icon)
+                Image(systemName: isSelected ? (selectedIcon ?? icon + ".fill") : icon)
                     .font(.system(size: 22, weight: isSelected ? .bold : .regular))
-                    .symbolEffect(.bounce, value: isSelected) // iOS 17+ subtle micro-interaction
-                
-                // Optional: show text only if selected or always show text
+                    .symbolEffect(.bounce, value: bounceTrigger)
+
                 Text(title)
                     .font(.system(size: 10, weight: isSelected ? .bold : .medium))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
             .foregroundColor(isSelected ? .brandPrimary : .primary.opacity(0.5))
-            .frame(width: DesignSystem.Layout.buttonHeight) // Fixed width to prevent shifting when text bold state changes
+            .frame(width: DesignSystem.Layout.buttonHeight)
         }
     }
 }

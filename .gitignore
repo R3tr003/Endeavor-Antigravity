@@ -37,5 +37,7 @@ fastlane/test_output
 .agents/skills/
 
 # Custom Scripts
-add_designsystem.py
-add_services.py
+*.rb
+add_*.py
+fix_*.py
+
