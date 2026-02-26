@@ -1,12 +1,17 @@
 import Foundation
+import SwiftUI
 
-struct MessageMetrics {
-    var monthlyActivity: [Double]
-    var monthlyLabels: [String]
-    var growthTrajectory: [Double]
+struct Conversation: Identifiable {
+    let id: UUID
+    let name: String
+    let role: String
+    let lastMessage: String
+    let time: String
+    let unreadCount: Int
+    let initials: String
+    let accentColor: Color
 }
 
 protocol MessagesRepositoryProtocol {
-    /// Fetches mock message metrics for the user's dashboard.
-    func fetchMessages(userId: String, completion: @escaping (Result<MessageMetrics, Error>) -> Void)
+    func fetchConversations(userId: String, completion: @escaping (Result<[Conversation], Error>) -> Void)
 }

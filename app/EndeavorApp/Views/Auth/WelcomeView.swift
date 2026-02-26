@@ -36,12 +36,12 @@ struct WelcomeView: View {
                     
                     Text("Endeavor")
                         .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
+                        .foregroundColor(.brandPrimary) // Teal come richiesto
                         .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
                     
                     Text("Access reserved for authorized Endeavor members and mentors.")
                         .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.85))
+                        .foregroundColor(.primary.opacity(0.85)) // Contrasto per light/dark
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, DesignSystem.Spacing.xxLarge)
                 }
@@ -86,7 +86,7 @@ struct WelcomeView: View {
                             .shadow(color: focusedField == .email ? Color.brandPrimary.opacity(0.5) : .clear, radius: 4, x: 0, y: 0)
                             .animation(.easeInOut(duration: 0.2), value: focusedField == .email)
                     )
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .accentColor(.brandPrimary)
                     .autocapitalization(.none)
                     .keyboardType(.emailAddress)
@@ -118,7 +118,7 @@ struct WelcomeView: View {
                                     .shadow(color: focusedField == .password ? Color.brandPrimary.opacity(0.15) : .clear, radius: 10, x: 0, y: 0)
                                     .animation(.easeInOut(duration: 0.2), value: focusedField == .password)
                             )
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .accentColor(.brandPrimary)
                             .autocorrectionDisabled(true)
                             .textInputAutocapitalization(.never)
@@ -141,7 +141,7 @@ struct WelcomeView: View {
                                     .shadow(color: focusedField == .password ? Color.brandPrimary.opacity(0.15) : .clear, radius: 10, x: 0, y: 0)
                                     .animation(.easeInOut(duration: 0.2), value: focusedField == .password)
                             )
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .accentColor(.brandPrimary)
                             .autocorrectionDisabled(true)
                             .textInputAutocapitalization(.never)
@@ -157,7 +157,7 @@ struct WelcomeView: View {
                         
                         Button(action: { showPassword.toggle() }) {
                             Image(systemName: showPassword ? "eye" : "eye.slash")
-                                .foregroundColor(.white.opacity(0.7))
+                                .foregroundColor(.primary.opacity(0.7))
                                 .padding(.trailing, DesignSystem.Spacing.standard)
                         }
                     }
@@ -200,7 +200,7 @@ struct WelcomeView: View {
                     }) {
                         HStack(spacing: DesignSystem.Spacing.xxSmall) {
                             Text("Forgot Password?")
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(.primary.opacity(0.8))
                             Text("Reset it here")
                                 .foregroundColor(.brandPrimary)
                         }
@@ -226,15 +226,15 @@ struct WelcomeView: View {
                     }
                     Text(appViewModel.isLoading ? "Please wait..." : "Sign In")
                         .font(.headline.weight(.bold))
-                        .foregroundColor((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty) ? .textInverted : .white.opacity(0.5))
+                        .foregroundColor((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty) ? .textInverted : .primary.opacity(0.5))
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: DesignSystem.Layout.buttonHeight)
-                .background((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty && !appViewModel.isLoading) ? Color.brandPrimary : Color.white.opacity(0.1))
+                .background((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty && !appViewModel.isLoading) ? Color.brandPrimary : Color.primary.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                 .overlay(
                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                        .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                 )
             }
             .disabled(!isValidEmail || !passwordErrorMessage.isEmpty || password.isEmpty || appViewModel.isLoading)
@@ -255,23 +255,23 @@ struct WelcomeView: View {
                         Text("Continue with Google")
                             .font(.subheadline.weight(.medium))
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .frame(maxWidth: .infinity)
                     .frame(height: DesignSystem.Layout.buttonHeight)
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                            .stroke(Color.primary.opacity(0.2), lineWidth: 1)
                     )
                 }
                 
                 HStack(spacing: DesignSystem.Spacing.xxSmall) {
                     Text("By continuing, you agree to our")
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(.primary.opacity(0.7))
                     Button("Terms") { showTerms = true }
                         .foregroundColor(.brandPrimary)
                     Text("&")
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(.primary.opacity(0.7))
                     Button("Privacy") { showPrivacy = true }
                         .foregroundColor(.brandPrimary)
                 }
@@ -292,7 +292,7 @@ struct WelcomeView: View {
             }) {
                 HStack(spacing: DesignSystem.Spacing.xxSmall) {
                     Text("Having troubles?")
-                        .foregroundColor(.white.opacity(0.6))
+                        .foregroundColor(.primary.opacity(0.6))
                     Text("Get Help")
                         .foregroundColor(.brandPrimary)
                 }
@@ -357,7 +357,7 @@ struct LiquidGlassEffect: ViewModifier {
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .stroke(LinearGradient(
-                        colors: [.white.opacity(0.4), .clear, .white.opacity(0.2)],
+                        colors: [Color.borderGlare.opacity(0.4), .clear, Color.borderGlare.opacity(0.2)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ), lineWidth: 1.5)

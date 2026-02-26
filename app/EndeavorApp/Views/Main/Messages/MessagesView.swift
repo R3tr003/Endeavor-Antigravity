@@ -1,48 +1,16 @@
 import SwiftUI
 
-struct MockConversation: Identifiable {
-    let id: UUID
-    let name: String
-    let role: String
-    let lastMessage: String
-    let time: String
-    let unreadCount: Int
-    let initials: String
-    let accentColor: Color
-
-    static let mockConversations: [MockConversation] = [
-        MockConversation(id: UUID(), name: "Maria Lopez", role: "SaaS Scaling Expert",
-            lastMessage: "Happy to share what worked for us at the 50-person milestone.",
-            time: "2m", unreadCount: 2, initials: "ML", accentColor: Color.brandPrimary),
-
-        MockConversation(id: UUID(), name: "Carlos Rodriguez", role: "Fintech Founder",
-            lastMessage: "Let's schedule a call this week to discuss the go-to-market.",
-            time: "1h", unreadCount: 1, initials: "CR", accentColor: .purple),
-
-        MockConversation(id: UUID(), name: "Ana Martinez", role: "CEO, Series B",
-            lastMessage: "The fundraising deck looks solid. A few suggestions...",
-            time: "3h", unreadCount: 0, initials: "AM", accentColor: .orange),
-
-        MockConversation(id: UUID(), name: "Endeavor Team", role: "Account Manager",
-            lastMessage: "Your next mentorship session is confirmed for Thursday.",
-            time: "1d", unreadCount: 0, initials: "ET", accentColor: Color.brandPrimary),
-
-        MockConversation(id: UUID(), name: "James Okafor", role: "Operations Expert",
-            lastMessage: "Scaling ops across 3 markets is tough — here's my framework.",
-            time: "2d", unreadCount: 0, initials: "JO", accentColor: .blue),
-    ]
-}
-
 struct MessagesView: View {
+    @StateObject private var viewModel = MessagesViewModel()
     @State private var searchText: String = ""
     @State private var animateGlow: Bool = false
-    @State private var selectedConversation: MockConversation? = nil
+    @State private var selectedConversation: Conversation? = nil
 
-    var filteredConversations: [MockConversation] {
+    var filteredConversations: [Conversation] {
         if searchText.trimmingCharacters(in: .whitespaces).isEmpty {
-            return MockConversation.mockConversations
+            return viewModel.conversations
         } else {
-            return MockConversation.mockConversations.filter {
+            return viewModel.conversations.filter {
                 $0.name.localizedCaseInsensitiveContains(searchText) ||
                 $0.role.localizedCaseInsensitiveContains(searchText)
             }
@@ -73,6 +41,9 @@ struct MessagesView: View {
                         withAnimation(.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
                             animateGlow = true
                         }
+                        if viewModel.conversations.isEmpty {
+                            viewModel.fetchConversations(userId: "currentUserId")
+                        }
                     }
                 }
 
@@ -93,7 +64,7 @@ struct MessagesView: View {
                                 
                                 Spacer()
                                 
-                                let totalUnread = MockConversation.mockConversations.reduce(0) { $0 + $1.unreadCount }
+                                let totalUnread = viewModel.conversations.reduce(0) { $0 + $1.unreadCount }
                                 if totalUnread > 0 {
                                     Text("\(totalUnread) unread messages")
                                         .font(.system(size: 13, weight: .semibold, design: .rounded))
@@ -143,7 +114,7 @@ struct MessagesView: View {
 }
 
 struct ConversationRow: View {
-    let conversation: MockConversation
+    let conversation: Conversation
     
     var body: some View {
         HStack(spacing: DesignSystem.Spacing.standard) {

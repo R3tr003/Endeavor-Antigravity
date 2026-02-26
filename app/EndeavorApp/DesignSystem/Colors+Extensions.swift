@@ -10,25 +10,34 @@ extension Color {
     }
     
     // MARK: - Brand Colors
-    // Primary: Keep Teal for both, maybe slightly darker for light mode visibility if needed, but user said "keep similar".
-    // 00D9C5 is quite bright. On white it might be hard to read text, but as a button bg it's fine.
-    static let brandPrimary = dynamicColor(light: "00B8A5", dark: "00D9C5") // Slightly darker for light mode contrast
+    // Brand Primary
+    static let brandPrimary = dynamicColor(light: "00A896", dark: "00D9C5")
+    // Più scuro del teal originale per contrasto WCAG AA su sfondo bianco
     
     // Backgrounds
-    static let background = dynamicColor(light: "E2E8F0", dark: "0A1628") // Softer grayish-blue Light / Dark Blue Dark
-    static let cardBackground = dynamicColor(light: "F1F5F9", dark: "1E2A3A") // Slight off-white Light / Blue Gray Dark
-    static let inputBackground = dynamicColor(light: "E2E8F0", dark: "2A3647") // Deepest Gray Input Light / Dark Blue Gray Dark
-    static let borderGlare = dynamicColor(light: "0F172A", dark: "FFFFFF") // Very Dark Slate border for light mode, White for dark mode
+    static let background = dynamicColor(light: "EFF5F4", dark: "0A1628")
+    // Leggera tinta teal-fredda — non bianco puro, non grigio, distinguibile dalle card
     
-    // Text Colors
-    static let textPrimary = dynamicColor(light: "0F172A", dark: "FFFFFF") // Very Dark Slate Light / White Dark
-    static let textSecondary = dynamicColor(light: "475569", dark: "8B95A5") // Darker Gray Light (readability) / Gray Dark
-    static let textInverted = dynamicColor(light: "FFFFFF", dark: "111827") // For buttons on primary
+    static let cardBackground = dynamicColor(light: "FFFFFF", dark: "1E2A3A")
+    // Bianco puro — si stacca nettamente da EFF5F4
     
-    // Status Colors
+    static let inputBackground = dynamicColor(light: "E0F0EE", dark: "2A3647")
+    // Tinta acqua-teal leggermente più satura — riconoscibile come area di input,
+    // diversa sia dal background (EFF5F4) che dalle card (FFFFFF)
+    
+    static let borderGlare = dynamicColor(light: "00A896", dark: "FFFFFF")
+    // Teal al posto del bianco. Tutti i bordi `.white.opacity(0.15)` diventano
+    // automaticamente bordi teal sottili — identità Endeavor senza toccare le view
+    
+    // Text Colors — invariati, già corretti
+    static let textPrimary = dynamicColor(light: "0F172A", dark: "FFFFFF")
+    static let textSecondary = dynamicColor(light: "475569", dark: "8B95A5")
+    static let textInverted = dynamicColor(light: "FFFFFF", dark: "111827")
+    
+    // Status Colors — invariati
     static let success = dynamicColor(light: "059669", dark: "00D98A")
     static let error = dynamicColor(light: "DC2626", dark: "FF4757")
-    static let chartAccent = dynamicColor(light: "9333EA", dark: "A855F7")
+    static let chartAccent = dynamicColor(light: "7C3AED", dark: "A855F7")
     
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)

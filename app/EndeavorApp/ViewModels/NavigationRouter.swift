@@ -30,6 +30,6 @@ class NavigationRouter: ObservableObject {
     func clearState() {
         self.isOnboardingComplete = false
         self.appError = nil
-        self.selectedTheme = "Dark"
+        // selectedTheme NON viene resettato: il tema sopravvive al logout
     }
 }

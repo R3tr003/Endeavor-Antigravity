@@ -5,6 +5,7 @@ struct DashboardCard<Content: View>: View {
     
     // Add a simple interaction state for micro-animation
     @State private var isPressed: Bool = false
+    @Environment(\.colorScheme) private var colorScheme
     
     init(@ViewBuilder content: () -> Content) {
         self.content = content()
@@ -21,13 +22,28 @@ struct DashboardCard<Content: View>: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(LinearGradient(
-                    colors: [.white.opacity(0.3), .clear, .white.opacity(0.1)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ), lineWidth: 1)
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            // Dark: bagliore bianco superiore. Light: accent teal sottile.
+                            colorScheme == .dark ? .white.opacity(0.3) : Color.brandPrimary.opacity(0.3),
+                            colorScheme == .dark ? .clear : Color.brandPrimary.opacity(0.05),
+                            colorScheme == .dark ? .white.opacity(0.1) : Color.brandPrimary.opacity(0.15)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1
+                )
         )
-        .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 6)
+        .shadow(
+            color: colorScheme == .dark
+                ? Color.black.opacity(0.08)
+                : Color.black.opacity(0.12),  // più definita in light
+            radius: colorScheme == .dark ? 12 : 8,
+            x: 0,
+            y: colorScheme == .dark ? 6 : 3
+        )
         .scaleEffect(isPressed ? 0.98 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
         .onLongPressGesture(minimumDuration: 100, pressing: { pressing in

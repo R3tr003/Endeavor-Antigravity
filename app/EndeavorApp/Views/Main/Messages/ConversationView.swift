@@ -15,12 +15,13 @@ struct MockMessage: Identifiable {
 }
 
 struct ConversationView: View {
-    let conversation: MockConversation
+    let conversation: Conversation
     @Environment(\.dismiss) private var dismiss
     @State private var messageText: String = ""
     @State private var showConversationStarters: Bool = false
     @State private var messages: [MockMessage] = MockMessage.mockMessages
     @FocusState private var isInputFocused: Bool
+    @Environment(\.colorScheme) private var colorScheme
 
     let conversationStarters: [String] = [
         "Seeking advice on...",
@@ -165,15 +166,27 @@ struct ConversationView: View {
                                         .foregroundColor(msg.isFromMe ? .white : .primary)
                                         .background(
                                             msg.isFromMe ? Color.brandPrimary : Color.clear,
-                                            in: RoundedCornerShape(radius: DesignSystem.CornerRadius.large, corners: [.topLeft, .topRight, msg.isFromMe ? .bottomLeft : .bottomRight])
+                                            in: RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
+                                                corners: [.topLeft, .topRight, msg.isFromMe ? .bottomLeft : .bottomRight])
                                         )
                                         .background(
-                                            msg.isFromMe ? Color.clear : Color(UIColor.systemBackground).opacity(0.1),
-                                            in: RoundedCornerShape(radius: DesignSystem.CornerRadius.large, corners: [.topLeft, .topRight, msg.isFromMe ? .bottomLeft : .bottomRight])
+                                            msg.isFromMe
+                                                ? Color.clear
+                                                : (colorScheme == .dark
+                                                    ? Color(UIColor.systemBackground).opacity(0.15)
+                                                    : Color(hex: "E0F0EE")),  // tinta teal chiara, visibile su sfondo EFF5F4
+                                            in: RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
+                                                corners: [.topLeft, .topRight, msg.isFromMe ? .bottomLeft : .bottomRight])
                                         )
                                         .overlay(
-                                            RoundedCornerShape(radius: DesignSystem.CornerRadius.large, corners: [.topLeft, .topRight, msg.isFromMe ? .bottomLeft : .bottomRight])
-                                                .stroke(msg.isFromMe ? Color.clear : Color.white.opacity(0.12), lineWidth: 1)
+                                            RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
+                                                corners: [.topLeft, .topRight, msg.isFromMe ? .bottomLeft : .bottomRight])
+                                                .stroke(
+                                                    msg.isFromMe
+                                                        ? Color.clear
+                                                        : (colorScheme == .dark ? Color.white.opacity(0.12) : Color.brandPrimary.opacity(0.2)),
+                                                    lineWidth: 1
+                                                )
                                         )
                                     
                                     Text(msg.time)
@@ -264,7 +277,7 @@ struct RoundedCornerShape: Shape {
 }
 
 #Preview {
-    ConversationView(conversation: MockConversation(
+    ConversationView(conversation: Conversation(
         id: UUID(), name: "Maria Lopez", role: "SaaS Scaling Expert",
         lastMessage: "Happy to share what worked for us.",
         time: "2m", unreadCount: 2, initials: "ML", accentColor: Color.brandPrimary
