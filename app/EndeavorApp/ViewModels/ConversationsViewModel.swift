@@ -1,7 +1,7 @@
 import Foundation
 import Combine
 
-class MessagesViewModel: ObservableObject {
+class ConversationsViewModel: ObservableObject {
     @Published var conversations: [Conversation] = []
     @Published var isLoading = false
     @Published var appError: AppError?

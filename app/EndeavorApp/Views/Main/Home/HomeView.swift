@@ -66,7 +66,7 @@ struct HomeView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(DesignSystem.Spacing.medium)
                             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.white.opacity(0.15), lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
                             .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 5)
                         }
                         
@@ -85,7 +85,7 @@ struct HomeView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(DesignSystem.Spacing.medium)
                             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.white.opacity(0.15), lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
                             .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 5)
                         }
                     }
@@ -160,7 +160,7 @@ struct HomeView: View {
                     }
                     .padding()
                     .background(.ultraThinMaterial)
-                    .overlay(Rectangle().frame(height: 1).foregroundColor(.white.opacity(0.1)), alignment: .bottom)
+                    .overlay(Rectangle().frame(height: 1).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .bottom)
                     Spacer()
                 }
                 .transition(.opacity.animation(.easeInOut(duration: 0.2)))
@@ -270,7 +270,7 @@ struct EventCard: View {
         .padding(DesignSystem.Spacing.medium)
         .frame(width: 260)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous).stroke(Color.white.opacity(0.15), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous).stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
         .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
     }
 }

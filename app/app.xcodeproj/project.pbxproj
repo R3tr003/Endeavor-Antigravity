@@ -51,7 +51,7 @@
 		65EE729A2F36157200E6F591 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 65EE72992F36157200E6F591 /* GoogleSignInSwift */; };
 		65F4304F2F35F5DB00023B22 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 65F4304E2F35F5DB00023B22 /* FirebaseAnalytics */; };
 		7B713F24AB4C4E7AACCFE522 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31E5D1F829284CDFA585B4EE /* AuthService.swift */; };
-		862EBCBA8EC890469696B0C3 /* MessagesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C22C858EC41CD85C917D953 /* MessagesViewModel.swift */; };
+		862EBCBA8EC890469696B0C3 /* ConversationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C22C858EC41CD85C917D953 /* ConversationsViewModel.swift */; };
 		8F3D1F3C4E5E4E309D5E7A2A /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 1F8E1C2B4C3D4D1A9F7E8D9C /* FirebaseAppCheck */; };
 		94FB77E91F374FECB5DAE118 /* UserRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07053209516A4F1FA85F126C /* UserRepositoryProtocol.swift */; };
 		991788002F356B310095C184 /* LocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991788012F356B310095C184 /* LocationData.swift */; };
@@ -110,7 +110,7 @@
 		65EE72952F3614FB00E6F591 /* app-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "app-Info.plist"; sourceTree = "<group>"; };
 		69207CC2A34045868148BE03 /* StorageRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Protocols/StorageRepositoryProtocol.swift; sourceTree = "<group>"; };
 		6BA94BBC395A455691999B44 /* FirebaseStorageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Firebase/FirebaseStorageRepository.swift; sourceTree = "<group>"; };
-		7C22C858EC41CD85C917D953 /* MessagesViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MessagesViewModel.swift; path = ViewModels/MessagesViewModel.swift; sourceTree = "<group>"; };
+		7C22C858EC41CD85C917D953 /* ConversationsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConversationsViewModel.swift; path = ViewModels/ConversationsViewModel.swift; sourceTree = "<group>"; };
 		8578755F65A84AFAB25F0E41 /* NetworkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkViewModel.swift; sourceTree = "<group>"; };
 		8A75F2AF083A37A4A97E1F18 /* MentorDiscoveryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MentorDiscoveryView.swift; sourceTree = "<group>"; };
 		9110CAF806A8A7BC9419D4CB /* ConversationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConversationView.swift; sourceTree = "<group>"; };
@@ -344,7 +344,7 @@
 				651787F32F356B310095C184 /* AppIcon60x60@3x.png */,
 				651787F42F356B310095C184 /* Assets.xcassets */,
 				651787F52F356B310095C184 /* GoogleService-Info.plist */,
-				7C22C858EC41CD85C917D953 /* MessagesViewModel.swift */,
+				7C22C858EC41CD85C917D953 /* ConversationsViewModel.swift */,
 				322B368C9FCA80FD0EFC8014 /* MessagesRepositoryProtocol.swift */,
 				233EC5DBF6799263EFF27D89 /* FirebaseMessagesRepository.swift */,
 			);
@@ -489,7 +489,7 @@
 				3EC83DF819A43CF381DA86BF /* MentorDiscoveryView.swift in Sources */,
 				B217199E2A86262A2BBFF6AA /* MessagesView.swift in Sources */,
 				DF14E280B7AD77D1BFBC8CEF /* ConversationView.swift in Sources */,
-				862EBCBA8EC890469696B0C3 /* MessagesViewModel.swift in Sources */,
+				862EBCBA8EC890469696B0C3 /* ConversationsViewModel.swift in Sources */,
 				F759D414D8CF8F9FA89B9F6E /* MessagesRepositoryProtocol.swift in Sources */,
 				D260DC99484BB66F1618780C /* FirebaseMessagesRepository.swift in Sources */,
 			);

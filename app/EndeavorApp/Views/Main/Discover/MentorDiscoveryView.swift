@@ -186,7 +186,7 @@ struct MentorDiscoveryView: View {
             }
             .padding(DesignSystem.Spacing.standard)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.white.opacity(0.12), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.borderGlare.opacity(0.12), lineWidth: 1))
         }
     }
 }

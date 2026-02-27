@@ -70,7 +70,7 @@ struct SettingsView: View {
                     }
                     .padding()
                     .background(.ultraThinMaterial)
-                    .overlay(Rectangle().frame(height: 1).foregroundColor(.white.opacity(0.1)), alignment: .bottom)
+                    .overlay(Rectangle().frame(height: 1).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .bottom)
                     .transition(.opacity.animation(.easeInOut(duration: 0.2)))
                     .ignoresSafeArea(edges: .top)
                 } else {
@@ -164,7 +164,7 @@ struct SettingsView: View {
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(isDestructive ? Color.red.opacity(0.2) : Color.white.opacity(0.15), lineWidth: 1)
+                    .stroke(isDestructive ? Color.red.opacity(0.2) : Color.borderGlare.opacity(0.15), lineWidth: 1)
             )
             .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
         }

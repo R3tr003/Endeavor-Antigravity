@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MessagesView: View {
-    @StateObject private var viewModel = MessagesViewModel()
+    @StateObject private var viewModel = ConversationsViewModel()
     @State private var searchText: String = ""
     @State private var animateGlow: Bool = false
     @State private var selectedConversation: Conversation? = nil
@@ -89,7 +89,7 @@ struct MessagesView: View {
                         }
                         .padding(DesignSystem.Spacing.standard)
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.white.opacity(0.15), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
 
                         // Conversations List
                         VStack(spacing: DesignSystem.Spacing.small) {
@@ -129,7 +129,7 @@ struct ConversationRow: View {
                         .foregroundColor(conversation.accentColor)
                 )
                 .overlay(
-                    Circle().stroke(conversation.unreadCount > 0 ? conversation.accentColor : Color.white.opacity(0.15), lineWidth: conversation.unreadCount > 0 ? 2 : 1)
+                    Circle().stroke(conversation.unreadCount > 0 ? conversation.accentColor : Color.borderGlare.opacity(0.15), lineWidth: conversation.unreadCount > 0 ? 2 : 1)
                 )
 
             // Info
@@ -170,7 +170,7 @@ struct ConversationRow: View {
         }
         .padding(DesignSystem.Spacing.standard)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous).stroke(Color.white.opacity(0.12), lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous).stroke(Color.borderGlare.opacity(0.12), lineWidth: 1))
         .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
     }
 }

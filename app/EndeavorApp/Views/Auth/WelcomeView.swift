@@ -388,7 +388,7 @@ struct PolicyView: View {
                     Button("Close") { isPresented = false }
                 }
             }
-        }.colorScheme(.dark)
+        }
     }
 }
 

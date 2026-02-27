@@ -26,14 +26,14 @@ struct OnboardingContainerView: View {
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: DesignSystem.Spacing.xxLarge, height: DesignSystem.Spacing.xxLarge)
                                 .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 1))
+                                .overlay(Circle().stroke(Color.borderGlare.opacity(0.3), lineWidth: 1))
                         } placeholder: {
                             ZStack {
                                 Image(systemName: "person.circle.fill")
                                     .resizable()
-                                    .foregroundColor(.white.opacity(0.5))
+                                    .foregroundColor(Color.borderGlare.opacity(0.5))
                                     .frame(width: DesignSystem.Spacing.xxLarge, height: DesignSystem.Spacing.xxLarge)
-                                Circle().fill(Color.white.opacity(0.2)).frame(width: DesignSystem.Spacing.xxLarge, height: DesignSystem.Spacing.xxLarge)
+                                Circle().fill(Color.borderGlare.opacity(0.2)).frame(width: DesignSystem.Spacing.xxLarge, height: DesignSystem.Spacing.xxLarge)
                             }
                         }
                     } else {

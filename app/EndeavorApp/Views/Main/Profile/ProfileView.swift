@@ -34,7 +34,7 @@ struct ProfileView: View {
                                     Circle()
                                         .fill(.regularMaterial)
                                         .frame(width: 40, height: 40)
-                                        .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                                        .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
                                     
                                     Image(systemName: "gearshape.fill")
                                         .font(.system(size: 18))
@@ -91,7 +91,7 @@ struct ProfileView: View {
                 avatarImage
                     .frame(width: 120, height: 120)
                     .clipShape(Circle())
-                    .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 4))
+                    .overlay(Circle().stroke(Color.borderGlare.opacity(0.3), lineWidth: 4))
                     .shadow(color: Color.brandPrimary.opacity(0.3), radius: 20, x: 0, y: 10)
                 
                 // + Button overlay
@@ -116,7 +116,7 @@ struct ProfileView: View {
                         Circle()
                             .fill(.regularMaterial)
                             .frame(width: 36, height: 36)
-                            .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                            .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
                         
                         Image(systemName: "camera.fill")
                             .font(.system(size: 14))
@@ -199,7 +199,7 @@ struct ProfileView: View {
                             }
                         )
                         .overlay(
-                            Capsule().stroke(Color.white.opacity(0.15), lineWidth: 1)
+                            Capsule().stroke(Color.borderGlare.opacity(0.15), lineWidth: 1)
                         )
                 }
             }

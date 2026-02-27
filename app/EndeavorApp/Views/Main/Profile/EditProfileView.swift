@@ -91,7 +91,7 @@ struct EditProfileView: View {
                             Circle()
                                 .fill(.ultraThinMaterial)
                                 .frame(width: 36, height: 36)
-                                .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                                .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
                             
                             Image(systemName: "xmark")
                                 .font(.system(size: 14, weight: .semibold))
@@ -144,7 +144,7 @@ struct EditProfileView: View {
                                     }
                                 )
                                 .overlay(
-                                    Capsule().stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                    Capsule().stroke(Color.borderGlare.opacity(0.15), lineWidth: 1)
                                 )
                         }
                     }
@@ -231,7 +231,7 @@ struct EditProfileView: View {
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                 .overlay(
                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                        .stroke(Color.borderGlare.opacity(0.15), lineWidth: 1)
                 )
             }
             .transaction { $0.animation = nil }
@@ -297,7 +297,7 @@ struct EditProfileView: View {
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                         .overlay(
                             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                .stroke(Color.borderGlare.opacity(0.1), lineWidth: 1)
                         )
                     
                     Button(action: {
@@ -342,7 +342,7 @@ struct EditProfileView: View {
                                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                                             .stroke(
                                                 focusNewEmail ? Color.brandPrimary :
-                                                Color.white.opacity(0.15),
+                                                Color.borderGlare.opacity(0.15),
                                                 lineWidth: focusNewEmail ? 1.5 : 1
                                             )
                                             .animation(.easeInOut(duration: 0.2), value: focusNewEmail)
@@ -368,7 +368,7 @@ struct EditProfileView: View {
                                             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                                                 .stroke(
                                                     focusPassword ? Color.brandPrimary :
-                                                    Color.white.opacity(isNewEmailValid ? 0.15 : 0.05),
+                                                    Color.borderGlare.opacity(isNewEmailValid ? 0.15 : 0.05),
                                                     lineWidth: focusPassword ? 1.5 : 1
                                                 )
                                                 .animation(.easeInOut(duration: 0.2), value: focusPassword)
@@ -478,7 +478,7 @@ struct EditProfileView: View {
                                 )
                                 .overlay(
                                     Capsule().stroke(
-                                        challenges.contains(challenge) ? Color.brandPrimary.opacity(0.5) : Color.white.opacity(0.15),
+                                        challenges.contains(challenge) ? Color.brandPrimary.opacity(0.5) : Color.borderGlare.opacity(0.15),
                                         lineWidth: 1
                                     )
                                 )
@@ -504,7 +504,7 @@ struct EditProfileView: View {
                                 )
                                 .overlay(
                                     Capsule().stroke(
-                                        desiredExpertise.contains(expertise) ? Color.brandPrimary.opacity(0.5) : Color.white.opacity(0.15),
+                                        desiredExpertise.contains(expertise) ? Color.brandPrimary.opacity(0.5) : Color.borderGlare.opacity(0.15),
                                         lineWidth: 1
                                     )
                                 )

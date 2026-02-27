@@ -60,7 +60,7 @@ struct ConversationView: View {
                     Circle()
                         .fill(.ultraThinMaterial)
                         .frame(width: 36, height: 36)
-                        .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                        .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
                     Image(systemName: "xmark")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.primary)
@@ -106,7 +106,7 @@ struct ConversationView: View {
         .padding(.horizontal, DesignSystem.Spacing.medium)
         .padding(.vertical, DesignSystem.Spacing.standard)
         .background(.regularMaterial)
-        .overlay(Rectangle().frame(height: 1).foregroundColor(.white.opacity(0.1)), alignment: .bottom)
+        .overlay(Rectangle().frame(height: 1).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .bottom)
     }
 
     private var startersPanel: some View {
@@ -184,7 +184,7 @@ struct ConversationView: View {
                                                 .stroke(
                                                     msg.isFromMe
                                                         ? Color.clear
-                                                        : (colorScheme == .dark ? Color.white.opacity(0.12) : Color.brandPrimary.opacity(0.2)),
+                                                        : (colorScheme == .dark ? Color.borderGlare.opacity(0.12) : Color.brandPrimary.opacity(0.2)),
                                                     lineWidth: 1
                                                 )
                                         )
@@ -239,7 +239,7 @@ struct ConversationView: View {
                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                 .overlay(
                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                        .stroke(isInputFocused ? Color.brandPrimary.opacity(0.5) : Color.white.opacity(0.15), lineWidth: 1)
+                        .stroke(isInputFocused ? Color.brandPrimary.opacity(0.5) : Color.borderGlare.opacity(0.15), lineWidth: 1)
                         .animation(.easeInOut(duration: 0.2), value: isInputFocused)
                 )
 
@@ -261,7 +261,7 @@ struct ConversationView: View {
         .padding(.horizontal, DesignSystem.Spacing.medium)
         .padding(.vertical, DesignSystem.Spacing.small)
         .background(.regularMaterial)
-        .overlay(Rectangle().frame(height: 0.5).foregroundColor(.white.opacity(0.1)), alignment: .top)
+        .overlay(Rectangle().frame(height: 0.5).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .top)
     }
 }
 

@@ -101,7 +101,7 @@ struct NetworkView: View {
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
                         .overlay(
                             RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
-                                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                .stroke(Color.borderGlare.opacity(0.15), lineWidth: 1)
                         )
                         .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
                         .padding(.horizontal, DesignSystem.Spacing.large)
@@ -125,7 +125,7 @@ struct NetworkView: View {
                                                 in: Capsule()
                                             )
                                             .overlay(
-                                                Capsule().stroke(Color.white.opacity(0.15), lineWidth: 1)
+                                                Capsule().stroke(Color.borderGlare.opacity(0.15), lineWidth: 1)
                                             )
                                     }
                                 }
@@ -197,7 +197,7 @@ struct NetworkView: View {
                                     .font(.system(size: 30))
                                     .foregroundColor(.secondary.opacity(0.5))
                             )
-                            .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                            .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
                     } else {
                         WebImage(url: URL(string: profile.profileImageUrl)) { image in
                             image
@@ -205,7 +205,7 @@ struct NetworkView: View {
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: 60, height: 60)
                                 .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                                .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
                         } placeholder: {
                             Circle()
                                 .fill(Color.primary.opacity(0.05))
@@ -215,7 +215,7 @@ struct NetworkView: View {
                                         .font(.system(size: 30))
                                         .foregroundColor(.secondary.opacity(0.5))
                                 )
-                                .overlay(Circle().stroke(Color.white.opacity(0.2), lineWidth: 1))
+                                .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
                         }
                     }
                     
