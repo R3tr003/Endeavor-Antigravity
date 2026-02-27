@@ -1,5 +1,6 @@
 import SwiftUI
 import FirebaseAuth
+import FirebaseFirestore
 
 struct NewConversationView: View {
     @Environment(\.dismiss) private var dismiss
@@ -8,6 +9,7 @@ struct NewConversationView: View {
     @State private var searchText: String = ""
     @State private var isCreating: Bool = false
     @State private var creationError: String? = nil
+    @State private var companyNames: [String: String] = [:]   // userId → company name
 
     /// Chiamato dopo la creazione/recupero conversazione — passa (conversationId, recipientId)
     var onConversationReady: (String, String) -> Void
@@ -54,6 +56,23 @@ struct NewConversationView: View {
         .onAppear {
             if networkViewModel.profiles.isEmpty {
                 networkViewModel.fetchUsers(isInitial: true)
+            }
+        }
+        .onChange(of: networkViewModel.profiles) { _, profiles in
+            let db = Firestore.firestore()
+            for profile in profiles {
+                let userId = profile.id.uuidString
+                guard companyNames[userId] == nil else { continue }
+                db.collection("companies")
+                    .whereField("userId", isEqualTo: userId)
+                    .limit(to: 1)
+                    .getDocuments { snapshot, _ in
+                        if let name = snapshot?.documents.first?.data()["name"] as? String {
+                            DispatchQueue.main.async {
+                                companyNames[userId] = name
+                            }
+                        }
+                    }
             }
         }
     }
@@ -132,20 +151,40 @@ struct NewConversationView: View {
     private func contactRow(profile: UserProfile) -> some View {
         Button(action: { startConversation(with: profile) }) {
             HStack(spacing: DesignSystem.Spacing.standard) {
-                Circle()
-                    .fill(Color.brandPrimary.opacity(0.15))
-                    .frame(width: 48, height: 48)
-                    .overlay(
+                ZStack {
+                    Circle()
+                        .fill(Color.brandPrimary.opacity(0.15))
+                        .frame(width: 48, height: 48)
+
+                    if profile.profileImageUrl.isEmpty {
                         Text(String(profile.fullName.prefix(2)).uppercased())
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(.brandPrimary)
-                    )
-                    .overlay(Circle().stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
+                    } else {
+                        AsyncImage(url: URL(string: profile.profileImageUrl)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 48, height: 48)
+                                    .clipShape(Circle())
+                            default:
+                                Text(String(profile.fullName.prefix(2)).uppercased())
+                                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                                    .foregroundColor(.brandPrimary)
+                            }
+                        }
+                    }
+                }
+                .frame(width: 48, height: 48)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
                 VStack(alignment: .leading, spacing: 2) {
                     Text(profile.fullName)
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundColor(.primary)
-                    Text(profile.role)
+                    Text(companyNames[profile.id.uuidString] ?? profile.role)
                         .font(.system(size: 13, design: .rounded))
                         .foregroundColor(.secondary)
                         .lineLimit(1)

@@ -239,6 +239,23 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
         }
     }
 
+    // MARK: - Fetch Company Name
+    
+    /// Cerca il documento company associato a userId nel database (default).
+    /// Usato per mostrare il nome azienda nell'header di ConversationView.
+    func fetchCompanyName(
+        forUserId userId: String,
+        completion: @escaping (String?) -> Void
+    ) {
+        profilesDb.collection("companies")
+            .whereField("userId", isEqualTo: userId)
+            .limit(to: 1)
+            .getDocuments { snapshot, _ in
+                let name = snapshot?.documents.first?.data()["name"] as? String
+                DispatchQueue.main.async { completion(name) }
+            }
+    }
+
     // MARK: - Parse Helpers
 
     private func parseConversation(from data: [String: Any], id: String) -> Conversation? {

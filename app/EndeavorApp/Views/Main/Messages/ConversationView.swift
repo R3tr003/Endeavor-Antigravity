@@ -69,26 +69,71 @@ struct ConversationView: View {
                 }
             }
 
-            Circle()
-                .fill(conversation.accentColor(currentUserId: currentUserId).opacity(0.15))
-                .frame(width: 38, height: 38)
-                .overlay(
-                    Text(conversation.initials)
+            let imageUrl = viewModel.recipientProfile?.profileImageUrl ?? conversation.otherParticipantImageUrl
+            let accentColor = conversation.accentColor(currentUserId: currentUserId)
+            let currentName = viewModel.recipientProfile?.fullName ?? conversation.otherParticipantName
+
+            ZStack {
+                Circle()
+                    .fill(accentColor.opacity(0.15))
+                    .frame(width: 38, height: 38)
+                
+                if imageUrl.isEmpty {
+                    Text(getInitials(from: currentName))
                         .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
-                )
+                        .foregroundColor(accentColor)
+                } else {
+                    AsyncImage(url: URL(string: imageUrl)) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 38, height: 38)
+                                .clipShape(Circle())
+                        default:
+                            Text(getInitials(from: currentName))
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                .foregroundColor(accentColor)
+                        }
+                    }
+                }
+            }
+            .frame(width: 38, height: 38)
+            .clipShape(Circle())
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(viewModel.recipientProfile?.fullName ?? conversation.otherParticipantName)
+                Text(currentName)
                     .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                     .lineLimit(1)
                     // Se il profilo non è ancora caricato e il nome è vuoto/loading, mostra placeholder animato
                     .redacted(reason: viewModel.recipientProfile == nil && conversation.otherParticipantName == "Loading..." ? .placeholder : [])
-                Text(viewModel.recipientProfile?.role ?? conversation.otherParticipantRole)
-                    .font(.system(size: 11, design: .rounded))
-                    .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
-                    .lineLimit(1)
+                Group {
+                    let isLoadingCompany = (viewModel.recipientProfile != nil && viewModel.recipientCompanyName == nil)
+                    
+                    if isLoadingCompany {
+                        Text("Loading role...")
+                            .font(.system(size: 11, design: .rounded))
+                            .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
+                            .lineLimit(1)
+                            .redacted(reason: .placeholder)
+                    } else {
+                        let company = viewModel.recipientCompanyName ?? ""
+                        let role = viewModel.recipientProfile?.role ?? conversation.otherParticipantRole
+                        let location = viewModel.recipientProfile?.location ?? ""
+                        
+                        let mainText = !company.isEmpty ? company : role
+                        let subtitle = [mainText, location].filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: " • ")
+                        
+                        if !subtitle.isEmpty {
+                            Text(subtitle)
+                                .font(.system(size: 11, design: .rounded))
+                                .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
+                                .lineLimit(1)
+                        }
+                    }
+                }
             }
 
             Spacer()
@@ -304,6 +349,18 @@ struct ConversationView: View {
         .overlay(Rectangle().frame(height: 0.5).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .top)
     }
 }
+
+    private func getInitials(from name: String) -> String {
+        let components = name.split(separator: " ").filter { !$0.isEmpty }
+        if components.isEmpty { return "" }
+        if components.count == 1 {
+            return String(components[0].prefix(2)).uppercased()
+        }
+        let first = components[0].prefix(1)
+        let last = components[components.count - 1].prefix(1)
+        return "\(first)\(last)".uppercased()
+    }
+
 
 // MARK: - RoundedCornerShape (invariato)
 struct RoundedCornerShape: Shape {

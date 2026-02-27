@@ -8,6 +8,7 @@ class ConversationViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var appError: AppError?
     @Published var recipientProfile: UserProfile?
+    @Published var recipientCompanyName: String? = nil
 
     private let repository: MessagesRepositoryProtocol
     private var messagesListener: ListenerRegistration?
@@ -93,13 +94,29 @@ class ConversationViewModel: ObservableObject {
 
     // MARK: - Fetch Recipient Profile
     private func fetchRecipientProfile() {
-        // Need to cast repository to FirebaseNetworkRepository or add the method to the Protocol
-        // We'll use FirebaseNetworkRepository directly since we know the implementation
         let networkRepo = FirebaseNetworkRepository()
         networkRepo.fetchUserProfile(userId: recipientId) { [weak self] result in
             if case .success(let profile) = result {
                 DispatchQueue.main.async {
                     self?.recipientProfile = profile
+                }
+                
+                // If using FirebaseMessagesRepository, try to fetch company name
+                if let firebaseRepo = self?.repository as? FirebaseMessagesRepository {
+                    firebaseRepo.fetchCompanyName(forUserId: self?.recipientId ?? "") { companyName in
+                        DispatchQueue.main.async {
+                            // Se nil, salviamo una stringa vuota per indicare che il fetch è finito e fermare l'animazione di caricamento
+                            self?.recipientCompanyName = companyName ?? ""
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        self?.recipientCompanyName = ""
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self?.recipientCompanyName = ""
                 }
             }
         }
