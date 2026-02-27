@@ -63,7 +63,7 @@ struct MainTabView: View {
             .overlay(
                 Capsule()
                     .stroke(LinearGradient(
-                        colors: [.white.opacity(0.3), .clear, .white.opacity(0.1)],
+                        colors: [Color.borderGlare.opacity(0.3), .clear, Color.borderGlare.opacity(0.1)],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ), lineWidth: 1)

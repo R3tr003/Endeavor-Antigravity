@@ -1,27 +1,29 @@
 import SwiftUI
 
-struct MockMessage: Identifiable {
-    let id: UUID
-    let text: String
-    let isFromMe: Bool
-    let time: String
-
-    static let mockMessages: [MockMessage] = [
-        MockMessage(id: UUID(), text: "Hi! I saw your profile on Endeavor — your experience scaling SaaS companies is exactly what I'm looking for.", isFromMe: true, time: "10:32"),
-        MockMessage(id: UUID(), text: "Happy to connect! What stage are you at right now?", isFromMe: false, time: "10:35"),
-        MockMessage(id: UUID(), text: "We're at about 45 employees, just closed our Series A. Struggling with the jump to 100+.", isFromMe: true, time: "10:37"),
-        MockMessage(id: UUID(), text: "That's a critical inflection point. Happy to share what worked for us at the 50-person milestone.", isFromMe: false, time: "10:39"),
-    ]
-}
-
 struct ConversationView: View {
     let conversation: Conversation
+    let currentUserId: String
+
+    @StateObject private var viewModel: ConversationViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @State private var messageText: String = ""
     @State private var showConversationStarters: Bool = false
-    @State private var messages: [MockMessage] = MockMessage.mockMessages
     @FocusState private var isInputFocused: Bool
-    @Environment(\.colorScheme) private var colorScheme
+
+    init(conversation: Conversation, currentUserId: String) {
+        self.conversation = conversation
+        self.currentUserId = currentUserId
+
+        // Calcola recipientId qui per passarlo al ViewModel
+        let recipientId = conversation.participantIds.first { $0 != currentUserId } ?? ""
+
+        self._viewModel = StateObject(wrappedValue: ConversationViewModel(
+            conversationId: conversation.id,
+            currentUserId: currentUserId,
+            recipientId: recipientId
+        ))
+    }
 
     let conversationStarters: [String] = [
         "Seeking advice on...",
@@ -37,12 +39,10 @@ struct ConversationView: View {
 
             VStack(spacing: 0) {
                 headerBar
-                
                 if showConversationStarters {
                     startersPanel
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
-                
                 messagesScrollView
                 inputBar
             }
@@ -52,6 +52,8 @@ struct ConversationView: View {
             withAnimation { showConversationStarters = false }
         }
     }
+
+    // MARK: - Header Bar
 
     private var headerBar: some View {
         HStack(spacing: DesignSystem.Spacing.standard) {
@@ -68,23 +70,22 @@ struct ConversationView: View {
             }
 
             Circle()
-                .fill(conversation.accentColor.opacity(0.15))
+                .fill(conversation.accentColor(currentUserId: currentUserId).opacity(0.15))
                 .frame(width: 38, height: 38)
                 .overlay(
                     Text(conversation.initials)
                         .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundColor(conversation.accentColor)
+                        .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
                 )
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(conversation.name)
+                Text(conversation.otherParticipantName.isEmpty ? "Loading..." : conversation.otherParticipantName)
                     .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                     .lineLimit(1)
-                
-                Text(conversation.role)
+                Text(conversation.otherParticipantRole)
                     .font(.system(size: 11, design: .rounded))
-                    .foregroundColor(conversation.accentColor)
+                    .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
                     .lineLimit(1)
             }
 
@@ -108,6 +109,8 @@ struct ConversationView: View {
         .background(.regularMaterial)
         .overlay(Rectangle().frame(height: 1).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .bottom)
     }
+
+    // MARK: - Starters Panel (invariato rispetto all'attuale)
 
     private var startersPanel: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -149,73 +152,81 @@ struct ConversationView: View {
         .overlay(Rectangle().frame(height: 1).foregroundColor(Color.brandPrimary.opacity(0.2)), alignment: .bottom)
     }
 
+    // MARK: - Messages Scroll View
+
     private var messagesScrollView: some View {
         GeometryReader { geometry in
             ScrollViewReader { proxy in
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: DesignSystem.Spacing.small) {
-                        ForEach(messages) { msg in
-                            HStack {
-                                if msg.isFromMe { Spacer() }
-                                
-                                VStack(alignment: msg.isFromMe ? .trailing : .leading, spacing: 4) {
-                                    Text(msg.text)
-                                        .font(.system(size: 15, design: .rounded))
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 10)
-                                        .foregroundColor(msg.isFromMe ? .white : .primary)
-                                        .background(
-                                            msg.isFromMe ? Color.brandPrimary : Color.clear,
-                                            in: RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
-                                                corners: [.topLeft, .topRight, msg.isFromMe ? .bottomLeft : .bottomRight])
-                                        )
-                                        .background(
-                                            msg.isFromMe
-                                                ? Color.clear
-                                                : (colorScheme == .dark
-                                                    ? Color(UIColor.systemBackground).opacity(0.15)
-                                                    : Color(hex: "E0F0EE")),  // tinta teal chiara, visibile su sfondo EFF5F4
-                                            in: RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
-                                                corners: [.topLeft, .topRight, msg.isFromMe ? .bottomLeft : .bottomRight])
-                                        )
-                                        .overlay(
-                                            RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
-                                                corners: [.topLeft, .topRight, msg.isFromMe ? .bottomLeft : .bottomRight])
-                                                .stroke(
-                                                    msg.isFromMe
-                                                        ? Color.clear
-                                                        : (colorScheme == .dark ? Color.borderGlare.opacity(0.12) : Color.brandPrimary.opacity(0.2)),
-                                                    lineWidth: 1
-                                                )
-                                        )
-                                    
-                                    Text(msg.time)
-                                        .font(.system(size: 11, design: .rounded))
-                                        .foregroundColor(.secondary)
+                    if viewModel.isLoading && viewModel.messages.isEmpty {
+                        ProgressView()
+                            .padding(.top, DesignSystem.Spacing.xxLarge)
+                    } else {
+                        VStack(spacing: DesignSystem.Spacing.small) {
+                            ForEach(viewModel.messages) { msg in
+                                let fromMe = viewModel.isFromMe(msg)
+                                HStack {
+                                    if fromMe { Spacer() }
+                                    VStack(alignment: fromMe ? .trailing : .leading, spacing: 4) {
+                                        Text(msg.text)
+                                            .font(.system(size: 15, design: .rounded))
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 10)
+                                            .foregroundColor(fromMe ? .white : .primary)
+                                            .background(
+                                                fromMe ? Color.brandPrimary : Color.clear,
+                                                in: RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
+                                                    corners: [.topLeft, .topRight, fromMe ? .bottomLeft : .bottomRight])
+                                            )
+                                            .background(
+                                                fromMe
+                                                    ? Color.clear
+                                                    : (colorScheme == .dark
+                                                        ? Color(UIColor.systemBackground).opacity(0.15)
+                                                        : Color(hex: "E0F0EE")),
+                                                in: RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
+                                                    corners: [.topLeft, .topRight, fromMe ? .bottomLeft : .bottomRight])
+                                            )
+                                            .overlay(
+                                                RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
+                                                    corners: [.topLeft, .topRight, fromMe ? .bottomLeft : .bottomRight])
+                                                    .stroke(
+                                                        fromMe
+                                                            ? Color.clear
+                                                            : (colorScheme == .dark ? Color.white.opacity(0.12) : Color.brandPrimary.opacity(0.2)),
+                                                        lineWidth: 1
+                                                    )
+                                            )
+
+                                        Text(msg.displayTime)
+                                            .font(.system(size: 11, design: .rounded))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .frame(maxWidth: geometry.size.width * 0.72, alignment: fromMe ? .trailing : .leading)
+                                    if !fromMe { Spacer() }
                                 }
-                                .frame(maxWidth: geometry.size.width * 0.72, alignment: msg.isFromMe ? .trailing : .leading)
-                                
-                                if !msg.isFromMe { Spacer() }
+                                .id(msg.id)
                             }
-                            .id(msg.id)
                         }
+                        .padding(.horizontal, DesignSystem.Spacing.medium)
+                        .padding(.vertical, DesignSystem.Spacing.large)
                     }
-                    .padding(.horizontal, DesignSystem.Spacing.medium)
-                    .padding(.vertical, DesignSystem.Spacing.large)
                 }
                 .onAppear {
-                    if let lastId = messages.last?.id {
+                    if let lastId = viewModel.messages.last?.id {
                         proxy.scrollTo(lastId, anchor: .bottom)
                     }
                 }
-                .onChange(of: messages.count) {
-                    if let lastId = messages.last?.id {
+                .onChange(of: viewModel.messages.count) {
+                    if let lastId = viewModel.messages.last?.id {
                         withAnimation { proxy.scrollTo(lastId, anchor: .bottom) }
                     }
                 }
             }
         }
     }
+
+    // MARK: - Input Bar
 
     private var inputBar: some View {
         HStack(spacing: DesignSystem.Spacing.small) {
@@ -244,11 +255,10 @@ struct ConversationView: View {
                 )
 
             Button(action: {
-                guard !messageText.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-                let newMsg = MockMessage(id: UUID(), text: messageText, isFromMe: true, time: "Now")
-                withAnimation { messages.append(newMsg) }
+                let text = messageText
                 messageText = ""
                 isInputFocused = false
+                viewModel.sendMessage(text: text)
             }) {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.system(size: 32))
@@ -265,7 +275,7 @@ struct ConversationView: View {
     }
 }
 
-// Swift UI helper for targeted corner radiuses
+// MARK: - RoundedCornerShape (invariato)
 struct RoundedCornerShape: Shape {
     var radius: CGFloat
     var corners: UIRectCorner
@@ -274,12 +284,4 @@ struct RoundedCornerShape: Shape {
         let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
         return Path(path.cgPath)
     }
-}
-
-#Preview {
-    ConversationView(conversation: Conversation(
-        id: UUID(), name: "Maria Lopez", role: "SaaS Scaling Expert",
-        lastMessage: "Happy to share what worked for us.",
-        time: "2m", unreadCount: 2, initials: "ML", accentColor: Color.brandPrimary
-    ))
 }

@@ -41,3 +41,6 @@ fastlane/test_output
 add_*.py
 fix_*.py
 
+# Locally appended
+app/build_log.txt
+firestore-messaging.rules

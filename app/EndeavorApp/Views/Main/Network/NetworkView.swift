@@ -1,5 +1,6 @@
 import SwiftUI
 import SDWebImageSwiftUI
+import FirebaseAuth
 
 struct NetworkView: View {
     @State private var searchText: String = ""
@@ -7,6 +8,9 @@ struct NetworkView: View {
     @State private var selectedCategory: String = "All"
     
     @StateObject private var viewModel = NetworkViewModel(repository: FirebaseNetworkRepository())
+    @StateObject private var conversationsViewModel = ConversationsViewModel()
+    @State private var activeConversation: Conversation?
+    @State private var showConversation: Bool = false
 
     private var filteredProfiles: [UserProfile] {
         if searchText.isEmpty {
@@ -179,6 +183,11 @@ struct NetworkView: View {
                     .ignoresSafeArea(edges: .top)
             }
         }
+        .sheet(isPresented: $showConversation) {
+            if let activeConv = activeConversation, let currentUserId = FirebaseAuth.Auth.auth().currentUser?.uid {
+                ConversationView(conversation: activeConv, currentUserId: currentUserId)
+            }
+        }
     }
     
     @ViewBuilder
@@ -262,7 +271,30 @@ struct NetworkView: View {
                     }
                     
                     // Connect Button
-                    Button(action: {}) {
+                    Button(action: {
+                        conversationsViewModel.getOrCreateConversation(with: profile.id.uuidString) { result in
+                            switch result {
+                            case .success(let conversationId):
+                                // Creiamo una conversation fittizia per passare il dato al ConversationView
+                                // Il ViewModel dentro ConversationView fetcherà i dati veri
+                                let newConv = Conversation(
+                                    id: conversationId,
+                                    participantIds: [FirebaseAuth.Auth.auth().currentUser?.uid ?? "", profile.id.uuidString],
+                                    lastMessage: "",
+                                    lastMessageAt: Date(),
+                                    lastSenderId: "",
+                                    unreadCounts: [:],
+                                    otherParticipantName: profile.firstName + " " + profile.lastName,
+                                    otherParticipantRole: profile.role,
+                                    otherParticipantImageUrl: profile.profileImageUrl
+                                )
+                                self.activeConversation = newConv
+                                self.showConversation = true
+                            case .failure(let error):
+                                print("Error creating or fetching conversation: \(error)")
+                            }
+                        }
+                    }) {
                         Text("Connect")
                             .font(.system(size: 15, weight: .semibold, design: .rounded))
                             .foregroundColor(.white)
