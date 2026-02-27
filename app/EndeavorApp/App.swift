@@ -2,6 +2,7 @@ import SwiftUI
 import GoogleSignIn
 import FirebaseCore
 import FirebaseAppCheck
+import SDWebImage
 
 @main
 struct EndeavorApp: App {
@@ -22,6 +23,20 @@ struct EndeavorApp: App {
         
         // Initialize Firebase when the app launches
         FirebaseApp.configure()
+        
+        // --- SDWebImage Cache Configuration ---
+        // Memory cache: 100MB — sufficient per ~200 avatar 500x500
+        SDImageCache.shared.config.maxMemoryCost = 100 * 1024 * 1024
+        
+        // Disk cache: 200MB, scadenza 7 giorni
+        SDImageCache.shared.config.maxDiskSize = 200 * 1024 * 1024
+        SDImageCache.shared.config.maxDiskAge = 7 * 24 * 60 * 60
+        
+        // Download timeout: 15 secondi (default è 15, esplicitarlo per chiarezza)
+        SDWebImageDownloader.shared.config.downloadTimeout = 15
+        
+        // Decompressione immagini in background thread — evita jank sulla main thread
+        SDImageCoderHelper.defaultScaleDownLimitBytes = 50 * 1024 * 1024
     }
     
     var body: some Scene {

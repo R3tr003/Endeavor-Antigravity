@@ -1,6 +1,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 import FirebaseAuth
+import FirebaseFirestore
 
 struct NetworkView: View {
     @State private var searchText: String = ""
@@ -11,6 +12,7 @@ struct NetworkView: View {
     @StateObject private var conversationsViewModel = ConversationsViewModel()
     @State private var activeConversation: Conversation?
     @State private var showConversation: Bool = false
+    @State private var companyNames: [String: String] = [:]
 
     private var filteredProfiles: [UserProfile] {
         if searchText.isEmpty {
@@ -176,6 +178,23 @@ struct NetworkView: View {
                         viewModel.fetchUsers(isInitial: true)
                     }
                 }
+                .onChange(of: viewModel.profiles) { _, profiles in
+                    let db = Firestore.firestore()
+                    for profile in profiles {
+                        let userId = profile.id.uuidString
+                        guard companyNames[userId] == nil else { continue }
+                        db.collection("companies")
+                            .whereField("userId", isEqualTo: userId)
+                            .limit(to: 1)
+                            .getDocuments { snapshot, _ in
+                                if let name = snapshot?.documents.first?.data()["name"] as? String {
+                                    DispatchQueue.main.async {
+                                        companyNames[userId] = name
+                                    }
+                                }
+                            }
+                    }
+                }
                 
                 Rectangle()
                     .fill(.ultraThinMaterial)
@@ -233,29 +252,20 @@ struct NetworkView: View {
                             .font(.title3.weight(.bold))
                             .foregroundColor(.primary)
                         
-                        Text(profile.role)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .lineLimit(2) // ensure long roles don't break layout
+                        if let company = companyNames[profile.id.uuidString] {
+                            Text(company)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                        } else {
+                            // Placeholder animato mentre carica
+                            Text("Loading...")
+                                .font(.subheadline)
+                                .foregroundColor(.clear)
+                                .redacted(reason: .placeholder)
+                        }
                     }
                     Spacer()
-                }
-                
-                // Computed Tags
-                let tags = computedTags(for: profile)
-                if !tags.isEmpty {
-                    HStack(spacing: DesignSystem.Spacing.xSmall) {
-                        ForEach(tags, id: \.self) { tag in
-                            Text(tag)
-                                .font(.system(size: 12, weight: .medium, design: .rounded))
-                                .foregroundColor(Color.brandPrimary)
-                                .padding(.vertical, 5)
-                                .padding(.horizontal, 10)
-                                .background(Color.brandPrimary.opacity(0.12), in: Capsule())
-                                .overlay(Capsule().stroke(Color.brandPrimary.opacity(0.25), lineWidth: 1))
-                        }
-                        Spacer()
-                    }
                 }
                 
                 // Action Buttons (Side by Side)
@@ -307,26 +317,6 @@ struct NetworkView: View {
             }
             .padding(DesignSystem.Spacing.large)
         }
-    }
-    
-    /// Helper to extract up to 3 tags (location + 2 chunks from role)
-    private func computedTags(for profile: UserProfile) -> [String] {
-        var tags: [String] = []
-        if !profile.location.isEmpty {
-            tags.append(profile.location)
-        }
-        
-        if !profile.role.isEmpty {
-            let roleTokens = profile.role
-                .components(separatedBy: CharacterSet(charactersIn: ",/|"))
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                .filter { !$0.isEmpty }
-            
-            // Limit to max 2 extracted roles, making max 3 tags total
-            tags.append(contentsOf: roleTokens.prefix(2))
-        }
-        
-        return tags
     }
 }
 

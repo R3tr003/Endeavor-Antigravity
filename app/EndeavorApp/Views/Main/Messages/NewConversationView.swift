@@ -1,6 +1,7 @@
 import SwiftUI
 import FirebaseAuth
 import FirebaseFirestore
+import SDWebImageSwiftUI
 
 struct NewConversationView: View {
     @Environment(\.dismiss) private var dismiss
@@ -161,19 +162,16 @@ struct NewConversationView: View {
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(.brandPrimary)
                     } else {
-                        AsyncImage(url: URL(string: profile.profileImageUrl)) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 48, height: 48)
-                                    .clipShape(Circle())
-                            default:
-                                Text(String(profile.fullName.prefix(2)).uppercased())
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                                    .foregroundColor(.brandPrimary)
-                            }
+                        WebImage(url: URL(string: profile.profileImageUrl)) { image in
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 48, height: 48)
+                                .clipShape(Circle())
+                        } placeholder: {
+                            Text(String(profile.fullName.prefix(2)).uppercased())
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .foregroundColor(.brandPrimary)
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import FirebaseFirestore // For DocumentSnapshot pagination cursor
+import SDWebImage
 
 class NetworkViewModel: ObservableObject {
     @Published var profiles: [UserProfile] = []
@@ -41,6 +42,15 @@ class NetworkViewModel: ObservableObject {
                 
                 self.profiles.append(contentsOf: uniqueNewUsers)
                 self.lastDocument = newLastDoc
+                
+                // Prefetch immagini in background — quando la card appare, l'immagine è già in cache
+                let urls = uniqueNewUsers
+                    .compactMap { URL(string: $0.profileImageUrl) }
+                    .filter { !$0.absoluteString.isEmpty }
+                
+                if !urls.isEmpty {
+                    SDWebImagePrefetcher.shared.prefetchURLs(urls)
+                }
                 
                 if uniqueNewUsers.count < 20 {
                     self.hasMoreData = false

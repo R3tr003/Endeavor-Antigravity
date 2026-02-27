@@ -1,4 +1,5 @@
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct ConversationView: View {
     let conversation: Conversation
@@ -83,19 +84,16 @@ struct ConversationView: View {
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(accentColor)
                 } else {
-                    AsyncImage(url: URL(string: imageUrl)) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 38, height: 38)
-                                .clipShape(Circle())
-                        default:
-                            Text(getInitials(from: currentName))
-                                .font(.system(size: 14, weight: .bold, design: .rounded))
-                                .foregroundColor(accentColor)
-                        }
+                    WebImage(url: URL(string: imageUrl)) { image in
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 38, height: 38)
+                            .clipShape(Circle())
+                    } placeholder: {
+                        Text(getInitials(from: currentName))
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundColor(accentColor)
                     }
                 }
             }

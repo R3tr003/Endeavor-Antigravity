@@ -1,5 +1,6 @@
 import SwiftUI
 import FirebaseAuth
+import SDWebImageSwiftUI
 
 struct MessagesView: View {
     @StateObject private var viewModel = ConversationsViewModel()
@@ -203,17 +204,40 @@ struct ConversationRow: View {
         HStack(spacing: DesignSystem.Spacing.standard) {
             
             // Avatar
-            Circle()
-                .fill(conversation.accentColor(currentUserId: currentUserId).opacity(0.15))
-                .frame(width: 52, height: 52)
-                .overlay(
+            let avatarColor = conversation.accentColor(currentUserId: currentUserId)
+            let hasUnread = conversation.unreadCount(for: currentUserId) > 0
+
+            ZStack {
+                Circle()
+                    .fill(avatarColor.opacity(0.15))
+                    .frame(width: 52, height: 52)
+                
+                if conversation.otherParticipantImageUrl.isEmpty {
                     Text(conversation.initials)
                         .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
+                        .foregroundColor(avatarColor)
+                } else {
+                    WebImage(url: URL(string: conversation.otherParticipantImageUrl)) { image in
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 52, height: 52)
+                            .clipShape(Circle())
+                    } placeholder: {
+                        Text(conversation.initials)
+                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .foregroundColor(avatarColor)
+                    }
+                }
+            }
+            .frame(width: 52, height: 52)
+            .clipShape(Circle())
+            .overlay(
+                Circle().stroke(
+                    hasUnread ? avatarColor : Color.borderGlare.opacity(0.15),
+                    lineWidth: hasUnread ? 2 : 1
                 )
-                .overlay(
-                    Circle().stroke(conversation.unreadCount(for: currentUserId) > 0 ? conversation.accentColor(currentUserId: currentUserId) : Color.borderGlare.opacity(0.15), lineWidth: conversation.unreadCount(for: currentUserId) > 0 ? 2 : 1)
-                )
+            )
 
             // Info
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxSmall) {
