@@ -79,11 +79,13 @@ struct ConversationView: View {
                 )
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(conversation.otherParticipantName.isEmpty ? "Loading..." : conversation.otherParticipantName)
+                Text(viewModel.recipientProfile?.fullName ?? conversation.otherParticipantName)
                     .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                     .lineLimit(1)
-                Text(conversation.otherParticipantRole)
+                    // Se il profilo non è ancora caricato e il nome è vuoto/loading, mostra placeholder animato
+                    .redacted(reason: viewModel.recipientProfile == nil && conversation.otherParticipantName == "Loading..." ? .placeholder : [])
+                Text(viewModel.recipientProfile?.role ?? conversation.otherParticipantRole)
                     .font(.system(size: 11, design: .rounded))
                     .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
                     .lineLimit(1)
@@ -162,6 +164,34 @@ struct ConversationView: View {
                         ProgressView()
                             .padding(.top, DesignSystem.Spacing.xxLarge)
                     } else {
+                        // Empty state
+                        if !viewModel.isLoading && viewModel.messages.isEmpty {
+                            VStack(spacing: DesignSystem.Spacing.medium) {
+                                Spacer().frame(height: DesignSystem.Spacing.xxLarge)
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.brandPrimary.opacity(0.1))
+                                        .frame(width: 64, height: 64)
+                                    Image(systemName: "bubble.left.and.bubble.right")
+                                        .font(.system(size: 26))
+                                        .foregroundColor(.brandPrimary.opacity(0.6))
+                                }
+                                VStack(spacing: DesignSystem.Spacing.xSmall) {
+                                    Text("Start the conversation")
+                                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                                        .foregroundColor(.primary)
+                                    Text("Send a message to connect with\n\(viewModel.recipientProfile?.fullName ?? "this person").")
+                                        .font(.system(size: 14, design: .rounded))
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.center)
+                                }
+                                Spacer()
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.horizontal, DesignSystem.Spacing.large)
+                        }
+
+                        // Lista messaggi (visibile quando messages non è vuoto)
                         VStack(spacing: DesignSystem.Spacing.small) {
                             ForEach(viewModel.messages) { msg in
                                 let fromMe = viewModel.isFromMe(msg)

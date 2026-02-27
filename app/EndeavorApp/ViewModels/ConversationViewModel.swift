@@ -7,6 +7,7 @@ class ConversationViewModel: ObservableObject {
     @Published var messages: [Message] = []
     @Published var isLoading: Bool = false
     @Published var appError: AppError?
+    @Published var recipientProfile: UserProfile?
 
     private let repository: MessagesRepositoryProtocol
     private var messagesListener: ListenerRegistration?
@@ -26,6 +27,7 @@ class ConversationViewModel: ObservableObject {
         self.recipientId = recipientId
         self.repository = repository
         startListening()
+        fetchRecipientProfile()
     }
 
     deinit {
@@ -87,5 +89,19 @@ class ConversationViewModel: ObservableObject {
     /// Restituisce true se un messaggio è stato inviato dall'utente corrente
     func isFromMe(_ message: Message) -> Bool {
         return message.senderId == currentUserId
+    }
+
+    // MARK: - Fetch Recipient Profile
+    private func fetchRecipientProfile() {
+        // Need to cast repository to FirebaseNetworkRepository or add the method to the Protocol
+        // We'll use FirebaseNetworkRepository directly since we know the implementation
+        let networkRepo = FirebaseNetworkRepository()
+        networkRepo.fetchUserProfile(userId: recipientId) { [weak self] result in
+            if case .success(let profile) = result {
+                DispatchQueue.main.async {
+                    self?.recipientProfile = profile
+                }
+            }
+        }
     }
 }

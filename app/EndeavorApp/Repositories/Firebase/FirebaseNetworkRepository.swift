@@ -39,4 +39,31 @@ class FirebaseNetworkRepository: NetworkRepositoryProtocol {
             completion(users, snapshot?.documents.last)
         }
     }
+    
+    func fetchUserProfile(userId: String, completion: @escaping (Result<UserProfile, Error>) -> Void) {
+        db.collection(usersCollection).document(userId).getDocument { snapshot, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = snapshot?.data(), let idString = data["id"] as? String, let id = UUID(uuidString: idString) else {
+                completion(.failure(NSError(domain: "NetworkRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not found or invalid format"])))
+                return
+            }
+            
+            let profile = UserProfile(
+                id: id,
+                firstName: data["firstName"] as? String ?? "",
+                lastName: data["lastName"] as? String ?? "",
+                role: data["role"] as? String ?? "",
+                email: data["email"] as? String ?? "",
+                location: data["location"] as? String ?? "",
+                timeZone: data["timeZone"] as? String ?? "",
+                profileImageUrl: data["profileImageUrl"] as? String ?? "",
+                personalBio: data["personalBio"] as? String ?? ""
+            )
+            completion(.success(profile))
+        }
+    }
 }

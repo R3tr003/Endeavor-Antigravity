@@ -4,6 +4,7 @@ import FirebaseAuth
 struct NewConversationView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var networkViewModel = NetworkViewModel(repository: FirebaseNetworkRepository())
+    private let messagesRepository = FirebaseMessagesRepository()
     @State private var searchText: String = ""
     @State private var isCreating: Bool = false
     @State private var creationError: String? = nil
@@ -171,7 +172,7 @@ struct NewConversationView: View {
         isCreating = true
         creationError = nil
 
-        FirebaseMessagesRepository().getOrCreateConversation(
+        messagesRepository.getOrCreateConversation(
             between: currentUserId,
             and: profile.id.uuidString
         ) { result in
