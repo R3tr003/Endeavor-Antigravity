@@ -1,5 +1,6 @@
 import SwiftUI
 import SDWebImageSwiftUI
+import UniformTypeIdentifiers
 
 struct ConversationView: View {
     let conversation: Conversation
@@ -9,7 +10,11 @@ struct ConversationView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @State private var messageText: String = ""
-    @State private var showConversationStarters: Bool = false
+    @State private var showMediaMenu: Bool = false
+    @State private var showPhotoPicker: Bool = false
+    @State private var showDocumentPicker: Bool = false
+    @State private var selectedImage: UIImage? = nil
+    
     @FocusState private var isInputFocused: Bool
 
     init(conversation: Conversation, currentUserId: String) {
@@ -26,31 +31,71 @@ struct ConversationView: View {
         ))
     }
 
-    let conversationStarters: [String] = [
-        "Seeking advice on...",
-        "Exploring partnership opportunities...",
-        "Looking for expertise in...",
-        "Would love to connect about...",
-        "I have a challenge around...",
-    ]
-
     var body: some View {
         ZStack {
             Color.background.edgesIgnoringSafeArea(.all)
 
             VStack(spacing: 0) {
                 headerBar
-                if showConversationStarters {
-                    startersPanel
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
                 messagesScrollView
+                if viewModel.isUploadingMedia {
+                    ProgressView("Uploading Media...")
+                        .font(.system(size: 13, design: .rounded))
+                        .padding(.vertical, 8)
+                }
+                
+                if let image = selectedImage {
+                    imagePreviewPanel(image: image)
+                }
+                
                 inputBar
             }
         }
         .onTapGesture {
             isInputFocused = false
-            withAnimation { showConversationStarters = false }
+            withAnimation { showMediaMenu = false }
+        }
+        // Action Sheet per selezione Media
+        .confirmationDialog("Choose Attachment", isPresented: $showMediaMenu, titleVisibility: .visible) {
+            Button("Photo Library") {
+                showPhotoPicker = true
+            }
+            Button("Files & Documents") {
+                showDocumentPicker = true
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        // Image Picker
+        .sheet(isPresented: $showPhotoPicker) {
+            ImagePicker(image: $selectedImage, sourceType: .photoLibrary, allowsEditing: false)
+        }
+        // Document Picker
+        .fileImporter(
+            isPresented: $showDocumentPicker,
+            allowedContentTypes: [.item], // General fallback for all file types
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                guard let selectedUrl = urls.first else { return }
+                // Trigger upload function directly since we don't preview PDFs in the chat bar right now
+                viewModel.uploadAndSendDocument(url: selectedUrl, documentName: selectedUrl.lastPathComponent)
+            case .failure(let error):
+                print("Error picking document: \(error)")
+            }
+        }
+        // Mostra errori dal ViewModel (ex. problemi di permessi o Firebase)
+        .alert(
+            "Error",
+            isPresented: Binding(
+                get: { viewModel.appError != nil },
+                set: { if !$0 { viewModel.appError = nil } }
+            ),
+            presenting: viewModel.appError
+        ) { _ in
+            Button("OK", role: .cancel) { }
+        } message: { error in
+            Text(error.localizedDescription)
         }
     }
 
@@ -111,18 +156,16 @@ struct ConversationView: View {
                     let isLoadingCompany = (viewModel.recipientProfile != nil && viewModel.recipientCompanyName == nil)
                     
                     if isLoadingCompany {
-                        Text("Loading role...")
+                        Text("Loading company...")
                             .font(.system(size: 11, design: .rounded))
                             .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
                             .lineLimit(1)
                             .redacted(reason: .placeholder)
                     } else {
-                        let company = viewModel.recipientCompanyName ?? ""
-                        let role = viewModel.recipientProfile?.role ?? conversation.otherParticipantRole
+                        let company = viewModel.recipientCompanyName ?? conversation.otherParticipantCompany
                         let location = viewModel.recipientProfile?.location ?? ""
                         
-                        let mainText = !company.isEmpty ? company : role
-                        let subtitle = [mainText, location].filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: " • ")
+                        let subtitle = [company, location].filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: " • ")
                         
                         if !subtitle.isEmpty {
                             Text(subtitle)
@@ -155,46 +198,32 @@ struct ConversationView: View {
         .overlay(Rectangle().frame(height: 1).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .bottom)
     }
 
-    // MARK: - Starters Panel (invariato rispetto all'attuale)
-
-    private var startersPanel: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: DesignSystem.Spacing.small) {
-                ForEach(conversationStarters, id: \.self) { starter in
-                    Button(action: {
-                        messageText = starter
-                        withAnimation { showConversationStarters = false }
-                        isInputFocused = true
-                    }) {
-                        Text(starter)
-                            .font(.system(size: 14, design: .rounded))
-                            .foregroundColor(.brandPrimary)
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 12)
-                            .background(Color.brandPrimary.opacity(0.08), in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
-                            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium).stroke(Color.brandPrimary.opacity(0.15), lineWidth: 1))
-                    }
+    // MARK: - Selected Image Preview
+    
+    private func imagePreviewPanel(image: UIImage) -> some View {
+        HStack {
+            ZStack(alignment: .topTrailing) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 80, height: 80)
+                    .cornerRadius(DesignSystem.CornerRadius.small)
+                    .clipped()
+                
+                Button {
+                    withAnimation { selectedImage = nil }
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.black.opacity(0.6))
+                        .background(Circle().fill(.white))
                 }
+                .offset(x: 5, y: -5)
             }
-            .padding(.horizontal, DesignSystem.Spacing.medium)
+            Spacer()
         }
-        .padding(.vertical, DesignSystem.Spacing.standard)
+        .padding(.horizontal, DesignSystem.Spacing.medium)
+        .padding(.top, DesignSystem.Spacing.small)
         .background(.regularMaterial)
-        .overlay(
-            VStack {
-                HStack {
-                    Text("CONVERSATION STARTERS")
-                        .font(.system(size: 12, weight: .bold, design: .rounded))
-                        .tracking(1)
-                        .foregroundColor(.secondary)
-                        .padding(.leading, DesignSystem.Spacing.medium)
-                        .padding(.top, DesignSystem.Spacing.xSmall)
-                    Spacer()
-                }
-                Spacer()
-            }
-        )
-        .overlay(Rectangle().frame(height: 1).foregroundColor(Color.brandPrimary.opacity(0.2)), alignment: .bottom)
     }
 
     // MARK: - Messages Scroll View
@@ -241,35 +270,88 @@ struct ConversationView: View {
                                 HStack {
                                     if fromMe { Spacer() }
                                     VStack(alignment: fromMe ? .trailing : .leading, spacing: 4) {
-                                        Text(msg.text)
-                                            .font(.system(size: 15, design: .rounded))
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 10)
-                                            .foregroundColor(fromMe ? .white : .primary)
-                                            .background(
-                                                fromMe ? Color.brandPrimary : Color.clear,
-                                                in: RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
-                                                    corners: [.topLeft, .topRight, fromMe ? .bottomLeft : .bottomRight])
-                                            )
-                                            .background(
-                                                fromMe
-                                                    ? Color.clear
-                                                    : (colorScheme == .dark
-                                                        ? Color(UIColor.systemBackground).opacity(0.15)
-                                                        : Color(hex: "E0F0EE")),
-                                                in: RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
-                                                    corners: [.topLeft, .topRight, fromMe ? .bottomLeft : .bottomRight])
-                                            )
-                                            .overlay(
-                                                RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
-                                                    corners: [.topLeft, .topRight, fromMe ? .bottomLeft : .bottomRight])
-                                                    .stroke(
-                                                        fromMe
-                                                            ? Color.clear
-                                                            : (colorScheme == .dark ? Color.white.opacity(0.12) : Color.brandPrimary.opacity(0.2)),
-                                                        lineWidth: 1
-                                                    )
-                                            )
+                                        if let documentUrl = msg.documentUrl, let documentName = msg.documentName {
+                                            // Document Bubble
+                                            Button(action: {
+                                                if let url = URL(string: documentUrl) {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                            }) {
+                                                HStack {
+                                                    Image(systemName: "doc.text.fill")
+                                                        .font(.system(size: 24))
+                                                    Text(documentName)
+                                                        .lineLimit(1)
+                                                        .font(.system(size: 14, design: .rounded))
+                                                }
+                                                .padding(12)
+                                                .foregroundColor(fromMe ? .white : .brandPrimary)
+                                                .background(fromMe ? Color.brandPrimary.opacity(0.8) : Color.borderGlare.opacity(0.1))
+                                                .cornerRadius(DesignSystem.CornerRadius.medium)
+                                            }
+                                            .contextMenu {
+                                                Button {
+                                                    if let url = URL(string: documentUrl) {
+                                                        UIApplication.shared.open(url)
+                                                    }
+                                                } label: {
+                                                    Label("Download Document", systemImage: "arrow.down.circle")
+                                                }
+                                            }
+                                        }
+
+                                        if let imageUrl = msg.imageUrl, let url = URL(string: imageUrl) {
+                                            // Image Bubble
+                                            WebImage(url: url)
+                                                .resizable()
+                                                .indicator(.activity)
+                                                .scaledToFit()
+                                                .frame(maxWidth: 200, maxHeight: 200)
+                                                .cornerRadius(DesignSystem.CornerRadius.medium)
+                                                .padding(.bottom, msg.text.isEmpty ? 0 : 4)
+                                                .onTapGesture {
+                                                    UIApplication.shared.open(url)
+                                                }
+                                                .contextMenu {
+                                                    Button {
+                                                        UIApplication.shared.open(url)
+                                                    } label: {
+                                                        Label("View & Download", systemImage: "arrow.down.circle")
+                                                    }
+                                                }
+                                        }
+
+                                        if !msg.text.isEmpty {
+                                            Text(msg.text)
+                                                .font(.system(size: 15, design: .rounded))
+                                                .padding(.horizontal, 12)
+                                                .padding(.vertical, 10)
+                                                .foregroundColor(fromMe ? .white : .primary)
+                                                .background(
+                                                    fromMe ? Color.brandPrimary : Color.clear,
+                                                    in: RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
+                                                        corners: [.topLeft, .topRight, fromMe ? .bottomLeft : .bottomRight])
+                                                )
+                                                .background(
+                                                    fromMe
+                                                        ? Color.clear
+                                                        : (colorScheme == .dark
+                                                            ? Color(UIColor.systemBackground).opacity(0.15)
+                                                            : Color(hex: "E0F0EE")),
+                                                    in: RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
+                                                        corners: [.topLeft, .topRight, fromMe ? .bottomLeft : .bottomRight])
+                                                )
+                                                .overlay(
+                                                    RoundedCornerShape(radius: DesignSystem.CornerRadius.large,
+                                                        corners: [.topLeft, .topRight, fromMe ? .bottomLeft : .bottomRight])
+                                                        .stroke(
+                                                            fromMe
+                                                                ? Color.clear
+                                                                : (colorScheme == .dark ? Color.white.opacity(0.12) : Color.brandPrimary.opacity(0.2)),
+                                                            lineWidth: 1
+                                                        )
+                                                )
+                                        }
 
                                         Text(msg.displayTime)
                                             .font(.system(size: 11, design: .rounded))
@@ -304,11 +386,11 @@ struct ConversationView: View {
     private var inputBar: some View {
         HStack(spacing: DesignSystem.Spacing.small) {
             Button(action: {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    showConversationStarters.toggle()
-                }
+                // Remove input focus to show native action sheet safely
+                isInputFocused = false
+                showMediaMenu = true
             }) {
-                Image(systemName: showConversationStarters ? "xmark.circle.fill" : "plus.circle.fill")
+                Image(systemName: "plus.circle.fill")
                     .font(.system(size: 28))
                     .foregroundColor(.brandPrimary)
             }
@@ -331,15 +413,23 @@ struct ConversationView: View {
                 let text = messageText
                 messageText = ""
                 isInputFocused = false
-                viewModel.sendMessage(text: text)
+                
+                if let finalImage = selectedImage {
+                    selectedImage = nil
+                    viewModel.uploadAndSendImage(finalImage, additionalText: text)
+                } else {
+                    viewModel.sendMessage(text: text)
+                }
             }) {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.system(size: 32))
-                    .foregroundColor(messageText.trimmingCharacters(in: .whitespaces).isEmpty
+                    .foregroundColor(
+                        (messageText.trimmingCharacters(in: .whitespaces).isEmpty && selectedImage == nil)
                         ? .secondary.opacity(0.4)
-                        : .brandPrimary)
+                        : .brandPrimary
+                    )
             }
-            .disabled(messageText.trimmingCharacters(in: .whitespaces).isEmpty)
+            .disabled(messageText.trimmingCharacters(in: .whitespaces).isEmpty && selectedImage == nil)
         }
         .padding(.horizontal, DesignSystem.Spacing.medium)
         .padding(.vertical, DesignSystem.Spacing.small)

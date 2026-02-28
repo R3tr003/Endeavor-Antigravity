@@ -25,7 +25,7 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
 
         return db.collection(conversationsCollection)
             .whereField("participantIds", arrayContains: userId)
-            .order(by: "lastMessageAt", descending: true)
+            // Removed .order(by: "lastMessageAt", descending: true) to bypass missing composite index
             .addSnapshotListener { snapshot, error in
                 if let error = error {
                     DispatchQueue.main.async { onUpdate(.failure(error)) }
@@ -39,7 +39,7 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
 
                 let conversations = documents.compactMap { doc -> Conversation? in
                     return self.parseConversation(from: doc.data(), id: doc.documentID)
-                }
+                }.sorted { $0.lastMessageAt > $1.lastMessageAt } // Client-side sort
 
                 DispatchQueue.main.async { onUpdate(.success(conversations)) }
             }
@@ -82,6 +82,9 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
         senderId: String,
         recipientId: String,
         text: String,
+        imageUrl: String?,
+        documentUrl: String?,
+        documentName: String?,
         completion: @escaping (Error?) -> Void
     ) {
         let batch = db.batch()
@@ -95,12 +98,23 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             .collection(messagesCollection)
             .document()
 
-        let messageData: [String: Any] = [
+        var messageData: [String: Any] = [
             "senderId": senderId,
             "text": trimmedText,
             "createdAt": now,
             "readBy": [senderId]   // il mittente ha già letto il proprio messaggio
         ]
+        
+        if let imageUrl = imageUrl {
+            messageData["imageUrl"] = imageUrl
+        }
+        if let documentUrl = documentUrl {
+            messageData["documentUrl"] = documentUrl
+        }
+        if let documentName = documentName {
+            messageData["documentName"] = documentName
+        }
+        
         batch.setData(messageData, forDocument: messageRef)
 
         // 2. Aggiornamento conversazione — usa FieldValue.increment per evitare race conditions
@@ -108,8 +122,20 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             .collection(conversationsCollection)
             .document(conversationId)
 
+        // Determine the last message indicator
+        var indicator = trimmedText
+        if !indicator.isEmpty && (imageUrl != nil || documentUrl != nil) {
+            indicator = "Attachment: " + indicator
+        } else if imageUrl != nil {
+            indicator = "📷 Photo"
+        } else if let docName = documentName {
+            indicator = "📄 \(docName)"
+        } else if documentUrl != nil {
+            indicator = "📄 Document"
+        }
+
         let conversationUpdate: [String: Any] = [
-            "lastMessage": trimmedText,
+            "lastMessage": indicator,
             "lastMessageAt": now,
             "lastSenderId": senderId,
             "unreadCounts.\(recipientId)": FieldValue.increment(Int64(1))
@@ -286,7 +312,10 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             senderId: senderId,
             text: text,
             createdAt: createdAt,
-            readBy: data["readBy"] as? [String] ?? []
+            readBy: data["readBy"] as? [String] ?? [],
+            imageUrl: data["imageUrl"] as? String,
+            documentUrl: data["documentUrl"] as? String,
+            documentName: data["documentName"] as? String
         )
     }
 }

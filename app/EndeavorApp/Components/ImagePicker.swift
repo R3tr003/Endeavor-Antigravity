@@ -6,12 +6,13 @@ struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
     @Environment(\.presentationMode) var presentationMode
     var sourceType: UIImagePickerController.SourceType
+    var allowsEditing: Bool = true // Enable Apple's built-in square crop editor by default
     
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
         picker.sourceType = sourceType
-        picker.allowsEditing = true // Enable Apple's built-in square crop editor
+        picker.allowsEditing = allowsEditing
         return picker
     }
     

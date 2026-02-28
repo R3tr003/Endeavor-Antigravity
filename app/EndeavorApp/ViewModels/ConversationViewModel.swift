@@ -9,8 +9,12 @@ class ConversationViewModel: ObservableObject {
     @Published var appError: AppError?
     @Published var recipientProfile: UserProfile?
     @Published var recipientCompanyName: String? = nil
+    
+    // Upload state
+    @Published var isUploadingMedia: Bool = false
 
     private let repository: MessagesRepositoryProtocol
+    private let storageRepository: StorageRepositoryProtocol
     private var messagesListener: ListenerRegistration?
 
     let conversationId: String
@@ -21,12 +25,14 @@ class ConversationViewModel: ObservableObject {
         conversationId: String,
         currentUserId: String,
         recipientId: String,
-        repository: MessagesRepositoryProtocol = FirebaseMessagesRepository()
+        repository: MessagesRepositoryProtocol = FirebaseMessagesRepository(),
+        storageRepository: StorageRepositoryProtocol = FirebaseStorageRepository()
     ) {
         self.conversationId = conversationId
         self.currentUserId = currentUserId
         self.recipientId = recipientId
         self.repository = repository
+        self.storageRepository = storageRepository
         startListening()
         fetchRecipientProfile()
     }
@@ -60,18 +66,66 @@ class ConversationViewModel: ObservableObject {
 
     // MARK: - Send
 
-    func sendMessage(text: String) {
+    func sendMessage(
+        text: String,
+        imageUrl: String? = nil,
+        documentUrl: String? = nil,
+        documentName: String? = nil
+    ) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-
+        if trimmed.isEmpty && imageUrl == nil && documentUrl == nil { return } // non inviare nulla se è tutto vuoto
+        
         repository.sendMessage(
             conversationId: conversationId,
             senderId: currentUserId,
             recipientId: recipientId,
-            text: trimmed
+            text: trimmed,
+            imageUrl: imageUrl,
+            documentUrl: documentUrl,
+            documentName: documentName
         ) { [weak self] error in
             if let error = error {
-                self?.appError = .unknown(reason: error.localizedDescription)
+                DispatchQueue.main.async {
+                    self?.appError = .unknown(reason: error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    // MARK: - Media Uploads
+    
+    func uploadAndSendImage(_ image: UIImage, additionalText: String = "") {
+        DispatchQueue.main.async { self.isUploadingMedia = true }
+        
+        let path = "chat_media/\(conversationId)/\(UUID().uuidString).jpg"
+        storageRepository.uploadImage(image: image, path: path) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isUploadingMedia = false
+                switch result {
+                case .success(let url):
+                    self?.sendMessage(text: additionalText, imageUrl: url)
+                case .failure(let error):
+                    self?.appError = .unknown(reason: error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    func uploadAndSendDocument(url fileURL: URL, documentName: String) {
+        DispatchQueue.main.async { self.isUploadingMedia = true }
+        
+        let fileExtension = fileURL.pathExtension
+        let path = "chat_media/\(conversationId)/\(UUID().uuidString).\(fileExtension)"
+        
+        storageRepository.uploadDocument(url: fileURL, path: path) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isUploadingMedia = false
+                switch result {
+                case .success(let downloadUrl):
+                    self?.sendMessage(text: "", documentUrl: downloadUrl, documentName: documentName)
+                case .failure(let error):
+                    self?.appError = .unknown(reason: error.localizedDescription)
+                }
             }
         }
     }

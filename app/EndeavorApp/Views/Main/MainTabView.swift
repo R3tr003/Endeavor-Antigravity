@@ -4,6 +4,8 @@ struct MainTabView: View {
     @State private var selectedTab: Int = 0
     @EnvironmentObject var appViewModel: AppViewModel
     
+    @StateObject private var conversationsViewModel = ConversationsViewModel()
+    
     // Hide native tab bar helper for iOS 16+
     init() {
         UITabBar.appearance().isHidden = true
@@ -34,6 +36,10 @@ struct MainTabView: View {
                     .tag(4)
             }
             .edgesIgnoringSafeArea(.bottom)
+            .environmentObject(conversationsViewModel)
+            .onAppear {
+                conversationsViewModel.startListening()
+            }
             
             // Floating Liquid Glass Tab Bar
             HStack(spacing: 0) {
@@ -49,7 +55,7 @@ struct MainTabView: View {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 2 }
                 }
                 Spacer()
-                TabItem(icon: "message", title: "Messages", isSelected: selectedTab == 3) {
+                TabItem(icon: "message", title: "Messages", isSelected: selectedTab == 3, badgeCount: conversationsViewModel.totalUnreadCount) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 3 }
                 }
                 Spacer()
@@ -81,15 +87,17 @@ struct TabItem: View {
     let title: String
     let isSelected: Bool
     let selectedIcon: String?   // ← opzionale: icona custom per stato selezionato
+    let badgeCount: Int
     let action: () -> Void
 
     @State private var bounceTrigger: Int = 0
 
-    init(icon: String, title: String, isSelected: Bool, selectedIcon: String? = nil, action: @escaping () -> Void) {
+    init(icon: String, title: String, isSelected: Bool, selectedIcon: String? = nil, badgeCount: Int = 0, action: @escaping () -> Void) {
         self.icon = icon
         self.title = title
         self.isSelected = isSelected
         self.selectedIcon = selectedIcon
+        self.badgeCount = badgeCount
         self.action = action
     }
 
@@ -98,18 +106,31 @@ struct TabItem: View {
             bounceTrigger += 1
             action()
         }) {
-            VStack(spacing: DesignSystem.Spacing.xxSmall) {
-                Image(systemName: isSelected ? (selectedIcon ?? icon + ".fill") : icon)
-                    .font(.system(size: 22, weight: isSelected ? .bold : .regular))
-                    .symbolEffect(.bounce, value: bounceTrigger)
+            ZStack(alignment: .topTrailing) {
+                VStack(spacing: DesignSystem.Spacing.xxSmall) {
+                    Image(systemName: isSelected ? (selectedIcon ?? icon + ".fill") : icon)
+                        .font(.system(size: 22, weight: isSelected ? .bold : .regular))
+                        .symbolEffect(.bounce, value: bounceTrigger)
 
-                Text(title)
-                    .font(.system(size: 10, weight: isSelected ? .bold : .medium))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    Text(title)
+                        .font(.system(size: 10, weight: isSelected ? .bold : .medium))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                }
+                .foregroundColor(isSelected ? .brandPrimary : .primary.opacity(0.5))
+                .frame(width: DesignSystem.Layout.buttonHeight)
+                
+                if badgeCount > 0 {
+                    Text("\(badgeCount)")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(Color.red)
+                        .clipShape(Capsule())
+                        .offset(x: 10, y: -5)
+                }
             }
-            .foregroundColor(isSelected ? .brandPrimary : .primary.opacity(0.5))
-            .frame(width: DesignSystem.Layout.buttonHeight)
         }
     }
 }

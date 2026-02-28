@@ -15,9 +15,7 @@ struct NewConversationView: View {
     /// Chiamato dopo la creazione/recupero conversazione — passa (conversationId, recipientId)
     var onConversationReady: (String, String) -> Void
 
-    private var currentUserId: String {
-        Auth.auth().currentUser?.uid ?? ""
-    }
+    @AppStorage("userId") private var currentUserId: String = ""
 
     private var filteredProfiles: [UserProfile] {
         let others = networkViewModel.profiles.filter { $0.id.uuidString != currentUserId }

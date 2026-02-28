@@ -9,16 +9,19 @@ struct NetworkView: View {
     @State private var selectedCategory: String = "All"
     
     @StateObject private var viewModel = NetworkViewModel(repository: FirebaseNetworkRepository())
-    @StateObject private var conversationsViewModel = ConversationsViewModel()
+    @EnvironmentObject private var conversationsViewModel: ConversationsViewModel
     @State private var activeConversation: Conversation?
     @State private var showConversation: Bool = false
     @State private var companyNames: [String: String] = [:]
 
+    @AppStorage("userId") private var currentUserId: String = ""
+
     private var filteredProfiles: [UserProfile] {
+        let others = viewModel.profiles.filter { $0.id.uuidString != currentUserId }
         if searchText.isEmpty {
-            return viewModel.profiles
+            return others
         } else {
-            return viewModel.profiles.filter { profile in
+            return others.filter { profile in
                 profile.firstName.localizedCaseInsensitiveContains(searchText) ||
                 profile.lastName.localizedCaseInsensitiveContains(searchText) ||
                 profile.role.localizedCaseInsensitiveContains(searchText)
@@ -203,7 +206,7 @@ struct NetworkView: View {
             }
         }
         .sheet(isPresented: $showConversation) {
-            if let activeConv = activeConversation, let currentUserId = FirebaseAuth.Auth.auth().currentUser?.uid {
+            if let activeConv = activeConversation, let currentUserId = UserDefaults.standard.string(forKey: "userId") {
                 ConversationView(conversation: activeConv, currentUserId: currentUserId)
             }
         }
@@ -289,13 +292,13 @@ struct NetworkView: View {
                                 // Il ViewModel dentro ConversationView fetcherà i dati veri
                                 let newConv = Conversation(
                                     id: conversationId,
-                                    participantIds: [FirebaseAuth.Auth.auth().currentUser?.uid ?? "", profile.id.uuidString],
+                                    participantIds: [UserDefaults.standard.string(forKey: "userId") ?? "", profile.id.uuidString],
                                     lastMessage: "",
                                     lastMessageAt: Date(),
                                     lastSenderId: "",
                                     unreadCounts: [:],
                                     otherParticipantName: profile.firstName + " " + profile.lastName,
-                                    otherParticipantRole: profile.role,
+                                    otherParticipantCompany: companyNames[profile.id.uuidString] ?? profile.role,
                                     otherParticipantImageUrl: profile.profileImageUrl
                                 )
                                 self.activeConversation = newConv
@@ -336,5 +339,6 @@ extension View {
 struct NetworkView_Previews: PreviewProvider {
     static var previews: some View {
         NetworkView()
+            .environmentObject(ConversationsViewModel())
     }
 }

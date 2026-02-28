@@ -14,7 +14,7 @@ struct Conversation: Identifiable, Equatable {
 
     // Campi UI — popolati dopo il fetch di UserProfile, non da Firestore
     var otherParticipantName: String = ""
-    var otherParticipantRole: String = ""
+    var otherParticipantCompany: String = ""
     var otherParticipantImageUrl: String = ""
 
     /// Restituisce il contatore unread per uno specifico UID

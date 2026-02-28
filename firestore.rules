@@ -66,7 +66,7 @@ service cloud.firestore {
       // WRITE: Must own the associated UserProfile document via backend Join and have valid data
       allow write: if isAuthenticated() 
                    && get(/databases/$(database)/documents/users/$(request.resource.data.userId)).data.email == request.auth.token.email
-                   && isValidCompany(request.resource.data);
+                   && isValidCompany(request.resource.data);y
     }
   }
 }

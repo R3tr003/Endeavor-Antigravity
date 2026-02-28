@@ -9,11 +9,19 @@ class ConversationsViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var appError: AppError?
 
+    var totalUnreadCount: Int {
+        guard let currentUserId = UserDefaults.standard.string(forKey: "userId") else { return 0 }
+        return conversations.reduce(0) { total, conv in
+            total + (conv.unreadCounts[currentUserId] ?? 0)
+        }
+    }
+
     private let repository: MessagesRepositoryProtocol
     private var conversationsListener: ListenerRegistration?
 
     /// Cache profili utente per evitare fetch ripetuti
     private var profileCache: [String: UserProfile] = [:]
+    private var companyCache: [String: String] = [:]
 
     init(repository: MessagesRepositoryProtocol = FirebaseMessagesRepository()) {
         self.repository = repository
@@ -29,7 +37,7 @@ class ConversationsViewModel: ObservableObject {
     /// Avvia il listener con l'UID reale di Firebase Auth.
     /// Sostituisce il vecchio `fetchConversations(userId: "currentUserId")`.
     func startListening() {
-        guard let currentUserId = Auth.auth().currentUser?.uid else {
+        guard let currentUserId = UserDefaults.standard.string(forKey: "userId") else {
             appError = .authFailed(reason: "User not authenticated")
             return
         }
@@ -69,7 +77,7 @@ class ConversationsViewModel: ObservableObject {
         with otherUserId: String,
         completion: @escaping (Result<String, Error>) -> Void
     ) {
-        guard let currentUserId = Auth.auth().currentUser?.uid else {
+        guard let currentUserId = UserDefaults.standard.string(forKey: "userId") else {
             completion(.failure(NSError(domain: "AppError", code: 401,
                 userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])))
             return
@@ -96,7 +104,7 @@ class ConversationsViewModel: ObservableObject {
         let otherIds = Set(rawConversations.compactMap { conv in
             conv.participantIds.first { $0 != currentUserId }
         })
-        let idsToFetch = otherIds.filter { profileCache[$0] == nil }
+        let idsToFetch = otherIds.filter { profileCache[$0] == nil || companyCache[$0] == nil }
 
         // Se tutti i profili sono in cache, aggiorna subito
         guard !idsToFetch.isEmpty else {
@@ -109,12 +117,30 @@ class ConversationsViewModel: ObservableObject {
         // Fetch parallelo dei profili mancanti
         let group = DispatchGroup()
         for userId in idsToFetch {
-            group.enter()
-            repository.fetchUserProfile(userId: userId) { [weak self] result in
-                if case .success(let profile) = result {
-                    self?.profileCache[userId] = profile
+            if profileCache[userId] == nil {
+                group.enter()
+                repository.fetchUserProfile(userId: userId) { [weak self] result in
+                    if case .success(let profile) = result {
+                        self?.profileCache[userId] = profile
+                    }
+                    group.leave()
                 }
-                group.leave()
+            }
+            
+            if companyCache[userId] == nil {
+                group.enter()
+                Firestore.firestore().collection("companies")
+                    .whereField("userId", isEqualTo: userId)
+                    .limit(to: 1)
+                    .getDocuments { [weak self] snapshot, _ in
+                        if let name = snapshot?.documents.first?.data()["name"] as? String {
+                            self?.companyCache[userId] = name
+                        } else {
+                            // Caching empty so we don't refetch infinitely if no company exists
+                            self?.companyCache[userId] = ""
+                        }
+                        group.leave()
+                    }
             }
         }
 
@@ -131,8 +157,13 @@ class ConversationsViewModel: ObservableObject {
         let otherId = conversation.participantIds.first { $0 != currentUserId } ?? ""
         if let profile = profileCache[otherId] {
             enriched.otherParticipantName = profile.fullName
-            enriched.otherParticipantRole = profile.role
             enriched.otherParticipantImageUrl = profile.profileImageUrl
+        }
+        if let company = companyCache[otherId], !company.isEmpty {
+            enriched.otherParticipantCompany = company
+        } else if let profile = profileCache[otherId] {
+            // Fallback al ruolo se l'azienda non esiste
+            enriched.otherParticipantCompany = profile.role
         }
         return enriched
     }

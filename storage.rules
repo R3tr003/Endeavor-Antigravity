@@ -1,0 +1,49 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isCurrentUser(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Constraints for images (max 5MB)
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*') 
+             && request.resource.size < 5 * 1024 * 1024;
+    }
+    
+    // Constraints for documents (max 10MB)
+    function isValidDocument() {
+      return request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // 1. Profile Pictures
+    // Users can only upload/modify their own profile picture.
+    // Anyone authenticated can view profile pictures.
+    match /profile_images/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isCurrentUser(userId) && isValidImage();
+    }
+    
+    // 2. Chat Media (Images & Documents)
+    // Secure chat media - Requires auth, size constraints
+    match /chat_media/{conversationId}/{fileId} {
+      allow read: if isAuthenticated();
+      // Allow if it matches image OR document constraints
+      allow create: if isAuthenticated() && (isValidImage() || isValidDocument());
+      // No updates or deletes allowed by regular users for immutability
+      allow update, delete: if false; 
+    }
+
+    // Catch-all (Deny anything else not explicitly matched above)
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

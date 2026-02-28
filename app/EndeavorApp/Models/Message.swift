@@ -9,6 +9,11 @@ struct Message: Identifiable, Codable, Equatable {
     let text: String
     let createdAt: Date
     var readBy: [String]         // Array di Firebase Auth UIDs
+    
+    // Iniziative Media Aggiunte
+    var imageUrl: String?
+    var documentUrl: String?
+    var documentName: String?
 
     /// Formattazione timestamp per la UI (es. "10:32" o "Yesterday")
     var displayTime: String {

@@ -1,8 +1,15 @@
 {
-  "firestore": {
-    "database": "(default)",
-    "location": "eur3",
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  }
+  "firestore": [
+    {
+      "database": "(default)",
+      "location": "eur3",
+      "rules": "firestore.rules",
+      "indexes": "firestore.indexes.json"
+    },
+    {
+      "database": "messaging",
+      "location": "eur3",
+      "rules": "firestore_messaging.rules"
+    }
+  ]
 }

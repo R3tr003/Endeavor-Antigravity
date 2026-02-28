@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Controlla che l'utente abbia effettuato l'accesso
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    match /conversations/{conversationId} {
+      // Consente agli utenti autenticati di leggere e creare nuove conversazioni
+      allow read, write: if isAuthenticated();
+      
+      match /messages/{messageId} {
+        // Consente agli utenti autenticati di leggere e inviare messaggi all'interno di una conversazione
+        allow read, write: if isAuthenticated();
+      }
+    }
+  }
+}

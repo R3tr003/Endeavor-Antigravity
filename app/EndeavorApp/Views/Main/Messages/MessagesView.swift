@@ -3,7 +3,7 @@ import FirebaseAuth
 import SDWebImageSwiftUI
 
 struct MessagesView: View {
-    @StateObject private var viewModel = ConversationsViewModel()
+    @EnvironmentObject private var viewModel: ConversationsViewModel
     @State private var searchText: String = ""
     @State private var animateGlow: Bool = false
     @State private var selectedConversation: Conversation? = nil
@@ -17,7 +17,7 @@ struct MessagesView: View {
         } else {
             return viewModel.conversations.filter {
                 $0.otherParticipantName.localizedCaseInsensitiveContains(searchText) ||
-                $0.otherParticipantRole.localizedCaseInsensitiveContains(searchText)
+                $0.otherParticipantCompany.localizedCaseInsensitiveContains(searchText)
             }
         }
     }
@@ -46,10 +46,6 @@ struct MessagesView: View {
                         withAnimation(.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
                             animateGlow = true
                         }
-                        viewModel.startListening()
-                    }
-                    .onDisappear {
-                        viewModel.stopListening()
                     }
                 }
 
@@ -69,17 +65,6 @@ struct MessagesView: View {
                                     .foregroundColor(.secondary)
                                 
                                 Spacer()
-                                
-                                let currentUid = Auth.auth().currentUser?.uid ?? ""
-                                let totalUnread = viewModel.conversations.reduce(0) { $0 + $1.unreadCount(for: currentUid) }
-                                if totalUnread > 0 {
-                                    Text("\(totalUnread) unread messages")
-                                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                                        .foregroundColor(.white)
-                                        .padding(.vertical, 5)
-                                        .padding(.horizontal, DesignSystem.Spacing.standard)
-                                        .background(Color.brandPrimary, in: Capsule())
-                                }
                                 
                                 Button(action: { showNewConversation = true }) {
                                     ZStack {
@@ -112,7 +97,7 @@ struct MessagesView: View {
                         // Conversations List
                         VStack(spacing: DesignSystem.Spacing.small) {
                             ForEach(filteredConversations) { convo in
-                                ConversationRow(conversation: convo, currentUserId: Auth.auth().currentUser?.uid ?? "")
+                                ConversationRow(conversation: convo, currentUserId: UserDefaults.standard.string(forKey: "userId") ?? "")
                                     .onTapGesture {
                                         selectedConversation = convo
                                     }
@@ -166,7 +151,7 @@ struct MessagesView: View {
         .sheet(item: $selectedConversation) { conversation in
             ConversationView(
                 conversation: conversation,
-                currentUserId: Auth.auth().currentUser?.uid ?? ""
+                currentUserId: UserDefaults.standard.string(forKey: "userId") ?? ""
             )
         }
         .sheet(isPresented: $showNewConversation) {
@@ -177,7 +162,7 @@ struct MessagesView: View {
         }
         .onChange(of: pendingConversationId) { _, newId in
             guard let conversationId = newId, let recipientId = pendingRecipientId else { return }
-            let currentUid = Auth.auth().currentUser?.uid ?? ""
+            let currentUid = UserDefaults.standard.string(forKey: "userId") ?? ""
             let tempConversation = Conversation(
                 id: conversationId,
                 participantIds: [currentUid, recipientId],
@@ -186,7 +171,7 @@ struct MessagesView: View {
                 lastSenderId: "",
                 unreadCounts: [:],
                 otherParticipantName: "Loading...",
-                otherParticipantRole: "",
+                otherParticipantCompany: "",
                 otherParticipantImageUrl: ""
             )
             selectedConversation = tempConversation
@@ -245,7 +230,7 @@ struct ConversationRow: View {
                     .font(.system(size: 16, weight: conversation.unreadCount(for: currentUserId) > 0 ? .bold : .semibold, design: .rounded))
                     .foregroundColor(.primary)
                 
-                Text(conversation.otherParticipantRole)
+                Text(conversation.otherParticipantCompany)
                     .font(.system(size: 12, design: .rounded))
                     .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
                     .lineLimit(1)
@@ -284,4 +269,5 @@ struct ConversationRow: View {
 
 #Preview {
     MessagesView()
+        .environmentObject(ConversationsViewModel())
 }

@@ -27,6 +27,9 @@ protocol MessagesRepositoryProtocol {
         senderId: String,
         recipientId: String,
         text: String,
+        imageUrl: String?,
+        documentUrl: String?,
+        documentName: String?,
         completion: @escaping (Error?) -> Void
     )
 
