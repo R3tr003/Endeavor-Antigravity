@@ -1,21 +1,34 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // Controlla che l'utente abbia effettuato l'accesso
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    // Ottiene l'UUID dell'utente dalla mappatura firebaseUid -> uuid
+    // Restituisce null se la mappatura non esiste ancora (evita errore su get())
+    function getUserUuid() {
+      let mappingDoc = /databases/$(database)/documents/userMappings/$(request.auth.uid);
+      return exists(mappingDoc) ? get(mappingDoc).data.uuid : null;
+    }
+
+    // Mappatura firebaseUid -> uuid. Ogni utente può creare/leggere solo il proprio documento.
+    match /userMappings/{odFirebaseUid} {
+      allow read: if isAuthenticated() && request.auth.uid == odFirebaseUid;
+      allow create, update: if isAuthenticated() && request.auth.uid == odFirebaseUid;
+    }
+
     match /conversations/{conversationId} {
-      // Per leggere, aggiornare o eliminare, l'utente deve essere nei participantIds
-      allow read, update, delete: if isAuthenticated() && request.auth.uid in resource.data.participantIds;
+      // Per leggere, aggiornare o eliminare, l'UUID dell'utente deve essere nei participantIds
+      allow read, update, delete: if isAuthenticated() && getUserUuid() in resource.data.participantIds;
       // Per creare, l'utente deve mettersi nei participantIds
-      allow create: if isAuthenticated() && request.auth.uid in request.resource.data.participantIds;
-      
+      allow create: if isAuthenticated() && getUserUuid() in request.resource.data.participantIds;
+
       match /messages/{messageId} {
-        // Per i messaggi, verifica che l'utente sia nei participantIds della conversazione padre
-        allow read, write: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
+        // Per i messaggi, verifica che l'UUID dell'utente sia nei participantIds della conversazione padre
+        allow read, write: if isAuthenticated() && getUserUuid() in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
       }
     }
   }

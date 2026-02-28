@@ -282,6 +282,18 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             }
     }
 
+    // MARK: - User Mapping (firebaseUid -> uuid)
+
+    /// Salva la mappatura firebaseUid -> uuid nel database messaging.
+    /// Deve essere chiamato al login per permettere alle regole Firestore di funzionare.
+    func saveUserMapping(firebaseUid: String, uuid: String, completion: ((Error?) -> Void)? = nil) {
+        db.collection("userMappings").document(firebaseUid).setData([
+            "uuid": uuid
+        ]) { error in
+            DispatchQueue.main.async { completion?(error) }
+        }
+    }
+
     // MARK: - Parse Helpers
 
     private func parseConversation(from data: [String: Any], id: String) -> Conversation? {

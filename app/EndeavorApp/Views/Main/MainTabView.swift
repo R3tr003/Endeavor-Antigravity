@@ -39,12 +39,17 @@ struct MainTabView: View {
             .environmentObject(conversationsViewModel)
             .task {
                 if appViewModel.isLoggedIn {
-                    conversationsViewModel.startListening()
+                    // Crea la mappatura prima di ascoltare le conversazioni
+                    appViewModel.ensureMessagingMappingExists {
+                        conversationsViewModel.startListening()
+                    }
                 }
             }
             .onChange(of: appViewModel.isLoggedIn) {
                 if appViewModel.isLoggedIn {
-                    conversationsViewModel.startListening()
+                    appViewModel.ensureMessagingMappingExists {
+                        conversationsViewModel.startListening()
+                    }
                 }
             }
             

@@ -14,7 +14,8 @@ class AppViewModel: ObservableObject {
     
     let userRepository: UserRepositoryProtocol
     let storageRepository: StorageRepositoryProtocol
-    
+    private let messagesRepository = FirebaseMessagesRepository()
+
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Exposed State (Facade)
@@ -104,6 +105,10 @@ class AppViewModel: ObservableObject {
             if self?.currentUser == nil {
                 print("⚠️ Invalid session state. Logging out.")
                 self?.logout()
+            } else if let firebaseUid = Auth.auth().currentUser?.uid,
+                      let uuid = self?.currentUser?.id.uuidString {
+                // Assicura che la mappatura firebaseUid -> uuid esista nel database messaging
+                self?.messagesRepository.saveUserMapping(firebaseUid: firebaseUid, uuid: uuid)
             }
             self?.isCheckingAuth = false
         }
@@ -237,7 +242,13 @@ class AppViewModel: ObservableObject {
                         UserDefaults.standard.set(company.id.uuidString, forKey: "companyId")
                         UserDefaults.standard.set(true, forKey: "isOnboardingComplete")
                         UserDefaults.standard.set(true, forKey: "isLoggedIn")
-                        
+
+                        // Salva mappatura firebaseUid -> uuid per le regole Firestore del messaging
+                        self?.messagesRepository.saveUserMapping(
+                            firebaseUid: user.uid,
+                            uuid: profile.id.uuidString
+                        )
+
                         self?.router.isOnboardingComplete = true
                         self?.authService.isLoggedIn = true
                         self?.router.isLoading = false
@@ -325,6 +336,13 @@ class AppViewModel: ObservableObject {
                             self?.router.appError = .dataCorrupted
                             print("Error saving company: \(cErr)")
                         } else {
+                            // Salva mappatura firebaseUid -> uuid per le regole Firestore del messaging
+                            if let firebaseUid = Auth.auth().currentUser?.uid {
+                                self?.messagesRepository.saveUserMapping(
+                                    firebaseUid: firebaseUid,
+                                    uuid: userToSave.id.uuidString
+                                )
+                            }
                             print("✅ Onboarding completed and saved.")
                         }
                     }
@@ -434,8 +452,23 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Messaging Setup
+
+    /// Assicura che la mappatura firebaseUid -> uuid esista nel database messaging.
+    /// Da chiamare prima di iniziare a ascoltare le conversazioni.
+    func ensureMessagingMappingExists(completion: (() -> Void)? = nil) {
+        guard let firebaseUid = Auth.auth().currentUser?.uid,
+              let uuid = currentUser?.id.uuidString else {
+            completion?()
+            return
+        }
+        messagesRepository.saveUserMapping(firebaseUid: firebaseUid, uuid: uuid) { _ in
+            completion?()
+        }
+    }
+
     // MARK: - Settings & Logout
-    
+
     func setTheme(_ theme: String) {
         router.setTheme(theme)
     }
