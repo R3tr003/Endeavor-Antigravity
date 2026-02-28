@@ -37,8 +37,15 @@ struct MainTabView: View {
             }
             .edgesIgnoringSafeArea(.bottom)
             .environmentObject(conversationsViewModel)
-            .onAppear {
-                conversationsViewModel.startListening()
+            .task {
+                if appViewModel.isLoggedIn {
+                    conversationsViewModel.startListening()
+                }
+            }
+            .onChange(of: appViewModel.isLoggedIn) {
+                if appViewModel.isLoggedIn {
+                    conversationsViewModel.startListening()
+                }
             }
             
             // Floating Liquid Glass Tab Bar

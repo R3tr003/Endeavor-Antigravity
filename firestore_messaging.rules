@@ -8,12 +8,14 @@ service cloud.firestore {
     }
 
     match /conversations/{conversationId} {
-      // Consente agli utenti autenticati di leggere e creare nuove conversazioni
-      allow read, write: if isAuthenticated();
+      // Per leggere, aggiornare o eliminare, l'utente deve essere nei participantIds
+      allow read, update, delete: if isAuthenticated() && request.auth.uid in resource.data.participantIds;
+      // Per creare, l'utente deve mettersi nei participantIds
+      allow create: if isAuthenticated() && request.auth.uid in request.resource.data.participantIds;
       
       match /messages/{messageId} {
-        // Consente agli utenti autenticati di leggere e inviare messaggi all'interno di una conversazione
-        allow read, write: if isAuthenticated();
+        // Per i messaggi, verifica che l'utente sia nei participantIds della conversazione padre
+        allow read, write: if isAuthenticated() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
       }
     }
   }

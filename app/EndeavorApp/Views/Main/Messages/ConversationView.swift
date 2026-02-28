@@ -367,11 +367,6 @@ struct ConversationView: View {
                         .padding(.vertical, DesignSystem.Spacing.large)
                     }
                 }
-                .onAppear {
-                    if let lastId = viewModel.messages.last?.id {
-                        proxy.scrollTo(lastId, anchor: .bottom)
-                    }
-                }
                 .onChange(of: viewModel.messages.count) {
                     if let lastId = viewModel.messages.last?.id {
                         withAnimation { proxy.scrollTo(lastId, anchor: .bottom) }
@@ -436,7 +431,6 @@ struct ConversationView: View {
         .background(.regularMaterial)
         .overlay(Rectangle().frame(height: 0.5).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .top)
     }
-}
 
     private func getInitials(from name: String) -> String {
         let components = name.split(separator: " ").filter { !$0.isEmpty }
@@ -448,7 +442,7 @@ struct ConversationView: View {
         let last = components[components.count - 1].prefix(1)
         return "\(first)\(last)".uppercased()
     }
-
+}
 
 // MARK: - RoundedCornerShape (invariato)
 struct RoundedCornerShape: Shape {

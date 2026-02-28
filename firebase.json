@@ -11,5 +11,8 @@
       "location": "eur3",
       "rules": "firestore_messaging.rules"
     }
-  ]
+  ],
+  "storage": {
+    "rules": "storage.rules"
+  }
 }

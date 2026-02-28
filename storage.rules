@@ -26,9 +26,9 @@ service firebase.storage {
     // 1. Profile Pictures
     // Users can only upload/modify their own profile picture.
     // Anyone authenticated can view profile pictures.
-    match /profile_images/{userId} {
+    match /profile_images/{fileName} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isCurrentUser(userId) && isValidImage();
+      allow write: if isAuthenticated() && isValidImage();
     }
     
     // 2. Chat Media (Images & Documents)
