@@ -7,6 +7,8 @@ public enum AppError: LocalizedError, Equatable {
     case userNotFound
     case weakPassword
     case emailAlreadyInUse
+    case notAuthorized
+    case salesforceUnavailable
     case unknown(reason: String?)
     
     public var errorDescription: String? {
@@ -23,6 +25,10 @@ public enum AppError: LocalizedError, Equatable {
             return "Password is too weak. Use at least 6 characters."
         case .emailAlreadyInUse:
             return "This email is already registered. Please login instead."
+        case .notAuthorized:
+            return "This email is not registered in the Endeavor network. Contact your local Endeavor office at help@endeavor.org"
+        case .salesforceUnavailable:
+            return "Unable to verify authorization. Please check your connection and try again."
         case .unknown(let reason):
             return reason ?? "An unknown error occurred. Please try again."
         }

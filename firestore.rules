@@ -9,7 +9,7 @@ service cloud.firestore {
     
     // Check if the incoming UserProfile data is structurally valid
     function isValidUser(data) {
-      return data.size() >= 9 && data.size() <= 11
+      return data.size() >= 9 && data.size() <= 16
       && data.id is string
       && data.firstName is string && data.firstName.size() <= 50
       && data.lastName is string && data.lastName.size() <= 75
@@ -19,6 +19,10 @@ service cloud.firestore {
       && data.timeZone is string && data.timeZone.size() <= 50
       && data.profileImageUrl is string
       && data.personalBio is string && data.personalBio.size() <= 1000
+      && (!('userType' in data) || data.userType is string)
+      && (!('nationality' in data) || data.nationality is string)
+      && (!('languages' in data) || data.languages is list)
+      && (!('phone' in data) || data.phone is string)
       && (!('createdAt' in data) || data.createdAt is timestamp)
       && (!('lastLoginAt' in data) || data.lastLoginAt is timestamp);
     }
@@ -37,7 +41,9 @@ service cloud.firestore {
       && data.companyBio is string && data.companyBio.size() <= 1000
       && data.industries is list && data.industries.size() <= 10
       && data.challenges is list && data.challenges.size() <= 3
-      && data.desiredExpertise is list && data.desiredExpertise.size() <= 10;
+      && data.desiredExpertise is list && data.desiredExpertise.size() <= 10
+      && (!('logoUrl' in data) || data.logoUrl is string)
+      && (!('vertical' in data) || data.vertical is string);
     }
     
     match /users/{userId} {

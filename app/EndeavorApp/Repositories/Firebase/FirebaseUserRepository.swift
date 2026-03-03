@@ -33,6 +33,10 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                 profileImageUrl: data["profileImageUrl"] as? String ?? "",
                 personalBio: data["personalBio"] as? String ?? ""
             )
+            user.userType    = data["userType"] as? String ?? ""
+            user.nationality = data["nationality"] as? String ?? ""
+            user.languages   = data["languages"] as? [String] ?? []
+            user.phone       = data["phone"] as? String ?? ""
             
             if let createdAtTimestamp = data["createdAt"] as? Timestamp {
                 user.createdAt = createdAtTimestamp.dateValue()
@@ -68,7 +72,9 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                 employeeRange: data["employeeRange"] as? String ?? "",
                 challenges: data["challenges"] as? [String] ?? [],
                 desiredExpertise: data["desiredExpertise"] as? [String] ?? [],
-                companyBio: data["companyBio"] as? String ?? ""
+                companyBio: data["companyBio"] as? String ?? "",
+                logoUrl: data["logoUrl"] as? String ?? "",
+                vertical: data["vertical"] as? String ?? ""
             )
             completion(.success(company))
         }
@@ -110,6 +116,10 @@ class FirebaseUserRepository: UserRepositoryProtocol {
             profileImageUrl: data["profileImageUrl"] as? String ?? "",
             personalBio: data["personalBio"] as? String ?? ""
         )
+        user.userType    = data["userType"] as? String ?? ""
+        user.nationality = data["nationality"] as? String ?? ""
+        user.languages   = data["languages"] as? [String] ?? []
+        user.phone       = data["phone"] as? String ?? ""
         
         if let createdAtTimestamp = data["createdAt"] as? Timestamp {
             user.createdAt = createdAtTimestamp.dateValue()
@@ -132,7 +142,9 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                     employeeRange: data["employeeRange"] as? String ?? "",
                     challenges: data["challenges"] as? [String] ?? [],
                     desiredExpertise: data["desiredExpertise"] as? [String] ?? [],
-                    companyBio: data["companyBio"] as? String ?? ""
+                    companyBio: data["companyBio"] as? String ?? "",
+                    logoUrl: data["logoUrl"] as? String ?? "",
+                    vertical: data["vertical"] as? String ?? ""
                 )
                 completion(.success((user, company)))
             } else {
@@ -151,7 +163,11 @@ class FirebaseUserRepository: UserRepositoryProtocol {
             "location": user.location,
             "timeZone": user.timeZone,
             "profileImageUrl": user.profileImageUrl,
-            "personalBio": user.personalBio
+            "personalBio": user.personalBio,
+            "userType": user.userType,
+            "nationality": user.nationality,
+            "languages": user.languages,
+            "phone": user.phone
         ]
         
         if let createdAt = user.createdAt {
@@ -177,7 +193,9 @@ class FirebaseUserRepository: UserRepositoryProtocol {
             "employeeRange": company.employeeRange,
             "challenges": company.challenges,
             "desiredExpertise": company.desiredExpertise,
-            "companyBio": company.companyBio
+            "companyBio": company.companyBio,
+            "logoUrl": company.logoUrl,
+            "vertical": company.vertical
         ]
         db.collection(companiesCollection).document(company.id.uuidString).setData(data, completion: completion)
     }

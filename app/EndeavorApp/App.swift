@@ -11,15 +11,13 @@ struct EndeavorApp: App {
     
     init() {
         // --- Firebase App Check Setup ---
-        // For development/simulator testing, use the DebugProvider.
-        // It will print a local debug token in the Xcode console that you must
-        // manually register in the Firebase Console under App Check -> Apps -> Manage Debug Tokens.
-        
-        // Uncomment the line below for PRODUCTION release using Apple's DeviceCheck/AppAttest:
-        // AppCheck.setAppCheckProviderFactory(AppAttestProviderFactory())
-        
-        let providerFactory = AppCheckDebugProviderFactory()
+        // In DEBUG: skip App Check entirely (debug tokens require manual registration in
+        // Firebase Console and silently block ALL Firestore writes if not registered).
+        // In RELEASE: use AppAttest for production security.
+        #if !DEBUG
+        let providerFactory = AppAttestProviderFactory()
         AppCheck.setAppCheckProviderFactory(providerFactory)
+        #endif
         
         // Initialize Firebase when the app launches
         FirebaseApp.configure()
@@ -58,6 +56,7 @@ struct EndeavorApp: App {
                     } else {
                         OnboardingContainerView()
                             .environmentObject(appViewModel)
+                            .environmentObject(appViewModel.onboardingViewModel)
                             .transition(.opacity)
                             .preferredColorScheme(appViewModel.colorScheme)
                     }

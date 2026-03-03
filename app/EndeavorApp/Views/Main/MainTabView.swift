@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAnalytics
 
 struct MainTabView: View {
     @State private var selectedTab: Int = 0
@@ -52,6 +53,19 @@ struct MainTabView: View {
                     }
                 }
             }
+            .onChange(of: selectedTab) { _, newTab in
+                Analytics.logEvent(AnalyticsEventScreenView, parameters: [
+                    AnalyticsParameterScreenName: tabScreenName(newTab),
+                    AnalyticsParameterScreenClass: tabScreenName(newTab)
+                ])
+            }
+            .onAppear {
+                // Log initial screen on first open
+                Analytics.logEvent(AnalyticsEventScreenView, parameters: [
+                    AnalyticsParameterScreenName: tabScreenName(selectedTab),
+                    AnalyticsParameterScreenClass: tabScreenName(selectedTab)
+                ])
+            }
             
             // Floating Liquid Glass Tab Bar
             HStack(spacing: 0) {
@@ -89,6 +103,16 @@ struct MainTabView: View {
             .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
             .padding(.horizontal, DesignSystem.Spacing.large)
             .padding(.bottom, 0) // Sit right above the home indicator
+        }
+    }
+    private func tabScreenName(_ tab: Int) -> String {
+        switch tab {
+        case 0: return "Home"
+        case 1: return "Network"
+        case 2: return "Discover"
+        case 3: return "Messages"
+        case 4: return "Profile"
+        default: return "Unknown"
         }
     }
 }

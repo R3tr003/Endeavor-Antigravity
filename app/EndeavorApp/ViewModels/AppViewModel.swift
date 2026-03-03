@@ -14,9 +14,16 @@ class AppViewModel: ObservableObject {
     
     let userRepository: UserRepositoryProtocol
     let storageRepository: StorageRepositoryProtocol
+    let salesforceRepo: SalesforceRepositoryProtocol
     private let messagesRepository = FirebaseMessagesRepository()
+    
+    // Shared OnboardingViewModel instance (to allow Salesforce pre-fill before navigation)
+    let onboardingViewModel = OnboardingViewModel()
 
     private var cancellables = Set<AnyCancellable>()
+    
+    // Salesforce data cache — pre-fills onboarding when no Firestore profile exists
+    private var pendingSalesforceData: SalesforceContactData?
     
     // MARK: - Exposed State (Facade)
     @Published var currentUser: UserProfile?
@@ -25,6 +32,7 @@ class AppViewModel: ObservableObject {
     @Published var isOnboardingComplete: Bool = false
     @Published var isLoading: Bool = false
     @Published var isCheckingAuth: Bool = false
+    @Published var isSalesforceChecking: Bool = false  // Dedicated Salesforce verification state
     @Published var appError: AppError?
     @Published var emailCollisionDetected: Bool = false
     @Published var selectedTheme: String = "Dark"
@@ -36,9 +44,11 @@ class AppViewModel: ObservableObject {
     }
     
     init(userRepository: UserRepositoryProtocol = FirebaseUserRepository(),
-         storageRepository: StorageRepositoryProtocol = FirebaseStorageRepository()) {
+         storageRepository: StorageRepositoryProtocol = FirebaseStorageRepository(),
+         salesforceRepo: SalesforceRepositoryProtocol = SalesforceRepository()) {
         self.userRepository = userRepository
         self.storageRepository = storageRepository
+        self.salesforceRepo = salesforceRepo
         
         bindServices()
         checkInitialAuthState()
@@ -139,25 +149,90 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    /// Smart authentication flow:
+    /// - Returning users (existing Firestore profile): Firebase Auth only, NO Salesforce call. Fast.
+    /// - New users (no Firestore profile): Firebase Auth → Salesforce check → Salesforce data → Onboarding.
     func authenticate(email: String, password: String) {
-        router.isLoading = true
         router.appError = nil
-        
-        authService.authenticate(email: email, password: password) { [weak self] result in
-            self?.router.isLoading = false
-            switch result {
-            case .success(let data):
-                self?.handleAuthSuccess(user: data.user, email: data.email)
-            case .failure(let error):
-                let nsError = error as NSError
-                if nsError.code == 17009 || error.localizedDescription.lowercased().contains("password") {
-                    self?.router.appError = .authFailed(reason: "Incorrect Password")
-                } else {
-                    self?.router.appError = .authFailed(reason: "Incorrect Password")
+        // Show spinner immediately — before any async work
+        router.isLoading = true
+
+        Task {
+            do {
+                // STEP 1: Firebase Auth first (fast — local cache + Firebase SDK)
+                let firebaseResult = await withCheckedContinuation { (continuation: CheckedContinuation<Result<(user: FirebaseAuth.User, email: String, isNewUser: Bool), Error>, Never>) in
+                    self.authService.authenticate(email: email, password: password) { result in
+                        continuation.resume(returning: result)
+                    }
+                }
+
+                switch firebaseResult {
+                case .failure(let error):
+                    await MainActor.run {
+                        self.router.isLoading = false
+                        let nsError = error as NSError
+                        if nsError.code == 17009 || error.localizedDescription.lowercased().contains("password"){
+                            self.router.appError = .authFailed(reason: "Incorrect Password")
+                        } else {
+                            self.router.appError = .authFailed(reason: "Incorrect Password")
+                        }
+                    }
+                    return
+
+                case .success(let data):
+                    // STEP 2: Check if user already has a Firestore profile (returning user)
+                    let hasProfile = await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+                        self.userRepository.findCompleteUserProfile(email: email.lowercased()) { result in
+                            if case .success = result { continuation.resume(returning: true) }
+                            else { continuation.resume(returning: false) }
+                        }
+                    }
+
+                    if hasProfile {
+                        // FAST PATH: Returning user — skip Salesforce entirely
+                        await MainActor.run {
+                            self.router.isLoading = false
+                            AnalyticsService.shared.logLogin(method: .email)
+                            self.handleAuthSuccess(user: data.user, email: data.email)
+                        }
+                    } else {
+                        // SLOW PATH: New user — Salesforce check + data fetch
+                        await MainActor.run { self.isSalesforceChecking = true }
+                        do {
+                            let authResult = try await salesforceRepo.checkAuthorization(email: email)
+                            guard authResult.authorized, let contactId = authResult.contactId else {
+                                await MainActor.run {
+                                    self.isSalesforceChecking = false
+                                    self.router.isLoading = false
+                                    self.router.appError = .notAuthorized
+                                }
+                                return
+                            }
+                            let salesforceData = try await salesforceRepo.getContactData(contactId: contactId)
+                            await MainActor.run {
+                                self.isSalesforceChecking = false
+                                self.pendingSalesforceData = salesforceData
+                                AnalyticsService.shared.logLogin(method: .email)
+                                self.handleAuthSuccess(user: data.user, email: data.email)
+                            }
+                        } catch {
+                            await MainActor.run {
+                                self.isSalesforceChecking = false
+                                self.router.isLoading = false
+                                let nsError = error as NSError
+                                if nsError.domain == "com.firebase.functions" && nsError.code == 5 {
+                                    self.router.appError = .notAuthorized
+                                } else {
+                                    self.router.appError = .salesforceUnavailable
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
+
     
     func signUpNewUser(email: String, password: String) {
         router.isLoading = true
@@ -167,6 +242,7 @@ class AppViewModel: ObservableObject {
             self?.router.isLoading = false
             switch result {
             case .success(let data):
+                AnalyticsService.shared.logSignUp(method: .email)
                 self?.handleAuthSuccess(user: data.user, email: data.email)
             case .failure(let error):
                 let nsError = error as NSError
@@ -198,12 +274,32 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    /// Google Sign In with Salesforce authorization gate.
     func startGoogleSignIn() {
         router.appError = nil
         authService.startGoogleSignIn { [weak self] result in
             switch result {
             case .success(let data):
-                self?.handleAuthSuccess(user: data.user, email: data.email)
+                let googleEmail = data.email
+                // Salesforce check for Google sign-in email
+                Task { @MainActor [weak self] in
+                    guard let self else { return }
+                    self.isSalesforceChecking = true
+                    do {
+                        let authResult = try await self.salesforceRepo.checkAuthorization(email: googleEmail)
+                        self.isSalesforceChecking = false
+                        guard authResult.authorized else {
+                            self.router.appError = .notAuthorized
+                            return
+                        }
+                        // Authorized — log Google login and proceed
+                        AnalyticsService.shared.logLogin(method: .google)
+                        self.handleAuthSuccess(user: data.user, email: googleEmail)
+                    } catch {
+                        self.isSalesforceChecking = false
+                        self.router.appError = .salesforceUnavailable
+                    }
+                }
             case .failure(let error):
                 self?.router.isLoading = false
                 self?.router.appError = .unknown(reason: error.localizedDescription)
@@ -253,6 +349,17 @@ class AppViewModel: ObservableObject {
                         self?.authService.isLoggedIn = true
                         self?.router.isLoading = false
                     } else {
+                        // No Firestore profile found → show onboarding
+                        // Pre-fill with Salesforce data if available (regardless of isNewUser)
+                        let isGoogleUser = user.providerData.map { $0.providerID }.contains("google.com")
+                        if let sfData = self?.pendingSalesforceData {
+                            self?.onboardingViewModel.prefillFromSalesforce(sfData)
+                            self?.pendingSalesforceData = nil
+                            AnalyticsService.shared.logSalesforcePrefillApplied()
+                            print("✅ [Salesforce] Pre-filled onboarding for \(sfData.firstName) \(sfData.lastName)")
+                        }
+                        self?.onboardingViewModel.isSocialLogin = isGoogleUser
+                        
                         var newUser = UserProfile(
                             id: UUID(),
                             firstName: googleFirstName,
@@ -298,6 +405,16 @@ class AppViewModel: ObservableObject {
             }
         }
         
+        // Always ensure email is set — email is not editable during onboarding,
+        // so take it from Firebase Auth first, then fall back to existingUser.
+        if finalUser.email.isEmpty {
+            if let authEmail = Auth.auth().currentUser?.email, !authEmail.isEmpty {
+                finalUser.email = authEmail.lowercased()
+            } else if let existingEmail = self.userRepo.currentUser?.email, !existingEmail.isEmpty {
+                finalUser.email = existingEmail
+            }
+        }
+        
         userRepo.companyProfile = company
         router.isOnboardingComplete = true
         
@@ -317,25 +434,36 @@ class AppViewModel: ObservableObject {
         let saveToFirestore = { [weak self] (userToSave: UserProfile) in
             self?.userRepo.currentUser = userToSave
             
+            print("📝 [Firestore] Saving user: id=\(userToSave.id.uuidString) email=\(userToSave.email) fields=13+")
+            
             // Chain saves to avoid race conditions with Firestore rules
             // Company rules depend on get(user).email == request.auth.token.email
             self?.userRepository.saveUserProfile(userToSave) { error in
                 if let err = error {
+                    let nsErr = err as NSError
+                    print("❌ [Firestore] saveUserProfile FAILED: domain=\(nsErr.domain) code=\(nsErr.code) msg=\(err.localizedDescription)")
                     DispatchQueue.main.async {
                         self?.router.appError = .dataCorrupted
                         self?.router.isLoading = false
                     }
-                    print("Error saving user: \(err)")
                     return
                 }
+                
+                print("✅ [Firestore] User saved. Saving company: id=\(company.id.uuidString)")
                 
                 self?.userRepository.saveCompanyProfile(company, userId: userToSave.id.uuidString) { companyError in
                     DispatchQueue.main.async {
                         self?.router.isLoading = false
                         if let cErr = companyError {
+                            let nsErr = cErr as NSError
+                            print("❌ [Firestore] saveCompanyProfile FAILED: domain=\(nsErr.domain) code=\(nsErr.code) msg=\(cErr.localizedDescription)")
                             self?.router.appError = .dataCorrupted
-                            print("Error saving company: \(cErr)")
                         } else {
+                            print("✅ [Firestore] Company saved. Onboarding complete.")
+                            AnalyticsService.shared.logOnboardingCompleted(
+                                userType: userToSave.userType,
+                                role: userToSave.role
+                            )
                             // Salva mappatura firebaseUid -> uuid per le regole Firestore del messaging
                             if let firebaseUid = Auth.auth().currentUser?.uid {
                                 self?.messagesRepository.saveUserMapping(
@@ -343,7 +471,8 @@ class AppViewModel: ObservableObject {
                                     uuid: userToSave.id.uuidString
                                 )
                             }
-                            print("✅ Onboarding completed and saved.")
+                            // Clear Salesforce pre-fill state after successful onboarding
+                            self?.onboardingViewModel.isSalesforcePrefilled = false
                         }
                     }
                 }
@@ -403,6 +532,9 @@ class AppViewModel: ObservableObject {
         
         dispatchGroup.notify(queue: .main) { [weak self] in
             self?.router.isLoading = false
+            if !hasError {
+                AnalyticsService.shared.logProfileEdited()
+            }
             completion?(!hasError)
         }
     }
@@ -418,6 +550,7 @@ class AppViewModel: ObservableObject {
                 switch result {
                 case .success(let url):
                     self?.userRepo.currentUser?.profileImageUrl = url
+                    AnalyticsService.shared.logProfileImageUploaded()
                     if let user = self?.userRepo.currentUser {
                         self?.userRepository.saveUserProfile(user) { _ in }
                     }
@@ -474,6 +607,7 @@ class AppViewModel: ObservableObject {
     }
     
     func logout() {
+        AnalyticsService.shared.logLogout()
         authService.logout()
         userRepo.clearState()
         router.clearState()

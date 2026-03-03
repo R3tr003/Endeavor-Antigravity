@@ -1,0 +1,12 @@
+import * as admin from "firebase-admin";
+
+// Initialize firebase-admin (must happen before any other imports that use it)
+if (!admin.apps.length) {
+    admin.initializeApp();
+}
+
+// Export Salesforce Cloud Functions
+export {
+    checkSalesforceAuthorization,
+    getSalesforceContactData,
+} from "./salesforce";

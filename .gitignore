@@ -44,3 +44,8 @@ fix_*.py
 # Locally appended
 app/build_log.txt
 firestore-messaging.rules
+
+# Node / Firebase Functions
+node_modules/
+functions/node_modules/
+functions/lib/

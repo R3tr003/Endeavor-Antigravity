@@ -1,7 +1,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 struct OnboardingContainerView: View {
-    @StateObject private var viewModel = OnboardingViewModel()
+    @EnvironmentObject private var viewModel: OnboardingViewModel
     @EnvironmentObject var appViewModel: AppViewModel
     @Environment(\.scenePhase) private var scenePhase
     @State private var hasInitialized = false
@@ -110,6 +110,7 @@ struct OnboardingContainerView: View {
                         // Exit Button for Step 1
                         Button(action: {
                             UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                            AnalyticsService.shared.logOnboardingAbandoned(atStep: viewModel.currentStep)
                             withAnimation {
                                 showExitConfirmation = true
                             }
@@ -135,6 +136,11 @@ struct OnboardingContainerView: View {
                             if viewModel.currentStep == 1 {
                                 // Explicitly handle Step 1 transition validation logic if needed
                             }
+                            // Track step completion
+                            AnalyticsService.shared.logOnboardingStepCompleted(
+                                step: viewModel.currentStep,
+                                stepName: stepName(for: viewModel.currentStep)
+                            )
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                                 viewModel.nextStep()
                             }
@@ -177,11 +183,12 @@ struct OnboardingContainerView: View {
     
     private func syncUserData() {
         if let currentUser = appViewModel.currentUser {
+            // Sync fields — but do NOT modify isSocialLogin here.
+            // isSocialLogin is set by handleAuthSuccess based on the actual Firebase Auth provider.
             if !currentUser.firstName.isEmpty {
                 if viewModel.user.firstName.isEmpty {
                     viewModel.user.firstName = currentUser.firstName
                 }
-                viewModel.isSocialLogin = true
             }
             if !currentUser.lastName.isEmpty {
                 if viewModel.user.lastName.isEmpty {
@@ -197,7 +204,6 @@ struct OnboardingContainerView: View {
                 if viewModel.user.profileImageUrl.isEmpty {
                     viewModel.user.profileImageUrl = currentUser.profileImageUrl
                 }
-                viewModel.isSocialLogin = true
             }
         }
     }
@@ -230,13 +236,26 @@ struct OnboardingContainerView: View {
         default: return false
         }
     }
+    
+    private func stepName(for step: Int) -> String {
+        switch step {
+        case 1: return "personal_information"
+        case 2: return "company_basics"
+        case 3: return "focus"
+        case 4: return "company_bio_logo"
+        case 5: return "review_finish"
+        default: return "unknown"
+        }
+    }
 }
 
 
 
 struct OnboardingContainerView_Previews: PreviewProvider {
     static var previews: some View {
+        let appVM = AppViewModel()
         OnboardingContainerView()
-            .environmentObject(AppViewModel())
+            .environmentObject(appVM)
+            .environmentObject(appVM.onboardingViewModel)
     }
 }

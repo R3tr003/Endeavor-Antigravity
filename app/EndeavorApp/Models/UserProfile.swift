@@ -12,6 +12,12 @@ struct UserProfile: Codable, Identifiable, Equatable, Hashable {
     var profileImageUrl: String = "" // Added for Google Sign In
     var personalBio: String = "" // "About You" from onboarding
     
+    // Salesforce-sourced fields
+    var userType: String = ""       // "Entrepreneur", "Mentor", "Investor", "Staff"
+    var nationality: String = ""
+    var languages: [String] = []    // parsed from "Italian;English;French"
+    var phone: String = ""
+    
     // Tracking
     var createdAt: Date? = nil
     var lastLoginAt: Date? = nil
@@ -37,5 +43,6 @@ struct CompanyProfile: Codable, Identifiable {
     
     // Bio & Logo
     var companyBio: String = "" // Max 1000 chars
-    // Logo would typically be a URL or Data, simulating with placeholder logic in UI
+    var logoUrl: String = ""    // Salesforce / uploaded logo URL
+    var vertical: String = ""   // Salesforce Account.Vertical__c
 }
