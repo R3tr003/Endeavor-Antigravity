@@ -12,6 +12,9 @@ class OnboardingViewModel: ObservableObject {
     @Published var totalSteps: Int = 5 // Reduced from 6
     @Published var isSocialLogin: Bool = false // Tracks if user came from Google/Apple
     
+    // Salesforce pre-fill indicator
+    @Published var isSalesforcePrefilled: Bool = false
+    
     // Consent - IMPLICIT on Login now
     // Removed explicit properties
     
@@ -105,6 +108,36 @@ class OnboardingViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Salesforce Pre-fill
+    
+    /// Pre-fills onboarding form fields with data from the Salesforce Contact record.
+    /// The user can freely edit any field after pre-fill. The badge indicator (`isSalesforcePrefilled`)
+    /// is only a hint — it doesn't lock any fields.
+    func prefillFromSalesforce(_ data: SalesforceContactData) {
+        user.firstName   = data.firstName
+        user.lastName    = data.lastName
+        user.role        = data.jobTitle
+        user.personalBio = data.bio
+        user.nationality = data.nationality
+        user.languages   = data.languages
+        user.phone       = data.phone
+        user.userType    = data.userType
+        
+        // Company data — always pre-fill if available from the Salesforce Account
+        company.name        = data.companyName
+        company.website     = data.companyWebsite
+        company.hqCountry   = data.companyCountry
+        company.hqCity      = data.companyCity
+        company.companyBio  = data.companyBio
+        if !data.companyVertical.isEmpty {
+            company.vertical    = data.companyVertical
+            company.industries  = [data.companyVertical]
+        }
+        
+        isSalesforcePrefilled = true
+        saveDraft()
+    }
+    
     // MARK: - Draft Persistence (App Lifecycle)
     
     private static let draftKey = "onboarding_draft"
@@ -119,6 +152,10 @@ class OnboardingViewModel: ObservableObject {
             "email": user.email,
             "timeZone": user.timeZone,
             "personalBio": user.personalBio,
+            "userType": user.userType,
+            "nationality": user.nationality,
+            "languages": user.languages,
+            "phone": user.phone,
             "companyName": company.name,
             "companyWebsite": company.website,
             "hqCountry": company.hqCountry,
@@ -127,9 +164,11 @@ class OnboardingViewModel: ObservableObject {
             "stage": company.stage,
             "employeeRange": company.employeeRange,
             "companyBio": company.companyBio,
+            "vertical": company.vertical,
             "challenges": company.challenges,
             "desiredExpertise": company.desiredExpertise,
-            "isSocialLogin": isSocialLogin
+            "isSocialLogin": isSocialLogin,
+            "isSalesforcePrefilled": isSalesforcePrefilled
         ]
         UserDefaults.standard.set(draft, forKey: Self.draftKey)
         print("📝 Onboarding draft saved at step \(currentStep)")
@@ -139,24 +178,30 @@ class OnboardingViewModel: ObservableObject {
     func loadDraft() {
         guard let draft = UserDefaults.standard.dictionary(forKey: Self.draftKey) else { return }
         
-        currentStep = draft["currentStep"] as? Int ?? 1
-        user.firstName = draft["firstName"] as? String ?? ""
-        user.lastName = draft["lastName"] as? String ?? ""
-        user.role = draft["role"] as? String ?? ""
-        user.email = draft["email"] as? String ?? ""
-        user.timeZone = draft["timeZone"] as? String ?? ""
-        user.personalBio = draft["personalBio"] as? String ?? ""
-        company.name = draft["companyName"] as? String ?? ""
-        company.website = draft["companyWebsite"] as? String ?? ""
-        company.hqCountry = draft["hqCountry"] as? String ?? ""
-        company.hqCity = draft["hqCity"] as? String ?? ""
-        company.industries = draft["industries"] as? [String] ?? []
-        company.stage = draft["stage"] as? String ?? ""
-        company.employeeRange = draft["employeeRange"] as? String ?? ""
-        company.companyBio = draft["companyBio"] as? String ?? ""
-        company.challenges = draft["challenges"] as? [String] ?? []
+        currentStep        = draft["currentStep"] as? Int ?? 1
+        user.firstName     = draft["firstName"] as? String ?? ""
+        user.lastName      = draft["lastName"] as? String ?? ""
+        user.role          = draft["role"] as? String ?? ""
+        user.email         = draft["email"] as? String ?? ""
+        user.timeZone      = draft["timeZone"] as? String ?? ""
+        user.personalBio   = draft["personalBio"] as? String ?? ""
+        user.userType      = draft["userType"] as? String ?? ""
+        user.nationality   = draft["nationality"] as? String ?? ""
+        user.languages     = draft["languages"] as? [String] ?? []
+        user.phone         = draft["phone"] as? String ?? ""
+        company.name           = draft["companyName"] as? String ?? ""
+        company.website        = draft["companyWebsite"] as? String ?? ""
+        company.hqCountry      = draft["hqCountry"] as? String ?? ""
+        company.hqCity         = draft["hqCity"] as? String ?? ""
+        company.industries     = draft["industries"] as? [String] ?? []
+        company.stage          = draft["stage"] as? String ?? ""
+        company.employeeRange  = draft["employeeRange"] as? String ?? ""
+        company.companyBio     = draft["companyBio"] as? String ?? ""
+        company.vertical       = draft["vertical"] as? String ?? ""
+        company.challenges     = draft["challenges"] as? [String] ?? []
         company.desiredExpertise = draft["desiredExpertise"] as? [String] ?? []
-        isSocialLogin = draft["isSocialLogin"] as? Bool ?? false
+        isSocialLogin          = draft["isSocialLogin"] as? Bool ?? false
+        isSalesforcePrefilled  = draft["isSalesforcePrefilled"] as? Bool ?? false
         
         print("📋 Onboarding draft restored at step \(currentStep)")
     }
