@@ -102,12 +102,8 @@ git clone https://github.com/R3tr003/Endeavor-Antigravity.git
 cd "Endeavor-Antigravity"
 ```
 
-**2. Add Firebase configuration**
-Place the `GoogleService-Info.plist` (from Firebase Console) in:
-```bash
-cp ~/Downloads/GoogleService-Info.plist "app/EndeavorApp/"
-```
-> ⚠️ The app will crash on launch without this file.
+**2. Firebase configuration**
+The `GoogleService-Info.plist` is already included in the repository — no manual download needed. It is located at `app/EndeavorApp/GoogleService-Info.plist`.
 
 **3. Make the run script executable**
 ```bash
