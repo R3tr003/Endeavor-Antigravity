@@ -39,6 +39,16 @@ class AppViewModel: ObservableObject {
     @Published var failedLoginAttempts: Int = 0
     @Published var passwordResetSent: Bool = false
     
+    // Pending Auth State for Onboarding (account will be created ONLY at the end)
+    @Published var isOnboardingAuthPending: Bool = false
+    private var pendingEmail: String?
+    private var pendingPassword: String?
+    private var pendingGoogleIdToken: String?
+    private var pendingGoogleAccessToken: String?
+    private var pendingGoogleEmail: String?
+    private var pendingGooglePhotoUrl: String?
+    private var pendingIsGoogle: Bool = false
+    
     var colorScheme: ColorScheme? {
         router.colorScheme
     }
@@ -204,25 +214,22 @@ class AppViewModel: ObservableObject {
                         return
                     }
                     
-                    // Authorized -> Create account in Firebase NOW
-                    let signUpResult = await withCheckedContinuation { (continuation: CheckedContinuation<Result<(user: FirebaseAuth.User, email: String, isNewUser: Bool), Error>, Never>) in
-                        self.authService.signUpNewUser(email: email, password: password) { result in
-                            continuation.resume(returning: result)
-                        }
-                    }
-                    
+                    // Authorized -> Wait for onboarding to complete before creating Firebase account
                     await MainActor.run {
-                        switch signUpResult {
-                        case .success(let data):
-                            self.pendingSalesforceData = salesforceData
-                            AnalyticsService.shared.logSignUp(method: .email)
-                            self.handleAuthSuccess(user: data.user, email: data.email)
-                        case .failure(let signupError):
-                            let err = signupError as NSError
-                            if err.code == 17007 { self.router.appError = .emailAlreadyInUse }
-                            else if err.code == 17026 { self.router.appError = .weakPassword }
-                            else { self.router.appError = .authFailed(reason: "Registration failed: \(err.localizedDescription)") }
-                        }
+                        self.pendingEmail = email
+                        self.pendingPassword = password
+                        self.pendingIsGoogle = false
+                        
+                        // Prep Onboarding
+                        self.prepareOnboardingForNewUser(
+                            email: email,
+                            salesforceData: salesforceData,
+                            firstName: "",
+                            lastName: "",
+                            photoUrl: ""
+                        )
+                        
+                        self.isOnboardingAuthPending = true
                         self.router.isLoading = false
                     }
                 } catch {
@@ -236,30 +243,6 @@ class AppViewModel: ObservableObject {
                             self.router.appError = .salesforceUnavailable
                         }
                     }
-                }
-            }
-        }
-    }
-
-    
-    func signUpNewUser(email: String, password: String) {
-        router.isLoading = true
-        router.appError = nil
-        
-        authService.signUpNewUser(email: email, password: password) { [weak self] result in
-            self?.router.isLoading = false
-            switch result {
-            case .success(let data):
-                AnalyticsService.shared.logSignUp(method: .email)
-                self?.handleAuthSuccess(user: data.user, email: data.email)
-            case .failure(let error):
-                let nsError = error as NSError
-                if nsError.code == 17007 {
-                    self?.router.appError = .emailAlreadyInUse
-                } else if nsError.code == 17026 {
-                    self?.router.appError = .weakPassword
-                } else {
-                    self?.router.appError = .authFailed(reason: "Registration failed: \(error.localizedDescription)")
                 }
             }
         }
@@ -295,6 +278,9 @@ class AppViewModel: ObservableObject {
                 let googleEmail = credentials.email.lowercased()
                 let idToken = credentials.idToken
                 let accessToken = credentials.accessToken
+                let googleFirstName = credentials.firstName
+                let googleLastName = credentials.lastName
+                let googlePhotoUrl = credentials.photoUrl
                 
                 // Check if user exists in Firestore BEFORE creating their account
                 self.userRepository.findCompleteUserProfile(email: googleEmail) { profileResult in
@@ -333,19 +319,26 @@ class AppViewModel: ObservableObject {
                                     return
                                 }
                                 
-                                // Authorized -> Create Firebase account now
-                                self.authService.signInWithGoogle(idToken: idToken, accessToken: accessToken) { authResult in
-                                    DispatchQueue.main.async {
-                                        switch authResult {
-                                        case .success(let data):
-                                            self.pendingSalesforceData = salesforceData
-                                            AnalyticsService.shared.logLogin(method: .google)
-                                            self.handleAuthSuccess(user: data.user, email: data.email)
-                                        case .failure(let err):
-                                            self.router.appError = .authFailed(reason: err.localizedDescription)
-                                        }
-                                        self.router.isLoading = false
-                                    }
+                                // Authorized -> Wait for onboarding to complete before creating Firebase account
+                                await MainActor.run {
+                                    self.pendingGoogleIdToken = idToken
+                                    self.pendingGoogleAccessToken = accessToken
+                                    self.pendingGoogleEmail = googleEmail
+                                    self.pendingGooglePhotoUrl = googlePhotoUrl
+                                    self.pendingIsGoogle = true
+                                    
+                                    // Prep onboarding WITH Google profile data (name + photo)
+                                    self.prepareOnboardingForNewUser(
+                                        email: googleEmail,
+                                        salesforceData: salesforceData,
+                                        firstName: googleFirstName,
+                                        lastName: googleLastName,
+                                        photoUrl: googlePhotoUrl,
+                                        isGoogle: true
+                                    )
+                                    
+                                    self.isOnboardingAuthPending = true
+                                    self.router.isLoading = false
                                 }
                             } catch {
                                 self.isSalesforceChecking = false
@@ -459,112 +452,229 @@ class AppViewModel: ObservableObject {
         }
     }
     
+    /// Prepares the onboarding data for a new user WITHOUT authenticating them in Firebase yet.
+    private func prepareOnboardingForNewUser(
+        email: String,
+        salesforceData: SalesforceContactData?,
+        firstName: String = "",
+        lastName: String = "",
+        photoUrl: String = "",
+        isGoogle: Bool = false
+    ) {
+        var newUser = UserProfile(
+            id: UUID(), // Temporary UUID for onboarding
+            firstName: firstName,
+            lastName: lastName,
+            role: "",
+            email: email.lowercased(),
+            location: "",
+            timeZone: "",
+            profileImageUrl: photoUrl
+        )
+        newUser.createdAt = Date()
+        newUser.lastLoginAt = Date()
+        self.userRepo.currentUser = newUser
+        
+        // Mark as social login before prefill so hideImageUpload works correctly in views
+        self.onboardingViewModel.isSocialLogin = isGoogle
+        // Pre-populate the onboarding user with Google profile data
+        self.onboardingViewModel.user.email = email.lowercased()
+        if !firstName.isEmpty { self.onboardingViewModel.user.firstName = firstName }
+        if !lastName.isEmpty  { self.onboardingViewModel.user.lastName  = lastName  }
+        if !photoUrl.isEmpty  { self.onboardingViewModel.user.profileImageUrl = photoUrl }
+        
+        if let sfData = salesforceData {
+            self.onboardingViewModel.prefillFromSalesforce(sfData)
+            // Preserve Google photo even after Salesforce prefill (Salesforce won't provide one)
+            if !photoUrl.isEmpty {
+                self.onboardingViewModel.user.profileImageUrl = photoUrl
+            }
+            self.pendingSalesforceData = nil
+            AnalyticsService.shared.logSalesforcePrefillApplied()
+            print("✅ [Salesforce] Pre-filled onboarding for \(sfData.firstName) \(sfData.lastName)")
+        }
+        
+        // Final merge: keep onboarding user's name (Salesforce may have overridden it) 
+        let prefilledUser = self.onboardingViewModel.user
+        var mergedUser = newUser
+        mergedUser.firstName = prefilledUser.firstName
+        mergedUser.lastName = prefilledUser.lastName
+        mergedUser.profileImageUrl = prefilledUser.profileImageUrl  // preserve photo
+        self.userRepo.currentUser = mergedUser
+    }
+    
     // MARK: - Onboarding & Profile
     
     func completeOnboarding(user: UserProfile, company: CompanyProfile, profileImage: UIImage? = nil) {
-        var finalUser = user
-        
-        // Preserve tracking fields and ID from existing auth user
-        if let existingUser = self.userRepo.currentUser {
-            finalUser.id = existingUser.id
-            finalUser.createdAt = existingUser.createdAt
-            finalUser.lastLoginAt = existingUser.lastLoginAt
-            if finalUser.profileImageUrl.isEmpty || finalUser.profileImageUrl == "pending_upload" {
-                // Keep the google image if available and no new image was uploaded
-                if profileImage == nil {
-                    finalUser.profileImageUrl = existingUser.profileImageUrl
-                }
-            }
-        }
-        
-        // Always ensure email is set — email is not editable during onboarding,
-        // so take it from Firebase Auth first, then fall back to existingUser.
-        if finalUser.email.isEmpty {
-            if let authEmail = Auth.auth().currentUser?.email, !authEmail.isEmpty {
-                finalUser.email = authEmail.lowercased()
-            } else if let existingEmail = self.userRepo.currentUser?.email, !existingEmail.isEmpty {
-                finalUser.email = existingEmail
-            }
-        }
-        
-        userRepo.companyProfile = company
-        router.isOnboardingComplete = true
-        
-        UserDefaults.standard.set(true, forKey: "isOnboardingComplete")
-        UserDefaults.standard.set(user.id.uuidString, forKey: "userId")
-        UserDefaults.standard.set(company.id.uuidString, forKey: "companyId")
-        
-        router.isLoading = true
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 15) { [weak self] in
-            if self?.router.isLoading == true {
-                self?.router.isLoading = false
-                self?.router.appError = .networkUnavailable
-            }
-        }
-        
-        let saveToFirestore = { [weak self] (userToSave: UserProfile) in
-            self?.userRepo.currentUser = userToSave
+        let finishOnboardingSave = { [weak self] in
+            guard let self = self else { return }
+            var finalUser = user
             
-            print("📝 [Firestore] Saving user: id=\(userToSave.id.uuidString) email=\(userToSave.email) fields=13+")
-            
-            // Chain saves to avoid race conditions with Firestore rules
-            // Company rules depend on get(user).email == request.auth.token.email
-            self?.userRepository.saveUserProfile(userToSave) { error in
-                if let err = error {
-                    let nsErr = err as NSError
-                    print("❌ [Firestore] saveUserProfile FAILED: domain=\(nsErr.domain) code=\(nsErr.code) msg=\(err.localizedDescription)")
-                    DispatchQueue.main.async {
-                        self?.router.appError = .dataCorrupted
-                        self?.router.isLoading = false
+            // Preserve tracking fields and ID from existing auth user
+            if let existingUser = self.userRepo.currentUser {
+                finalUser.id = existingUser.id
+                finalUser.createdAt = existingUser.createdAt
+                finalUser.lastLoginAt = existingUser.lastLoginAt
+                if finalUser.profileImageUrl.isEmpty || finalUser.profileImageUrl == "pending_upload" {
+                    // Keep the google image if available and no new image was uploaded
+                    if profileImage == nil {
+                        finalUser.profileImageUrl = existingUser.profileImageUrl
                     }
-                    return
                 }
+            }
+            
+            // Always ensure email is set — email is not editable during onboarding,
+            // so take it from Firebase Auth first, then fall back to existingUser.
+            if finalUser.email.isEmpty {
+                if let authEmail = Auth.auth().currentUser?.email, !authEmail.isEmpty {
+                    finalUser.email = authEmail.lowercased()
+                } else if let existingEmail = self.userRepo.currentUser?.email, !existingEmail.isEmpty {
+                    finalUser.email = existingEmail
+                }
+            }
+            
+            self.userRepo.companyProfile = company
+            self.router.isOnboardingComplete = true
+            
+            UserDefaults.standard.set(true, forKey: "isOnboardingComplete")
+            UserDefaults.standard.set(user.id.uuidString, forKey: "userId")
+            UserDefaults.standard.set(company.id.uuidString, forKey: "companyId")
+            
+            self.router.isLoading = true
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 15) { [weak self] in
+                if self?.router.isLoading == true {
+                    self?.router.isLoading = false
+                    self?.router.appError = .networkUnavailable
+                }
+            }
+            
+            let saveToFirestore = { [weak self] (userToSave: UserProfile) in
+                guard let self = self else { return }
+                self.userRepo.currentUser = userToSave
                 
-                print("✅ [Firestore] User saved. Saving company: id=\(company.id.uuidString)")
+                print("📝 [Firestore] Saving user: id=\(userToSave.id.uuidString) email=\(userToSave.email) fields=13+")
                 
-                self?.userRepository.saveCompanyProfile(company, userId: userToSave.id.uuidString) { companyError in
-                    DispatchQueue.main.async {
-                        self?.router.isLoading = false
-                        if let cErr = companyError {
-                            let nsErr = cErr as NSError
-                            print("❌ [Firestore] saveCompanyProfile FAILED: domain=\(nsErr.domain) code=\(nsErr.code) msg=\(cErr.localizedDescription)")
-                            self?.router.appError = .dataCorrupted
-                        } else {
-                            print("✅ [Firestore] Company saved. Onboarding complete.")
-                            AnalyticsService.shared.logOnboardingCompleted(
-                                userType: userToSave.userType,
-                                role: userToSave.role
-                            )
-                            // Salva mappatura firebaseUid -> uuid per le regole Firestore del messaging
-                            if let firebaseUid = Auth.auth().currentUser?.uid {
-                                self?.messagesRepository.saveUserMapping(
-                                    firebaseUid: firebaseUid,
-                                    uuid: userToSave.id.uuidString
+                // Chain saves to avoid race conditions with Firestore rules
+                // Company rules depend on get(user).email == request.auth.token.email
+                self.userRepository.saveUserProfile(userToSave) { error in
+                    if let err = error {
+                        let nsErr = err as NSError
+                        print("❌ [Firestore] saveUserProfile FAILED: domain=\(nsErr.domain) code=\(nsErr.code) msg=\(err.localizedDescription)")
+                        DispatchQueue.main.async {
+                            self.router.appError = .dataCorrupted
+                            self.router.isLoading = false
+                        }
+                        return
+                    }
+                    
+                    print("✅ [Firestore] User saved. Saving company: id=\(company.id.uuidString)")
+                    
+                    self.userRepository.saveCompanyProfile(company, userId: userToSave.id.uuidString) { companyError in
+                        DispatchQueue.main.async {
+                            self.router.isLoading = false
+                            if let cErr = companyError {
+                                let nsErr = cErr as NSError
+                                print("❌ [Firestore] saveCompanyProfile FAILED: domain=\(nsErr.domain) code=\(nsErr.code) msg=\(cErr.localizedDescription)")
+                                self.router.appError = .dataCorrupted
+                            } else {
+                                print("✅ [Firestore] Company saved. Onboarding complete.")
+                                AnalyticsService.shared.logOnboardingCompleted(
+                                    userType: userToSave.userType,
+                                    role: userToSave.role
                                 )
+                                // Salva mappatura firebaseUid -> uuid per le regole Firestore del messaging
+                                if let firebaseUid = Auth.auth().currentUser?.uid {
+                                    self.messagesRepository.saveUserMapping(
+                                        firebaseUid: firebaseUid,
+                                        uuid: userToSave.id.uuidString
+                                    )
+                                }
+                                // Clear Salesforce pre-fill state after successful onboarding
+                                self.onboardingViewModel.isSalesforcePrefilled = false
                             }
-                            // Clear Salesforce pre-fill state after successful onboarding
-                            self?.onboardingViewModel.isSalesforcePrefilled = false
                         }
                     }
                 }
             }
+            
+            if let image = profileImage, user.profileImageUrl == "pending_upload" {
+                let imagePath = "profile_images/\(user.id.uuidString).jpg"
+                self.storageRepository.uploadImage(image: image, path: imagePath) { result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(let url): finalUser.profileImageUrl = url
+                        case .failure: finalUser.profileImageUrl = ""
+                        }
+                        saveToFirestore(finalUser)
+                    }
+                }
+            } else {
+                saveToFirestore(finalUser)
+            }
         }
         
-        if let image = profileImage, user.profileImageUrl == "pending_upload" {
-            let imagePath = "profile_images/\(user.id.uuidString).jpg"
-            storageRepository.uploadImage(image: image, path: imagePath) { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let url): finalUser.profileImageUrl = url
-                    case .failure: finalUser.profileImageUrl = ""
+        if self.isOnboardingAuthPending {
+            self.router.isLoading = true
+            Task { @MainActor in
+                if self.pendingIsGoogle, let idToken = self.pendingGoogleIdToken, let accessToken = self.pendingGoogleAccessToken {
+                    self.authService.signInWithGoogle(idToken: idToken, accessToken: accessToken) { result in
+                        DispatchQueue.main.async {
+                            switch result {
+                            case .success(_):
+                                AnalyticsService.shared.logSignUp(method: .google)
+                                self.finalizeAuthPendingState()
+                                finishOnboardingSave()
+                            case .failure(let error):
+                                self.router.isLoading = false
+                                self.router.appError = .authFailed(reason: error.localizedDescription)
+                            }
+                        }
                     }
-                    saveToFirestore(finalUser)
+                } else if let email = self.pendingEmail, let password = self.pendingPassword {
+                    self.authService.signUpNewUser(email: email, password: password) { signUpResult in
+                        DispatchQueue.main.async {
+                            switch signUpResult {
+                            case .success(_):
+                                AnalyticsService.shared.logSignUp(method: .email)
+                                self.finalizeAuthPendingState()
+                                finishOnboardingSave()
+                            case .failure(let signupError):
+                                self.router.isLoading = false
+                                let err = signupError as NSError
+                                if err.code == 17007 { self.router.appError = .emailAlreadyInUse }
+                                else if err.code == 17026 { self.router.appError = .weakPassword }
+                                else { self.router.appError = .authFailed(reason: "Registration failed: \(err.localizedDescription)") }
+                            }
+                        }
+                    }
+                } else {
+                    finishOnboardingSave()
                 }
             }
         } else {
-            saveToFirestore(finalUser)
+            finishOnboardingSave()
         }
+    }
+    
+    private func finalizeAuthPendingState() {
+        self.isOnboardingAuthPending = false
+        self.authService.isLoggedIn = true
+        UserDefaults.standard.set(true, forKey: "isLoggedIn")
+        
+        // Save Email/UID right away
+        if let currentUser = Auth.auth().currentUser {
+            UserDefaults.standard.set(currentUser.email, forKey: "userEmail")
+            UserDefaults.standard.set(currentUser.uid, forKey: "firebaseUid")
+        }
+        
+        self.pendingEmail = nil
+        self.pendingPassword = nil
+        self.pendingGoogleIdToken = nil
+        self.pendingGoogleAccessToken = nil
+        self.pendingGoogleEmail = nil
+        self.pendingGooglePhotoUrl = nil
+        self.pendingIsGoogle = false
     }
     
     func saveProfileChanges(completion: ((Bool) -> Void)? = nil) {

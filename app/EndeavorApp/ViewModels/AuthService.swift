@@ -104,7 +104,7 @@ class AuthService: ObservableObject {
         }
     }
     
-    func startGoogleSignIn(completion: @escaping (Result<(idToken: String, accessToken: String, email: String), Error>) -> Void) {
+    func startGoogleSignIn(completion: @escaping (Result<(idToken: String, accessToken: String, email: String, firstName: String, lastName: String, photoUrl: String), Error>) -> Void) {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let rootViewController = windowScene.windows.first?.rootViewController else {
             completion(.failure(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not start Google Sign In"])))
@@ -125,7 +125,11 @@ class AuthService: ObservableObject {
             
             let accessToken = user.accessToken.tokenString
             let email = user.profile?.email ?? ""
-            completion(.success((idToken, accessToken, email)))
+            let firstName = user.profile?.givenName ?? ""
+            let lastName = user.profile?.familyName ?? ""
+            // Request high-resolution avatar (256px)
+            let photoUrl = user.profile?.imageURL(withDimension: 256)?.absoluteString ?? ""
+            completion(.success((idToken, accessToken, email, firstName, lastName, photoUrl)))
         }
     }
     

@@ -60,6 +60,12 @@ struct EndeavorApp: App {
                             .transition(.opacity)
                             .preferredColorScheme(appViewModel.colorScheme)
                     }
+                } else if appViewModel.isOnboardingAuthPending {
+                    OnboardingContainerView()
+                        .environmentObject(appViewModel)
+                        .environmentObject(appViewModel.onboardingViewModel)
+                        .transition(.opacity)
+                        .preferredColorScheme(appViewModel.colorScheme)
                 } else {
                     WelcomeView()
                         .environmentObject(appViewModel)
