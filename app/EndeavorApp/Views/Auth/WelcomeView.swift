@@ -194,7 +194,7 @@ struct WelcomeView: View {
                     appViewModel.appError = nil
                 }
                 
-                if appViewModel.failedLoginAttempts >= 2 {
+                if appViewModel.failedLoginAttempts >= 3 {
                     Button(action: {
                         appViewModel.sendPasswordReset(email: email)
                     }) {
@@ -218,28 +218,42 @@ struct WelcomeView: View {
                     appViewModel.authenticate(email: email, password: password)
                 }
             }) {
-                HStack {
-                    if appViewModel.isLoading {
+                HStack(spacing: DesignSystem.Spacing.small) {
+                    if appViewModel.isLoading || appViewModel.isSalesforceChecking {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             .scaleEffect(0.8)
+                            .transition(.scale.combined(with: .opacity))
                     }
-                    Text(appViewModel.isLoading ? "Please wait..." : "Sign In")
-                        .font(.headline.weight(.bold))
+                    
+                    Text(appViewModel.isSalesforceChecking ? "Verifying Endeavor Membership..." : (appViewModel.isLoading ? "Please wait..." : "Sign In"))
+                        .font(appViewModel.isSalesforceChecking || appViewModel.isLoading ? .subheadline : .headline.weight(.bold))
                         .foregroundColor((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty) ? .textInverted : .primary.opacity(0.5))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                        .id(appViewModel.isSalesforceChecking ? "checking" : (appViewModel.isLoading ? "loading" : "idle"))
+                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: DesignSystem.Layout.buttonHeight)
-                .background((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty && !appViewModel.isLoading) ? Color.brandPrimary : Color.primary.opacity(0.1))
+                .background(
+                    (isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty)
+                    ? Color.brandPrimary.opacity((appViewModel.isLoading || appViewModel.isSalesforceChecking) ? 0.8 : 1.0)
+                    : Color.primary.opacity(0.1)
+                )
                 .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
                 .overlay(
                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                         .stroke(Color.primary.opacity(0.1), lineWidth: 1)
                 )
+                .animation(.easeInOut(duration: 0.3), value: appViewModel.isLoading)
+                .animation(.easeInOut(duration: 0.3), value: appViewModel.isSalesforceChecking)
             }
-            .disabled(!isValidEmail || !passwordErrorMessage.isEmpty || password.isEmpty || appViewModel.isLoading)
+            .disabled(!isValidEmail || !passwordErrorMessage.isEmpty || password.isEmpty || appViewModel.isLoading || appViewModel.isSalesforceChecking)
             .shadow(color: (isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty) ? Color.brandPrimary.opacity(0.3) : .clear, radius: 10, x: 0, y: 5)
             .animation(.easeInOut(duration: 0.25), value: isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty)
+            
+            // Removed separate Salesforce indicator to streamline the button UI
             
             // Social & Terms
             VStack(spacing: DesignSystem.Spacing.standard) {

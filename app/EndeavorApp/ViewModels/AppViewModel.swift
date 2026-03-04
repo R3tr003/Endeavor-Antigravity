@@ -136,28 +136,6 @@ class AppViewModel: ObservableObject {
     
     // MARK: Auth Forwarding
     
-    func login(email: String, password: String) {
-        router.isLoading = true
-        router.appError = nil
-        
-        authService.login(email: email, password: password) { [weak self] result in
-            self?.router.isLoading = false
-            switch result {
-            case .success(let data):
-                print("✅ Signed in as: \(data.user.uid)")
-                self?.handleAuthSuccess(user: data.user, email: data.email)
-            case .failure(let error):
-                let nsError = error as NSError
-                if nsError.code == 17011 {
-                    self?.router.appError = .userNotFound
-                } else if nsError.code == 17009 {
-                    self?.router.appError = .authFailed(reason: "Incorrect password. Please try again.")
-                } else {
-                    self?.router.appError = .authFailed(reason: "Login failed. Please check your credentials.")
-                }
-            }
-        }
-    }
     
     /// Smart authentication flow:
     /// - Returning users (existing Firestore profile): Firebase Auth only, NO Salesforce call. Fast.
@@ -282,74 +260,65 @@ class AppViewModel: ObservableObject {
                 let googleLastName = credentials.lastName
                 let googlePhotoUrl = credentials.photoUrl
                 
-                // Check if user exists in Firestore BEFORE creating their account
-                self.userRepository.findCompleteUserProfile(email: googleEmail) { profileResult in
-                    let isReturningUser: Bool
-                    if case .success = profileResult {
-                        isReturningUser = true
-                    } else {
-                        isReturningUser = false
-                    }
-                    
-                    if isReturningUser {
-                        // Returning User -> Login directly, skip Salesforce
-                        self.authService.signInWithGoogle(idToken: idToken, accessToken: accessToken) { authResult in
-                            DispatchQueue.main.async {
-                                switch authResult {
-                                case .success(let data):
-                                    AnalyticsService.shared.logLogin(method: .google)
-                                    self.handleAuthSuccess(user: data.user, email: data.email)
-                                case .failure(let err):
-                                    self.router.appError = .authFailed(reason: err.localizedDescription)
+                // Use server-side Cloud Function to check if user exists in Firestore.
+                // This bypasses client auth rules (admin SDK) so it works before Firebase Auth sign-in.
+                Task { @MainActor in
+                    do {
+                        let checkResult = try await self.salesforceRepo.checkUserExists(email: googleEmail)
+                        
+                        if checkResult.exists {
+                            // RETURNING USER → sign in with Firebase Auth, then go to home
+                            self.authService.signInWithGoogle(idToken: idToken, accessToken: accessToken) { authResult in
+                                DispatchQueue.main.async {
+                                    switch authResult {
+                                    case .success(let data):
+                                        AnalyticsService.shared.logLogin(method: .google)
+                                        self.handleAuthSuccess(user: data.user, email: data.email)
+                                    case .failure(let err):
+                                        self.router.appError = .authFailed(reason: err.localizedDescription)
+                                    }
+                                    self.router.isLoading = false
                                 }
-                                self.router.isLoading = false
                             }
-                        }
-                    } else {
-                        // New User -> Check Salesforce FIRST
-                        Task { @MainActor in
+                        } else {
+                            // NEW USER → Salesforce check FIRST
                             self.isSalesforceChecking = true
-                            do {
-                                let (authResult, salesforceData) = try await self.salesforceRepo.checkAndFetchContact(email: googleEmail)
-                                self.isSalesforceChecking = false
-                                
-                                guard authResult.authorized else {
-                                    self.router.isLoading = false
-                                    self.router.appError = .notAuthorized
-                                    return
-                                }
-                                
-                                // Authorized -> Wait for onboarding to complete before creating Firebase account
-                                await MainActor.run {
-                                    self.pendingGoogleIdToken = idToken
-                                    self.pendingGoogleAccessToken = accessToken
-                                    self.pendingGoogleEmail = googleEmail
-                                    self.pendingGooglePhotoUrl = googlePhotoUrl
-                                    self.pendingIsGoogle = true
-                                    
-                                    // Prep onboarding WITH Google profile data (name + photo)
-                                    self.prepareOnboardingForNewUser(
-                                        email: googleEmail,
-                                        salesforceData: salesforceData,
-                                        firstName: googleFirstName,
-                                        lastName: googleLastName,
-                                        photoUrl: googlePhotoUrl,
-                                        isGoogle: true
-                                    )
-                                    
-                                    self.isOnboardingAuthPending = true
-                                    self.router.isLoading = false
-                                }
-                            } catch {
-                                self.isSalesforceChecking = false
+                            let (sfAuthResult, salesforceData) = try await self.salesforceRepo.checkAndFetchContact(email: googleEmail)
+                            self.isSalesforceChecking = false
+                            
+                            guard sfAuthResult.authorized else {
                                 self.router.isLoading = false
-                                let nsError = error as NSError
-                                if nsError.domain == "com.firebase.functions" && nsError.code == 5 {
-                                    self.router.appError = .notAuthorized
-                                } else {
-                                    self.router.appError = .salesforceUnavailable
-                                }
+                                self.router.appError = .notAuthorized
+                                return
                             }
+                            
+                            // Salesforce authorized → prep onboarding (Firebase Auth deferred to "Enter App")
+                            self.pendingGoogleIdToken = idToken
+                            self.pendingGoogleAccessToken = accessToken
+                            self.pendingGoogleEmail = googleEmail
+                            self.pendingGooglePhotoUrl = googlePhotoUrl
+                            self.pendingIsGoogle = true
+                            
+                            self.prepareOnboardingForNewUser(
+                                email: googleEmail,
+                                salesforceData: salesforceData,
+                                firstName: googleFirstName,
+                                lastName: googleLastName,
+                                photoUrl: googlePhotoUrl,
+                                isGoogle: true
+                            )
+                            
+                            self.isOnboardingAuthPending = true
+                            self.router.isLoading = false
+                        }
+                    } catch {
+                        self.isSalesforceChecking = false
+                        self.router.isLoading = false
+                        let nsError = error as NSError
+                        if nsError.domain == "com.firebase.functions" && nsError.code == 5 {
+                            self.router.appError = .notAuthorized
+                        } else {
+                            self.router.appError = .salesforceUnavailable
                         }
                     }
                 }
@@ -403,45 +372,45 @@ class AppViewModel: ObservableObject {
                         self?.authService.isLoggedIn = true
                         self?.router.isLoading = false
                     } else {
-                        // No Firestore profile found → show onboarding
-                        
-                        // 1. Prima setta il currentUser con i dati base (email, id, ecc.)
-                        var newUser = UserProfile(
-                            id: UUID(),
-                            firstName: googleFirstName,  // sarà sovrascritto dal prefill se presente
-                            lastName: googleLastName,
-                            role: "",
-                            email: email.lowercased(),
-                            location: "",
-                            timeZone: "",
-                            profileImageUrl: googlePhotoUrl
-                        )
-                        newUser.createdAt = Date()
-                        newUser.lastLoginAt = Date()
-                        self?.userRepo.currentUser = newUser
-
-                        // 2. POI applica il pre-fill (sovrascrive firstName, lastName, ecc.)
+                        // No complete Firestore profile found (e.g. legacy account with missing data).
+                        // Fetch Salesforce data for pre-fill, then show onboarding.
                         let isGoogleUser = user.providerData.map { $0.providerID }.contains("google.com")
-                        self?.onboardingViewModel.isSocialLogin = isGoogleUser
-
-                        if let sfData = self?.pendingSalesforceData {
-                            self?.onboardingViewModel.prefillFromSalesforce(sfData)
-                            self?.pendingSalesforceData = nil
-                            AnalyticsService.shared.logSalesforcePrefillApplied()
-                            print("✅ [Salesforce] Pre-filled onboarding for \(sfData.firstName) \(sfData.lastName)")
+                        
+                        Task { @MainActor in
+                            guard let self = self else { return }
+                            self.isSalesforceChecking = true
+                            
+                            // Check for existing partial users doc to reuse its UUID
+                            let existingId: UUID? = await withCheckedContinuation { cont in
+                                self.userRepository.findAnyUserDoc(email: email.lowercased()) { id in
+                                    cont.resume(returning: id)
+                                }
+                            }
+                            
+                            // Fetch Salesforce data for pre-fill
+                            var salesforceData: SalesforceContactData? = nil
+                            do {
+                                let (sfAuth, sfData) = try await self.salesforceRepo.checkAndFetchContact(email: email.lowercased())
+                                if sfAuth.authorized { salesforceData = sfData }
+                            } catch {
+                                print("⚠️ Salesforce pre-fill fetch failed: \(error.localizedDescription)")
+                            }
+                            self.isSalesforceChecking = false
+                            
+                            self.prepareOnboardingForNewUser(
+                                email: email.lowercased(),
+                                salesforceData: salesforceData,
+                                firstName: googleFirstName,
+                                lastName: googleLastName,
+                                photoUrl: googlePhotoUrl,
+                                isGoogle: isGoogleUser,
+                                existingId: existingId
+                            )
+                            
+                            UserDefaults.standard.set(true, forKey: "isLoggedIn")
+                            self.authService.isLoggedIn = true
+                            self.router.isLoading = false
                         }
-
-                        // 3. Poi aggiorna userRepo.currentUser con i dati del prefill
-                        if let prefilledUser = self?.onboardingViewModel.user {
-                            var mergedUser = newUser
-                            mergedUser.firstName = prefilledUser.firstName
-                            mergedUser.lastName = prefilledUser.lastName
-                            self?.userRepo.currentUser = mergedUser
-                        }
-
-                        UserDefaults.standard.set(true, forKey: "isLoggedIn")
-                        self?.authService.isLoggedIn = true
-                        self?.router.isLoading = false
                     }
                 }
             }
@@ -453,16 +422,19 @@ class AppViewModel: ObservableObject {
     }
     
     /// Prepares the onboarding data for a new user WITHOUT authenticating them in Firebase yet.
+    /// Pass `existingId` if a partial users doc already exists for this email — it will be reused
+    /// so that completing onboarding overwrites the existing doc instead of creating a duplicate.
     private func prepareOnboardingForNewUser(
         email: String,
         salesforceData: SalesforceContactData?,
         firstName: String = "",
         lastName: String = "",
         photoUrl: String = "",
-        isGoogle: Bool = false
+        isGoogle: Bool = false,
+        existingId: UUID? = nil
     ) {
         var newUser = UserProfile(
-            id: UUID(), // Temporary UUID for onboarding
+            id: existingId ?? UUID(), // Reuse existing UUID if available to prevent duplicates
             firstName: firstName,
             lastName: lastName,
             role: "",
@@ -477,11 +449,14 @@ class AppViewModel: ObservableObject {
         
         // Mark as social login before prefill so hideImageUpload works correctly in views
         self.onboardingViewModel.isSocialLogin = isGoogle
-        // Pre-populate the onboarding user with Google profile data
+        // Clear any stale draft from a previous attempt and reset to step 1
+        self.onboardingViewModel.clearDraft()
+        self.onboardingViewModel.currentStep = 1
+        // Pre-populate the onboarding user with profile data
         self.onboardingViewModel.user.email = email.lowercased()
+        self.onboardingViewModel.user.profileImageUrl = photoUrl // Always set (empty for email/password, Google URL for Google)
         if !firstName.isEmpty { self.onboardingViewModel.user.firstName = firstName }
         if !lastName.isEmpty  { self.onboardingViewModel.user.lastName  = lastName  }
-        if !photoUrl.isEmpty  { self.onboardingViewModel.user.profileImageUrl = photoUrl }
         
         if let sfData = salesforceData {
             self.onboardingViewModel.prefillFromSalesforce(sfData)
@@ -534,11 +509,6 @@ class AppViewModel: ObservableObject {
             }
             
             self.userRepo.companyProfile = company
-            self.router.isOnboardingComplete = true
-            
-            UserDefaults.standard.set(true, forKey: "isOnboardingComplete")
-            UserDefaults.standard.set(user.id.uuidString, forKey: "userId")
-            UserDefaults.standard.set(company.id.uuidString, forKey: "companyId")
             
             self.router.isLoading = true
             
@@ -553,46 +523,38 @@ class AppViewModel: ObservableObject {
                 guard let self = self else { return }
                 self.userRepo.currentUser = userToSave
                 
-                print("📝 [Firestore] Saving user: id=\(userToSave.id.uuidString) email=\(userToSave.email) fields=13+")
+                print("📝 [Firestore] Saving user + company atomically: id=\(userToSave.id.uuidString) email=\(userToSave.email)")
                 
-                // Chain saves to avoid race conditions with Firestore rules
-                // Company rules depend on get(user).email == request.auth.token.email
-                self.userRepository.saveUserProfile(userToSave) { error in
-                    if let err = error {
-                        let nsErr = err as NSError
-                        print("❌ [Firestore] saveUserProfile FAILED: domain=\(nsErr.domain) code=\(nsErr.code) msg=\(err.localizedDescription)")
-                        DispatchQueue.main.async {
+                // Atomic batch write — both user and company succeed or both fail.
+                // This prevents orphaned user profiles without company docs.
+                self.userRepository.saveUserAndCompany(user: userToSave, company: company) { error in
+                    DispatchQueue.main.async {
+                        self.router.isLoading = false
+                        if let err = error {
+                            let nsErr = err as NSError
+                            print("❌ [Firestore] saveUserAndCompany FAILED: domain=\(nsErr.domain) code=\(nsErr.code) msg=\(err.localizedDescription)")
                             self.router.appError = .dataCorrupted
-                            self.router.isLoading = false
-                        }
-                        return
-                    }
-                    
-                    print("✅ [Firestore] User saved. Saving company: id=\(company.id.uuidString)")
-                    
-                    self.userRepository.saveCompanyProfile(company, userId: userToSave.id.uuidString) { companyError in
-                        DispatchQueue.main.async {
-                            self.router.isLoading = false
-                            if let cErr = companyError {
-                                let nsErr = cErr as NSError
-                                print("❌ [Firestore] saveCompanyProfile FAILED: domain=\(nsErr.domain) code=\(nsErr.code) msg=\(cErr.localizedDescription)")
-                                self.router.appError = .dataCorrupted
-                            } else {
-                                print("✅ [Firestore] Company saved. Onboarding complete.")
-                                AnalyticsService.shared.logOnboardingCompleted(
-                                    userType: userToSave.userType,
-                                    role: userToSave.role
+                        } else {
+                            print("✅ [Firestore] User + Company saved atomically. Onboarding complete.")
+                            
+                            self.router.isOnboardingComplete = true
+                            UserDefaults.standard.set(true, forKey: "isOnboardingComplete")
+                            UserDefaults.standard.set(userToSave.id.uuidString, forKey: "userId")
+                            UserDefaults.standard.set(company.id.uuidString, forKey: "companyId")
+                            
+                            AnalyticsService.shared.logOnboardingCompleted(
+                                userType: userToSave.userType,
+                                role: userToSave.role
+                            )
+                            // Salva mappatura firebaseUid -> uuid per le regole Firestore del messaging
+                            if let firebaseUid = Auth.auth().currentUser?.uid {
+                                self.messagesRepository.saveUserMapping(
+                                    firebaseUid: firebaseUid,
+                                    uuid: userToSave.id.uuidString
                                 )
-                                // Salva mappatura firebaseUid -> uuid per le regole Firestore del messaging
-                                if let firebaseUid = Auth.auth().currentUser?.uid {
-                                    self.messagesRepository.saveUserMapping(
-                                        firebaseUid: firebaseUid,
-                                        uuid: userToSave.id.uuidString
-                                    )
-                                }
-                                // Clear Salesforce pre-fill state after successful onboarding
-                                self.onboardingViewModel.isSalesforcePrefilled = false
                             }
+                            // Clear Salesforce pre-fill state after successful onboarding
+                            self.onboardingViewModel.isSalesforcePrefilled = false
                         }
                     }
                 }
@@ -793,6 +755,19 @@ class AppViewModel: ObservableObject {
         authService.logout()
         userRepo.clearState()
         router.clearState()
+        
+        // Reset pending onboarding auth state so a subsequent user
+        // cannot inherit credentials from an incomplete registration.
+        isOnboardingAuthPending = false
+        pendingEmail = nil
+        pendingPassword = nil
+        pendingGoogleIdToken = nil
+        pendingGoogleAccessToken = nil
+        pendingGoogleEmail = nil
+        pendingGooglePhotoUrl = nil
+        pendingIsGoogle = false
+        pendingSalesforceData = nil
+        
         UserDefaults.standard.set(false, forKey: "isLoggedIn")
         UserDefaults.standard.set(false, forKey: "isOnboardingComplete")
     }

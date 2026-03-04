@@ -29,49 +29,20 @@ class AuthService: ObservableObject {
                     self?.failedLoginAttempts = 0
                     completion(.success((data.0, email, false)))
                 case .failure(let error):
-                    self?.failedLoginAttempts += 1
+                    let nsError = error as NSError
+                    // Only increment failed attempts for returning users (e.g., Wrong Password), 
+                    // not for new users (User Not Found = 17011) or malformed emails (17004).
+                    if nsError.code != 17011 && nsError.code != 17004 {
+                        self?.failedLoginAttempts += 1
+                    }
                     completion(.failure(error))
                 }
             }
         }
     }
     
-    func authenticate(email: String, password: String, completion: @escaping AuthResultHandler) {
-        let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        self.emailCollisionDetected = false
-        
-        authRepository.signIn(email: normalizedEmail, password: password) { [weak self] result in
-            switch result {
-            case .success(let data):
-                DispatchQueue.main.async {
-                    self?.failedLoginAttempts = 0
-                    completion(.success((data.0, email.trimmingCharacters(in: .whitespacesAndNewlines), false)))
-                }
-            case .failure(let error):
-                let nsError = error as NSError
-                if nsError.code == 17011 || (nsError.code == 17004 && !nsError.localizedDescription.contains("format")) {
-                    // User not found -> Try Sign Up
-                    self?.authRepository.signUp(email: normalizedEmail, password: password) { signUpResult in
-                        DispatchQueue.main.async {
-                            switch signUpResult {
-                            case .success(let newUserData):
-                                completion(.success((newUserData.0, email.trimmingCharacters(in: .whitespacesAndNewlines), true)))
-                            case .failure(let signUpError):
-                                self?.failedLoginAttempts += 1
-                                completion(.failure(signUpError))
-                            }
-                        }
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        self?.failedLoginAttempts += 1
-                        completion(.failure(error))
-                    }
-                }
-            }
-        }
-    }
-    
+
+
     func signUpNewUser(email: String, password: String, completion: @escaping AuthResultHandler) {
         let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         authRepository.signUp(email: normalizedEmail, password: password) { [weak self] result in
