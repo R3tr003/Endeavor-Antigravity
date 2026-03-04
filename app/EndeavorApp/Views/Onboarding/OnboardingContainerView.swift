@@ -200,7 +200,9 @@ struct OnboardingContainerView: View {
                     viewModel.user.email = currentUser.email
                 }
             }
-            if !currentUser.profileImageUrl.isEmpty {
+            // Only sync profile image if it belongs to the same user (prevents cross-user leaks)
+            if !currentUser.profileImageUrl.isEmpty
+                && currentUser.email.lowercased() == viewModel.user.email.lowercased() {
                 if viewModel.user.profileImageUrl.isEmpty {
                     viewModel.user.profileImageUrl = currentUser.profileImageUrl
                 }

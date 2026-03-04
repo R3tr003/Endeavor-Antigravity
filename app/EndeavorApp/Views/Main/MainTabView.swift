@@ -38,21 +38,6 @@ struct MainTabView: View {
             }
             .edgesIgnoringSafeArea(.bottom)
             .environmentObject(conversationsViewModel)
-            .task {
-                if appViewModel.isLoggedIn {
-                    // Crea la mappatura prima di ascoltare le conversazioni
-                    appViewModel.ensureMessagingMappingExists {
-                        conversationsViewModel.startListening()
-                    }
-                }
-            }
-            .onChange(of: appViewModel.isLoggedIn) {
-                if appViewModel.isLoggedIn {
-                    appViewModel.ensureMessagingMappingExists {
-                        conversationsViewModel.startListening()
-                    }
-                }
-            }
             .onChange(of: selectedTab) { _, newTab in
                 Analytics.logEvent(AnalyticsEventScreenView, parameters: [
                     AnalyticsParameterScreenName: tabScreenName(newTab),
@@ -60,6 +45,13 @@ struct MainTabView: View {
                 ])
             }
             .onAppear {
+                if appViewModel.isLoggedIn {
+                    // Crea la mappatura prima di ascoltare le conversazioni
+                    appViewModel.ensureMessagingMappingExists {
+                        conversationsViewModel.startListening()
+                    }
+                }
+                
                 // Log initial screen on first open
                 Analytics.logEvent(AnalyticsEventScreenView, parameters: [
                     AnalyticsParameterScreenName: tabScreenName(selectedTab),

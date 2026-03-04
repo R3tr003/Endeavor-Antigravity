@@ -148,8 +148,7 @@ class ConversationViewModel: ObservableObject {
 
     // MARK: - Fetch Recipient Profile
     private func fetchRecipientProfile() {
-        let networkRepo = FirebaseNetworkRepository()
-        networkRepo.fetchUserProfile(userId: recipientId) { [weak self] result in
+        repository.fetchUserProfile(userId: recipientId) { [weak self] result in
             if case .success(let profile) = result {
                 DispatchQueue.main.async {
                     self?.recipientProfile = profile

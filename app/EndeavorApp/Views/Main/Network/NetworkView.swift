@@ -17,7 +17,7 @@ struct NetworkView: View {
     @AppStorage("userId") private var currentUserId: String = ""
 
     private var filteredProfiles: [UserProfile] {
-        let others = viewModel.profiles.filter { $0.id.uuidString != currentUserId }
+        let others = viewModel.profiles
         if searchText.isEmpty {
             return others
         } else {
@@ -167,7 +167,7 @@ struct NetworkView: View {
                                     .onAppear {
                                         // Trigger only if we aren't filtering locally by text
                                         if searchText.isEmpty {
-                                            viewModel.fetchUsers()
+                                            viewModel.fetchUsers(currentUserId: currentUserId)
                                         }
                                     }
                             }
@@ -178,7 +178,7 @@ struct NetworkView: View {
                 }
                 .onAppear {
                     if viewModel.profiles.isEmpty {
-                        viewModel.fetchUsers(isInitial: true)
+                        viewModel.fetchUsers(currentUserId: currentUserId, isInitial: true)
                     }
                 }
                 .onChange(of: viewModel.profiles) { _, profiles in

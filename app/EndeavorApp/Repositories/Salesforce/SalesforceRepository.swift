@@ -33,6 +33,7 @@ protocol SalesforceRepositoryProtocol {
     func checkAuthorization(email: String) async throws -> SalesforceAuthResult
     func getContactData(contactId: String) async throws -> SalesforceContactData
     func checkAndFetchContact(email: String) async throws -> (SalesforceAuthResult, SalesforceContactData?)
+    func checkUserExists(email: String) async throws -> (exists: Bool, userId: String?)
 }
 
 // MARK: - Implementation
@@ -132,5 +133,21 @@ final class SalesforceRepository: SalesforceRepositoryProtocol {
         )
         
         return (authResult, contactData)
+    }
+    
+    // MARK: checkUserExists
+    
+    func checkUserExists(email: String) async throws -> (exists: Bool, userId: String?) {
+        let callable = functions.httpsCallable("checkUserExists")
+        let result = try await callable.call(["email": email])
+        
+        guard let data = result.data as? [String: Any] else {
+            throw NSError(domain: "SalesforceRepository", code: -1,
+                          userInfo: [NSLocalizedDescriptionKey: "Invalid response from checkUserExists."])
+        }
+        
+        let exists = data["exists"] as? Bool ?? false
+        let userId = data["userId"] as? String
+        return (exists: exists, userId: userId)
     }
 }

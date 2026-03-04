@@ -96,6 +96,18 @@ class FirebaseUserRepository: UserRepositoryProtocol {
         }
     }
     
+    func findAnyUserDoc(email: String, completion: @escaping (UUID?) -> Void) {
+        db.collection(usersCollection).whereField("email", isEqualTo: email).limit(to: 1).getDocuments { snapshot, _ in
+            guard let doc = snapshot?.documents.first,
+                  let idString = doc.data()["id"] as? String,
+                  let uuid = UUID(uuidString: idString) else {
+                completion(nil)
+                return
+            }
+            completion(uuid)
+        }
+    }
+    
     private func findUserWithCompany(documents: [QueryDocumentSnapshot], index: Int, completion: @escaping (Result<(UserProfile, CompanyProfile), Error>) -> Void) {
         guard index < documents.count else {
             completion(.failure(NSError(domain: "AppError", code: 404, userInfo: [NSLocalizedDescriptionKey: "No user with company found"])))
@@ -198,6 +210,60 @@ class FirebaseUserRepository: UserRepositoryProtocol {
             "vertical": company.vertical
         ]
         db.collection(companiesCollection).document(company.id.uuidString).setData(data, completion: completion)
+    }
+    
+    func saveUserAndCompany(user: UserProfile, company: CompanyProfile, completion: @escaping (Error?) -> Void) {
+        let batch = db.batch()
+        
+        // User data
+        var userData: [String: Any] = [
+            "id": user.id.uuidString,
+            "firstName": user.firstName,
+            "lastName": user.lastName,
+            "role": user.role,
+            "email": user.email,
+            "location": user.location,
+            "timeZone": user.timeZone,
+            "profileImageUrl": user.profileImageUrl,
+            "personalBio": user.personalBio,
+            "userType": user.userType,
+            "nationality": user.nationality,
+            "languages": user.languages,
+            "phone": user.phone
+        ]
+        if let createdAt = user.createdAt {
+            userData["createdAt"] = Timestamp(date: createdAt)
+        }
+        if let lastLoginAt = user.lastLoginAt {
+            userData["lastLoginAt"] = Timestamp(date: lastLoginAt)
+        }
+        
+        let userRef = db.collection(usersCollection).document(user.id.uuidString)
+        batch.setData(userData, forDocument: userRef)
+        
+        // Company data
+        let companyData: [String: Any] = [
+            "id": company.id.uuidString,
+            "userId": user.id.uuidString,
+            "name": company.name,
+            "website": company.website,
+            "hqCountry": company.hqCountry,
+            "hqCity": company.hqCity,
+            "industries": company.industries,
+            "stage": company.stage,
+            "employeeRange": company.employeeRange,
+            "challenges": company.challenges,
+            "desiredExpertise": company.desiredExpertise,
+            "companyBio": company.companyBio,
+            "logoUrl": company.logoUrl,
+            "vertical": company.vertical
+        ]
+        
+        let companyRef = db.collection(companiesCollection).document(company.id.uuidString)
+        batch.setData(companyData, forDocument: companyRef)
+        
+        // Atomic commit — both succeed or both fail
+        batch.commit(completion: completion)
     }
     
     func changeUserEmail(newEmail: String, password: String?, completion: @escaping (Error?) -> Void) {

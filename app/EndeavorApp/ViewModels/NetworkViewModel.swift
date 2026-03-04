@@ -15,7 +15,7 @@ class NetworkViewModel: ObservableObject {
         self.repository = repository
     }
     
-    func fetchUsers(isInitial: Bool = false) {
+    func fetchUsers(currentUserId: String, isInitial: Bool = false) {
         if isInitial {
             profiles = []
             lastDocument = nil
@@ -26,7 +26,7 @@ class NetworkViewModel: ObservableObject {
         
         isLoading = true
         
-        repository.fetchAllUsers(limit: 20, lastDocument: lastDocument) { [weak self] newUsers, newLastDoc in
+        repository.fetchAllUsers(limit: 20, currentUserId: currentUserId, lastDocument: lastDocument) { [weak self] newUsers, newLastDoc in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 self.isLoading = false

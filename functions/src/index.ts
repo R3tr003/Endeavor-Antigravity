@@ -10,4 +10,5 @@ export {
     checkSalesforceAuthorization,
     getSalesforceContactData,
     checkAndFetchSalesforceContact,
+    checkUserExists,
 } from "./salesforce";

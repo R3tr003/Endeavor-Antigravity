@@ -4,5 +4,5 @@ import FirebaseFirestore // Only needed for DocumentSnapshot, we can abstract th
 protocol NetworkRepositoryProtocol {
     /// Fetches a paginated list of UserProfiles.
     /// `lastDocument` is used for cursor-based pagination.
-    func fetchAllUsers(limit: Int, lastDocument: DocumentSnapshot?, completion: @escaping ([UserProfile], DocumentSnapshot?) -> Void)
+    func fetchAllUsers(limit: Int, currentUserId: String, lastDocument: DocumentSnapshot?, completion: @escaping ([UserProfile], DocumentSnapshot?) -> Void)
 }

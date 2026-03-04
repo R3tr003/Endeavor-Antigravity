@@ -244,3 +244,56 @@ export const checkAndFetchSalesforceContact = onCall(
         };
     }
 );
+
+// ---------------------------------------------------------------------------
+// Cloud Function 4: checkUserExists
+// Checks if a user document exists in Firestore for the given email.
+// Uses admin SDK — bypasses client-side auth rules.
+// ---------------------------------------------------------------------------
+export const checkUserExists = onCall(
+    {
+        timeoutSeconds: 10,
+    },
+    async (request) => {
+        const email = ((request.data.email as string) || "").trim().toLowerCase();
+        if (!email) {
+            throw new HttpsError("invalid-argument", "Email is required.");
+        }
+
+        logger.info("checkUserExists called", { email });
+
+        const db = admin.firestore();
+        const usersSnapshot = await db
+            .collection("users")
+            .where("email", "==", email)
+            .get();
+
+        if (usersSnapshot.empty) {
+            logger.info("checkUserExists result", { email, exists: false });
+            return { exists: false };
+        }
+
+        // Find the user doc that has a linked company (the "complete" profile).
+        // If there are duplicates, the one with a company is the correct one.
+        for (const userDoc of usersSnapshot.docs) {
+            const userId = userDoc.data()["id"] as string;
+            if (!userId) continue;
+
+            const companySnapshot = await db
+                .collection("companies")
+                .where("userId", "==", userId)
+                .limit(1)
+                .get();
+
+            if (!companySnapshot.empty) {
+                logger.info("checkUserExists result — complete profile found", { email, userId, exists: true });
+                return { exists: true, userId };
+            }
+        }
+
+        // User docs exist but none have a company — still "exists" but incomplete
+        const firstUserId = usersSnapshot.docs[0].data()["id"] as string || "";
+        logger.info("checkUserExists result — user exists but no company", { email, userId: firstUserId, exists: true });
+        return { exists: true, userId: firstUserId };
+    }
+);

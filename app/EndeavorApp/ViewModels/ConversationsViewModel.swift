@@ -161,9 +161,8 @@ class ConversationsViewModel: ObservableObject {
         }
         if let company = companyCache[otherId], !company.isEmpty {
             enriched.otherParticipantCompany = company
-        } else if let profile = profileCache[otherId] {
-            // Fallback al ruolo se l'azienda non esiste
-            enriched.otherParticipantCompany = profile.role
+        } else {
+            enriched.otherParticipantCompany = ""
         }
         return enriched
     }

@@ -230,10 +230,12 @@ struct ConversationRow: View {
                     .font(.system(size: 16, weight: conversation.unreadCount(for: currentUserId) > 0 ? .bold : .semibold, design: .rounded))
                     .foregroundColor(.primary)
                 
-                Text(conversation.otherParticipantCompany)
-                    .font(.system(size: 12, design: .rounded))
-                    .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
-                    .lineLimit(1)
+                if !conversation.otherParticipantCompany.isEmpty {
+                    Text(conversation.otherParticipantCompany)
+                        .font(.system(size: 12, design: .rounded))
+                        .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
+                        .lineLimit(1)
+                }
                 
                 Text(conversation.lastMessage)
                     .font(.system(size: 14, weight: conversation.unreadCount(for: currentUserId) > 0 ? .medium : .regular, design: .rounded))
