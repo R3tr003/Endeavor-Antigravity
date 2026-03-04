@@ -154,78 +154,86 @@ class AppViewModel: ObservableObject {
     /// - New users (no Firestore profile): Firebase Auth → Salesforce check → Salesforce data → Onboarding.
     func authenticate(email: String, password: String) {
         router.appError = nil
-        // Show spinner immediately — before any async work
         router.isLoading = true
-
+        
         Task {
-            do {
-                // STEP 1: Firebase Auth first (fast — local cache + Firebase SDK)
-                let firebaseResult = await withCheckedContinuation { (continuation: CheckedContinuation<Result<(user: FirebaseAuth.User, email: String, isNewUser: Bool), Error>, Never>) in
-                    self.authService.authenticate(email: email, password: password) { result in
-                        continuation.resume(returning: result)
-                    }
+            // STEP 1: Verify if user already exists -> use login() which DOES NOT auto-create account
+            let loginResult = await withCheckedContinuation { (continuation: CheckedContinuation<Result<(user: FirebaseAuth.User, email: String, isNewUser: Bool), Error>, Never>) in
+                self.authService.login(email: email, password: password) { result in
+                    continuation.resume(returning: result)
                 }
-
-                switch firebaseResult {
-                case .failure(let error):
+            }
+            
+            switch loginResult {
+            case .success(let data):
+                // User logged in directly (NO salesforce check, VERY FAST)
+                await MainActor.run {
+                    AnalyticsService.shared.logLogin(method: .email)
+                    self.handleAuthSuccess(user: data.user, email: data.email)
+                    self.router.isLoading = false
+                }
+                
+            case .failure(let error):
+                let nsError = error as NSError
+                // If wrong password or other error, show it immediately
+                if nsError.code != 17011 && nsError.code != 17004 { // 17011 = userNotFound, 17004 = invalidEmail
                     await MainActor.run {
                         self.router.isLoading = false
-                        let nsError = error as NSError
-                        if nsError.code == 17009 || error.localizedDescription.lowercased().contains("password"){
-                            self.router.appError = .authFailed(reason: "Incorrect Password")
+                        if nsError.code == 17009 {
+                            self.router.appError = .authFailed(reason: "Incorrect password.")
                         } else {
-                            self.router.appError = .authFailed(reason: "Incorrect Password")
+                            self.router.appError = .authFailed(reason: error.localizedDescription)
                         }
                     }
                     return
-
-                case .success(let data):
-                    // STEP 2: Check if user already has a Firestore profile (returning user)
-                    let hasProfile = await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
-                        self.userRepository.findCompleteUserProfile(email: email.lowercased()) { result in
-                            if case .success = result { continuation.resume(returning: true) }
-                            else { continuation.resume(returning: false) }
-                        }
-                    }
-
-                    if hasProfile {
-                        // FAST PATH: Returning user — skip Salesforce entirely
+                }
+                
+                // If user doesn't exist (17011), they are a NEW user!
+                // STEP 2: Salesforce check FIRST for new users
+                await MainActor.run { self.isSalesforceChecking = true }
+                
+                do {
+                    let (authResult, salesforceData) = try await salesforceRepo.checkAndFetchContact(email: email)
+                    await MainActor.run { self.isSalesforceChecking = false }
+                    
+                    guard authResult.authorized else {
                         await MainActor.run {
                             self.router.isLoading = false
-                            AnalyticsService.shared.logLogin(method: .email)
-                            self.handleAuthSuccess(user: data.user, email: data.email)
+                            self.router.appError = .notAuthorized
                         }
-                    } else {
-                        // SLOW PATH: New user — Salesforce check + data fetch
-                        await MainActor.run { self.isSalesforceChecking = true }
-                        do {
-                            let authResult = try await salesforceRepo.checkAuthorization(email: email)
-                            guard authResult.authorized, let contactId = authResult.contactId else {
-                                await MainActor.run {
-                                    self.isSalesforceChecking = false
-                                    self.router.isLoading = false
-                                    self.router.appError = .notAuthorized
-                                }
-                                return
-                            }
-                            let salesforceData = try await salesforceRepo.getContactData(contactId: contactId)
-                            await MainActor.run {
-                                self.isSalesforceChecking = false
-                                self.pendingSalesforceData = salesforceData
-                                AnalyticsService.shared.logLogin(method: .email)
-                                self.handleAuthSuccess(user: data.user, email: data.email)
-                            }
-                        } catch {
-                            await MainActor.run {
-                                self.isSalesforceChecking = false
-                                self.router.isLoading = false
-                                let nsError = error as NSError
-                                if nsError.domain == "com.firebase.functions" && nsError.code == 5 {
-                                    self.router.appError = .notAuthorized
-                                } else {
-                                    self.router.appError = .salesforceUnavailable
-                                }
-                            }
+                        return
+                    }
+                    
+                    // Authorized -> Create account in Firebase NOW
+                    let signUpResult = await withCheckedContinuation { (continuation: CheckedContinuation<Result<(user: FirebaseAuth.User, email: String, isNewUser: Bool), Error>, Never>) in
+                        self.authService.signUpNewUser(email: email, password: password) { result in
+                            continuation.resume(returning: result)
+                        }
+                    }
+                    
+                    await MainActor.run {
+                        switch signUpResult {
+                        case .success(let data):
+                            self.pendingSalesforceData = salesforceData
+                            AnalyticsService.shared.logSignUp(method: .email)
+                            self.handleAuthSuccess(user: data.user, email: data.email)
+                        case .failure(let signupError):
+                            let err = signupError as NSError
+                            if err.code == 17007 { self.router.appError = .emailAlreadyInUse }
+                            else if err.code == 17026 { self.router.appError = .weakPassword }
+                            else { self.router.appError = .authFailed(reason: "Registration failed: \(err.localizedDescription)") }
+                        }
+                        self.router.isLoading = false
+                    }
+                } catch {
+                    await MainActor.run {
+                        self.isSalesforceChecking = false
+                        self.router.isLoading = false
+                        let err = error as NSError
+                        if err.domain == "com.firebase.functions" && err.code == 5 {
+                            self.router.appError = .notAuthorized
+                        } else {
+                            self.router.appError = .salesforceUnavailable
                         }
                     }
                 }
@@ -277,32 +285,85 @@ class AppViewModel: ObservableObject {
     /// Google Sign In with Salesforce authorization gate.
     func startGoogleSignIn() {
         router.appError = nil
+        router.isLoading = true
+        
         authService.startGoogleSignIn { [weak self] result in
+            guard let self = self else { return }
+            
             switch result {
-            case .success(let data):
-                let googleEmail = data.email
-                // Salesforce check for Google sign-in email
-                Task { @MainActor [weak self] in
-                    guard let self else { return }
-                    self.isSalesforceChecking = true
-                    do {
-                        let authResult = try await self.salesforceRepo.checkAuthorization(email: googleEmail)
-                        self.isSalesforceChecking = false
-                        guard authResult.authorized else {
-                            self.router.appError = .notAuthorized
-                            return
+            case .success(let credentials):
+                let googleEmail = credentials.email.lowercased()
+                let idToken = credentials.idToken
+                let accessToken = credentials.accessToken
+                
+                // Check if user exists in Firestore BEFORE creating their account
+                self.userRepository.findCompleteUserProfile(email: googleEmail) { profileResult in
+                    let isReturningUser: Bool
+                    if case .success = profileResult {
+                        isReturningUser = true
+                    } else {
+                        isReturningUser = false
+                    }
+                    
+                    if isReturningUser {
+                        // Returning User -> Login directly, skip Salesforce
+                        self.authService.signInWithGoogle(idToken: idToken, accessToken: accessToken) { authResult in
+                            DispatchQueue.main.async {
+                                switch authResult {
+                                case .success(let data):
+                                    AnalyticsService.shared.logLogin(method: .google)
+                                    self.handleAuthSuccess(user: data.user, email: data.email)
+                                case .failure(let err):
+                                    self.router.appError = .authFailed(reason: err.localizedDescription)
+                                }
+                                self.router.isLoading = false
+                            }
                         }
-                        // Authorized — log Google login and proceed
-                        AnalyticsService.shared.logLogin(method: .google)
-                        self.handleAuthSuccess(user: data.user, email: googleEmail)
-                    } catch {
-                        self.isSalesforceChecking = false
-                        self.router.appError = .salesforceUnavailable
+                    } else {
+                        // New User -> Check Salesforce FIRST
+                        Task { @MainActor in
+                            self.isSalesforceChecking = true
+                            do {
+                                let (authResult, salesforceData) = try await self.salesforceRepo.checkAndFetchContact(email: googleEmail)
+                                self.isSalesforceChecking = false
+                                
+                                guard authResult.authorized else {
+                                    self.router.isLoading = false
+                                    self.router.appError = .notAuthorized
+                                    return
+                                }
+                                
+                                // Authorized -> Create Firebase account now
+                                self.authService.signInWithGoogle(idToken: idToken, accessToken: accessToken) { authResult in
+                                    DispatchQueue.main.async {
+                                        switch authResult {
+                                        case .success(let data):
+                                            self.pendingSalesforceData = salesforceData
+                                            AnalyticsService.shared.logLogin(method: .google)
+                                            self.handleAuthSuccess(user: data.user, email: data.email)
+                                        case .failure(let err):
+                                            self.router.appError = .authFailed(reason: err.localizedDescription)
+                                        }
+                                        self.router.isLoading = false
+                                    }
+                                }
+                            } catch {
+                                self.isSalesforceChecking = false
+                                self.router.isLoading = false
+                                let nsError = error as NSError
+                                if nsError.domain == "com.firebase.functions" && nsError.code == 5 {
+                                    self.router.appError = .notAuthorized
+                                } else {
+                                    self.router.appError = .salesforceUnavailable
+                                }
+                            }
+                        }
                     }
                 }
+                
             case .failure(let error):
-                self?.router.isLoading = false
-                self?.router.appError = .unknown(reason: error.localizedDescription)
+                self.router.isLoading = false
+                self.router.appError = .unknown(reason: error.localizedDescription)
             }
         }
     }
@@ -350,19 +411,11 @@ class AppViewModel: ObservableObject {
                         self?.router.isLoading = false
                     } else {
                         // No Firestore profile found → show onboarding
-                        // Pre-fill with Salesforce data if available (regardless of isNewUser)
-                        let isGoogleUser = user.providerData.map { $0.providerID }.contains("google.com")
-                        if let sfData = self?.pendingSalesforceData {
-                            self?.onboardingViewModel.prefillFromSalesforce(sfData)
-                            self?.pendingSalesforceData = nil
-                            AnalyticsService.shared.logSalesforcePrefillApplied()
-                            print("✅ [Salesforce] Pre-filled onboarding for \(sfData.firstName) \(sfData.lastName)")
-                        }
-                        self?.onboardingViewModel.isSocialLogin = isGoogleUser
                         
+                        // 1. Prima setta il currentUser con i dati base (email, id, ecc.)
                         var newUser = UserProfile(
                             id: UUID(),
-                            firstName: googleFirstName,
+                            firstName: googleFirstName,  // sarà sovrascritto dal prefill se presente
                             lastName: googleLastName,
                             role: "",
                             email: email.lowercased(),
@@ -372,8 +425,27 @@ class AppViewModel: ObservableObject {
                         )
                         newUser.createdAt = Date()
                         newUser.lastLoginAt = Date()
-                        
                         self?.userRepo.currentUser = newUser
+
+                        // 2. POI applica il pre-fill (sovrascrive firstName, lastName, ecc.)
+                        let isGoogleUser = user.providerData.map { $0.providerID }.contains("google.com")
+                        self?.onboardingViewModel.isSocialLogin = isGoogleUser
+
+                        if let sfData = self?.pendingSalesforceData {
+                            self?.onboardingViewModel.prefillFromSalesforce(sfData)
+                            self?.pendingSalesforceData = nil
+                            AnalyticsService.shared.logSalesforcePrefillApplied()
+                            print("✅ [Salesforce] Pre-filled onboarding for \(sfData.firstName) \(sfData.lastName)")
+                        }
+
+                        // 3. Poi aggiorna userRepo.currentUser con i dati del prefill
+                        if let prefilledUser = self?.onboardingViewModel.user {
+                            var mergedUser = newUser
+                            mergedUser.firstName = prefilledUser.firstName
+                            mergedUser.lastName = prefilledUser.lastName
+                            self?.userRepo.currentUser = mergedUser
+                        }
+
                         UserDefaults.standard.set(true, forKey: "isLoggedIn")
                         self?.authService.isLoggedIn = true
                         self?.router.isLoading = false

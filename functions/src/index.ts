@@ -9,4 +9,5 @@ if (!admin.apps.length) {
 export {
     checkSalesforceAuthorization,
     getSalesforceContactData,
+    checkAndFetchSalesforceContact,
 } from "./salesforce";

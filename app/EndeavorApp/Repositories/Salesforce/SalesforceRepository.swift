@@ -32,6 +32,7 @@ struct SalesforceContactData {
 protocol SalesforceRepositoryProtocol {
     func checkAuthorization(email: String) async throws -> SalesforceAuthResult
     func getContactData(contactId: String) async throws -> SalesforceContactData
+    func checkAndFetchContact(email: String) async throws -> (SalesforceAuthResult, SalesforceContactData?)
 }
 
 // MARK: - Implementation
@@ -91,5 +92,45 @@ final class SalesforceRepository: SalesforceRepositoryProtocol {
             companyBio:      data["companyBio"]      as? String ?? "",
             companyVertical: data["companyVertical"] as? String ?? ""
         )
+    }
+    
+    // MARK: checkAndFetchContact
+    
+    func checkAndFetchContact(email: String) async throws -> (SalesforceAuthResult, SalesforceContactData?) {
+        let callable = functions.httpsCallable("checkAndFetchSalesforceContact")
+        let result = try await callable.call(["email": email])
+        
+        guard let data = result.data as? [String: Any] else {
+            throw NSError(domain: "SalesforceRepository", code: -1, 
+                          userInfo: [NSLocalizedDescriptionKey: "Invalid response."])
+        }
+        
+        let authorized = data["authorized"] as? Bool ?? false
+        guard authorized else {
+            return (SalesforceAuthResult(authorized: false, contactId: nil), nil)
+        }
+        
+        let contactId = data["contactId"] as? String
+        let authResult = SalesforceAuthResult(authorized: true, contactId: contactId)
+        
+        let rawLanguages = data["languages"] as? [String] ?? []
+        let contactData = SalesforceContactData(
+            firstName:       data["firstName"]       as? String ?? "",
+            lastName:        data["lastName"]        as? String ?? "",
+            jobTitle:        data["jobTitle"]        as? String ?? "",
+            bio:             data["bio"]             as? String ?? "",
+            nationality:     data["nationality"]     as? String ?? "",
+            languages:       rawLanguages,
+            phone:           data["phone"]           as? String ?? "",
+            userType:        data["userType"]        as? String ?? "",
+            companyName:     data["companyName"]     as? String ?? "",
+            companyWebsite:  data["companyWebsite"]  as? String ?? "",
+            companyCountry:  data["companyCountry"]  as? String ?? "",
+            companyCity:     data["companyCity"]     as? String ?? "",
+            companyBio:      data["companyBio"]      as? String ?? "",
+            companyVertical: data["companyVertical"] as? String ?? ""
+        )
+        
+        return (authResult, contactData)
     }
 }

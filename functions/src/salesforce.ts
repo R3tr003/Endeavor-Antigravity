@@ -86,6 +86,14 @@ async function soqlQuery(
 }
 
 // ---------------------------------------------------------------------------
+// Helper: Parse languages string
+// ---------------------------------------------------------------------------
+function parseLanguages(raw: string): string[] {
+    if (!raw) return [];
+    return raw.split(";").map(l => l.trim()).filter(l => l.length > 0);
+}
+
+// ---------------------------------------------------------------------------
 // Cloud Function 1: checkSalesforceAuthorization
 // ---------------------------------------------------------------------------
 export const checkSalesforceAuthorization = onCall(
@@ -136,10 +144,12 @@ export const getSalesforceContactData = onCall(
         const accessToken = await getSalesforceAccessToken();
 
         const soql = `
-      SELECT Id, FirstName, LastName, Email, Title, Description,
+      SELECT Id, FirstName, LastName, Email,
+             Title, Description,
+             Nationality__c, Language_Capabilities__c, Platform_User_Profile__c,
              Phone, MobilePhone,
              AccountId, Account.Name, Account.Website, Account.BillingCountry,
-             Account.BillingCity, Account.Description
+             Account.BillingCity, Account.Description, Account.Vertical__c
       FROM Contact
       WHERE Id = '${contactId.replace(/'/g, "\\'")}'
       LIMIT 1
@@ -159,17 +169,78 @@ export const getSalesforceContactData = onCall(
             lastName: (c["LastName"] as string) || "",
             jobTitle: (c["Title"] as string) || "",
             bio: (c["Description"] as string) || "",
-            nationality: "",
-            languages: [],
+            nationality: (c["Nationality__c"] as string) || "",
+            languages: parseLanguages(c["Language_Capabilities__c"] as string || ""),
             phone: (c["MobilePhone"] as string) || (c["Phone"] as string) || "",
-            userType: "",
+            userType: (c["Platform_User_Profile__c"] as string) || "",
             // Account → CompanyProfile
             companyName: (account["Name"] as string) || "",
             companyWebsite: (account["Website"] as string) || "",
             companyCountry: (account["BillingCountry"] as string) || "",
             companyCity: (account["BillingCity"] as string) || "",
             companyBio: (account["Description"] as string) || "",
-            companyVertical: "",
+            companyVertical: (account["Vertical__c"] as string) || "",
+        };
+    }
+);
+
+// ---------------------------------------------------------------------------
+// Cloud Function 3: checkAndFetchSalesforceContact
+// ---------------------------------------------------------------------------
+export const checkAndFetchSalesforceContact = onCall(
+    {
+        timeoutSeconds: 20,
+        secrets: ["SALESFORCE_CLIENT_ID", "SALESFORCE_CLIENT_SECRET"],
+    },
+    async (request) => {
+        const email = ((request.data.email as string) || "").trim().toLowerCase();
+        if (!email) throw new HttpsError("invalid-argument", "Email is required.");
+
+        logger.info("checkAndFetchSalesforceContact called", { email });
+
+        const accessToken = await getSalesforceAccessToken();
+
+        const soql = `
+            SELECT Id, FirstName, LastName, Email,
+                   Title, Description,
+                   Nationality__c, Language_Capabilities__c, Platform_User_Profile__c,
+                   Phone, MobilePhone,
+                   AccountId, Account.Name, Account.Website, Account.BillingCountry,
+                   Account.BillingCity, Account.Description, Account.Vertical__c
+            FROM Contact
+            WHERE Email = '${email.replace(/'/g, "\\'")}'
+            LIMIT 1
+        `;
+        const result = await soqlQuery(accessToken, soql);
+
+        if (result.records.length === 0) {
+            logger.info("Contact not found in Salesforce", { email });
+            return { authorized: false };
+        }
+
+        const c = result.records[0];
+        const account = (c["Account"] as Record<string, unknown>) || {};
+        const contactId = c["Id"] as string;
+
+        logger.info("Contact authorized and fetched", { email, contactId });
+
+        return {
+            authorized: true,
+            contactId,
+            firstName: (c["FirstName"] as string) || "",
+            lastName: (c["LastName"] as string) || "",
+            jobTitle: (c["Title"] as string) || "",
+            bio: (c["Description"] as string) || "",
+            nationality: (c["Nationality__c"] as string) || "",
+            languages: parseLanguages(c["Language_Capabilities__c"] as string || ""),
+            phone: (c["MobilePhone"] as string) || (c["Phone"] as string) || "",
+            userType: (c["Platform_User_Profile__c"] as string) || "",
+            companyName: (account["Name"] as string) || "",
+            companyWebsite: (account["Website"] as string) || "",
+            companyCountry: (account["BillingCountry"] as string) || "",
+            companyCity: (account["BillingCity"] as string) || "",
+            companyBio: (account["Description"] as string) || "",
+            companyVertical: (account["Vertical__c"] as string) || "",
         };
     }
 );

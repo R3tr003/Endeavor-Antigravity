@@ -104,14 +104,14 @@ class AuthService: ObservableObject {
         }
     }
     
-    func startGoogleSignIn(completion: @escaping AuthResultHandler) {
+    func startGoogleSignIn(completion: @escaping (Result<(idToken: String, accessToken: String, email: String), Error>) -> Void) {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let rootViewController = windowScene.windows.first?.rootViewController else {
             completion(.failure(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not start Google Sign In"])))
             return
         }
         
-        GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { [weak self] result, error in
+        GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { result, error in
             if let error = error {
                 completion(.failure(error))
                 return
@@ -124,11 +124,12 @@ class AuthService: ObservableObject {
             }
             
             let accessToken = user.accessToken.tokenString
-            self?.signInWithGoogle(idToken: idToken, accessToken: accessToken, completion: completion)
+            let email = user.profile?.email ?? ""
+            completion(.success((idToken, accessToken, email)))
         }
     }
     
-    private func signInWithGoogle(idToken: String, accessToken: String, completion: @escaping AuthResultHandler) {
+    func signInWithGoogle(idToken: String, accessToken: String, completion: @escaping AuthResultHandler) {
         authRepository.signInWithGoogle(idToken: idToken, accessToken: accessToken) { result in
             DispatchQueue.main.async {
                 switch result {
