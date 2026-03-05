@@ -69,12 +69,16 @@ service cloud.firestore {
       // Anyone authenticated can read company profiles
       allow read: if isAuthenticated();
       
-      // WRITE: Must own the associated UserProfile document via backend Join and have valid data.
+      // CREATE, UPDATE: Must own the associated UserProfile document via backend Join and have valid data.
       // We use getAfter() instead of get() to support atomic batch writes for new users,
       // where the user document is created in the same batch.
-      allow write: if isAuthenticated() 
+      allow create, update: if isAuthenticated() 
                    && getAfter(/databases/$(database)/documents/users/$(request.resource.data.userId)).data.email == request.auth.token.email
                    && isValidCompany(request.resource.data);
+                   
+      // DELETE: request.resource is null on delete, so we check `resource.data.userId` and use get()
+      allow delete: if isAuthenticated()
+                   && get(/databases/$(database)/documents/users/$(resource.data.userId)).data.email == request.auth.token.email;
     }
   }
 }

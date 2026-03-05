@@ -9,7 +9,8 @@
     {
       "database": "messaging",
       "location": "eur3",
-      "rules": "firestore_messaging.rules"
+      "rules": "firestore_messaging.rules",
+      "indexes": "firestore.messaging.indexes.json"
     }
   ],
   "functions": [

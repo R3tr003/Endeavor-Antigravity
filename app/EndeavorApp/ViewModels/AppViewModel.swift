@@ -780,12 +780,15 @@ class AppViewModel: ObservableObject {
         }
         
         let userId = userRepo.currentUser?.id.uuidString ?? ""
+        let firebaseUid = Auth.auth().currentUser?.uid
         router.isLoading = true
         
-        let firebaseUid = Auth.auth().currentUser?.uid
-        
-        userRepository.deleteAuthAccount(password: password) { [weak self] authError in
-            if let error = authError {
+        // STEP 1: Delete Firestore data FIRST while the auth token is still valid.
+        // Calling deleteAuthAccount() first invalidates the token immediately,
+        // causing all subsequent Firestore writes to fail silently with
+        // "Missing or insufficient permissions".
+        userRepository.deleteUserData(email: email, userId: userId, firebaseUid: firebaseUid) { [weak self] dataError in
+            if let error = dataError {
                 DispatchQueue.main.async {
                     self?.router.isLoading = false
                     completion(.failure(error))
@@ -793,11 +796,11 @@ class AppViewModel: ObservableObject {
                 return
             }
             
-            self?.userRepository.deleteUserData(email: email, userId: userId, firebaseUid: firebaseUid) { dataError in
+            // STEP 2: Only delete Firebase Auth account after all Firestore data is gone.
+            self?.userRepository.deleteAuthAccount(password: password) { authError in
                 DispatchQueue.main.async {
                     self?.router.isLoading = false
-                    if let error = dataError {
-                        print("Error deleting user data: \(error)")
+                    if let error = authError {
                         completion(.failure(error))
                     } else {
                         self?.clearAllLocalData()

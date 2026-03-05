@@ -239,7 +239,7 @@ class FirebaseUserRepository: UserRepositoryProtocol {
         }
         
         let userRef = db.collection(usersCollection).document(user.id.uuidString)
-        batch.setData(userData, forDocument: userRef)
+        batch.setData(userData, forDocument: userRef, merge: true)
         
         // Company data
         let companyData: [String: Any] = [
@@ -260,7 +260,7 @@ class FirebaseUserRepository: UserRepositoryProtocol {
         ]
         
         let companyRef = db.collection(companiesCollection).document(company.id.uuidString)
-        batch.setData(companyData, forDocument: companyRef)
+        batch.setData(companyData, forDocument: companyRef, merge: true)
         
         // Atomic commit — both succeed or both fail
         batch.commit(completion: completion)

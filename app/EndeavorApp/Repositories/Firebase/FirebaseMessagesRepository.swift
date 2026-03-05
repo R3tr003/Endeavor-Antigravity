@@ -25,7 +25,7 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
 
         return db.collection(conversationsCollection)
             .whereField("participantIds", arrayContains: userId)
-            // Removed .order(by: "lastMessageAt", descending: true) to bypass missing composite index
+            .order(by: "lastMessageAt", descending: true)
             .addSnapshotListener { snapshot, error in
                 if let error = error {
                     DispatchQueue.main.async { onUpdate(.failure(error)) }
