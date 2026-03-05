@@ -16,7 +16,7 @@ struct NewConversationView: View {
     @AppStorage("userId") private var currentUserId: String = ""
 
     private var filteredProfiles: [UserProfile] {
-        let others = networkViewModel.profiles
+        let others = networkViewModel.profiles.filter { $0.id.uuidString != currentUserId }
         if searchText.trimmingCharacters(in: .whitespaces).isEmpty { return others }
         return others.filter {
             $0.fullName.localizedCaseInsensitiveContains(searchText) ||

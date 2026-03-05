@@ -1,6 +1,7 @@
 import SwiftUI
 import Combine
 import FirebaseAuth
+import FirebaseStorage
 import GoogleSignIn
 
 /// `AppViewModel` acts as a Facade Coordinator. 
