@@ -39,7 +39,7 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
 
                 let conversations = documents.compactMap { doc -> Conversation? in
                     return self.parseConversation(from: doc.data(), id: doc.documentID)
-                }.sorted { $0.lastMessageAt > $1.lastMessageAt } // Client-side sort
+                }
 
                 DispatchQueue.main.async { onUpdate(.success(conversations)) }
             }
