@@ -28,7 +28,9 @@ service firebase.storage {
     // Anyone authenticated can view profile pictures.
     match /profile_images/{fileName} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isValidImage();
+      allow write: if isAuthenticated() 
+                   && isValidImage()
+                   && fileName == request.auth.uid + ".jpg";
     }
     
     // 2. Chat Media (Images & Documents)

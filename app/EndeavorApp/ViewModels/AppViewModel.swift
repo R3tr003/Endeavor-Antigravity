@@ -563,7 +563,8 @@ class AppViewModel: ObservableObject {
             }
             
             if let image = profileImage, user.profileImageUrl == "pending_upload" {
-                let imagePath = "profile_images/\(user.id.uuidString).jpg"
+                guard let firebaseUid = Auth.auth().currentUser?.uid else { return }
+                let imagePath = "profile_images/\(firebaseUid).jpg"
                 self.storageRepository.uploadImage(image: image, path: imagePath) { result in
                     DispatchQueue.main.async {
                         switch result {
@@ -671,7 +672,8 @@ class AppViewModel: ObservableObject {
     func updateProfileImage(_ image: UIImage) {
         guard let customUser = userRepo.currentUser else { return }
         router.isLoading = true
-        let path = "profile_images/\(customUser.id.uuidString).jpg"
+        guard let firebaseUid = Auth.auth().currentUser?.uid else { return }
+        let path = "profile_images/\(firebaseUid).jpg"
         
         storageRepository.uploadImage(image: image, path: path) { [weak self] result in
             DispatchQueue.main.async {
@@ -683,6 +685,9 @@ class AppViewModel: ObservableObject {
                     if let user = self?.userRepo.currentUser {
                         self?.userRepository.saveUserProfile(user) { _ in }
                     }
+                    // Attempt to delete the old legacy image if it existed
+                    let oldPath = "profile_images/\(customUser.id.uuidString).jpg"
+                    Storage.storage().reference().child(oldPath).delete { _ in /* silent */ }
                 case .failure(let error):
                     self?.router.appError = .unknown(reason: "Failed to upload image: \(error.localizedDescription)")
                 }
