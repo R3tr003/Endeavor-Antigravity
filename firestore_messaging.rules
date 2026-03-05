@@ -17,7 +17,7 @@ service cloud.firestore {
     // Mappatura firebaseUid -> uuid. Ogni utente può creare/leggere solo il proprio documento.
     match /userMappings/{odFirebaseUid} {
       allow read: if isAuthenticated() && request.auth.uid == odFirebaseUid;
-      allow create, update: if isAuthenticated() && request.auth.uid == odFirebaseUid;
+      allow create, update, delete: if isAuthenticated() && request.auth.uid == odFirebaseUid;
     }
 
     match /conversations/{conversationId} {

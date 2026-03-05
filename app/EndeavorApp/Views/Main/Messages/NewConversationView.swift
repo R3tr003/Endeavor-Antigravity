@@ -10,8 +10,6 @@ struct NewConversationView: View {
     @State private var searchText: String = ""
     @State private var isCreating: Bool = false
     @State private var creationError: String? = nil
-    @State private var companyNames: [String: String] = [:]   // userId → company name
-
     /// Chiamato dopo la creazione/recupero conversazione — passa (conversationId, recipientId)
     var onConversationReady: (String, String) -> Void
 
@@ -55,23 +53,6 @@ struct NewConversationView: View {
         .onAppear {
             if networkViewModel.profiles.isEmpty {
                 networkViewModel.fetchUsers(currentUserId: currentUserId, isInitial: true)
-            }
-        }
-        .onChange(of: networkViewModel.profiles) { _, profiles in
-            let db = Firestore.firestore()
-            for profile in profiles {
-                let userId = profile.id.uuidString
-                guard companyNames[userId] == nil else { continue }
-                db.collection("companies")
-                    .whereField("userId", isEqualTo: userId)
-                    .limit(to: 1)
-                    .getDocuments { snapshot, _ in
-                        if let name = snapshot?.documents.first?.data()["name"] as? String {
-                            DispatchQueue.main.async {
-                                companyNames[userId] = name
-                            }
-                        }
-                    }
             }
         }
     }
@@ -180,7 +161,7 @@ struct NewConversationView: View {
                     Text(profile.fullName)
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundColor(.primary)
-                    Text(companyNames[profile.id.uuidString] ?? profile.role)
+                    Text(networkViewModel.companyNames[profile.id.uuidString] ?? profile.role)
                         .font(.system(size: 13, design: .rounded))
                         .foregroundColor(.secondary)
                         .lineLimit(1)

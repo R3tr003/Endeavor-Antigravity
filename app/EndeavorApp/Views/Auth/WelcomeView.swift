@@ -266,6 +266,7 @@ struct WelcomeView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
+                            .opacity((appViewModel.isLoading || appViewModel.isSalesforceChecking) ? 0.5 : 1)
                         Text("Continue with Google")
                             .font(.subheadline.weight(.medium))
                     }
@@ -278,6 +279,7 @@ struct WelcomeView: View {
                             .stroke(Color.primary.opacity(0.2), lineWidth: 1)
                     )
                 }
+                .disabled(appViewModel.isLoading || appViewModel.isSalesforceChecking)
                 
                 HStack(spacing: DesignSystem.Spacing.xxSmall) {
                     Text("By continuing, you agree to our")

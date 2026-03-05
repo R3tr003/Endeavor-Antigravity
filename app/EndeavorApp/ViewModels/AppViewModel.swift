@@ -22,9 +22,6 @@ class AppViewModel: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
     
-    // Salesforce data cache — pre-fills onboarding when no Firestore profile exists
-    private var pendingSalesforceData: SalesforceContactData?
-    
     // MARK: - Exposed State (Facade)
     @Published var currentUser: UserProfile?
     @Published var companyProfile: CompanyProfile?
@@ -312,13 +309,16 @@ class AppViewModel: ObservableObject {
                             self.router.isLoading = false
                         }
                     } catch {
+                        let wasSalesforceChecking = self.isSalesforceChecking
                         self.isSalesforceChecking = false
                         self.router.isLoading = false
                         let nsError = error as NSError
                         if nsError.domain == "com.firebase.functions" && nsError.code == 5 {
                             self.router.appError = .notAuthorized
-                        } else {
+                        } else if wasSalesforceChecking {
                             self.router.appError = .salesforceUnavailable
+                        } else {
+                            self.router.appError = .serviceUnavailable
                         }
                     }
                 }
@@ -464,7 +464,6 @@ class AppViewModel: ObservableObject {
             if !photoUrl.isEmpty {
                 self.onboardingViewModel.user.profileImageUrl = photoUrl
             }
-            self.pendingSalesforceData = nil
             AnalyticsService.shared.logSalesforcePrefillApplied()
             print("✅ [Salesforce] Pre-filled onboarding for \(sfData.firstName) \(sfData.lastName)")
         }
@@ -512,7 +511,9 @@ class AppViewModel: ObservableObject {
             
             self.router.isLoading = true
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 15) { [weak self] in
+            let timeoutTask = Task { @MainActor [weak self] in
+                try? await Task.sleep(nanoseconds: 15_000_000_000)
+                guard !Task.isCancelled else { return }
                 if self?.router.isLoading == true {
                     self?.router.isLoading = false
                     self?.router.appError = .networkUnavailable
@@ -528,6 +529,7 @@ class AppViewModel: ObservableObject {
                 // Atomic batch write — both user and company succeed or both fail.
                 // This prevents orphaned user profiles without company docs.
                 self.userRepository.saveUserAndCompany(user: userToSave, company: company) { error in
+                    timeoutTask.cancel()
                     DispatchQueue.main.async {
                         self.router.isLoading = false
                         if let err = error {
@@ -651,35 +653,18 @@ class AppViewModel: ObservableObject {
         
         router.isLoading = true
         
-        let dispatchGroup = DispatchGroup()
-        var hasError = false
-        
-        dispatchGroup.enter()
-        userRepository.saveUserProfile(user) { [weak self] error in 
-            if let error = error {
-                hasError = true
-                print("Error saving user profile: \(error)")
-                DispatchQueue.main.async { self?.router.appError = .unknown(reason: "Failed to save user profile.") }
+        userRepository.saveUserAndCompany(user: user, company: company) { [weak self] error in
+            DispatchQueue.main.async {
+                self?.router.isLoading = false
+                if let error = error {
+                    print("Error saving profile changes: \(error)")
+                    self?.router.appError = .unknown(reason: "Failed to save profile changes.")
+                    completion?(false)
+                } else {
+                    AnalyticsService.shared.logProfileEdited()
+                    completion?(true)
+                }
             }
-            dispatchGroup.leave() 
-        }
-        
-        dispatchGroup.enter()
-        userRepository.saveCompanyProfile(company, userId: user.id.uuidString) { [weak self] error in 
-            if let error = error {
-                hasError = true
-                print("Error saving company profile: \(error)")
-                DispatchQueue.main.async { self?.router.appError = .unknown(reason: "Failed to save company profile.") }
-            }
-            dispatchGroup.leave() 
-        }
-        
-        dispatchGroup.notify(queue: .main) { [weak self] in
-            self?.router.isLoading = false
-            if !hasError {
-                AnalyticsService.shared.logProfileEdited()
-            }
-            completion?(!hasError)
         }
     }
     
@@ -756,6 +741,9 @@ class AppViewModel: ObservableObject {
         userRepo.clearState()
         router.clearState()
         
+        // Clear onboarding draft to prevent leaking data to next user on same device
+        onboardingViewModel.clearDraft()
+        
         // Reset pending onboarding auth state so a subsequent user
         // cannot inherit credentials from an incomplete registration.
         isOnboardingAuthPending = false
@@ -766,7 +754,6 @@ class AppViewModel: ObservableObject {
         pendingGoogleEmail = nil
         pendingGooglePhotoUrl = nil
         pendingIsGoogle = false
-        pendingSalesforceData = nil
         
         UserDefaults.standard.set(false, forKey: "isLoggedIn")
         UserDefaults.standard.set(false, forKey: "isOnboardingComplete")
@@ -795,21 +782,27 @@ class AppViewModel: ObservableObject {
         let userId = userRepo.currentUser?.id.uuidString ?? ""
         router.isLoading = true
         
+        let firebaseUid = Auth.auth().currentUser?.uid
+        
         userRepository.deleteAuthAccount(password: password) { [weak self] authError in
             if let error = authError {
                 DispatchQueue.main.async {
                     self?.router.isLoading = false
-                    self?.router.appError = .unknown(reason: "Failed to delete account: \(error.localizedDescription)")
                     completion(.failure(error))
                 }
                 return
             }
             
-            self?.userRepository.deleteUserData(email: email, userId: userId) { dataError in
+            self?.userRepository.deleteUserData(email: email, userId: userId, firebaseUid: firebaseUid) { dataError in
                 DispatchQueue.main.async {
                     self?.router.isLoading = false
-                    self?.clearAllLocalData()
-                    completion(.success(()))
+                    if let error = dataError {
+                        print("Error deleting user data: \(error)")
+                        completion(.failure(error))
+                    } else {
+                        self?.clearAllLocalData()
+                        completion(.success(()))
+                    }
                 }
             }
         }

@@ -30,5 +30,5 @@ protocol UserRepositoryProtocol {
     func deleteAuthAccount(password: String?, completion: @escaping (Error?) -> Void)
     
     /// Removes the user's and company's data from the database.
-    func deleteUserData(email: String, userId: String, completion: @escaping (Error?) -> Void)
+    func deleteUserData(email: String, userId: String, firebaseUid: String?, completion: @escaping (Error?) -> Void)
 }

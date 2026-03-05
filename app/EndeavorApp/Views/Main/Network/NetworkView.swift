@@ -12,12 +12,10 @@ struct NetworkView: View {
     @EnvironmentObject private var conversationsViewModel: ConversationsViewModel
     @State private var activeConversation: Conversation?
     @State private var showConversation: Bool = false
-    @State private var companyNames: [String: String] = [:]
-
     @AppStorage("userId") private var currentUserId: String = ""
 
     private var filteredProfiles: [UserProfile] {
-        let others = viewModel.profiles
+        let others = viewModel.profiles.filter { $0.id.uuidString != currentUserId }
         if searchText.isEmpty {
             return others
         } else {
@@ -181,23 +179,6 @@ struct NetworkView: View {
                         viewModel.fetchUsers(currentUserId: currentUserId, isInitial: true)
                     }
                 }
-                .onChange(of: viewModel.profiles) { _, profiles in
-                    let db = Firestore.firestore()
-                    for profile in profiles {
-                        let userId = profile.id.uuidString
-                        guard companyNames[userId] == nil else { continue }
-                        db.collection("companies")
-                            .whereField("userId", isEqualTo: userId)
-                            .limit(to: 1)
-                            .getDocuments { snapshot, _ in
-                                if let name = snapshot?.documents.first?.data()["name"] as? String {
-                                    DispatchQueue.main.async {
-                                        companyNames[userId] = name
-                                    }
-                                }
-                            }
-                    }
-                }
                 
                 Rectangle()
                     .fill(.ultraThinMaterial)
@@ -255,7 +236,7 @@ struct NetworkView: View {
                             .font(.title3.weight(.bold))
                             .foregroundColor(.primary)
                         
-                        if let company = companyNames[profile.id.uuidString] {
+                        if let company = viewModel.companyNames[profile.id.uuidString] {
                             Text(company)
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
@@ -298,7 +279,7 @@ struct NetworkView: View {
                                     lastSenderId: "",
                                     unreadCounts: [:],
                                     otherParticipantName: profile.firstName + " " + profile.lastName,
-                                    otherParticipantCompany: companyNames[profile.id.uuidString] ?? profile.role,
+                                    otherParticipantCompany: viewModel.companyNames[profile.id.uuidString] ?? profile.role,
                                     otherParticipantImageUrl: profile.profileImageUrl
                                 )
                                 self.activeConversation = newConv

@@ -138,7 +138,9 @@ struct SettingsView: View {
                 presentationMode.wrappedValue.dismiss()
             case .failure(let error):
                 let nsError = error as NSError
-                if nsError.domain == "FIRAuthErrorDomain" || error.localizedDescription.contains("credential") || error.localizedDescription.contains("password") {
+                if nsError.code == 17014 {
+                    deleteErrorMessage = "Session expired. Please log out and back in to delete your account."
+                } else if nsError.domain == "FIRAuthErrorDomain" || error.localizedDescription.contains("credential") || error.localizedDescription.contains("password") {
                     deleteErrorMessage = "Incorrect Password. Insert the correct password."
                 } else {
                     deleteErrorMessage = error.localizedDescription

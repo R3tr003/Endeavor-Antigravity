@@ -9,7 +9,6 @@ class FirebaseNetworkRepository: NetworkRepositoryProtocol {
     
     func fetchAllUsers(limit: Int, currentUserId: String, lastDocument: DocumentSnapshot?, completion: @escaping ([UserProfile], DocumentSnapshot?) -> Void) {
         var query: Query = db.collection(usersCollection)
-            .whereField("id", isNotEqualTo: currentUserId)
             .limit(to: limit)
         
         if let lastDoc = lastDocument {

@@ -6,6 +6,16 @@ struct HomeView: View {
     // For scroll-based animations
     @State private var scrollOffset: CGFloat = 0
     
+    private var timeBasedGreeting: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        switch hour {
+        case 5..<12: return "Good morning!"
+        case 12..<18: return "Good afternoon!"
+        case 18..<22: return "Good evening!"
+        default: return "Good night!"
+        }
+    }
+    
     var body: some View {
         ZStack(alignment: .top) {
             Color.background.edgesIgnoringSafeArea(.all)
@@ -35,7 +45,7 @@ struct HomeView: View {
                     
                     // 1. Header — Personal Greeting
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxSmall) {
-                        Text("Good morning,")
+                        Text(timeBasedGreeting)
                             .font(.system(size: 20, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
                         Text("\(appViewModel.currentUser?.firstName ?? "User")")

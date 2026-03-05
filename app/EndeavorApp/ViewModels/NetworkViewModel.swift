@@ -8,6 +8,8 @@ class NetworkViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var hasMoreData = true
     
+    @Published var companyNames: [String: String] = [:]
+    
     private let repository: NetworkRepositoryProtocol
     private var lastDocument: DocumentSnapshot? = nil
     
@@ -20,6 +22,7 @@ class NetworkViewModel: ObservableObject {
             profiles = []
             lastDocument = nil
             hasMoreData = true
+            companyNames = [:] // Clear cache on refresh
         }
         
         guard !isLoading && hasMoreData else { return }
@@ -43,6 +46,8 @@ class NetworkViewModel: ObservableObject {
                 self.profiles.append(contentsOf: uniqueNewUsers)
                 self.lastDocument = newLastDoc
                 
+                self.fetchCompanyNames(for: uniqueNewUsers)
+                
                 // Prefetch immagini in background — quando la card appare, l'immagine è già in cache
                 let urls = uniqueNewUsers
                     .compactMap { URL(string: $0.profileImageUrl) }
@@ -56,6 +61,26 @@ class NetworkViewModel: ObservableObject {
                     self.hasMoreData = false
                 }
             }
+        }
+    }
+    
+    private func fetchCompanyNames(for users: [UserProfile]) {
+        let db = Firestore.firestore()
+        for user in users {
+            let userId = user.id.uuidString
+            // Skip if already fetched
+            guard companyNames[userId] == nil else { continue }
+            
+            db.collection("companies")
+                .whereField("userId", isEqualTo: userId)
+                .limit(to: 1)
+                .getDocuments { [weak self] snapshot, _ in
+                    if let name = snapshot?.documents.first?.data()["name"] as? String {
+                        DispatchQueue.main.async {
+                            self?.companyNames[userId] = name
+                        }
+                    }
+                }
         }
     }
 }

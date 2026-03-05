@@ -327,7 +327,7 @@ class FirebaseUserRepository: UserRepositoryProtocol {
         }
     }
     
-    func deleteUserData(email: String, userId: String, completion: @escaping (Error?) -> Void) {
+    func deleteUserData(email: String, userId: String, firebaseUid: String?, completion: @escaping (Error?) -> Void) {
         let dispatchGroup = DispatchGroup()
         var deletionError: Error?
         var foundUserId: String? = nil
@@ -393,6 +393,66 @@ class FirebaseUserRepository: UserRepositoryProtocol {
             Storage.storage().reference().child(imagePath).delete { _ in
                 companyGroup.leave()
             }
+            
+            // Delete messaging DB contents (conversations, messages, user mappings)
+            companyGroup.enter()
+            let messagingDb = Firestore.firestore(database: "messaging")
+            messagingDb.collection("conversations")
+                .whereField("participantIds", arrayContains: userId)
+                .getDocuments { snapshot, error in
+                    if let error = error {
+                        deletionError = error
+                        companyGroup.leave()
+                        return
+                    }
+                    
+                    guard let documents = snapshot?.documents, !documents.isEmpty else {
+                        // Nessuna conversazione, rimuoviamo solo il mapping (se esiste)
+                        if let fUid = firebaseUid {
+                            messagingDb.collection("userMappings").document(fUid).delete { err in
+                                if let err = err { deletionError = err }
+                                companyGroup.leave()
+                            }
+                        } else {
+                            companyGroup.leave()
+                        }
+                        return
+                    }
+                    
+                    let convsGroup = DispatchGroup()
+                    for doc in documents {
+                        convsGroup.enter()
+                        let ref = doc.reference
+                        
+                        ref.collection("messages").getDocuments { msgSnapshot, _ in
+                            if let msgs = msgSnapshot?.documents, !msgs.isEmpty {
+                                let msgGroup = DispatchGroup()
+                                for msg in msgs {
+                                    msgGroup.enter()
+                                    msg.reference.delete { _ in msgGroup.leave() }
+                                }
+                                msgGroup.notify(queue: .main) {
+                                    ref.delete { _ in convsGroup.leave() }
+                                }
+                            } else {
+                                ref.delete { _ in convsGroup.leave() }
+                            }
+                        }
+                    }
+                    
+                    convsGroup.notify(queue: .main) {
+                        // Le conversazioni sono eliminate. Ora eliminiamo il mapping,
+                        // perché le security rules richiedono il mapping per poter eliminare le conversazioni.
+                        if let fUid = firebaseUid {
+                            messagingDb.collection("userMappings").document(fUid).delete { err in
+                                if let err = err { deletionError = err }
+                                companyGroup.leave()
+                            }
+                        } else {
+                            companyGroup.leave()
+                        }
+                    }
+                }
             
             companyGroup.notify(queue: .main) {
                 completion(deletionError)

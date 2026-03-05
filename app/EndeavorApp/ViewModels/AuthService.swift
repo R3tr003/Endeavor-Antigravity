@@ -30,9 +30,9 @@ class AuthService: ObservableObject {
                     completion(.success((data.0, email, false)))
                 case .failure(let error):
                     let nsError = error as NSError
-                    // Only increment failed attempts for returning users (e.g., Wrong Password), 
-                    // not for new users (User Not Found = 17011) or malformed emails (17004).
-                    if nsError.code != 17011 && nsError.code != 17004 {
+                    // 17011 = user not found (new user path)
+                    // 17004 = rimuovilo: è wrong password, va gestito come errore normale
+                    if nsError.code != 17011 {
                         self?.failedLoginAttempts += 1
                     }
                     completion(.failure(error))

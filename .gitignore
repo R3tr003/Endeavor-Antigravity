@@ -49,3 +49,4 @@ firestore-messaging.rules
 node_modules/
 functions/node_modules/
 functions/lib/
+functions/query_user.js
