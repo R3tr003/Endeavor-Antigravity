@@ -195,7 +195,8 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             "lastMessage": "",
             "lastMessageAt": now,
             "lastSenderId": "",
-            "unreadCounts": [userId1: 0, userId2: 0]
+            "unreadCounts": [userId1: 0, userId2: 0],
+            "pinnedBy": []
         ]
 
         newRef.setData(data) { error in
@@ -220,6 +221,53 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
         db.collection(conversationsCollection)
             .document(conversationId)
             .updateData(["unreadCounts.\(userId)": 0]) { error in
+                DispatchQueue.main.async { completion(error) }
+            }
+    }
+
+    // MARK: - Delete Conversation
+
+    func deleteConversation(
+        conversationId: String,
+        completion: @escaping (Error?) -> Void
+    ) {
+        let convRef = db.collection(conversationsCollection).document(conversationId)
+        let messagesRef = convRef.collection(messagesCollection)
+
+        // Delete all messages within the subcollection first
+        messagesRef.getDocuments { [weak self] snapshot, error in
+            guard let self = self else { return }
+            let batch = self.db.batch()
+
+            if let docs = snapshot?.documents {
+                for doc in docs {
+                    batch.deleteDocument(doc.reference)
+                }
+            }
+
+            // Delete the parent conversation document
+            batch.deleteDocument(convRef)
+
+            batch.commit { error in
+                DispatchQueue.main.async { completion(error) }
+            }
+        }
+    }
+
+    // MARK: - Pin Conversation
+
+    func togglePinConversation(
+        conversationId: String,
+        userId: String,
+        isPinned: Bool,
+        completion: @escaping (Error?) -> Void
+    ) {
+        let updateData: [String: Any] = [
+            "pinnedBy": isPinned ? FieldValue.arrayUnion([userId]) : FieldValue.arrayRemove([userId])
+        ]
+        db.collection(conversationsCollection)
+            .document(conversationId)
+            .updateData(updateData) { error in
                 DispatchQueue.main.async { completion(error) }
             }
     }
@@ -308,7 +356,8 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             lastMessage: data["lastMessage"] as? String ?? "",
             lastMessageAt: lastMessageAt,
             lastSenderId: data["lastSenderId"] as? String ?? "",
-            unreadCounts: data["unreadCounts"] as? [String: Int] ?? [:]
+            unreadCounts: data["unreadCounts"] as? [String: Int] ?? [:],
+            pinnedBy: data["pinnedBy"] as? [String] ?? []
         )
     }
 

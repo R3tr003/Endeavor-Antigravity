@@ -10,13 +10,17 @@ struct NewConversationView: View {
     @State private var searchText: String = ""
     @State private var isCreating: Bool = false
     @State private var creationError: String? = nil
+    @EnvironmentObject private var conversationsViewModel: ConversationsViewModel
     /// Chiamato dopo la creazione/recupero conversazione — passa (conversationId, recipientId)
     var onConversationReady: (String, String) -> Void
 
     @AppStorage("userId") private var currentUserId: String = ""
 
     private var filteredProfiles: [UserProfile] {
-        let others = networkViewModel.profiles.filter { $0.id.uuidString != currentUserId }
+        let others = networkViewModel.profiles.filter { profile in
+            profile.id.uuidString != currentUserId &&
+            !conversationsViewModel.hasConversation(with: profile.id.uuidString)
+        }
         if searchText.trimmingCharacters(in: .whitespaces).isEmpty { return others }
         return others.filter {
             $0.fullName.localizedCaseInsensitiveContains(searchText) ||

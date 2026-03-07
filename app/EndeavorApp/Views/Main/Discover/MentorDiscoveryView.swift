@@ -1,4 +1,5 @@
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct MentorDiscoveryView: View {
     @State private var query: String = ""
@@ -6,6 +7,12 @@ struct MentorDiscoveryView: View {
     @State private var hasSearched: Bool = false
     @State private var animateGlow: Bool = false
     @FocusState private var isInputFocused: Bool
+    
+    @EnvironmentObject private var conversationsViewModel: ConversationsViewModel
+    @StateObject private var networkViewModel = NetworkViewModel(repository: FirebaseNetworkRepository())
+    @AppStorage("userId") private var currentUserId: String = ""
+    @State private var activeConversation: Conversation?
+    @State private var showConversation: Bool = false
     
     var body: some View {
         StackNavigationView {
@@ -121,18 +128,47 @@ struct MentorDiscoveryView: View {
                                         .font(.system(size: 20, weight: .bold, design: .rounded))
                                         .foregroundColor(.primary)
                                     
-                                    VStack(spacing: DesignSystem.Spacing.standard) {
-                                        MatchCard(rank: 1, name: "Maria Lopez", role: "Former CEO at Netflix", matchPercent: 98,
-                                                  description: "Scaled 3 SaaS companies, expert in 50–200 employee growth phase",
-                                                  expertiseTags: ["SaaS Scaling", "Revenue Growth", "Enterprise Sales"])
-                                        
-                                        MatchCard(rank: 2, name: "Carlos Rodriguez", role: "Former VP Sales at SaaS Unicorn", matchPercent: 87,
-                                                  description: "Former VP Sales at SaaS Unicorn, specializes in team scaling",
-                                                  expertiseTags: ["Sales Strategy", "Team Building", "FinTech"])
-                                        
-                                        MatchCard(rank: 3, name: "Ana Martinez", role: "CEO, Series B SaaS Platform", matchPercent: 72,
-                                                  description: "CEO of growing SaaS platform, currently navigating 75–150 employee transition",
-                                                  expertiseTags: ["Fundraising", "Product", "Operations"])
+                                    let availableProfiles = networkViewModel.profiles.filter { profile in
+                                        profile.id.uuidString != currentUserId &&
+                                        !conversationsViewModel.hasConversation(with: profile.id.uuidString)
+                                    }
+                                    let matches = availableProfiles.prefix(3)
+                                    
+                                    if matches.isEmpty {
+                                        Text("No matches found. You might have already connected with everyone.")
+                                            .font(.system(size: 15, design: .rounded))
+                                            .foregroundColor(.secondary)
+                                            .padding(.vertical)
+                                    } else {
+                                        VStack(spacing: DesignSystem.Spacing.standard) {
+                                            ForEach(Array(matches.enumerated()), id: \.element.id) { index, profile in
+                                                let matchPercents = [98, 87, 72, 65, 50]
+                                                MatchCard(
+                                                    profile: profile,
+                                                    matchPercent: index < matchPercents.count ? matchPercents[index] : 50,
+                                                    companyName: networkViewModel.companyNames[profile.id.uuidString] ?? profile.role,
+                                                    onConnect: {
+                                                        conversationsViewModel.getOrCreateConversation(with: profile.id.uuidString) { result in
+                                                            if case .success(let convId) = result {
+                                                                let newConv = Conversation(
+                                                                    id: convId,
+                                                                    participantIds: [currentUserId, profile.id.uuidString],
+                                                                    lastMessage: "",
+                                                                    lastMessageAt: Date(),
+                                                                    lastSenderId: "",
+                                                                    unreadCounts: [:],
+                                                                    otherParticipantName: profile.fullName,
+                                                                    otherParticipantCompany: networkViewModel.companyNames[profile.id.uuidString] ?? profile.role,
+                                                                    otherParticipantImageUrl: profile.profileImageUrl
+                                                                )
+                                                                self.activeConversation = newConv
+                                                                self.showConversation = true
+                                                            }
+                                                        }
+                                                    }
+                                                )
+                                            }
+                                        }
                                     }
                                     
                                     // New Search Button
@@ -157,6 +193,16 @@ struct MentorDiscoveryView: View {
                     }
                     .padding(.horizontal, DesignSystem.Spacing.large)
                 }
+                .onAppear {
+                    if networkViewModel.profiles.isEmpty {
+                        networkViewModel.fetchUsers(currentUserId: currentUserId, isInitial: true)
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showConversation) {
+            if let activeConv = activeConversation {
+                ConversationView(conversation: activeConv, currentUserId: currentUserId)
             }
         }
     }
@@ -192,33 +238,45 @@ struct MentorDiscoveryView: View {
 }
 
 struct MatchCard: View {
-    let rank: Int
-    let name: String
-    let role: String
+    let profile: UserProfile
     let matchPercent: Int
-    let description: String
-    let expertiseTags: [String]
+    let companyName: String
+    let onConnect: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
             
             // Top Row
             HStack(spacing: DesignSystem.Spacing.small) {
-                // Initial Circle
-                Circle()
-                    .fill(Color.brandPrimary.opacity(0.15))
-                    .frame(width: 60, height: 60)
-                    .overlay(
-                        Text(String(name.prefix(1)))
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
-                            .foregroundColor(.brandPrimary)
-                    )
+                // Initial Circle or Avatar
+                if profile.profileImageUrl.isEmpty {
+                    Circle()
+                        .fill(Color.brandPrimary.opacity(0.15))
+                        .frame(width: 60, height: 60)
+                        .overlay(
+                            Text(String(profile.firstName.prefix(1)))
+                                .font(.system(size: 22, weight: .bold, design: .rounded))
+                                .foregroundColor(.brandPrimary)
+                        )
+                } else {
+                    WebImage(url: URL(string: profile.profileImageUrl)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 60, height: 60)
+                            .clipShape(Circle())
+                    } placeholder: {
+                        Circle()
+                            .fill(Color.brandPrimary.opacity(0.15))
+                            .frame(width: 60, height: 60)
+                    }
+                }
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(name)
+                    Text(profile.fullName)
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
-                    Text(role)
+                    Text(companyName)
                         .font(.system(size: 14, design: .rounded))
                         .foregroundColor(.secondary)
                 }
@@ -235,7 +293,7 @@ struct MatchCard: View {
             }
             
             // Description Row
-            Text(description)
+            Text("Experienced professional in the Endeavor network. Mentorship areas include: \(profile.role).")
                 .font(.system(size: 14, design: .rounded))
                 .foregroundColor(.secondary)
                 .lineLimit(2)
@@ -243,7 +301,7 @@ struct MatchCard: View {
             // Tags Row
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: DesignSystem.Spacing.xSmall) {
-                    ForEach(expertiseTags, id: \.self) { tag in
+                    ForEach(["Leadership", "Strategy", "Growth"], id: \.self) { tag in
                         Text(tag)
                             .font(.system(size: 12, weight: .medium, design: .rounded))
                             .foregroundColor(Color.brandPrimary)
@@ -256,7 +314,7 @@ struct MatchCard: View {
             }
             
             // Action Button
-            Button(action: {}) {
+            Button(action: onConnect) {
                 Text("Connect")
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                     .foregroundColor(.white)
@@ -275,4 +333,5 @@ struct MatchCard: View {
 
 #Preview {
     MentorDiscoveryView()
+        .environmentObject(ConversationsViewModel())
 }

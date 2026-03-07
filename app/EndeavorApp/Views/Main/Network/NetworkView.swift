@@ -15,7 +15,10 @@ struct NetworkView: View {
     @AppStorage("userId") private var currentUserId: String = ""
 
     private var filteredProfiles: [UserProfile] {
-        let others = viewModel.profiles.filter { $0.id.uuidString != currentUserId }
+        let others = viewModel.profiles.filter { profile in 
+            profile.id.uuidString != currentUserId &&
+            !conversationsViewModel.hasConversation(with: profile.id.uuidString)
+        }
         if searchText.isEmpty {
             return others
         } else {

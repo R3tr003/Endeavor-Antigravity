@@ -48,6 +48,20 @@ protocol MessagesRepositoryProtocol {
         completion: @escaping (Error?) -> Void
     )
 
+    /// Elimina un'intera conversazione e tutti i suoi messaggi
+    func deleteConversation(
+        conversationId: String,
+        completion: @escaping (Error?) -> Void
+    )
+
+    /// Aggiunge o rimuove un utente dall'elenco di chi ha fissato la conversazione (pinnedBy)
+    func togglePinConversation(
+        conversationId: String,
+        userId: String,
+        isPinned: Bool,
+        completion: @escaping (Error?) -> Void
+    )
+
     /// Recupera il UserProfile di un singolo utente per arricchire le conversazioni.
     func fetchUserProfile(
         userId: String,

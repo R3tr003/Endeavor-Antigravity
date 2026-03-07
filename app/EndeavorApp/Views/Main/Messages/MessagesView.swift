@@ -10,6 +10,8 @@ struct MessagesView: View {
     @State private var showNewConversation: Bool = false
     @State private var pendingConversationId: String? = nil
     @State private var pendingRecipientId: String? = nil
+    @State private var conversationToDelete: Conversation? = nil
+    @State private var showDeleteConfirmation: Bool = false
 
     var filteredConversations: [Conversation] {
         if searchText.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -97,10 +99,22 @@ struct MessagesView: View {
                         // Conversations List
                         VStack(spacing: DesignSystem.Spacing.small) {
                             ForEach(filteredConversations) { convo in
-                                ConversationRow(conversation: convo, currentUserId: UserDefaults.standard.string(forKey: "userId") ?? "")
-                                    .onTapGesture {
-                                        selectedConversation = convo
+                                SwipeableConversationRow(
+                                    conversation: convo,
+                                    currentUserId: UserDefaults.standard.string(forKey: "userId") ?? "",
+                                    onDelete: {
+                                        conversationToDelete = convo
+                                        showDeleteConfirmation = true
+                                    },
+                                    onTogglePin: {
+                                        let currentUid = UserDefaults.standard.string(forKey: "userId") ?? ""
+                                        let isPinned = convo.pinnedBy.contains(currentUid)
+                                        viewModel.togglePin(convo, isPinned: !isPinned)
                                     }
+                                )
+                                .onTapGesture {
+                                    selectedConversation = convo
+                                }
                             }
                             
                             if viewModel.conversations.isEmpty && !viewModel.isLoading {
@@ -178,6 +192,110 @@ struct MessagesView: View {
             pendingConversationId = nil
             pendingRecipientId = nil
         }
+        .alert("Delete Conversation", isPresented: $showDeleteConfirmation, presenting: conversationToDelete) { convo in
+            Button("Delete", role: .destructive) {
+                viewModel.deleteConversation(convo)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { convo in
+            Text("Are you sure you want to delete this conversation with \(convo.otherParticipantName)? This action cannot be undone.")
+        }
+    }
+}
+
+struct SwipeableConversationRow: View {
+    let conversation: Conversation
+    let currentUserId: String
+    let onDelete: () -> Void
+    let onTogglePin: () -> Void
+    
+    @State private var offset: CGFloat = 0
+    @State private var isSwipedLeft: Bool = false
+    
+    var isPinned: Bool {
+        conversation.pinnedBy.contains(currentUserId)
+    }
+    
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            // Sfondo con azione Delete (swipe verso sinistra)
+            ZStack(alignment: .trailing) {
+                Color.red
+                
+                VStack(spacing: 4) {
+                    Image(systemName: "trash.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                    Text("Delete")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                }
+                .foregroundColor(.black)
+                .padding(.trailing, 24)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xxLarge, style: .continuous))
+            .onTapGesture {
+                onDelete()
+                withAnimation(.spring()) {
+                    offset = 0
+                    isSwipedLeft = false
+                }
+            }
+            .opacity(offset < 0 ? 1 : 0)
+
+            // Sfondo con azione Pin (swipe verso destra)
+            ZStack(alignment: .leading) {
+                Color.green
+                
+                VStack(spacing: 4) {
+                    Image(systemName: isPinned ? "pin.slash.fill" : "pin.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                    Text(isPinned ? "Unpin" : "Pin")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                }
+                .foregroundColor(.black)
+                .padding(.leading, 24)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xxLarge, style: .continuous))
+            .opacity(offset > 0 ? 1 : 0)
+
+            // Foreground Content (la row normale)
+            ConversationRow(conversation: conversation, currentUserId: currentUserId)
+                .background(Color.background)
+                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xxLarge, style: .continuous))
+                .offset(x: offset)
+                .gesture(
+                    DragGesture()
+                        .onChanged { value in
+                            if isSwipedLeft {
+                                offset = min(max(value.translation.width - 100, -350), 100)
+                            } else {
+                                offset = min(max(value.translation.width, -350), 100)
+                            }
+                        }
+                        .onEnded { value in
+                            withAnimation(.spring()) {
+                                if value.translation.width < -150 {
+                                    // Full swipe: trigger delete immediately
+                                    offset = 0
+                                    isSwipedLeft = false
+                                    onDelete()
+                                } else if value.translation.width < -60 {
+                                    // Partial swipe: show delete button
+                                    offset = -100
+                                    isSwipedLeft = true
+                                } else if value.translation.width > 60 {
+                                    // Swipe right: toggle pin
+                                    onTogglePin()
+                                    offset = 0
+                                    isSwipedLeft = false
+                                } else {
+                                    // Cancel swipe
+                                    offset = 0
+                                    isSwipedLeft = false
+                                }
+                            }
+                        }
+                )
+        }
     }
 }
 
@@ -247,9 +365,17 @@ struct ConversationRow: View {
             
             // Metadata
             VStack(alignment: .trailing, spacing: DesignSystem.Spacing.xSmall) {
-                Text(conversation.displayTime)
-                    .font(.system(size: 12, design: .rounded))
-                    .foregroundColor(.secondary)
+                HStack(spacing: 4) {
+                    if conversation.pinnedBy.contains(currentUserId) {
+                        Image(systemName: "pin.fill")
+                            .font(.system(size: 10))
+                            .foregroundColor(Color(UIColor.lightGray))
+                            .rotationEffect(.degrees(45))
+                    }
+                    Text(conversation.displayTime)
+                        .font(.system(size: 12, design: .rounded))
+                        .foregroundColor(.secondary)
+                }
                 
                 if conversation.unreadCount(for: currentUserId) > 0 {
                     Text("\(conversation.unreadCount(for: currentUserId))")
@@ -263,8 +389,8 @@ struct ConversationRow: View {
             }
         }
         .padding(DesignSystem.Spacing.standard)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous).stroke(Color.borderGlare.opacity(0.12), lineWidth: 1))
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xxLarge, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xxLarge, style: .continuous).stroke(Color.borderGlare.opacity(0.12), lineWidth: 1))
         .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
     }
 }

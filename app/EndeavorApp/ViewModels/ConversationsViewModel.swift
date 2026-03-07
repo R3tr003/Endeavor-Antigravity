@@ -16,6 +16,11 @@ class ConversationsViewModel: ObservableObject {
         }
     }
 
+    /// Checks if a conversation already exists with the given user ID.
+    func hasConversation(with otherUserId: String) -> Bool {
+        return conversations.contains { $0.participantIds.contains(otherUserId) }
+    }
+
     private let repository: MessagesRepositoryProtocol
     private var conversationsListener: ListenerRegistration?
 
@@ -90,6 +95,46 @@ class ConversationsViewModel: ObservableObject {
         )
     }
 
+    // MARK: - Delete Conversation
+
+    func deleteConversation(_ conversation: Conversation) {
+        let conversationId = conversation.id
+        
+        repository.deleteConversation(conversationId: conversationId) { [weak self] error in
+            if let error = error {
+                self?.appError = .unknown(reason: "Could not delete conversation: \(error.localizedDescription)")
+            } else {
+                // Rimuoviamo localmente. Il listener in ogni caso dovrebbe sincronizzare,
+                // ma aggiornare l'UI al volo rende tutto più fluido.
+                self?.conversations.removeAll { $0.id == conversationId }
+            }
+        }
+    }
+
+    // MARK: - Pin Conversation
+
+    func togglePin(_ conversation: Conversation, isPinned: Bool) {
+        guard let currentUserId = UserDefaults.standard.string(forKey: "userId") else { return }
+        
+        // Aggiorna optimisticamente l'UI
+        if let index = conversations.firstIndex(where: { $0.id == conversation.id }) {
+            var updated = conversations[index]
+            if isPinned {
+                if !updated.pinnedBy.contains(currentUserId) { updated.pinnedBy.append(currentUserId) }
+            } else {
+                updated.pinnedBy.removeAll { $0 == currentUserId }
+            }
+            conversations[index] = updated
+            self.sortConversations(currentUserId: currentUserId)
+        }
+        
+        repository.togglePinConversation(conversationId: conversation.id, userId: currentUserId, isPinned: isPinned) { [weak self] error in
+            if let error = error {
+                self?.appError = .unknown(reason: "Could not pin/unpin conversation: \(error.localizedDescription)")
+            }
+        }
+    }
+
     // MARK: - Enrich Conversations
 
     /// Recupera i profili degli altri partecipanti e li inserisce nelle conversazioni.
@@ -108,9 +153,11 @@ class ConversationsViewModel: ObservableObject {
 
         // Se tutti i profili sono in cache, aggiorna subito
         guard !idsToFetch.isEmpty else {
-            self.conversations = rawConversations.map {
+            let enriched = rawConversations.map {
                 self.applyProfile(to: $0, currentUserId: currentUserId)
             }
+            self.conversations = enriched
+            self.sortConversations(currentUserId: currentUserId)
             return
         }
 
@@ -146,9 +193,22 @@ class ConversationsViewModel: ObservableObject {
 
         group.notify(queue: .main) { [weak self] in
             guard let self = self else { return }
-            self.conversations = rawConversations.map {
+            let enriched = rawConversations.map {
                 self.applyProfile(to: $0, currentUserId: currentUserId)
             }
+            self.conversations = enriched
+            self.sortConversations(currentUserId: currentUserId)
+        }
+    }
+
+    private func sortConversations(currentUserId: String) {
+        self.conversations.sort { c1, c2 in
+            let c1Pinned = c1.pinnedBy.contains(currentUserId)
+            let c2Pinned = c2.pinnedBy.contains(currentUserId)
+            if c1Pinned == c2Pinned {
+                return c1.lastMessageAt > c2.lastMessageAt
+            }
+            return c1Pinned && !c2Pinned
         }
     }
 

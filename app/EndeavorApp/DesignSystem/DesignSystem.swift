@@ -21,6 +21,7 @@ public struct DesignSystem {
         public static let medium: CGFloat = 12
         public static let large: CGFloat = 16
         public static let xLarge: CGFloat = 24
+        public static let xxLarge: CGFloat = 32
         public static let circle: CGFloat = 100
     }
     
