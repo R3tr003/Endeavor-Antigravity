@@ -14,10 +14,6 @@ struct UserProfileView: View {
     @State private var showConversation: Bool = false
     @Environment(\.dismiss) private var dismiss
     
-    var hasFocusData: Bool {
-        !(company?.challenges.isEmpty ?? true) || !(company?.desiredExpertise.isEmpty ?? true)
-    }
-
     var body: some View {
         ZStack {
             Color.background.edgesIgnoringSafeArea(.all)
@@ -45,7 +41,6 @@ struct UserProfileView: View {
                         heroSection
                         if !profile.personalBio.isEmpty { aboutSection }
                         companySection
-                        if hasFocusData && !isLoadingCompany { focusSection }
                     }
                     .padding(.bottom, 100) // spazio per il bottone sticky
                 }
@@ -71,8 +66,6 @@ struct UserProfileView: View {
                             industries: data["industries"] as? [String] ?? [],
                             stage: data["stage"] as? String ?? "",
                             employeeRange: data["employeeRange"] as? String ?? "",
-                            challenges: data["challenges"] as? [String] ?? [],
-                            desiredExpertise: data["desiredExpertise"] as? [String] ?? [],
                             companyBio: data["companyBio"] as? String ?? "",
                             logoUrl: data["logoUrl"] as? String ?? "",
                             vertical: data["vertical"] as? String ?? ""
@@ -248,32 +241,7 @@ struct UserProfileView: View {
         }
     }
     
-    private var focusSection: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
-            sectionTitle("Focus")
-                .padding(.horizontal, DesignSystem.Spacing.large)
-            
-            if let challenges = company?.challenges, !challenges.isEmpty {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
-                    Text("Looking for help with")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, DesignSystem.Spacing.large)
-                    horizontalChips(challenges, filled: true)
-                }
-            }
-            
-            if let expertise = company?.desiredExpertise, !expertise.isEmpty {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
-                    Text("Can help with")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, DesignSystem.Spacing.large)
-                    horizontalChips(expertise, filled: false)
-                }
-            }
-        }
-    }
+
     
     private var messageButton: some View {
         Button(action: {
@@ -353,24 +321,6 @@ struct UserProfileView: View {
             Text(text)
                 .font(.subheadline)
                 .foregroundColor(.primary.opacity(0.85))
-        }
-    }
-
-    private func horizontalChips(_ items: [String], filled: Bool) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: DesignSystem.Spacing.small) {
-                ForEach(items, id: \.self) { item in
-                    Text(item)
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
-                        .lineLimit(1)
-                        .layoutPriority(1)
-                        .foregroundColor(filled ? .white : Color.brandPrimary)
-                        .padding(.horizontal, 12).padding(.vertical, 6)
-                        .background(filled ? Color.brandPrimary : Color.brandPrimary.opacity(0.12))
-                        .clipShape(Capsule())
-                }
-            }
-            .padding(.horizontal, DesignSystem.Spacing.large)
         }
     }
 }
