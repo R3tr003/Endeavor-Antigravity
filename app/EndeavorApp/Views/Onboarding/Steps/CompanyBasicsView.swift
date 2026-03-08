@@ -130,26 +130,27 @@ struct CompanyBasicsView: View {
                     .disabled(viewModel.company.hqCountry.isEmpty)
                 }
                 
-                // Industry Multi-Select
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
+                // Industry (Read Only)
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                     HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                        Text("Industry (select up to 3)")
+                        Text("Industry")
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(.secondary)
-                        Text("*")
-                            .font(.subheadline.weight(.bold))
-                            .foregroundColor(.red)
                     }
                     
-                    FlowLayout(spacing: DesignSystem.Spacing.xSmall) {
-                        ForEach(viewModel.availableIndustries, id: \.self) { industry in
-                            SelectablePill(
-                                title: industry,
-                                isSelected: viewModel.company.industries.contains(industry),
-                                action: { viewModel.toggleIndustry(industry) }
-                            )
-                        }
+                    HStack {
+                        let indStrings = viewModel.company.industries
+                        Text(indStrings.isEmpty ? "Not available" : indStrings.joined(separator: ", "))
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Image(systemName: "lock.fill")
+                            .foregroundColor(.secondary.opacity(0.5))
+                            .font(.system(size: 14))
                     }
+                    .padding(DesignSystem.Spacing.standard)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                    .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium).stroke(Color.primary.opacity(0.1), lineWidth: 1))
                 }
                 
                 // Company Stage Dropdown

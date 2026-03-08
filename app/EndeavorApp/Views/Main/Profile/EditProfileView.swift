@@ -47,13 +47,7 @@ struct EditProfileView: View {
     @FocusState private var focusNewEmail: Bool
     @FocusState private var focusPassword: Bool
     
-    // Arrays for Dropdowns
-    let availableIndustries = [
-        "FinTech", "HealthTech", "AdTech", "E-commerce",
-        "SaaS", "DeepTech", "AI / ML", "ClimateTech",
-        "PropTech", "Mobility", "Consumer", "Other"
-    ]
-    
+
     let availableStages = [
         "Pre-Seed", "Seed", "Series A", "Series B", "Series C+", "Public"
     ]
@@ -460,10 +454,28 @@ struct EditProfileView: View {
             }
             
             glassSection(title: "Additional Details") {
-                glassDropdown(title: "Industry", selection: industry, placeholder: "Select an industry", isRequired: true) {
-                    ForEach(availableIndustries, id: \.self) { ind in
-                        Button(ind) { industry = ind }
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
+                    HStack(spacing: DesignSystem.Spacing.xxSmall) {
+                        Text("Industry")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary.opacity(0.8))
                     }
+                    
+                    HStack {
+                        Text(industry.isEmpty ? "Not available" : industry)
+                            .font(.system(size: 16, design: .rounded))
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Image(systemName: "lock.fill")
+                            .foregroundColor(.secondary.opacity(0.5))
+                            .font(.system(size: 14))
+                    }
+                    .padding(DesignSystem.Spacing.standard)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                            .stroke(Color.borderGlare.opacity(0.15), lineWidth: 1)
+                    )
                 }
                 
                 glassDropdown(title: "Company Stage", selection: stage, placeholder: "Select a stage", isRequired: true) {

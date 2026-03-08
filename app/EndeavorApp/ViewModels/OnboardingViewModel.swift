@@ -32,7 +32,7 @@ class OnboardingViewModel: ObservableObject {
     
     var isStep2Valid: Bool {
         // Combined validation for Company Basics (old steps 2 & 3)
-        !company.name.isEmpty && !company.website.isEmpty && !company.hqCountry.isEmpty && !company.hqCity.isEmpty && !company.industries.isEmpty && !company.stage.isEmpty && !company.employeeRange.isEmpty
+        !company.name.isEmpty && !company.website.isEmpty && !company.hqCountry.isEmpty && !company.hqCity.isEmpty && !company.stage.isEmpty && !company.employeeRange.isEmpty
     }
     
     var isStep3Valid: Bool {
@@ -132,8 +132,10 @@ class OnboardingViewModel: ObservableObject {
         company.hqCity      = data.companyCity
         company.companyBio  = data.companyBio
         if !data.companyVertical.isEmpty {
-            company.vertical    = data.companyVertical
-            company.industries  = [data.companyVertical]
+            company.vertical = data.companyVertical
+        }
+        if !data.companyIndustry.isEmpty {
+            company.industries = [data.companyIndustry]
         }
         company.endeavorChapter = data.companyChapter
         

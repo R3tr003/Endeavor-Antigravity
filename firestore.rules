@@ -40,8 +40,8 @@ service cloud.firestore {
       && data.employeeRange is string && data.employeeRange.size() <= 50
       && data.companyBio is string && data.companyBio.size() <= 1000
       && data.industries is list && data.industries.size() <= 10
-      && data.challenges is list && data.challenges.size() <= 3
-      && data.desiredExpertise is list && data.desiredExpertise.size() <= 10
+      && (!('challenges' in data) || (data.challenges is list && data.challenges.size() <= 3))
+      && (!('desiredExpertise' in data) || (data.desiredExpertise is list && data.desiredExpertise.size() <= 10))
       && (!('logoUrl' in data) || data.logoUrl is string)
       && (!('vertical' in data) || data.vertical is string)
       && (!('endeavorChapter' in data) || data.endeavorChapter is string);

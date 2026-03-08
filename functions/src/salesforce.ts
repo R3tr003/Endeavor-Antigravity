@@ -150,7 +150,7 @@ export const getSalesforceContactData = onCall(
              Phone, MobilePhone,
              AccountId, Account.Name, Account.Website, Account.BillingCountry,
              Account.BillingCity, Account.Description, Account.Vertical__c,
-             Account.Endeavor_Chapter__c
+             Account.Endeavor_Chapter__c, Account.Industry
       FROM Contact
       WHERE Id = '${contactId.replace(/'/g, "\\'")}'
       LIMIT 1
@@ -181,6 +181,7 @@ export const getSalesforceContactData = onCall(
             companyCity: (account["BillingCity"] as string) || "",
             companyBio: (account["Description"] as string) || "",
             companyVertical: (account["Vertical__c"] as string) || "",
+            companyIndustry: (account["Industry"] as string) || "",
             companyChapter: (account["Endeavor_Chapter__c"] as string) || "",
         };
     }
@@ -209,7 +210,7 @@ export const checkAndFetchSalesforceContact = onCall(
                    Phone, MobilePhone,
                    AccountId, Account.Name, Account.Website, Account.BillingCountry,
                    Account.BillingCity, Account.Description, Account.Vertical__c,
-                   Account.Endeavor_Chapter__c
+                   Account.Endeavor_Chapter__c, Account.Industry
             FROM Contact
             WHERE Email = '${email.replace(/'/g, "\\'")}'
             LIMIT 1
@@ -244,6 +245,7 @@ export const checkAndFetchSalesforceContact = onCall(
             companyCity: (account["BillingCity"] as string) || "",
             companyBio: (account["Description"] as string) || "",
             companyVertical: (account["Vertical__c"] as string) || "",
+            companyIndustry: (account["Industry"] as string) || "",
             companyChapter: (account["Endeavor_Chapter__c"] as string) || "",
         };
     }

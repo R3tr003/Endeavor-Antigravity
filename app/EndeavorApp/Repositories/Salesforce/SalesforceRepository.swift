@@ -25,6 +25,7 @@ struct SalesforceContactData {
     let companyCity: String
     let companyBio: String
     let companyVertical: String
+    let companyIndustry: String
     let companyChapter: String
 }
 
@@ -93,6 +94,7 @@ final class SalesforceRepository: SalesforceRepositoryProtocol {
             companyCity:     data["companyCity"]     as? String ?? "",
             companyBio:      data["companyBio"]      as? String ?? "",
             companyVertical: data["companyVertical"] as? String ?? "",
+            companyIndustry: data["companyIndustry"] as? String ?? "",
             companyChapter:  data["companyChapter"]  as? String ?? ""
         )
     }
@@ -132,6 +134,7 @@ final class SalesforceRepository: SalesforceRepositoryProtocol {
             companyCity:     data["companyCity"]     as? String ?? "",
             companyBio:      data["companyBio"]      as? String ?? "",
             companyVertical: data["companyVertical"] as? String ?? "",
+            companyIndustry: data["companyIndustry"] as? String ?? "",
             companyChapter:  data["companyChapter"]  as? String ?? ""
         )
         
