@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var appViewModel: AppViewModel
+    @EnvironmentObject var conversationsViewModel: ConversationsViewModel
     
     // For scroll-based animations
     @State private var scrollOffset: CGFloat = 0
@@ -69,7 +70,7 @@ struct HomeView: View {
                                 Text("Awaiting Messages")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
-                                Text("4")
+                                Text("\(conversationsViewModel.totalUnreadCount)")
                                     .font(.system(size: 32, weight: .bold, design: .rounded))
                                     .foregroundColor(.primary)
                             }
@@ -289,5 +290,6 @@ struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
             .environmentObject(AppViewModel())
+            .environmentObject(ConversationsViewModel())
     }
 }

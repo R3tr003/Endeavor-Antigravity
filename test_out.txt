@@ -1,0 +1,29 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild test -project /Users/philippmasia-westhoff/Desktop/MIM/IPA/Endeavor-Antigravity/app/app.xcodeproj -scheme app -destination "platform=iOS Simulator,name=iPhone 17 Pro"
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024072200.0
+  GoogleAdsOnDeviceConversion: https://github.com/googleads/google-ads-on-device-conversion-ios-sdk @ 3.2.0
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 12.8.0
+  nanopb: https://github.com/firebase/nanopb.git @ 2.30910.0
+  AppCheck: https://github.com/google/app-check.git @ 11.2.0
+  SDWebImage: https://github.com/SDWebImage/SDWebImage.git @ 5.21.6
+  Firebase: https://github.com/firebase/firebase-ios-sdk @ 12.9.0
+  GoogleSignIn: https://github.com/google/GoogleSignIn-iOS @ 9.1.0
+  GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 10.1.0
+  leveldb: https://github.com/firebase/leveldb.git @ 1.22.5
+  Promises: https://github.com/google/promises.git @ 2.4.0
+  gRPC: https://github.com/google/grpc-binary.git @ 1.69.1
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 3.5.0
+  GTMAppAuth: https://github.com/google/GTMAppAuth.git @ 5.0.0
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.0
+  AppAuth: https://github.com/openid/AppAuth-iOS.git @ 2.0.0
+  SDWebImageSwiftUI: https://github.com/SDWebImage/SDWebImageSwiftUI.git @ 3.1.4
+
+2026-03-08 17:23:25.488 xcodebuild[1975:12515850] Writing error result bundle to /var/folders/3r/wzfvnfjd63d8hpzz3dl8_sb40000gn/T/ResultBundle_2026-08-03_17-23-0025.xcresult
+xcodebuild: error: Scheme app is not currently configured for the test action.
+
