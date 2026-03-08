@@ -16,10 +16,9 @@ struct EditProfileView: View {
     @State private var hqCountry: String = ""
     @State private var hqCity: String = ""
     @State private var companyBio: String = "" // About Company
-    
-    // Focus info
-    @State private var challenges: [String] = []
-    @State private var desiredExpertise: [String] = []
+    @State private var stage: String = ""
+    @State private var employeeRange: String = ""
+    @State private var industry: String = ""
     
     @State private var selectedTab: String = "Personal"
     
@@ -48,9 +47,20 @@ struct EditProfileView: View {
     @FocusState private var focusNewEmail: Bool
     @FocusState private var focusPassword: Bool
     
-    // Available options for Focus
-    let availableChallenges = ["Hiring", "Fundraising", "Go-to-market", "Ops", "Product", "Intl Expansion"]
-    let availableExpertise = ["Scaling", "Product", "Marketing", "Investment", "Strategy", "Operations", "Sales", "Legal"]
+    // Arrays for Dropdowns
+    let availableIndustries = [
+        "FinTech", "HealthTech", "AdTech", "E-commerce",
+        "SaaS", "DeepTech", "AI / ML", "ClimateTech",
+        "PropTech", "Mobility", "Consumer", "Other"
+    ]
+    
+    let availableStages = [
+        "Pre-Seed", "Seed", "Series A", "Series B", "Series C+", "Public"
+    ]
+    
+    let availableEmployeeRanges = [
+        "1-10", "11-50", "51-200", "201-500", "501+"
+    ]
     
     // Country/City data
     var availableCountries: [String] { LocationData.shared.availableCountries }
@@ -123,7 +133,7 @@ struct EditProfileView: View {
                 
                 // MARK: - Glass Pill Tabs
                 HStack(spacing: 12) {
-                    ForEach(["Personal", "Company", "Focus"], id: \.self) { tab in
+                    ForEach(["Personal", "Company"], id: \.self) { tab in
                         Button(action: {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                 selectedTab = tab
@@ -159,8 +169,6 @@ struct EditProfileView: View {
                             personalEditContent
                         } else if selectedTab == "Company" {
                             companyEditContent
-                        } else {
-                            focusEditContent
                         }
                     }
                     .padding(DesignSystem.Spacing.medium)
@@ -451,83 +459,30 @@ struct EditProfileView: View {
                 .disabled(hqCountry.isEmpty)
             }
             
-            glassSection(title: "About Company") {
-                glassTextEditor(title: "Company Bio", placeholder: "Describe your company mission and goals...", text: $companyBio, charLimit: 1000, isHighlighted: focusCompanyBio, isRequired: true)
-                    .focused($focusCompanyBio)
-            }
-        }
-    }
-    
-    // MARK: - Focus Tab
-    var focusEditContent: some View {
-        VStack(spacing: DesignSystem.Spacing.large) {
-            glassSection(title: "Your Top 3 Challenges") {
-                FlowLayout(spacing: DesignSystem.Spacing.xSmall) {
-                    ForEach(availableChallenges, id: \.self) { challenge in
-                        Button(action: { toggleChallenge(challenge) }) {
-                            Text(challenge)
-                                .font(.system(size: 14, weight: challenges.contains(challenge) ? .bold : .medium, design: .rounded))
-                                .foregroundColor(challenges.contains(challenge) ? .white : .primary)
-                                .padding(.vertical, 10)
-                                .padding(.horizontal, DesignSystem.Spacing.standard)
-                                .background(
-                                    challenges.contains(challenge)
-                                    ? AnyShapeStyle(Color.brandPrimary)
-                                    : AnyShapeStyle(.ultraThinMaterial),
-                                    in: Capsule()
-                                )
-                                .overlay(
-                                    Capsule().stroke(
-                                        challenges.contains(challenge) ? Color.brandPrimary.opacity(0.5) : Color.borderGlare.opacity(0.15),
-                                        lineWidth: 1
-                                    )
-                                )
-                        }
+            glassSection(title: "Additional Details") {
+                glassDropdown(title: "Industry", selection: industry, placeholder: "Select an industry", isRequired: true) {
+                    ForEach(availableIndustries, id: \.self) { ind in
+                        Button(ind) { industry = ind }
+                    }
+                }
+                
+                glassDropdown(title: "Company Stage", selection: stage, placeholder: "Select a stage", isRequired: true) {
+                    ForEach(availableStages, id: \.self) { s in
+                        Button(s) { stage = s }
+                    }
+                }
+                
+                glassDropdown(title: "Number of Employees", selection: employeeRange, placeholder: "Select employee range", isRequired: true) {
+                    ForEach(availableEmployeeRanges, id: \.self) { range in
+                        Button(range) { employeeRange = range }
                     }
                 }
             }
             
-            glassSection(title: "Desired Mentor Expertise") {
-                FlowLayout(spacing: DesignSystem.Spacing.xSmall) {
-                    ForEach(availableExpertise, id: \.self) { expertise in
-                        Button(action: { toggleExpertise(expertise) }) {
-                            Text(expertise)
-                                .font(.system(size: 14, weight: desiredExpertise.contains(expertise) ? .bold : .medium, design: .rounded))
-                                .foregroundColor(desiredExpertise.contains(expertise) ? .white : .primary)
-                                .padding(.vertical, 10)
-                                .padding(.horizontal, DesignSystem.Spacing.standard)
-                                .background(
-                                    desiredExpertise.contains(expertise)
-                                    ? AnyShapeStyle(Color.brandPrimary)
-                                    : AnyShapeStyle(.ultraThinMaterial),
-                                    in: Capsule()
-                                )
-                                .overlay(
-                                    Capsule().stroke(
-                                        desiredExpertise.contains(expertise) ? Color.brandPrimary.opacity(0.5) : Color.borderGlare.opacity(0.15),
-                                        lineWidth: 1
-                                    )
-                                )
-                        }
-                    }
-                }
+            glassSection(title: "About Company") {
+                glassTextEditor(title: "Company Bio", placeholder: "Describe your company mission and goals...", text: $companyBio, charLimit: 1000, isHighlighted: focusCompanyBio, isRequired: true)
+                    .focused($focusCompanyBio)
             }
-        }
-    }
-    
-    func toggleChallenge(_ challenge: String) {
-        if challenges.contains(challenge) {
-            challenges.removeAll { $0 == challenge }
-        } else if challenges.count < 3 {
-            challenges.append(challenge)
-        }
-    }
-    
-    func toggleExpertise(_ expertise: String) {
-        if desiredExpertise.contains(expertise) {
-            desiredExpertise.removeAll { $0 == expertise }
-        } else if desiredExpertise.count < 3 {
-            desiredExpertise.append(expertise)
         }
     }
     
@@ -581,9 +536,10 @@ struct EditProfileView: View {
         appViewModel.companyProfile?.website = website
         appViewModel.companyProfile?.hqCountry = hqCountry
         appViewModel.companyProfile?.hqCity = hqCity
+        appViewModel.companyProfile?.stage = stage
+        appViewModel.companyProfile?.employeeRange = employeeRange
+        appViewModel.companyProfile?.industries = [industry]
         appViewModel.companyProfile?.companyBio = companyBio
-        appViewModel.companyProfile?.challenges = challenges
-        appViewModel.companyProfile?.desiredExpertise = desiredExpertise
         
         // Persist to Firestore
         appViewModel.saveProfileChanges { success in
@@ -643,9 +599,10 @@ struct EditProfileView: View {
             website = company.website
             hqCountry = company.hqCountry
             hqCity = company.hqCity
+            stage = company.stage
+            employeeRange = company.employeeRange
+            industry = company.industries.first ?? ""
             companyBio = company.companyBio
-            challenges = company.challenges
-            desiredExpertise = company.desiredExpertise
         }
         
         // Ensure animation happens only once or is handled correctly

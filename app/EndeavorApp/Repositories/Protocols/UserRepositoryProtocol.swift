@@ -14,6 +14,11 @@ protocol UserRepositoryProtocol {
     /// Returns the UUID stored in that doc, or nil if none found.
     func findAnyUserDoc(email: String, completion: @escaping (UUID?) -> Void)
     
+    /// Fetches a partial user profile by email: returns the user doc data (if found) and
+    /// optionally the associated company doc. Unlike `findCompleteUserProfile`, this does
+    /// NOT fail if the company doc is missing.
+    func findPartialUserProfile(email: String, completion: @escaping (UserProfile?, CompanyProfile?) -> Void)
+    
     /// Persists a UserProfile.
     func saveUserProfile(_ profile: UserProfile, completion: @escaping (Error?) -> Void)
     

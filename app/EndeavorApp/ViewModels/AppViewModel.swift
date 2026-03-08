@@ -381,10 +381,10 @@ class AppViewModel: ObservableObject {
                             guard let self = self else { return }
                             self.isSalesforceChecking = true
                             
-                            // Check for existing partial users doc to reuse its UUID
-                            let existingId: UUID? = await withCheckedContinuation { cont in
-                                self.userRepository.findAnyUserDoc(email: email.lowercased()) { id in
-                                    cont.resume(returning: id)
+                            // Fetch existing partial profile (user doc + optional company doc)
+                            let (existingUser, existingCompany): (UserProfile?, CompanyProfile?) = await withCheckedContinuation { cont in
+                                self.userRepository.findPartialUserProfile(email: email.lowercased()) { user, company in
+                                    cont.resume(returning: (user, company))
                                 }
                             }
                             
@@ -405,8 +405,17 @@ class AppViewModel: ObservableObject {
                                 lastName: googleLastName,
                                 photoUrl: googlePhotoUrl,
                                 isGoogle: isGoogleUser,
-                                existingId: existingId
+                                existingId: existingUser?.id
                             )
+                            
+                            // Pre-fill from existing Firestore data AFTER prepareOnboardingForNewUser
+                            // so that existing data takes priority over empty defaults
+                            if let existingUser = existingUser {
+                                self.onboardingViewModel.prefillFromExistingData(
+                                    existingUser: existingUser,
+                                    existingCompany: existingCompany
+                                )
+                            }
                             
                             UserDefaults.standard.set(true, forKey: "isLoggedIn")
                             self.authService.isLoggedIn = true

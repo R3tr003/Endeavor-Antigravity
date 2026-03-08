@@ -70,8 +70,6 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                 industries: data["industries"] as? [String] ?? [],
                 stage: data["stage"] as? String ?? "",
                 employeeRange: data["employeeRange"] as? String ?? "",
-                challenges: data["challenges"] as? [String] ?? [],
-                desiredExpertise: data["desiredExpertise"] as? [String] ?? [],
                 companyBio: data["companyBio"] as? String ?? "",
                 logoUrl: data["logoUrl"] as? String ?? "",
                 vertical: data["vertical"] as? String ?? ""
@@ -105,6 +103,65 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                 return
             }
             completion(uuid)
+        }
+    }
+    
+    func findPartialUserProfile(email: String, completion: @escaping (UserProfile?, CompanyProfile?) -> Void) {
+        db.collection(usersCollection).whereField("email", isEqualTo: email).limit(to: 1).getDocuments { [weak self] snapshot, _ in
+            guard let self = self,
+                  let doc = snapshot?.documents.first else {
+                completion(nil, nil)
+                return
+            }
+            
+            let data = doc.data()
+            let userId = data["id"] as? String ?? ""
+            
+            var user = UserProfile(
+                id: UUID(uuidString: userId) ?? UUID(),
+                firstName: data["firstName"] as? String ?? "",
+                lastName: data["lastName"] as? String ?? "",
+                role: data["role"] as? String ?? "",
+                email: data["email"] as? String ?? "",
+                location: data["location"] as? String ?? "",
+                timeZone: data["timeZone"] as? String ?? "",
+                profileImageUrl: data["profileImageUrl"] as? String ?? "",
+                personalBio: data["personalBio"] as? String ?? ""
+            )
+            user.userType    = data["userType"] as? String ?? ""
+            user.nationality = data["nationality"] as? String ?? ""
+            user.languages   = data["languages"] as? [String] ?? []
+            user.phone       = data["phone"] as? String ?? ""
+            
+            if let createdAtTimestamp = data["createdAt"] as? Timestamp {
+                user.createdAt = createdAtTimestamp.dateValue()
+            }
+            if let lastLoginAtTimestamp = data["lastLoginAt"] as? Timestamp {
+                user.lastLoginAt = lastLoginAtTimestamp.dateValue()
+            }
+            
+            // Try to fetch company, but don't fail if missing
+            self.db.collection(self.companiesCollection).whereField("userId", isEqualTo: userId).limit(to: 1).getDocuments { snapshot, _ in
+                if let companyDoc = snapshot?.documents.first {
+                    let cData = companyDoc.data()
+                    let company = CompanyProfile(
+                        id: UUID(uuidString: cData["id"] as? String ?? "") ?? UUID(),
+                        name: cData["name"] as? String ?? "",
+                        website: cData["website"] as? String ?? "",
+                        hqCountry: cData["hqCountry"] as? String ?? "",
+                        hqCity: cData["hqCity"] as? String ?? "",
+                        industries: cData["industries"] as? [String] ?? [],
+                        stage: cData["stage"] as? String ?? "",
+                        employeeRange: cData["employeeRange"] as? String ?? "",
+                        companyBio: cData["companyBio"] as? String ?? "",
+                        logoUrl: cData["logoUrl"] as? String ?? "",
+                        vertical: cData["vertical"] as? String ?? ""
+                    )
+                    completion(user, company)
+                } else {
+                    completion(user, nil)
+                }
+            }
         }
     }
     
@@ -152,8 +209,6 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                     industries: data["industries"] as? [String] ?? [],
                     stage: data["stage"] as? String ?? "",
                     employeeRange: data["employeeRange"] as? String ?? "",
-                    challenges: data["challenges"] as? [String] ?? [],
-                    desiredExpertise: data["desiredExpertise"] as? [String] ?? [],
                     companyBio: data["companyBio"] as? String ?? "",
                     logoUrl: data["logoUrl"] as? String ?? "",
                     vertical: data["vertical"] as? String ?? ""
@@ -203,8 +258,6 @@ class FirebaseUserRepository: UserRepositoryProtocol {
             "industries": company.industries,
             "stage": company.stage,
             "employeeRange": company.employeeRange,
-            "challenges": company.challenges,
-            "desiredExpertise": company.desiredExpertise,
             "companyBio": company.companyBio,
             "logoUrl": company.logoUrl,
             "vertical": company.vertical
@@ -252,8 +305,6 @@ class FirebaseUserRepository: UserRepositoryProtocol {
             "industries": company.industries,
             "stage": company.stage,
             "employeeRange": company.employeeRange,
-            "challenges": company.challenges,
-            "desiredExpertise": company.desiredExpertise,
             "companyBio": company.companyBio,
             "logoUrl": company.logoUrl,
             "vertical": company.vertical

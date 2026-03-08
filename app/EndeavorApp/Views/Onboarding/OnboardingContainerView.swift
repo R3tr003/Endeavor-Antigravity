@@ -218,10 +218,8 @@ struct OnboardingContainerView: View {
         case 2:
             CompanyBasicsView(viewModel: viewModel)
         case 3:
-            FocusView(viewModel: viewModel)
-        case 4:
             CompanyBioLogoView(viewModel: viewModel, hideImageUpload: viewModel.isSocialLogin && !viewModel.user.profileImageUrl.isEmpty)
-        case 5:
+        case 4:
             ReviewFinishView(viewModel: viewModel)
         default:
             EmptyView()
@@ -233,8 +231,7 @@ struct OnboardingContainerView: View {
         case 1: return viewModel.isStep1Valid
         case 2: return viewModel.isStep2Valid
         case 3: return viewModel.isStep3Valid
-        case 4: return viewModel.isStep4Valid
-        case 5: return true
+        case 4: return true
         default: return false
         }
     }
@@ -243,9 +240,8 @@ struct OnboardingContainerView: View {
         switch step {
         case 1: return "personal_information"
         case 2: return "company_basics"
-        case 3: return "focus"
-        case 4: return "company_bio_logo"
-        case 5: return "review_finish"
+        case 3: return "company_bio_logo"
+        case 4: return "review_finish"
         default: return "unknown"
         }
     }

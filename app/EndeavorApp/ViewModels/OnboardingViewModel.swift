@@ -9,7 +9,7 @@ class OnboardingViewModel: ObservableObject {
     
     // Navigation State
     @Published var currentStep: Int = 1
-    @Published var totalSteps: Int = 5 // Reduced from 6
+    @Published var totalSteps: Int = 4
     @Published var isSocialLogin: Bool = false // Tracks if user came from Google/Apple
     
     // Salesforce pre-fill indicator
@@ -36,18 +36,8 @@ class OnboardingViewModel: ObservableObject {
     }
     
     var isStep3Valid: Bool {
-        // Old Step 4 (Focus)
-        !company.challenges.isEmpty && !company.desiredExpertise.isEmpty
-    }
-    
-    var isStep4Valid: Bool {
         // Bio step - About You (personal) and About the Company (long description)
         !user.personalBio.isEmpty && !company.companyBio.isEmpty
-    }
-    
-    var isStep5Valid: Bool {
-        // Old Step 7 (Review) - Now Step 5
-        true
     }
     
     // Actions
@@ -90,22 +80,34 @@ class OnboardingViewModel: ObservableObject {
         }
     }
     
-    func toggleChallenge(_ challenge: String) {
-        if company.challenges.contains(challenge) {
-            company.challenges.removeAll { $0 == challenge }
-        } else {
-            if company.challenges.count < 3 {
-                company.challenges.append(challenge)
-            }
-        }
-    }
+    // MARK: - Existing Data Pre-fill
     
-    func toggleExpertise(_ expertise: String) {
-        if company.desiredExpertise.contains(expertise) {
-            company.desiredExpertise.removeAll { $0 == expertise }
-        } else {
-            company.desiredExpertise.append(expertise)
+    /// Pre-fills onboarding form fields from an existing Firestore user/company profile.
+    /// This is used when a returning user needs to re-complete onboarding (e.g. partial profile).
+    func prefillFromExistingData(existingUser: UserProfile, existingCompany: CompanyProfile?) {
+        if !existingUser.firstName.isEmpty { user.firstName = existingUser.firstName }
+        if !existingUser.lastName.isEmpty  { user.lastName  = existingUser.lastName  }
+        if !existingUser.role.isEmpty      { user.role      = existingUser.role      }
+        if !existingUser.personalBio.isEmpty { user.personalBio = existingUser.personalBio }
+        if !existingUser.nationality.isEmpty { user.nationality = existingUser.nationality }
+        if !existingUser.userType.isEmpty    { user.userType    = existingUser.userType    }
+        if !existingUser.phone.isEmpty       { user.phone       = existingUser.phone       }
+        if !existingUser.languages.isEmpty    { user.languages   = existingUser.languages   }
+        if !existingUser.profileImageUrl.isEmpty { user.profileImageUrl = existingUser.profileImageUrl }
+        
+        if let company = existingCompany {
+            if !company.name.isEmpty         { self.company.name         = company.name         }
+            if !company.website.isEmpty      { self.company.website      = company.website      }
+            if !company.hqCountry.isEmpty    { self.company.hqCountry    = company.hqCountry    }
+            if !company.hqCity.isEmpty       { self.company.hqCity       = company.hqCity       }
+            if !company.industries.isEmpty   { self.company.industries   = company.industries   }
+            if !company.stage.isEmpty        { self.company.stage        = company.stage        }
+            if !company.employeeRange.isEmpty { self.company.employeeRange = company.employeeRange }
+            if !company.companyBio.isEmpty    { self.company.companyBio   = company.companyBio   }
+            if !company.vertical.isEmpty     { self.company.vertical     = company.vertical     }
         }
+        
+        print("📋 Pre-filled onboarding from existing Firestore data")
     }
     
     // MARK: - Salesforce Pre-fill
@@ -165,8 +167,6 @@ class OnboardingViewModel: ObservableObject {
             "employeeRange": company.employeeRange,
             "companyBio": company.companyBio,
             "vertical": company.vertical,
-            "challenges": company.challenges,
-            "desiredExpertise": company.desiredExpertise,
             "isSocialLogin": isSocialLogin,
             "isSalesforcePrefilled": isSalesforcePrefilled
         ]
@@ -198,8 +198,6 @@ class OnboardingViewModel: ObservableObject {
         company.employeeRange  = draft["employeeRange"] as? String ?? ""
         company.companyBio     = draft["companyBio"] as? String ?? ""
         company.vertical       = draft["vertical"] as? String ?? ""
-        company.challenges     = draft["challenges"] as? [String] ?? []
-        company.desiredExpertise = draft["desiredExpertise"] as? [String] ?? []
         isSocialLogin          = draft["isSocialLogin"] as? Bool ?? false
         isSalesforcePrefilled  = draft["isSalesforcePrefilled"] as? Bool ?? false
         

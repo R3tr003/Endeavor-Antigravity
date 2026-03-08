@@ -178,7 +178,7 @@ struct ProfileView: View {
     // Modern Pills replacing underline tabs
     var glassTabs: some View {
         HStack(spacing: DesignSystem.Spacing.small) {
-            ForEach(["Personal", "Company", "Focus"], id: \.self) { tab in
+            ForEach(["Personal", "Company"], id: \.self) { tab in
                 Button(action: {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         selectedTab = tab
@@ -213,8 +213,6 @@ struct ProfileView: View {
                 personalContent
             } else if selectedTab == "Company" {
                 companyContent
-            } else {
-                focusContent
             }
             Spacer(minLength: DesignSystem.Spacing.bottomSafePadding) // Tab bar clearance
         }
@@ -337,50 +335,6 @@ struct ProfileView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-    }
-    
-    var focusContent: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
-            profileSection(title: "Current Challenges") {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
-                    let challenges = appViewModel.companyProfile?.challenges ?? ["Scaling Operations", "Finding Product-Market Fit", "Building Team Culture"]
-                    ForEach(Array(challenges.enumerated()), id: \.offset) { index, challenge in
-                        HStack(spacing: DesignSystem.Spacing.standard) {
-                            Text("\(index + 1)")
-                                .font(.caption.weight(.bold))
-                                .foregroundColor(.brandPrimary)
-                                .frame(width: DesignSystem.Spacing.large, height: DesignSystem.Spacing.large)
-                                .background(Color.brandPrimary.opacity(0.15), in: Circle())
-                            
-                            Text(challenge)
-                                .font(.subheadline.weight(.medium))
-                                .foregroundColor(.primary)
-                            
-                            Spacer()
-                        }
-                    }
-                }
-            }
-            
-            profileSection(title: "Desired Expertise") {
-                VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
-                    let expertise = appViewModel.companyProfile?.desiredExpertise ?? ["Growth Strategy", "Fundraising", "Technical Architecture"]
-                    ForEach(expertise, id: \.self) { item in
-                        HStack(spacing: DesignSystem.Spacing.standard) {
-                            Image(systemName: "star.circle.fill")
-                                .foregroundColor(.brandPrimary)
-                                .font(.title3)
-                            
-                            Text(item)
-                                .font(.subheadline.weight(.medium))
-                                .foregroundColor(.primary)
-                            
-                            Spacer()
-                        }
-                    }
-                }
             }
         }
     }

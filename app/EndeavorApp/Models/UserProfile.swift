@@ -37,10 +37,6 @@ struct CompanyProfile: Codable, Identifiable {
     var stage: String = ""
     var employeeRange: String = ""
     
-    // Focus
-    var challenges: [String] = [] // Max 3
-    var desiredExpertise: [String] = []
-    
     // Bio & Logo
     var companyBio: String = "" // Max 1000 chars
     var logoUrl: String = ""    // Salesforce / uploaded logo URL
