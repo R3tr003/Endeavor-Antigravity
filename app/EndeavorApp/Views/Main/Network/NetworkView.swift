@@ -6,12 +6,13 @@ import FirebaseFirestore
 struct NetworkView: View {
     @State private var searchText: String = ""
     @State private var animateGlow = false
-    @State private var selectedCategory: String = "All"
+    @State private var selectedCategories: Set<String> = ["All"]
     
     @StateObject private var viewModel = NetworkViewModel(repository: FirebaseNetworkRepository())
     @EnvironmentObject private var conversationsViewModel: ConversationsViewModel
     @State private var activeConversation: Conversation?
     @State private var showConversation: Bool = false
+    @State private var selectedProfile: UserProfile? = nil
     @AppStorage("userId") private var currentUserId: String = ""
 
     private var filteredProfiles: [UserProfile] {
@@ -33,22 +34,21 @@ struct NetworkView: View {
     private var categoryFilteredProfiles: [UserProfile] {
         let baseProfiles = filteredProfiles
         
-        switch selectedCategory {
-        case "Mentors":
-            return baseProfiles.filter { $0.role.localizedCaseInsensitiveContains("mentor") }
-        case "CEOs & Founders":
-            return baseProfiles.filter { 
-                $0.role.localizedCaseInsensitiveContains("ceo") || 
-                $0.role.localizedCaseInsensitiveContains("founder") 
-            }
-        case "Endeavor Team":
-            return baseProfiles.filter { $0.role.localizedCaseInsensitiveContains("endeavor") }
-        default:
+        if selectedCategories.contains("All") {
             return baseProfiles
         }
+        
+        // Convert selected frontend categories to backend userTypes
+        var validUserTypes = Set<String>()
+        if selectedCategories.contains("Entrepreneurs") { validUserTypes.insert("Entrepreneur") }
+        if selectedCategories.contains("Mentors")       { validUserTypes.insert("Mentor") }
+        if selectedCategories.contains("Investors")     { validUserTypes.insert("Investor") }
+        if selectedCategories.contains("Endeavor Team") { validUserTypes.insert("Staff") }
+        
+        return baseProfiles.filter { validUserTypes.contains($0.userType) }
     }
     
-    let categories = ["All", "Mentors", "CEOs & Founders", "Endeavor Team"]
+    let categories = ["All", "Entrepreneurs", "Mentors", "Investors", "Endeavor Team"]
     
     var body: some View {
         StackNavigationView {
@@ -122,16 +122,32 @@ struct NetworkView: View {
                                 ForEach(categories, id: \.self) { category in
                                     Button(action: {
                                         withAnimation(.easeInOut) {
-                                            selectedCategory = category
+                                            if category == "All" {
+                                                selectedCategories = ["All"]
+                                            } else {
+                                                if selectedCategories.contains("All") {
+                                                    selectedCategories.remove("All")
+                                                }
+                                                
+                                                if selectedCategories.contains(category) {
+                                                    selectedCategories.remove(category)
+                                                    if selectedCategories.isEmpty {
+                                                        selectedCategories.insert("All") // fallback
+                                                    }
+                                                } else {
+                                                    selectedCategories.insert(category)
+                                                }
+                                            }
                                         }
                                     }) {
+                                        let isSelected = selectedCategories.contains(category)
                                         Text(category)
-                                            .font(.system(size: 14, weight: selectedCategory == category ? .bold : .medium, design: .rounded))
-                                            .foregroundColor(selectedCategory == category ? .white : .primary)
+                                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                            .foregroundColor(isSelected ? .white : .primary)
                                             .padding(.vertical, 10)
                                             .padding(.horizontal, DesignSystem.Spacing.standard)
                                             .background(
-                                                selectedCategory == category ? AnyShapeStyle(Color.brandPrimary) : AnyShapeStyle(.ultraThinMaterial),
+                                                isSelected ? AnyShapeStyle(Color.brandPrimary) : AnyShapeStyle(.ultraThinMaterial),
                                                 in: Capsule()
                                             )
                                             .overlay(
@@ -154,8 +170,26 @@ struct NetworkView: View {
                         
                         // Content List
                         VStack(spacing: DesignSystem.Spacing.medium) {
-                            ForEach(categoryFilteredProfiles, id: \.id) { profile in
-                                networkCard(profile: profile)
+                            if viewModel.isLoading && viewModel.profiles.isEmpty {
+                                VStack(spacing: 16) {
+                                    ProgressView()
+                                        .scaleEffect(1.5)
+                                        .tint(.brandPrimary)
+                                    Text("Loading network...")
+                                        .font(.headline)
+                                        .foregroundColor(.secondary)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 60)
+                            } else {
+                                ForEach(categoryFilteredProfiles, id: \.id) { profile in
+                                    Button(action: {
+                                        selectedProfile = profile
+                                    }) {
+                                        networkCard(profile: profile)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
                             }
                             
                             // Pagination Trigger
@@ -193,6 +227,13 @@ struct NetworkView: View {
             if let activeConv = activeConversation, let currentUserId = UserDefaults.standard.string(forKey: "userId") {
                 ConversationView(conversation: activeConv, currentUserId: currentUserId)
             }
+        }
+        .sheet(item: $selectedProfile) { profile in
+            UserProfileView(
+                profile: profile,
+                companyName: viewModel.companyNames[profile.id.uuidString]
+            )
+            .environmentObject(conversationsViewModel)
         }
     }
     
@@ -239,6 +280,16 @@ struct NetworkView: View {
                             .font(.title3.weight(.bold))
                             .foregroundColor(.primary)
                         
+                        if !profile.userType.isEmpty {
+                            Text(profile.userType)
+                                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                .foregroundColor(userTypeColor(profile.userType))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(userTypeColor(profile.userType).opacity(0.12))
+                                .clipShape(Capsule())
+                        }
+                        
                         if let company = viewModel.companyNames[profile.id.uuidString] {
                             Text(company)
                                 .font(.subheadline)
@@ -256,53 +307,28 @@ struct NetworkView: View {
                 }
                 
                 // Action Buttons (Side by Side)
-                HStack(spacing: DesignSystem.Spacing.small) {
-                    // View Profile Button
-                    Button(action: {}) {
-                        Text("View Profile")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
-                            .foregroundColor(Color.brandPrimary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .overlay(Capsule().stroke(Color.brandPrimary, lineWidth: 1.5))
-                    }
-                    
-                    // Connect Button
-                    Button(action: {
-                        conversationsViewModel.getOrCreateConversation(with: profile.id.uuidString) { result in
-                            switch result {
-                            case .success(let conversationId):
-                                // Creiamo una conversation fittizia per passare il dato al ConversationView
-                                // Il ViewModel dentro ConversationView fetcherà i dati veri
-                                let newConv = Conversation(
-                                    id: conversationId,
-                                    participantIds: [UserDefaults.standard.string(forKey: "userId") ?? "", profile.id.uuidString],
-                                    lastMessage: "",
-                                    lastMessageAt: Date(),
-                                    lastSenderId: "",
-                                    unreadCounts: [:],
-                                    otherParticipantName: profile.firstName + " " + profile.lastName,
-                                    otherParticipantCompany: viewModel.companyNames[profile.id.uuidString] ?? profile.role,
-                                    otherParticipantImageUrl: profile.profileImageUrl
-                                )
-                                self.activeConversation = newConv
-                                self.showConversation = true
-                            case .failure(let error):
-                                print("Error creating or fetching conversation: \(error)")
-                            }
-                        }
-                    }) {
-                        Text("Connect")
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.brandPrimary)
-                            .clipShape(Capsule())
-                    }
+                Button(action: {
+                    selectedProfile = profile
+                }) {
+                    Text("View Profile")
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.brandPrimary)
+                        .clipShape(Capsule())
                 }
             }
             .padding(DesignSystem.Spacing.large)
+        }
+    }
+    private func userTypeColor(_ userType: String) -> Color {
+        switch userType {
+        case "Entrepreneur": return .brandPrimary
+        case "Mentor":       return .orange
+        case "Investor":     return Color(red: 0.4, green: 0.2, blue: 0.9)
+        case "Staff":        return .green
+        default:             return .secondary
         }
     }
 }

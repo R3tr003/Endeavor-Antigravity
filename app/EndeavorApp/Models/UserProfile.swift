@@ -40,5 +40,6 @@ struct CompanyProfile: Codable, Identifiable {
     // Bio & Logo
     var companyBio: String = "" // Max 1000 chars
     var logoUrl: String = ""    // Salesforce / uploaded logo URL
-    var vertical: String = ""   // Salesforce Account.Vertical__c
+    var vertical: String = ""        // Salesforce Account.Vertical__c
+    var endeavorChapter: String = "" // Salesforce Account.Endeavor_Chapter__c — es. "Endeavor Italy"
 }

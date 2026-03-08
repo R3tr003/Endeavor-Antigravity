@@ -43,7 +43,8 @@ service cloud.firestore {
       && data.challenges is list && data.challenges.size() <= 3
       && data.desiredExpertise is list && data.desiredExpertise.size() <= 10
       && (!('logoUrl' in data) || data.logoUrl is string)
-      && (!('vertical' in data) || data.vertical is string);
+      && (!('vertical' in data) || data.vertical is string)
+      && (!('endeavorChapter' in data) || data.endeavorChapter is string);
     }
     
     match /users/{userId} {

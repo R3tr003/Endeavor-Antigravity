@@ -66,6 +66,7 @@
 		A7E8F904B1234C56D7890124 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = A7E8F902B1234C56D7890122 /* FirebaseFunctions */; };
 		B1B82C5CA6C0800A131EFD1B /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4596AC3AD53E85365A71AFD3 /* Conversation.swift */; };
 		B217199E2A86262A2BBFF6AA /* MessagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC702E785B8F5371622610A /* MessagesView.swift */; };
+		BF646849552E94E87EC75E83 /* UserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B16871C641BED1A79452775 /* UserProfileView.swift */; };
 		CE776A0DD7754F8D9AFF171D /* FirebaseAuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A26244A935426386D24777 /* FirebaseAuthRepository.swift */; };
 		D260DC99484BB66F1618780C /* FirebaseMessagesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 233EC5DBF6799263EFF27D89 /* FirebaseMessagesRepository.swift */; };
 		D2FC56AB0E4044B9B30E0F58 /* AuthRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEB9F245A8974E93BEE12465 /* AuthRepositoryProtocol.swift */; };
@@ -77,6 +78,7 @@
 
 /* Begin PBXFileReference section */
 		07053209516A4F1FA85F126C /* UserRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Protocols/UserRepositoryProtocol.swift; sourceTree = "<group>"; };
+		1B16871C641BED1A79452775 /* UserProfileView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UserProfileView.swift; sourceTree = "<group>"; };
 		2312F221433B42E384FA7B38 /* FirebaseNetworkRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Firebase/FirebaseNetworkRepository.swift; sourceTree = "<group>"; };
 		233EC5DBF6799263EFF27D89 /* FirebaseMessagesRepository.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FirebaseMessagesRepository.swift; path = Repositories/Firebase/FirebaseMessagesRepository.swift; sourceTree = "<group>"; };
 		26846CEDDA264CC8A0C99A22 /* FluidBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FluidBackgroundView.swift; sourceTree = "<group>"; };
@@ -301,6 +303,7 @@
 			isa = PBXGroup;
 			children = (
 				651787E02F356B310095C184 /* NetworkView.swift */,
+				1B16871C641BED1A79452775 /* UserProfileView.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -559,6 +562,7 @@
 				99A9E7194441D5D1D7F35D3F /* NewConversationView.swift in Sources */,
 				A7E8F903B1234C56D7890123 /* SalesforceRepository.swift in Sources */,
 				37D493AC9C2597D6BB419F87 /* AnalyticsService.swift in Sources */,
+				BF646849552E94E87EC75E83 /* UserProfileView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

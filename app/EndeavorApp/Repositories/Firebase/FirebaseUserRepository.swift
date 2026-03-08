@@ -72,7 +72,8 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                 employeeRange: data["employeeRange"] as? String ?? "",
                 companyBio: data["companyBio"] as? String ?? "",
                 logoUrl: data["logoUrl"] as? String ?? "",
-                vertical: data["vertical"] as? String ?? ""
+                vertical:        data["vertical"]        as? String ?? "",
+                endeavorChapter: data["endeavorChapter"] as? String ?? ""
             )
             completion(.success(company))
         }
@@ -211,7 +212,8 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                     employeeRange: data["employeeRange"] as? String ?? "",
                     companyBio: data["companyBio"] as? String ?? "",
                     logoUrl: data["logoUrl"] as? String ?? "",
-                    vertical: data["vertical"] as? String ?? ""
+                    vertical:        data["vertical"]        as? String ?? "",
+                    endeavorChapter: data["endeavorChapter"] as? String ?? ""
                 )
                 completion(.success((user, company)))
             } else {
@@ -260,7 +262,8 @@ class FirebaseUserRepository: UserRepositoryProtocol {
             "employeeRange": company.employeeRange,
             "companyBio": company.companyBio,
             "logoUrl": company.logoUrl,
-            "vertical": company.vertical
+            "vertical":        company.vertical,
+            "endeavorChapter": company.endeavorChapter
         ]
         db.collection(companiesCollection).document(company.id.uuidString).setData(data, completion: completion)
     }
@@ -307,7 +310,8 @@ class FirebaseUserRepository: UserRepositoryProtocol {
             "employeeRange": company.employeeRange,
             "companyBio": company.companyBio,
             "logoUrl": company.logoUrl,
-            "vertical": company.vertical
+            "vertical":        company.vertical,
+            "endeavorChapter": company.endeavorChapter
         ]
         
         let companyRef = db.collection(companiesCollection).document(company.id.uuidString)

@@ -135,6 +135,7 @@ class OnboardingViewModel: ObservableObject {
             company.vertical    = data.companyVertical
             company.industries  = [data.companyVertical]
         }
+        company.endeavorChapter = data.companyChapter
         
         isSalesforcePrefilled = true
         saveDraft()

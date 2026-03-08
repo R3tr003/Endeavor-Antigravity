@@ -24,7 +24,7 @@ class FirebaseNetworkRepository: NetworkRepositoryProtocol {
             
             let users = snapshot?.documents.compactMap { doc -> UserProfile? in
                 let data = doc.data()
-                return UserProfile(
+                var profile = UserProfile(
                     id: UUID(uuidString: data["id"] as? String ?? "") ?? UUID(),
                     firstName: data["firstName"] as? String ?? "",
                     lastName: data["lastName"] as? String ?? "",
@@ -35,6 +35,8 @@ class FirebaseNetworkRepository: NetworkRepositoryProtocol {
                     profileImageUrl: data["profileImageUrl"] as? String ?? "",
                     personalBio: data["personalBio"] as? String ?? ""
                 )
+                profile.userType = data["userType"] as? String ?? ""
+                return profile
             } ?? []
             
             completion(users, snapshot?.documents.last)
@@ -53,7 +55,7 @@ class FirebaseNetworkRepository: NetworkRepositoryProtocol {
                 return
             }
             
-            let profile = UserProfile(
+            var profile = UserProfile(
                 id: id,
                 firstName: data["firstName"] as? String ?? "",
                 lastName: data["lastName"] as? String ?? "",
@@ -64,6 +66,7 @@ class FirebaseNetworkRepository: NetworkRepositoryProtocol {
                 profileImageUrl: data["profileImageUrl"] as? String ?? "",
                 personalBio: data["personalBio"] as? String ?? ""
             )
+            profile.userType = data["userType"] as? String ?? ""
             completion(.success(profile))
         }
     }

@@ -66,18 +66,29 @@ class NetworkViewModel: ObservableObject {
     
     private func fetchCompanyNames(for users: [UserProfile]) {
         let db = Firestore.firestore()
-        for user in users {
-            let userId = user.id.uuidString
-            // Skip if already fetched
-            guard companyNames[userId] == nil else { continue }
-            
+        let userIds = users.map { $0.id.uuidString }.filter { companyNames[$0] == nil }
+        guard !userIds.isEmpty else { return }
+        
+        // Firestore 'in' queries support max 10 items.
+        let chunks = stride(from: 0, to: userIds.count, by: 10).map {
+            Array(userIds[$0..<min($0 + 10, userIds.count)])
+        }
+        
+        for chunk in chunks {
             db.collection("companies")
-                .whereField("userId", isEqualTo: userId)
-                .limit(to: 1)
-                .getDocuments { [weak self] snapshot, _ in
-                    if let name = snapshot?.documents.first?.data()["name"] as? String {
-                        DispatchQueue.main.async {
-                            self?.companyNames[userId] = name
+                .whereField("userId", in: chunk)
+                .getDocuments { [weak self] snapshot, error in
+                    guard let self = self, let docs = snapshot?.documents, error == nil else {
+                        print("❌ Error fetching batched companies: \(String(describing: error))")
+                        return
+                    }
+                    
+                    DispatchQueue.main.async {
+                        for doc in docs {
+                            let data = doc.data()
+                            if let userId = data["userId"] as? String, let name = data["name"] as? String {
+                                self.companyNames[userId] = name
+                            }
                         }
                     }
                 }
