@@ -4,7 +4,6 @@ struct OnboardingContainerView: View {
     @EnvironmentObject private var viewModel: OnboardingViewModel
     @EnvironmentObject var appViewModel: AppViewModel
     @Environment(\.scenePhase) private var scenePhase
-    @State private var hasInitialized = false
     @State private var showExitConfirmation = false
     
     
@@ -76,12 +75,8 @@ struct OnboardingContainerView: View {
                     .frame(maxWidth: .infinity)
                 }
             }
-            .opacity(hasInitialized ? 1 : 0) // Fade in when ready
             .onAppear {
                 syncUserData()
-                withAnimation(.easeIn(duration: 0.4)) {
-                    hasInitialized = true
-                }
             }
             .onChange(of: appViewModel.currentUser?.id) { _, _ in
                 syncUserData()
@@ -128,6 +123,8 @@ struct OnboardingContainerView: View {
                     Spacer()
                     
                     Button(action: {
+                        if appViewModel.isLoading { return }
+
                         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                         if viewModel.currentStep == viewModel.totalSteps {
                             viewModel.clearDraft()
@@ -146,16 +143,22 @@ struct OnboardingContainerView: View {
                             }
                         }
                     }) {
-                        Text(viewModel.currentStep == viewModel.totalSteps ? "Enter App" : "Next")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding(.vertical, 14)
-                            .padding(.horizontal, DesignSystem.Spacing.xLarge)
-                            .background(isNextEnabled ? Color.brandPrimary : Color.primary.opacity(0.2))
-                            .clipShape(Capsule())
-                            .shadow(color: isNextEnabled ? Color.brandPrimary.opacity(0.3) : .clear, radius: 8, x: 0, y: 4)
+                        HStack(spacing: DesignSystem.Spacing.small) {
+                            if appViewModel.isLoading && viewModel.currentStep == viewModel.totalSteps {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            }
+                            Text(viewModel.currentStep == viewModel.totalSteps ? (appViewModel.isLoading ? "Entering..." : "Enter App") : "Next")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                        }
+                        .padding(.vertical, 14)
+                        .padding(.horizontal, DesignSystem.Spacing.xLarge)
+                        .background(!isNextEnabled || appViewModel.isLoading ? Color.primary.opacity(0.2) : Color.brandPrimary)
+                        .clipShape(Capsule())
+                        .shadow(color: !isNextEnabled || appViewModel.isLoading ? .clear : Color.brandPrimary.opacity(0.3), radius: 8, x: 0, y: 4)
                     }
-                    .disabled(!isNextEnabled)
+                    .disabled(!isNextEnabled || appViewModel.isLoading)
                 }
                 .padding(.horizontal, DesignSystem.Spacing.large)
                 .padding(.vertical, DesignSystem.Spacing.medium)

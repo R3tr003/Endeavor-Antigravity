@@ -91,16 +91,17 @@ struct SettingsView: View {
             EditProfileView()
                 .environmentObject(appViewModel)
         }
-        .confirmationDialog("Log Out", isPresented: $showLogoutConfirmation, titleVisibility: .visible) {
+        .alert("Log Out", isPresented: $showLogoutConfirmation) {
+            Button("Cancel", role: .cancel) {}
             Button("Log Out", role: .destructive) {
                 appViewModel.logout()
                 presentationMode.wrappedValue.dismiss()
             }
-            Button("Cancel", role: .cancel) {}
         } message: {
             Text("Are you sure you want to log out?")
         }
-        .confirmationDialog("Delete Account", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+        .alert("Delete Account", isPresented: $showDeleteConfirmation) {
+            Button("Cancel", role: .cancel) {}
             Button("Delete Account", role: .destructive) {
                 if appViewModel.isGoogleUser {
                     performDeleteAccount(password: nil)
@@ -108,17 +109,16 @@ struct SettingsView: View {
                     showPasswordInput = true
                 }
             }
-            Button("Cancel", role: .cancel) {}
         } message: {
             Text("This action is irreversible. All your data will be permanently deleted.")
         }
         .alert("Enter Password", isPresented: $showPasswordInput) {
             SecureField("Password", text: $deletePassword)
-            Button("Delete", role: .destructive) {
-                performDeleteAccount(password: deletePassword)
-            }
             Button("Cancel", role: .cancel) {
                 deletePassword = ""
+            }
+            Button("Delete", role: .destructive) {
+                performDeleteAccount(password: deletePassword)
             }
         } message: {
             Text("Enter your password to confirm account deletion.")

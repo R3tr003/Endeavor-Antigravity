@@ -1,7 +1,9 @@
 import Foundation
+import UIKit
 import FirebaseFirestore
 import FirebaseAuth
 import FirebaseStorage
+import GoogleSignIn
 
 class FirebaseUserRepository: UserRepositoryProtocol {
     private let usersCollection = "users"
@@ -357,160 +359,217 @@ class FirebaseUserRepository: UserRepositoryProtocol {
         }
     }
     
-    func deleteAuthAccount(password: String?, completion: @escaping (Error?) -> Void) {
+    /// Re-authenticates the current user. Must be called BEFORE any sensitive operations.
+    func reauthenticateUser(password: String?, completion: @escaping (Error?) -> Void) {
         guard let user = Auth.auth().currentUser else {
             completion(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No authenticated user"]))
             return
         }
-        
+
         let providers = user.providerData.map { $0.providerID }
         let isGoogleUser = providers.contains("google.com")
-        
+
         if isGoogleUser {
-            user.delete(completion: completion)
-        } else if let password = password, let email = user.email {
-            let credential = EmailAuthProvider.credential(withEmail: email, password: password)
-            user.reauthenticate(with: credential) { result, error in
+            guard let presentingVC = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .flatMap({ $0.windows })
+                .first(where: { $0.isKeyWindow })?.rootViewController else {
+                completion(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Cannot present sign-in"]))
+                return
+            }
+
+            GIDSignIn.sharedInstance.signIn(withPresenting: presentingVC) { signInResult, error in
                 if let error = error {
                     completion(error)
                     return
                 }
-                user.delete(completion: completion)
+
+                guard let googleUser = signInResult?.user,
+                      let idToken = googleUser.idToken?.tokenString else {
+                    completion(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Google re-authentication failed"]))
+                    return
+                }
+
+                let credential = GoogleAuthProvider.credential(
+                    withIDToken: idToken,
+                    accessToken: googleUser.accessToken.tokenString
+                )
+
+                user.reauthenticate(with: credential) { _, error in
+                    completion(error)
+                }
+            }
+        } else if let password = password, let email = user.email {
+            let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+            user.reauthenticate(with: credential) { _, error in
+                completion(error)
             }
         } else {
             completion(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Password required"]))
         }
     }
+
+    /// Deletes the Firebase Auth account. Should be called AFTER deleteUserData and reauthenticateUser.
+    func deleteAuthAccount(completion: @escaping (Error?) -> Void) {
+        guard let user = Auth.auth().currentUser else {
+            completion(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No authenticated user"]))
+            return
+        }
+        user.delete(completion: completion)
+    }
     
     func deleteUserData(email: String, userId: String, firebaseUid: String?, completion: @escaping (Error?) -> Void) {
-        let dispatchGroup = DispatchGroup()
         var deletionError: Error?
-        var foundUserId: String? = nil
-        
-        dispatchGroup.enter()
-        db.collection(usersCollection).whereField("email", isEqualTo: email).getDocuments { snapshot, error in
-            if let error = error {
-                deletionError = error
-                dispatchGroup.leave()
-                return
-            }
-            
-            guard let documents = snapshot?.documents, !documents.isEmpty else {
-                dispatchGroup.leave()
-                return
-            }
-            
-            let deleteGroup = DispatchGroup()
-            for doc in documents {
-                deleteGroup.enter()
-                if let docUserId = doc.data()["id"] as? String {
-                    foundUserId = docUserId
+        let userIdsToCheck = [userId].filter { !$0.isEmpty }
+
+        // STEP 1: Delete COMPANIES FIRST (before users!)
+        // Security rules for company deletion require the user document to exist
+        // to verify ownership via: get(/users/$(resource.data.userId)).data.email == request.auth.token.email
+        let companyGroup = DispatchGroup()
+
+        for uid in userIdsToCheck {
+            companyGroup.enter()
+            db.collection(companiesCollection).whereField("userId", isEqualTo: uid).getDocuments { snapshot, error in
+                if let error = error {
+                    deletionError = error
+                    companyGroup.leave()
+                    return
                 }
-                doc.reference.delete { error in
-                    if let error = error { deletionError = error }
-                    deleteGroup.leave()
+
+                guard let documents = snapshot?.documents, !documents.isEmpty else {
+                    companyGroup.leave()
+                    return
                 }
-            }
-            deleteGroup.notify(queue: .main) {
-                dispatchGroup.leave()
-            }
-        }
-        
-        dispatchGroup.notify(queue: .main) {
-            let companyGroup = DispatchGroup()
-            let userIdsToCheck = Array(Set([userId, foundUserId].compactMap { $0 }))
-            
-            for uid in userIdsToCheck {
-                companyGroup.enter()
-                self.db.collection(self.companiesCollection).whereField("userId", isEqualTo: uid).getDocuments { snapshot, error in
-                    if let error = error {
-                        deletionError = error
-                        companyGroup.leave()
-                        return
+
+                let companyDeleteGroup = DispatchGroup()
+                for doc in documents {
+                    companyDeleteGroup.enter()
+                    doc.reference.delete { error in
+                        if let error = error { deletionError = error }
+                        companyDeleteGroup.leave()
                     }
-                    
-                    guard let documents = snapshot?.documents else {
-                        companyGroup.leave()
-                        return
-                    }
-                    
-                    for doc in documents {
-                        doc.reference.delete { error in
-                            if let error = error { deletionError = error }
-                        }
-                    }
+                }
+                companyDeleteGroup.notify(queue: .main) {
                     companyGroup.leave()
                 }
             }
-            
-            companyGroup.enter()
-            let imagePath = "profile_images/\(userId).jpg"
-            Storage.storage().reference().child(imagePath).delete { _ in
-                companyGroup.leave()
+        }
+
+        companyGroup.notify(queue: .main) { [weak self] in
+            guard let self = self else {
+                completion(deletionError)
+                return
             }
-            
-            // Delete messaging DB contents (conversations, messages, user mappings)
-            companyGroup.enter()
-            let messagingDb = Firestore.firestore(database: "messaging")
-            messagingDb.collection("conversations")
-                .whereField("participantIds", arrayContains: userId)
-                .getDocuments { snapshot, error in
-                    if let error = error {
-                        deletionError = error
-                        companyGroup.leave()
-                        return
-                    }
-                    
-                    guard let documents = snapshot?.documents, !documents.isEmpty else {
-                        // Nessuna conversazione, rimuoviamo solo il mapping (se esiste)
-                        if let fUid = firebaseUid {
-                            messagingDb.collection("userMappings").document(fUid).delete { err in
-                                if let err = err { deletionError = err }
-                                companyGroup.leave()
-                            }
-                        } else {
-                            companyGroup.leave()
-                        }
-                        return
-                    }
-                    
-                    let convsGroup = DispatchGroup()
-                    for doc in documents {
-                        convsGroup.enter()
-                        let ref = doc.reference
-                        
-                        ref.collection("messages").getDocuments { msgSnapshot, _ in
-                            if let msgs = msgSnapshot?.documents, !msgs.isEmpty {
-                                let msgGroup = DispatchGroup()
-                                for msg in msgs {
-                                    msgGroup.enter()
-                                    msg.reference.delete { _ in msgGroup.leave() }
-                                }
-                                msgGroup.notify(queue: .main) {
-                                    ref.delete { _ in convsGroup.leave() }
-                                }
-                            } else {
-                                ref.delete { _ in convsGroup.leave() }
-                            }
-                        }
-                    }
-                    
-                    convsGroup.notify(queue: .main) {
-                        // Le conversazioni sono eliminate. Ora eliminiamo il mapping,
-                        // perché le security rules richiedono il mapping per poter eliminare le conversazioni.
-                        if let fUid = firebaseUid {
-                            messagingDb.collection("userMappings").document(fUid).delete { err in
-                                if let err = err { deletionError = err }
-                                companyGroup.leave()
-                            }
-                        } else {
-                            companyGroup.leave()
-                        }
+
+            // Check if company deletion failed
+            if let error = deletionError {
+                completion(error)
+                return
+            }
+
+            // STEP 2: Delete USER documents (after companies are gone)
+            let userGroup = DispatchGroup()
+            userGroup.enter()
+            self.db.collection(self.usersCollection).whereField("email", isEqualTo: email).getDocuments { snapshot, error in
+                if let error = error {
+                    deletionError = error
+                    userGroup.leave()
+                    return
+                }
+
+                guard let documents = snapshot?.documents, !documents.isEmpty else {
+                    userGroup.leave()
+                    return
+                }
+
+                let deleteGroup = DispatchGroup()
+                for doc in documents {
+                    deleteGroup.enter()
+                    doc.reference.delete { error in
+                        if let error = error { deletionError = error }
+                        deleteGroup.leave()
                     }
                 }
-            
-            companyGroup.notify(queue: .main) {
-                completion(deletionError)
+                deleteGroup.notify(queue: .main) {
+                    userGroup.leave()
+                }
+            }
+
+            userGroup.notify(queue: .main) {
+                // STEP 3: Delete profile images from Storage
+                let storageGroup = DispatchGroup()
+                let storageRef = Storage.storage().reference()
+
+                if let fUid = firebaseUid {
+                    storageGroup.enter()
+                    storageRef.child("profile_images/\(fUid).jpg").delete { _ in
+                        storageGroup.leave()
+                    }
+                }
+
+                if !userId.isEmpty && userId != firebaseUid {
+                    storageGroup.enter()
+                    storageRef.child("profile_images/\(userId).jpg").delete { _ in
+                        storageGroup.leave()
+                    }
+                }
+
+                storageGroup.notify(queue: .main) {
+                    // STEP 4: Delete messaging DB contents
+                    let messagingDb = Firestore.firestore(database: "messaging")
+                    messagingDb.collection("conversations")
+                        .whereField("participantIds", arrayContains: userId)
+                        .getDocuments { snapshot, error in
+                            if let error = error {
+                                deletionError = error
+                                completion(deletionError)
+                                return
+                            }
+
+                            guard let documents = snapshot?.documents, !documents.isEmpty else {
+                                // No conversations, just remove the mapping
+                                if let fUid = firebaseUid {
+                                    messagingDb.collection("userMappings").document(fUid).delete { _ in
+                                        completion(deletionError)
+                                    }
+                                } else {
+                                    completion(deletionError)
+                                }
+                                return
+                            }
+
+                            let convsGroup = DispatchGroup()
+                            for doc in documents {
+                                convsGroup.enter()
+                                let ref = doc.reference
+
+                                ref.collection("messages").getDocuments { msgSnapshot, _ in
+                                    if let msgs = msgSnapshot?.documents, !msgs.isEmpty {
+                                        let msgGroup = DispatchGroup()
+                                        for msg in msgs {
+                                            msgGroup.enter()
+                                            msg.reference.delete { _ in msgGroup.leave() }
+                                        }
+                                        msgGroup.notify(queue: .main) {
+                                            ref.delete { _ in convsGroup.leave() }
+                                        }
+                                    } else {
+                                        ref.delete { _ in convsGroup.leave() }
+                                    }
+                                }
+                            }
+
+                            convsGroup.notify(queue: .main) {
+                                if let fUid = firebaseUid {
+                                    messagingDb.collection("userMappings").document(fUid).delete { _ in
+                                        completion(deletionError)
+                                    }
+                                } else {
+                                    completion(deletionError)
+                                }
+                            }
+                        }
+                }
             }
         }
     }

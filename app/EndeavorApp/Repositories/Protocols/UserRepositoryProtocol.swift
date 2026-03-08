@@ -30,10 +30,13 @@ protocol UserRepositoryProtocol {
     
     /// Changes the user's registered email using re-authentication if necessary.
     func changeUserEmail(newEmail: String, password: String?, completion: @escaping (Error?) -> Void)
-    
-    /// Deletes the authentication account entirely.
-    func deleteAuthAccount(password: String?, completion: @escaping (Error?) -> Void)
-    
+
+    /// Re-authenticates the current user. Must be called BEFORE sensitive operations like account deletion.
+    func reauthenticateUser(password: String?, completion: @escaping (Error?) -> Void)
+
+    /// Deletes the authentication account entirely. Call reauthenticateUser first.
+    func deleteAuthAccount(completion: @escaping (Error?) -> Void)
+
     /// Removes the user's and company's data from the database.
     func deleteUserData(email: String, userId: String, firebaseUid: String?, completion: @escaping (Error?) -> Void)
 }

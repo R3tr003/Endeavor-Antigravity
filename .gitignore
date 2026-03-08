@@ -40,6 +40,7 @@ fastlane/test_output
 *.rb
 add_*.py
 fix_*.py
+test_out.txt
 
 # Locally appended
 app/build_log.txt

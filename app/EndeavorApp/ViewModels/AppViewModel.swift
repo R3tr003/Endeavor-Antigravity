@@ -793,32 +793,50 @@ class AppViewModel: ObservableObject {
             completion(.failure(NSError(domain: "AppError", code: -1, userInfo: [NSLocalizedDescriptionKey: "No user email found"])))
             return
         }
-        
+
         let userId = userRepo.currentUser?.id.uuidString ?? ""
         let firebaseUid = Auth.auth().currentUser?.uid
         router.isLoading = true
-        
-        // STEP 1: Delete Firestore data FIRST while the auth token is still valid.
-        // Calling deleteAuthAccount() first invalidates the token immediately,
-        // causing all subsequent Firestore writes to fail silently with
-        // "Missing or insufficient permissions".
-        userRepository.deleteUserData(email: email, userId: userId, firebaseUid: firebaseUid) { [weak self] dataError in
-            if let error = dataError {
+
+        // STEP 1: Re-authenticate FIRST to ensure we have a fresh token.
+        // This must happen before any Firestore operations to avoid "Missing or insufficient permissions".
+        userRepository.reauthenticateUser(password: password) { [weak self] reauthError in
+            guard let self = self else { return }
+
+            if let error = reauthError {
                 DispatchQueue.main.async {
-                    self?.router.isLoading = false
+                    self.router.isLoading = false
                     completion(.failure(error))
                 }
                 return
             }
-            
-            // STEP 2: Only delete Firebase Auth account after all Firestore data is gone.
-            self?.userRepository.deleteAuthAccount(password: password) { authError in
-                DispatchQueue.main.async {
-                    self?.router.isLoading = false
-                    if let error = authError {
+
+            // STEP 2: Now delete Firestore data with the fresh auth token.
+            self.userRepository.deleteUserData(email: email, userId: userId, firebaseUid: firebaseUid) { [weak self] dataError in
+                guard let self = self else { return }
+
+                if let error = dataError {
+                    DispatchQueue.main.async {
+                        self.router.isLoading = false
                         completion(.failure(error))
-                    } else {
+                    }
+                    return
+                }
+
+                // STEP 3: Delete Firebase Auth account after all Firestore data is gone.
+                self.userRepository.deleteAuthAccount { [weak self] authError in
+                    DispatchQueue.main.async {
+                        self?.router.isLoading = false
+
+                        // Always clear local data after data deletion, even if auth deletion fails.
+                        // The user's data is already gone from Firestore, so they should be logged out.
                         self?.clearAllLocalData()
+
+                        if let error = authError {
+                            // Auth deletion failed but data is gone - still consider it a success
+                            // since the user is effectively deleted from the system.
+                            print("⚠️ Auth deletion failed after data cleanup: \(error.localizedDescription)")
+                        }
                         completion(.success(()))
                     }
                 }
