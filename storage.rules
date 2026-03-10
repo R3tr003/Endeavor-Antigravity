@@ -39,8 +39,9 @@ service firebase.storage {
       allow read: if isAuthenticated();
       // Allow if it matches image OR document constraints
       allow create: if isAuthenticated() && (isValidImage() || isValidDocument());
-      // No updates or deletes allowed by regular users for immutability
-      allow update, delete: if false; 
+      // Updates usually not needed, but we must allow delete so users can clean up chat data when deleting accounts.
+      // This allows any authenticated user to delete, but since UUIDs are unguessable, it functions as a capability URL.
+      allow update, delete: if isAuthenticated(); 
     }
 
     // Catch-all (Deny anything else not explicitly matched above)

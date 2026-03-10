@@ -539,23 +539,49 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                             }
 
                             let convsGroup = DispatchGroup()
+                            let storageRef = Storage.storage().reference()
+                            
                             for doc in documents {
                                 convsGroup.enter()
                                 let ref = doc.reference
+                                let conversationId = doc.documentID
 
+                                let mediaGroup = DispatchGroup()
+                                let msgGroup = DispatchGroup()
+                                
+                                // 1. Delete chat media
+                                mediaGroup.enter()
+                                storageRef.child("chat_media/\(conversationId)").listAll { result, _ in
+                                    if let items = result?.items {
+                                        for item in items {
+                                            mediaGroup.enter()
+                                            item.delete { _ in mediaGroup.leave() }
+                                        }
+                                    }
+                                    mediaGroup.leave()
+                                }
+                                
+                                // 2. Delete messages
+                                msgGroup.enter()
                                 ref.collection("messages").getDocuments { msgSnapshot, _ in
                                     if let msgs = msgSnapshot?.documents, !msgs.isEmpty {
-                                        let msgGroup = DispatchGroup()
                                         for msg in msgs {
                                             msgGroup.enter()
                                             msg.reference.delete { _ in msgGroup.leave() }
                                         }
-                                        msgGroup.notify(queue: .main) {
-                                            ref.delete { _ in convsGroup.leave() }
-                                        }
-                                    } else {
-                                        ref.delete { _ in convsGroup.leave() }
                                     }
+                                    msgGroup.leave()
+                                }
+                                
+                                // Wait for both media and messages
+                                let aggregateGroup = DispatchGroup()
+                                aggregateGroup.enter()
+                                mediaGroup.notify(queue: .main) { aggregateGroup.leave() }
+                                aggregateGroup.enter()
+                                msgGroup.notify(queue: .main) { aggregateGroup.leave() }
+                                
+                                aggregateGroup.notify(queue: .main) {
+                                    ref.delete { _ in convsGroup.leave() }
                                 }
                             }
 
