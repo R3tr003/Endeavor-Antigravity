@@ -10,6 +10,7 @@
 *.mov
 *.xcuserstate
 xcuserdata/
+.genkit/
 
 # Build generated
 Build/
@@ -41,6 +42,7 @@ fastlane/test_output
 add_*.py
 fix_*.py
 test_out.txt
+.env.local
 
 # Locally appended
 app/build_log.txt

@@ -32,5 +32,11 @@
   ],
   "storage": {
     "rules": "storage.rules"
+  },
+  "emulators": {
+    "ui": {
+      "enabled": true,
+      "port": 4010
+    }
   }
 }

@@ -143,6 +143,21 @@ Deploy with:
 cd functions && firebase deploy --only functions
 ```
 
+### 🧠 Genkit AI & Local Emulators
+
+This project uses [Firebase Genkit](https://genkit.dev) for AI features (e.g., AI Matching).
+To test AI flows locally, the Genkit Developer UI must be run alongside the Firebase emulator with inspection ports open.
+
+**Start the Genkit Developer UI & Emulators:**
+```bash
+cd functions
+npm run genkit:start
+```
+Once the console prints `All emulators ready!`, open the Genkit UI at:
+**[http://localhost:4000](http://localhost:4000)**
+
+*(Note: to fully connect the UI to the Cloud Function, you may need to trigger the function once from the iOS Simulator).*
+
 ---
 
 ## 🗄 Firestore Databases

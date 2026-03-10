@@ -1,5 +1,6 @@
 import SwiftUI
 import SDWebImageSwiftUI
+import FirebaseFunctions
 
 struct MentorDiscoveryView: View {
     @State private var query: String = ""
@@ -7,6 +8,7 @@ struct MentorDiscoveryView: View {
     @State private var hasSearched: Bool = false
     @State private var animateGlow: Bool = false
     @FocusState private var isInputFocused: Bool
+    @State private var aiMatches: [(userId: String, score: Int, reason: String)] = []
     
     @EnvironmentObject private var conversationsViewModel: ConversationsViewModel
     @StateObject private var networkViewModel = NetworkViewModel(repository: FirebaseNetworkRepository())
@@ -73,10 +75,25 @@ struct MentorDiscoveryView: View {
                             Button(action: {
                                 isInputFocused = false
                                 isSearching = true
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                                    isSearching = false
-                                    hasSearched = true
-                                }
+                                hasSearched = true
+                                aiMatches = []
+                                
+                                Functions.functions(region: "europe-west1")
+                                    .httpsCallable("searchUsersWithAI")
+                                    .call(["query": query, "currentUserId": currentUserId]) { result, error in
+                                        DispatchQueue.main.async {
+                                            isSearching = false
+                                            guard error == nil,
+                                                  let data = result?.data as? [String: Any],
+                                                  let results = data["results"] as? [[String: Any]] else { return }
+                                            aiMatches = results.compactMap { r in
+                                                guard let userId = r["userId"] as? String,
+                                                      let score = r["score"] as? Int,
+                                                      let reason = r["reason"] as? String else { return nil }
+                                                return (userId: userId, score: score, reason: reason)
+                                            }
+                                        }
+                                    }
                             }) {
                                 Text("Search")
                                     .font(.system(size: 15, weight: .semibold, design: .rounded))
@@ -132,34 +149,40 @@ struct MentorDiscoveryView: View {
                                         profile.id.uuidString != currentUserId &&
                                         !conversationsViewModel.hasConversation(with: profile.id.uuidString)
                                     }
-                                    let matches = availableProfiles.prefix(3)
                                     
-                                    if matches.isEmpty {
-                                        Text("No matches found. You might have already connected with everyone.")
+                                    let joinedMatches = aiMatches.compactMap { match -> (profile: UserProfile, score: Int, reason: String)? in
+                                        if let profile = availableProfiles.first(where: { $0.id.uuidString == match.userId }) {
+                                            return (profile: profile, score: match.score, reason: match.reason)
+                                        }
+                                        return nil
+                                    }
+                                    
+                                    if joinedMatches.isEmpty {
+                                        Text("No matches found. You might have already connected with everyone or your search was too specific.")
                                             .font(.system(size: 15, design: .rounded))
                                             .foregroundColor(.secondary)
                                             .padding(.vertical)
                                     } else {
                                         VStack(spacing: DesignSystem.Spacing.standard) {
-                                            ForEach(Array(matches.enumerated()), id: \.element.id) { index, profile in
-                                                let matchPercents = [98, 87, 72, 65, 50]
+                                            ForEach(Array(joinedMatches.enumerated()), id: \.element.profile.id) { index, matchData in
                                                 MatchCard(
-                                                    profile: profile,
-                                                    matchPercent: index < matchPercents.count ? matchPercents[index] : 50,
-                                                    companyName: networkViewModel.companyNames[profile.id.uuidString] ?? profile.role,
+                                                    profile: matchData.profile,
+                                                    matchPercent: matchData.score,
+                                                    companyName: networkViewModel.companyNames[matchData.profile.id.uuidString] ?? matchData.profile.role,
+                                                    reason: matchData.reason,
                                                     onConnect: {
-                                                        conversationsViewModel.getOrCreateConversation(with: profile.id.uuidString) { result in
+                                                        conversationsViewModel.getOrCreateConversation(with: matchData.profile.id.uuidString) { result in
                                                             if case .success(let convId) = result {
                                                                 let newConv = Conversation(
                                                                     id: convId,
-                                                                    participantIds: [currentUserId, profile.id.uuidString],
+                                                                    participantIds: [currentUserId, matchData.profile.id.uuidString],
                                                                     lastMessage: "",
                                                                     lastMessageAt: Date(),
                                                                     lastSenderId: "",
                                                                     unreadCounts: [:],
-                                                                    otherParticipantName: profile.fullName,
-                                                                    otherParticipantCompany: networkViewModel.companyNames[profile.id.uuidString] ?? profile.role,
-                                                                    otherParticipantImageUrl: profile.profileImageUrl
+                                                                    otherParticipantName: matchData.profile.fullName,
+                                                                    otherParticipantCompany: networkViewModel.companyNames[matchData.profile.id.uuidString] ?? matchData.profile.role,
+                                                                    otherParticipantImageUrl: matchData.profile.profileImageUrl
                                                                 )
                                                                 self.activeConversation = newConv
                                                                 self.showConversation = true
@@ -241,6 +264,7 @@ struct MatchCard: View {
     let profile: UserProfile
     let matchPercent: Int
     let companyName: String
+    let reason: String
     let onConnect: () -> Void
     
     var body: some View {
@@ -311,6 +335,14 @@ struct MatchCard: View {
                             .overlay(Capsule().stroke(Color.brandPrimary.opacity(0.2), lineWidth: 1))
                     }
                 }
+            }
+            
+            if !reason.isEmpty {
+                Text(reason)
+                    .font(.system(size: 13, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+                    .padding(.top, 4)
             }
             
             // Action Button

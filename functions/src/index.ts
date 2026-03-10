@@ -12,3 +12,5 @@ export {
     checkAndFetchSalesforceContact,
     checkUserExists,
 } from "./salesforce";
+
+export { searchUsersWithAI } from "./aiSearch";
