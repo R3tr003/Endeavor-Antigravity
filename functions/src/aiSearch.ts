@@ -83,9 +83,11 @@ User request: "${query}"
 Available profiles:
 ${JSON.stringify(profiles, null, 2)}
 
-Analyze each profile and score its compatibility with the user request from 0 to 100.
+Analyze the profiles and select ONLY the top 5 most compatible profiles that match the user request.
+Score their compatibility from 0 to 100.
 Consider: role, professional bio, sector, user type, nationality, languages.
 Be precise and reasoning-based in your scoring.
+CRITICAL: Do NOT return every profile. Return a MAXIMUM of 5 profiles in the results array!
         `,
         output: { schema: MatchResultSchema },
         config: { temperature: 0.2 },

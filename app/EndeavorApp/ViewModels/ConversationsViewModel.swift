@@ -2,6 +2,7 @@ import Foundation
 import FirebaseFirestore
 import FirebaseAuth
 import Combine
+import FirebasePerformance
 
 class ConversationsViewModel: ObservableObject {
 
@@ -23,6 +24,7 @@ class ConversationsViewModel: ObservableObject {
 
     private let repository: MessagesRepositoryProtocol
     private var conversationsListener: ListenerRegistration?
+    private var fetchConversationsTrace: Trace?
 
     /// Cache profili utente per evitare fetch ripetuti
     private var profileCache: [String: UserProfile] = [:]
@@ -49,12 +51,21 @@ class ConversationsViewModel: ObservableObject {
 
         isLoading = true
         conversationsListener?.remove()
+        
+        // Start Firebase Performance trace for the initial fetch
+        fetchConversationsTrace = Performance.startTrace(name: "Fetch_Conversations_Duration")
 
         conversationsListener = repository.listenToConversations(
             userId: currentUserId
         ) { [weak self] result in
             guard let self = self else { return }
             self.isLoading = false
+            
+            // Stop the trace on first load
+            if let trace = self.fetchConversationsTrace {
+                trace.stop()
+                self.fetchConversationsTrace = nil
+            }
 
             switch result {
             case .success(let rawConversations):

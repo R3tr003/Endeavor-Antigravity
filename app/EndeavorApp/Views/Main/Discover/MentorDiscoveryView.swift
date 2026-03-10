@@ -1,6 +1,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 import FirebaseFunctions
+import FirebasePerformance
 
 struct MentorDiscoveryView: View {
     @State private var query: String = ""
@@ -78,6 +79,8 @@ struct MentorDiscoveryView: View {
                                 hasSearched = true
                                 aiMatches = []
                                 
+                                let trace = Performance.startTrace(name: "AI_Search_Duration")
+                                
                                 Functions.functions(region: "europe-west1")
                                     .httpsCallable("searchUsersWithAI")
                                     .call(["query": query, "currentUserId": currentUserId]) { result, error in
@@ -85,13 +88,18 @@ struct MentorDiscoveryView: View {
                                             isSearching = false
                                             guard error == nil,
                                                   let data = result?.data as? [String: Any],
-                                                  let results = data["results"] as? [[String: Any]] else { return }
+                                                  let results = data["results"] as? [[String: Any]] else {
+                                                trace?.stop()
+                                                return
+                                            }
                                             aiMatches = results.compactMap { r in
                                                 guard let userId = r["userId"] as? String,
                                                       let score = r["score"] as? Int,
                                                       let reason = r["reason"] as? String else { return nil }
                                                 return (userId: userId, score: score, reason: reason)
                                             }
+                                            trace?.setValue(Int64(aiMatches.count), forMetric: "search_results_count")
+                                            trace?.stop()
                                         }
                                     }
                             }) {

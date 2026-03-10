@@ -2,6 +2,7 @@ import Foundation
 import Combine
 import FirebaseFirestore // For DocumentSnapshot pagination cursor
 import SDWebImage
+import FirebasePerformance
 
 class NetworkViewModel: ObservableObject {
     @Published var profiles: [UserProfile] = []
@@ -12,6 +13,7 @@ class NetworkViewModel: ObservableObject {
     
     private let repository: NetworkRepositoryProtocol
     private var lastDocument: DocumentSnapshot? = nil
+    private var fetchUsersTrace: Trace?
     
     init(repository: NetworkRepositoryProtocol) {
         self.repository = repository
@@ -23,6 +25,9 @@ class NetworkViewModel: ObservableObject {
             lastDocument = nil
             hasMoreData = true
             companyNames = [:] // Clear cache on refresh
+            
+            // Measure time to interactive / data load for the Network View
+            fetchUsersTrace = Performance.startTrace(name: "Fetch_Network_Users_Duration")
         }
         
         guard !isLoading && hasMoreData else { return }
@@ -33,6 +38,11 @@ class NetworkViewModel: ObservableObject {
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 self.isLoading = false
+                
+                if let trace = self.fetchUsersTrace {
+                    trace.stop()
+                    self.fetchUsersTrace = nil
+                }
                 
                 if newUsers.isEmpty {
                     self.hasMoreData = false
