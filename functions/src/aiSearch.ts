@@ -1,4 +1,4 @@
-import { onCallGenkit, hasClaim } from "firebase-functions/https";
+import { onCallGenkit } from "firebase-functions/https";
 import { defineSecret } from "firebase-functions/params";
 import { getFirestore } from "firebase-admin/firestore";
 import { googleAI } from "@genkit-ai/google-genai";
@@ -118,7 +118,8 @@ CRITICAL: Do NOT return every profile. Return a MAXIMUM of 5 profiles in the res
 export const searchUsersWithAI = onCallGenkit(
   {
     secrets: [googleAIApiKey],
-    authPolicy: hasClaim("email_verified"),
+    authPolicy: (auth) => auth != null,
+    region: "europe-west1",
   },
   userMatchFlow
 );
