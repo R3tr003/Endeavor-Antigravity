@@ -149,7 +149,7 @@ struct UserProfileView: View {
     
     private var aboutSection: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
-            sectionTitle("About")
+            sectionTitle(String(localized: "profile.about"))
             Text(profile.personalBio)
                 .font(.body)
                 .foregroundColor(.primary.opacity(0.85))
@@ -165,7 +165,7 @@ struct UserProfileView: View {
                     ProgressView()
                         .scaleEffect(1.2)
                         .tint(.brandPrimary)
-                    Text("Loading profile...")
+                    Text(String(localized: "profile.loading"))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -272,7 +272,7 @@ struct UserProfileView: View {
                     ProgressView().tint(.white)
                 } else {
                     Image(systemName: "message.fill")
-                    Text("Send a Message")
+                    Text(String(localized: "messages.start_conversation"))
                 }
             }
             .font(.system(size: 16, weight: .semibold, design: .rounded))

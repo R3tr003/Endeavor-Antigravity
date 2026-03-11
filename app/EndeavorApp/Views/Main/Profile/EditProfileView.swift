@@ -105,14 +105,14 @@ struct EditProfileView: View {
                     
                     Spacer()
                     
-                    Text("Edit Profile")
+                    Text(String(localized: "profile.edit_profile", defaultValue: "Edit Profile"))
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                     
                     Spacer()
                     
                     Button(action: saveChanges) {
-                        Text("Save")
+                        Text(String(localized: "common.save"))
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(.brandPrimary)
                             .padding(.horizontal, DesignSystem.Spacing.standard)
@@ -133,7 +133,7 @@ struct EditProfileView: View {
                                 selectedTab = tab
                             }
                         }) {
-                            Text(tab)
+                            Text(tab == "Personal" ? String(localized: "profile.tab.personal", defaultValue: "Personal") : String(localized: "profile.tab.company", defaultValue: "Company"))
                                 .font(.system(size: 14, weight: selectedTab == tab ? .bold : .medium, design: .rounded))
                                 .foregroundColor(selectedTab == tab ? .white : .primary)
                                 .padding(.vertical, 10)
@@ -175,10 +175,10 @@ struct EditProfileView: View {
             loadCurrentData()
         }
         .alert(isPresented: $showingAlert) {
-            Alert(title: Text("Missing Information"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            Alert(title: Text(String(localized: "profile.missing_information", defaultValue: "Missing Information")), message: Text(alertMessage), dismissButton: .default(Text(String(localized: "common.ok"))))
         }
-        .alert("Verification Email Sent", isPresented: $showEmailChangeSuccess) {
-            Button("OK", role: .cancel) {
+        .alert(String(localized: "profile.verification_email_sent", defaultValue: "Verification Email Sent"), isPresented: $showEmailChangeSuccess) {
+            Button(String(localized: "common.ok"), role: .cancel) {
                 withAnimation {
                     showEmailChange = false
                     newEmail = ""
@@ -186,10 +186,10 @@ struct EditProfileView: View {
                 }
             }
         } message: {
-            Text("A verification link has been sent to your new email. Please check your inbox and click the link to complete the change.")
+            Text(String(localized: "profile.verification_email_sent_msg", defaultValue: "A verification link has been sent to your new email. Please check your inbox and click the link to complete the change."))
         }
-        .alert("Email Change Failed", isPresented: $showEmailChangeError) {
-            Button("OK", role: .cancel) { }
+        .alert(String(localized: "profile.email_change_failed", defaultValue: "Email Change Failed"), isPresented: $showEmailChangeError) {
+            Button(String(localized: "common.ok"), role: .cancel) { }
         } message: {
             Text(emailChangeErrorMessage)
         }
@@ -266,32 +266,32 @@ struct EditProfileView: View {
     // MARK: - Personal Tab
     var personalEditContent: some View {
         VStack(spacing: DesignSystem.Spacing.large) {
-            glassSection(title: "Personal Information") {
-                glassTextField(title: "First Name", placeholder: "Enter your first name", text: $firstName, isFocused: $focusFirstName, isRequired: true)
+            glassSection(title: String(localized: "profile.personal_information", defaultValue: "Personal Information")) {
+                glassTextField(title: String(localized: "profile.first_name", defaultValue: "First Name"), placeholder: String(localized: "profile.first_name_placeholder", defaultValue: "Enter your first name"), text: $firstName, isFocused: $focusFirstName, isRequired: true)
                     .submitLabel(.next)
                     .onSubmit { focusLastName = true }
                 
-                glassTextField(title: "Last Name", placeholder: "Enter your last name", text: $lastName, isFocused: $focusLastName, isRequired: true)
+                glassTextField(title: String(localized: "profile.last_name", defaultValue: "Last Name"), placeholder: String(localized: "profile.last_name_placeholder", defaultValue: "Enter your last name"), text: $lastName, isFocused: $focusLastName, isRequired: true)
                     .submitLabel(.next)
                     .onSubmit { focusRole = true }
                 
-                glassTextField(title: "Role/Title", placeholder: "e.g. CEO, CTO", text: $role, isFocused: $focusRole, isRequired: true)
+                glassTextField(title: String(localized: "profile.role_title", defaultValue: "Role/Title"), placeholder: String(localized: "profile.role_placeholder", defaultValue: "e.g. CEO, CTO"), text: $role, isFocused: $focusRole, isRequired: true)
                     .submitLabel(.next)
                     .onSubmit { focusPersonalBio = true }
             }
             
-            glassSection(title: "About You") {
-                glassTextEditor(title: "Bio", placeholder: "Tell us a bit about yourself...", text: $personalBio, charLimit: 300, isHighlighted: focusPersonalBio, isRequired: true)
+            glassSection(title: String(localized: "profile.about_you", defaultValue: "About You")) {
+                glassTextEditor(title: String(localized: "profile.bio", defaultValue: "Bio"), placeholder: String(localized: "profile.bio_placeholder", defaultValue: "Tell us a bit about yourself..."), text: $personalBio, charLimit: 300, isHighlighted: focusPersonalBio, isRequired: true)
                     .focused($focusPersonalBio)
             }
             
-            glassSection(title: "Contact") {
+            glassSection(title: String(localized: "profile.contact", defaultValue: "Contact")) {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
-                    Text("Work Email")
+                    Text(String(localized: "profile.work_email", defaultValue: "Work Email"))
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.primary.opacity(0.8))
                     
-                    Text(appViewModel.currentUser?.email ?? "No Email")
+                    Text(appViewModel.currentUser?.email ?? String(localized: "profile.no_email", defaultValue: "No Email"))
                         .font(.system(size: 16, design: .rounded))
                         .foregroundColor(.secondary)
                         .padding(DesignSystem.Spacing.standard)
@@ -308,7 +308,7 @@ struct EditProfileView: View {
                         }
                     }) {
                         HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                            Text("Do you want to change the email?")
+                            Text(String(localized: "profile.change_email_prompt", defaultValue: "Do you want to change the email?"))
                                 .foregroundColor(.brandPrimary)
                             Image(systemName: showEmailChange ? "chevron.up" : "chevron.down")
                                 .foregroundColor(.brandPrimary)
@@ -322,7 +322,7 @@ struct EditProfileView: View {
                             // New Email field with focus glow
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                                    Text("New Email")
+                                    Text(String(localized: "profile.new_email", defaultValue: "New Email"))
                                         .font(.system(size: 14, weight: .bold, design: .rounded))
                                         .foregroundColor(.primary.opacity(0.8))
                                     Text("*")
@@ -330,7 +330,7 @@ struct EditProfileView: View {
                                         .foregroundColor(.red)
                                 }
                                 
-                                TextField("Enter your new email", text: $newEmail)
+                                TextField(String(localized: "profile.new_email_placeholder", defaultValue: "Enter your new email"), text: $newEmail)
                                     .font(.system(size: 16, design: .rounded))
                                     .foregroundColor(.primary)
                                     .autocapitalization(.none)
@@ -353,11 +353,11 @@ struct EditProfileView: View {
                             
                             if !appViewModel.isGoogleUser {
                                 VStack(alignment: .leading, spacing: 8) {
-                                    Text("Current Password")
+                                    Text(String(localized: "profile.current_password", defaultValue: "Current Password"))
                                         .font(.system(size: 14, weight: .bold, design: .rounded))
                                         .foregroundColor(.primary.opacity(0.8))
                                     
-                                    SecureField("Enter your current password", text: $emailChangePassword)
+                                    SecureField(String(localized: "profile.current_password_placeholder", defaultValue: "Enter your current password"), text: $emailChangePassword)
                                         .font(.system(size: 16, design: .rounded))
                                         .foregroundColor(.primary)
                                         .focused($focusPassword)
@@ -380,7 +380,7 @@ struct EditProfileView: View {
                                 }
                             }
                             
-                            Text("A verification link will be sent to the new email. Your email will only be updated after you verify it.")
+                            Text(String(localized: "profile.email_verification_notice", defaultValue: "A verification link will be sent to the new email. Your email will only be updated after you verify it."))
                                 .font(.system(size: 12, design: .rounded))
                                 .foregroundColor(.secondary)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -392,7 +392,7 @@ struct EditProfileView: View {
                                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                             .scaleEffect(0.8)
                                     }
-                                    Text("Send Verification Email")
+                                    Text(String(localized: "profile.send_verification_email", defaultValue: "Send Verification Email"))
                                         .font(.system(size: 15, weight: .bold, design: .rounded))
                                         .foregroundColor(.white)
                                 }
@@ -419,18 +419,18 @@ struct EditProfileView: View {
     // MARK: - Company Tab
     var companyEditContent: some View {
         VStack(spacing: DesignSystem.Spacing.large) {
-            glassSection(title: "Company Info") {
-                glassTextField(title: "Company Name", placeholder: "Enter company name", text: $companyName, isFocused: $focusCompanyName, isRequired: true)
+            glassSection(title: String(localized: "profile.company_info", defaultValue: "Company Info")) {
+                glassTextField(title: String(localized: "profile.company_name", defaultValue: "Company Name"), placeholder: String(localized: "profile.company_name_placeholder", defaultValue: "Enter company name"), text: $companyName, isFocused: $focusCompanyName, isRequired: true)
                     .submitLabel(.next)
                     .onSubmit { focusWebsite = true }
                 
-                glassTextField(title: "Website", placeholder: "https://example.com", text: $website, isFocused: $focusWebsite, isRequired: true)
+                glassTextField(title: String(localized: "profile.website", defaultValue: "Website"), placeholder: "https://example.com", text: $website, isFocused: $focusWebsite, isRequired: true)
                     .submitLabel(.next)
                     .onSubmit { focusCompanyBio = true }
             }
             
-            glassSection(title: "Headquarters") {
-                glassDropdown(title: "HQ Country", selection: hqCountry, placeholder: "Select a country", isRequired: true) {
+            glassSection(title: String(localized: "profile.headquarters", defaultValue: "Headquarters")) {
+                glassDropdown(title: String(localized: "profile.hq_country", defaultValue: "HQ Country"), selection: hqCountry, placeholder: String(localized: "profile.select_country", defaultValue: "Select a country"), isRequired: true) {
                     ForEach(availableCountries, id: \.self) { country in
                         Button(country) {
                             hqCountry = country
@@ -439,9 +439,9 @@ struct EditProfileView: View {
                     }
                 }
                 
-                glassDropdown(title: "HQ City", selection: hqCity, placeholder: hqCountry.isEmpty ? "Select a country first" : "Select a city", isRequired: true) {
+                glassDropdown(title: String(localized: "profile.hq_city", defaultValue: "HQ City"), selection: hqCity, placeholder: hqCountry.isEmpty ? String(localized: "profile.select_country_first", defaultValue: "Select a country first") : String(localized: "profile.select_city", defaultValue: "Select a city"), isRequired: true) {
                     if hqCountry.isEmpty {
-                        Button("Select a country first", action: {})
+                        Button(String(localized: "profile.select_country_first", defaultValue: "Select a country first"), action: {})
                     } else {
                         ForEach(citiesForCountry(hqCountry), id: \.self) { city in
                             Button(city) {
@@ -453,16 +453,16 @@ struct EditProfileView: View {
                 .disabled(hqCountry.isEmpty)
             }
             
-            glassSection(title: "Additional Details") {
+            glassSection(title: String(localized: "profile.additional_details", defaultValue: "Additional Details")) {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                     HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                        Text("Industry")
+                        Text(String(localized: "profile.industry", defaultValue: "Industry"))
                             .font(.system(size: 14, weight: .bold, design: .rounded))
                             .foregroundColor(.primary.opacity(0.8))
                     }
                     
                     HStack {
-                        Text(industry.isEmpty ? "Not available" : industry)
+                        Text(industry.isEmpty ? String(localized: "profile.not_available", defaultValue: "Not available") : industry)
                             .font(.system(size: 16, design: .rounded))
                             .foregroundColor(.secondary)
                         Spacer()
@@ -478,21 +478,21 @@ struct EditProfileView: View {
                     )
                 }
                 
-                glassDropdown(title: "Company Stage", selection: stage, placeholder: "Select a stage", isRequired: true) {
+                glassDropdown(title: String(localized: "profile.company_stage", defaultValue: "Company Stage"), selection: stage, placeholder: String(localized: "profile.select_stage", defaultValue: "Select a stage"), isRequired: true) {
                     ForEach(availableStages, id: \.self) { s in
                         Button(s) { stage = s }
                     }
                 }
                 
-                glassDropdown(title: "Number of Employees", selection: employeeRange, placeholder: "Select employee range", isRequired: true) {
+                glassDropdown(title: String(localized: "profile.number_of_employees", defaultValue: "Number of Employees"), selection: employeeRange, placeholder: String(localized: "profile.select_employee_range", defaultValue: "Select employee range"), isRequired: true) {
                     ForEach(availableEmployeeRanges, id: \.self) { range in
                         Button(range) { employeeRange = range }
                     }
                 }
             }
             
-            glassSection(title: "About Company") {
-                glassTextEditor(title: "Company Bio", placeholder: "Describe your company mission and goals...", text: $companyBio, charLimit: 1000, isHighlighted: focusCompanyBio, isRequired: true)
+            glassSection(title: String(localized: "profile.about_company", defaultValue: "About Company")) {
+                glassTextEditor(title: String(localized: "profile.company_bio", defaultValue: "Company Bio"), placeholder: String(localized: "profile.company_bio_placeholder", defaultValue: "Describe your company mission and goals..."), text: $companyBio, charLimit: 1000, isHighlighted: focusCompanyBio, isRequired: true)
                     .focused($focusCompanyBio)
             }
         }
@@ -508,31 +508,31 @@ struct EditProfileView: View {
         let companyBioClean = companyBio.trimmingCharacters(in: .whitespacesAndNewlines)
         
         if firstNameClean.isEmpty {
-            alertMessage = "Please enter your first name."
+            alertMessage = String(localized: "profile.error.first_name", defaultValue: "Please enter your first name.")
             showingAlert = true
             return
         }
         
         if lastNameClean.isEmpty {
-            alertMessage = "Please enter your last name."
+            alertMessage = String(localized: "profile.error.last_name", defaultValue: "Please enter your last name.")
             showingAlert = true
             return
         }
         
         if roleClean.isEmpty {
-            alertMessage = "Please enter your role."
+            alertMessage = String(localized: "profile.error.role", defaultValue: "Please enter your role.")
             showingAlert = true
             return
         }
         
         if personalBioClean.isEmpty {
-            alertMessage = "Please enter 'About You' information."
+            alertMessage = String(localized: "profile.error.personal_bio", defaultValue: "Please enter 'About You' information.")
             showingAlert = true
             return
         }
         
         if companyBioClean.isEmpty {
-             alertMessage = "Please enter 'About Company' information."
+             alertMessage = String(localized: "profile.error.company_bio", defaultValue: "Please enter 'About Company' information.")
              showingAlert = true
              return
         }

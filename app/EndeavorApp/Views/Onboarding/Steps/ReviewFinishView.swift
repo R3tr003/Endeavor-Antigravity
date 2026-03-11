@@ -9,11 +9,11 @@ struct ReviewFinishView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
-                Text("Review & Finish")
+                Text(String(localized: "onboarding.review_finish", defaultValue: "Review & Finish"))
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 
-                Text("Please review your information below. You can edit any section before completing your profile.")
+                Text(String(localized: "onboarding.review_desc", defaultValue: "Please review your information below. You can edit any section before completing your profile."))
                     .font(.headline)
                     .foregroundColor(.secondary)
             }
@@ -23,11 +23,11 @@ struct ReviewFinishView: View {
                 VStack(spacing: 0) {
                     Button(action: { withAnimation { isPersonalExpanded.toggle() } }) {
                         HStack {
-                            Text("Personal Information")
+                            Text(String(localized: "onboarding.personal_info", defaultValue: "Personal Information"))
                                 .font(.system(size: 18, weight: .bold)) // 18pt bold
                                 .foregroundColor(.primary)
                             Spacer()
-                            Text(isPersonalExpanded ? "Collapse" : "Expand")
+                            Text(isPersonalExpanded ? String(localized: "common.collapse", defaultValue: "Collapse") : String(localized: "common.expand", defaultValue: "Expand"))
                                 .font(.subheadline.weight(.medium))
                                 .foregroundColor(.brandPrimary)
                         }
@@ -36,10 +36,10 @@ struct ReviewFinishView: View {
                     
                     if isPersonalExpanded {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
-                            reviewRow(label: "Full Name", value: viewModel.user.fullName)
-                            reviewRow(label: "Role", value: viewModel.user.role)
-                            reviewRow(label: "Email", value: viewModel.user.email)
-                            reviewRow(label: "Location", value: "\(viewModel.company.hqCountry), \(viewModel.company.hqCity)")
+                            reviewRow(label: String(localized: "profile.full_name", defaultValue: "Full Name"), value: viewModel.user.fullName)
+                            reviewRow(label: String(localized: "profile.role", defaultValue: "Role"), value: viewModel.user.role)
+                            reviewRow(label: String(localized: "profile.email", defaultValue: "Email"), value: viewModel.user.email)
+                            reviewRow(label: String(localized: "profile.location", defaultValue: "Location"), value: "\(viewModel.company.hqCountry), \(viewModel.company.hqCity)")
                         }
                         .padding(.bottom, DesignSystem.Spacing.large)
                     }
@@ -51,11 +51,11 @@ struct ReviewFinishView: View {
                 VStack(spacing: 0) {
                     Button(action: { withAnimation { isCompanyExpanded.toggle() } }) {
                         HStack {
-                            Text("Company Information")
+                            Text(String(localized: "profile.company_info", defaultValue: "Company Information"))
                                 .font(.system(size: 18, weight: .bold))
                                 .foregroundColor(.primary)
                             Spacer()
-                            Text(isCompanyExpanded ? "Collapse" : "Expand")
+                            Text(isCompanyExpanded ? String(localized: "common.collapse", defaultValue: "Collapse") : String(localized: "common.expand", defaultValue: "Expand"))
                                 .font(.subheadline.weight(.medium))
                                 .foregroundColor(.brandPrimary)
                         }
@@ -64,10 +64,10 @@ struct ReviewFinishView: View {
                     
                     if isCompanyExpanded {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
-                            reviewRow(label: "Company Name", value: viewModel.company.name)
-                            reviewRow(label: "Website", value: viewModel.company.website)
-                            reviewRow(label: "Industry", value: viewModel.company.industries.joined(separator: ", "))
-                            reviewRow(label: "Stage", value: viewModel.company.stage)
+                            reviewRow(label: String(localized: "profile.company_name", defaultValue: "Company Name"), value: viewModel.company.name)
+                            reviewRow(label: String(localized: "profile.website", defaultValue: "Website"), value: viewModel.company.website)
+                            reviewRow(label: String(localized: "profile.industry", defaultValue: "Industry"), value: viewModel.company.industries.joined(separator: ", "))
+                            reviewRow(label: String(localized: "profile.stage", defaultValue: "Stage"), value: viewModel.company.stage)
                         }
                         .padding(.bottom, DesignSystem.Spacing.large)
                     }

@@ -72,7 +72,7 @@ struct NewConversationView: View {
                     .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
             }
             Spacer()
-            Text("New Message")
+            Text(String(localized: "messages.new_message"))
                 .font(.system(size: 17, weight: .bold, design: .rounded))
                 .foregroundColor(.primary)
             Spacer()
@@ -89,7 +89,7 @@ struct NewConversationView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
                 .font(.system(size: 16))
-            TextField("Search by name or role...", text: $searchText)
+            TextField(String(localized: "messages.search_name_role", defaultValue: "Search by name or role..."), text: $searchText)
                 .font(.system(size: 16, design: .rounded))
                 .foregroundColor(.primary)
         }
@@ -114,7 +114,7 @@ struct NewConversationView: View {
                 Image(systemName: "person.2.slash")
                     .font(.system(size: 40))
                     .foregroundColor(.secondary.opacity(0.5))
-                Text(searchText.isEmpty ? "No contacts available" : "No results for \"\(searchText)\"")
+                Text(searchText.isEmpty ? String(localized: "messages.no_contacts_available", defaultValue: "No contacts available") : String(localized: "messages.no_results_for", defaultValue: "No results for \"\(searchText)\""))
                     .font(.system(size: 15, design: .rounded))
                     .foregroundColor(.secondary)
             }

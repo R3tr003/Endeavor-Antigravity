@@ -76,7 +76,7 @@ struct ProfileView: View {
             }
             .onChange(of: profileImage) { _, newImage in
                 if let image = newImage {
-                    loadingMessage = "Uploading..."
+                    loadingMessage = String(localized: "common.uploading", defaultValue: "Uploading...")
                     appViewModel.updateProfileImage(image)
                 }
             }
@@ -97,18 +97,18 @@ struct ProfileView: View {
                 // + Button overlay
                 Menu {
                     Button(action: { showCamera = true }) {
-                        Label("Take Photo", systemImage: "camera")
+                        Label(String(localized: "profile.take_photo", defaultValue: "Take Photo"), systemImage: "camera")
                     }
                     Button(action: { showPhotoLibrary = true }) {
-                        Label("Choose from Library", systemImage: "photo.on.rectangle")
+                        Label(String(localized: "profile.choose_from_library", defaultValue: "Choose from Library"), systemImage: "photo.on.rectangle")
                     }
                     if profileImage != nil || !(appViewModel.currentUser?.profileImageUrl.isEmpty ?? true) {
                         Button(role: .destructive, action: {
-                            loadingMessage = "Removing..."
+                            loadingMessage = String(localized: "common.removing", defaultValue: "Removing...")
                             profileImage = nil
                             appViewModel.removeProfileImage()
                         }) {
-                            Label("Remove Photo", systemImage: "trash")
+                            Label(String(localized: "profile.remove_photo", defaultValue: "Remove Photo"), systemImage: "trash")
                         }
                     }
                 } label: {
@@ -127,7 +127,7 @@ struct ProfileView: View {
             }
             
             VStack(spacing: DesignSystem.Spacing.xxSmall) {
-                Text(appViewModel.currentUser?.fullName ?? "User Profile")
+                Text(appViewModel.currentUser?.fullName ?? String(localized: "profile.user_profile", defaultValue: "User Profile"))
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                     .lineLimit(1)
@@ -293,10 +293,10 @@ struct ProfileView: View {
     
     var personalContent: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
-            profileSection(title: "About") {
+            profileSection(title: String(localized: "profile.about", defaultValue: "About")) {
                 Text(appViewModel.currentUser?.personalBio.isEmpty == false 
                      ? appViewModel.currentUser!.personalBio 
-                     : "No bio added yet. Tell the network about yourself.")
+                     : String(localized: "profile.no_bio_yet", defaultValue: "No bio added yet. Tell the network about yourself."))
                     .font(.body)
                     .foregroundColor(.primary)
                     .lineSpacing(6)
@@ -305,30 +305,30 @@ struct ProfileView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             
-            profileSection(title: "Contact") {
-                profileInfoRow(icon: "envelope.fill", label: "Email", value: appViewModel.currentUser?.email ?? "No Email", showDivider: false)
+            profileSection(title: String(localized: "profile.contact", defaultValue: "Contact")) {
+                profileInfoRow(icon: "envelope.fill", label: String(localized: "profile.email", defaultValue: "Email"), value: appViewModel.currentUser?.email ?? String(localized: "profile.no_email", defaultValue: "No Email"), showDivider: false)
             }
         }
     }
     
     var companyContent: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
-            profileSection(title: "Headquarters") {
-                profileInfoRow(icon: "mappin.and.ellipse", label: "Location", value: "\(appViewModel.companyProfile?.hqCity ?? "San Francisco"), \(appViewModel.companyProfile?.hqCountry ?? "USA")")
-                profileInfoRow(icon: "globe", label: "Website", value: appViewModel.companyProfile?.website ?? "endeavor.tech", showDivider: false)
+            profileSection(title: String(localized: "profile.headquarters", defaultValue: "Headquarters")) {
+                profileInfoRow(icon: "mappin.and.ellipse", label: String(localized: "profile.location", defaultValue: "Location"), value: "\(appViewModel.companyProfile?.hqCity ?? "San Francisco"), \(appViewModel.companyProfile?.hqCountry ?? "USA")")
+                profileInfoRow(icon: "globe", label: String(localized: "profile.website", defaultValue: "Website"), value: appViewModel.companyProfile?.website ?? "endeavor.tech", showDivider: false)
             }
             
-            profileSection(title: "Details") {
-                profileInfoRow(icon: "building.2.fill", label: "Company", value: appViewModel.companyProfile?.name ?? "Endeavor Technologies")
-                profileInfoRow(icon: "briefcase.fill", label: "Industry", value: appViewModel.companyProfile?.industries.first ?? "Technology / AI")
-                profileInfoRow(icon: "person.3.fill", label: "Team Size", value: appViewModel.companyProfile?.employeeRange ?? "25-50 employees")
-                profileInfoRow(icon: "chart.line.uptrend.xyaxis", label: "Stage", value: appViewModel.companyProfile?.stage ?? "Series A", showDivider: false)
+            profileSection(title: String(localized: "profile.details", defaultValue: "Details")) {
+                profileInfoRow(icon: "building.2.fill", label: String(localized: "profile.company", defaultValue: "Company"), value: appViewModel.companyProfile?.name ?? "Endeavor Technologies")
+                profileInfoRow(icon: "briefcase.fill", label: String(localized: "profile.industry", defaultValue: "Industry"), value: appViewModel.companyProfile?.industries.first ?? "Technology / AI")
+                profileInfoRow(icon: "person.3.fill", label: String(localized: "profile.team_size", defaultValue: "Team Size"), value: appViewModel.companyProfile?.employeeRange ?? "25-50 employees")
+                profileInfoRow(icon: "chart.line.uptrend.xyaxis", label: String(localized: "profile.stage", defaultValue: "Stage"), value: appViewModel.companyProfile?.stage ?? "Series A", showDivider: false)
             }
             
-            profileSection(title: "About Company") {
+            profileSection(title: String(localized: "profile.about_company", defaultValue: "About Company")) {
                 Text(appViewModel.companyProfile?.companyBio.isEmpty == false 
                      ? appViewModel.companyProfile!.companyBio 
-                     : "No company description added yet.")
+                     : String(localized: "profile.no_company_description", defaultValue: "No company description added yet."))
                     .font(.body)
                     .foregroundColor(.primary)
                     .lineSpacing(6)

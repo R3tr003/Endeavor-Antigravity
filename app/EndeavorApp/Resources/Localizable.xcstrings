@@ -1,0 +1,483 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "nav.home" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Home" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Inicio" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Home" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Accueil" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Início" } }
+      }
+    },
+    "nav.network" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Network" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Red" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Network" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réseau" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Rede" } }
+      }
+    },
+    "nav.discover" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Discover" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Descubrir" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Scopri" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Découvrir" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Descobrir" } }
+      }
+    },
+    "nav.messages" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Messages" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mensajes" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Messaggi" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Messages" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mensagens" } }
+      }
+    },
+    "nav.profile" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Profile" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Perfil" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Profilo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Profil" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Perfil" } }
+      }
+    },
+    "auth.work_email" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Work Email" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Email de trabajo" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Email di lavoro" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Email professionnel" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Email profissional" } }
+      }
+    },
+    "auth.join" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Join" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Unirse" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Unisciti" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rejoindre" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entrar" } }
+      }
+    },
+    "auth.continue_google" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue with Google" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Continuar con Google" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Continua con Google" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Continuer avec Google" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Continuar com Google" } }
+      }
+    },
+    "auth.forgot_password" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Forgot Password?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Olvidaste tu contraseña?" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Password dimenticata?" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Mot de passe oublié ?" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Esqueceu a senha?" } }
+      }
+    },
+    "auth.access_reserved" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Access reserved for authorized Endeavor members and mentors." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acceso reservado para miembros y mentores autorizados de Endeavor." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Accesso riservato ai membri e mentor autorizzati di Endeavor." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Accès réservé aux membres et mentors Endeavor autorisés." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Acesso reservado para membros e mentores autorizados da Endeavor." } }
+      }
+    },
+    "discover.header.title1" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Find Your" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Encuentra Tu" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Trova Il Tuo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Trouvez Votre" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Encontre Seu" } }
+      }
+    },
+    "discover.header.title2" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Expert Match" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Experto Ideal" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Expert Match" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Expert Idéal" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Expert Ideal" } }
+      }
+    },
+    "discover.header.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Describe what you need. AI finds who can help." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Describe lo que necesitas. La IA encuentra quién puede ayudarte." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Descrivi di cosa hai bisogno. L'AI trova chi può aiutarti." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Décrivez vos besoins. L'IA trouve qui peut vous aider." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Descreva o que precisa. A IA encontra quem pode ajudar." } }
+      }
+    },
+    "discover.search_button" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Buscar" } }
+      }
+    },
+    "discover.try_asking" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "TRY ASKING..." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "PRUEBA PREGUNTAR..." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "PROVA A CHIEDERE..." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "ESSAYEZ DE DEMANDER..." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "TENTE PERGUNTAR..." } }
+      }
+    },
+    "discover.finding_matches" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Finding the best matches..." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscando las mejores coincidencias..." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Trovando i migliori profili..." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Recherche des meilleures correspondances..." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Encontrando os melhores perfis..." } }
+      }
+    },
+    "discover.best_matches" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Best Matches" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mejores Coincidencias" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Migliori Match" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Meilleures Correspondances" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Melhores Resultados" } }
+      }
+    },
+    "discover.no_matches" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No matches found. Try a different query." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se encontraron coincidencias. Prueba con otra búsqueda." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessun match trovato. Prova con una ricerca diversa." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune correspondance trouvée. Essayez une autre recherche." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhum resultado encontrado. Tente uma busca diferente." } }
+      }
+    },
+    "discover.new_search" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "New Search" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nueva Búsqueda" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nuova Ricerca" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nouvelle Recherche" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nova Busca" } }
+      }
+    },
+    "discover.connect" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connect" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Conectar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Connetti" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connecter" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Conectar" } }
+      }
+    },
+    "network.search_placeholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search by name or sector..." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar por nombre o sector..." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca per nome o settore..." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher par nom ou secteur..." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Buscar por nome ou setor..." } }
+      }
+    },
+    "network.loading" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading network..." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cargando red..." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Caricamento rete..." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Chargement du réseau..." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Carregando rede..." } }
+      }
+    },
+    "network.view_profile" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View Profile" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ver Perfil" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Vedi Profilo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Voir le profil" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ver Perfil" } }
+      }
+    },
+    "network.send_message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Send a Message" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Enviar Mensaje" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Invia Messaggio" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Envoyer un message" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Enviar Mensagem" } }
+      }
+    },
+    "messages.no_conversations" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No conversations yet" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aún no hay conversaciones" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessuna conversazione" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune conversation" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhuma conversa ainda" } }
+      }
+    },
+    "messages.purpose_driven" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Purpose-driven conversations." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Conversaciones con propósito." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Conversazioni con uno scopo." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Des conversations avec un objectif." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Conversas com propósito." } }
+      }
+    },
+    "messages.new_message" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "New Message" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nuevo Mensaje" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nuovo Messaggio" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nouveau message" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nova Mensagem" } }
+      }
+    },
+    "messages.awaiting" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Awaiting Messages" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Esperando mensajes" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "In attesa di messaggi" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En attente de messages" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Aguardando mensagens" } }
+      }
+    },
+    "messages.start_conversation" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start a Conversation" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Iniciar una Conversación" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Inizia una Conversazione" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Démarrer une conversation" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Iniciar uma Conversa" } }
+      }
+    },
+    "messages.schedule" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Schedule" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Programar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Pianifica" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Planifier" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Agendar" } }
+      }
+    },
+    "profile.edit_profile" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Profile" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Editar Perfil" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Modifica Profilo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Modifier le profil" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Editar Perfil" } }
+      }
+    },
+    "profile.settings" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Configuración" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Impostazioni" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Paramètres" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Configurações" } }
+      }
+    },
+    "profile.loading" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading profile..." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cargando perfil..." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Caricamento profilo..." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Chargement du profil..." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Carregando perfil..." } }
+      }
+    },
+    "settings.log_out" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Log Out" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar Sesión" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Esci" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se déconnecter" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sair" } }
+      }
+    },
+    "settings.delete_account" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Account" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar Cuenta" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Elimina Account" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer le compte" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Excluir Conta" } }
+      }
+    },
+    "settings.logout_confirm" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Are you sure you want to log out?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Estás seguro de que quieres cerrar sesión?" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sei sicuro di voler uscire?" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Êtes-vous sûr de vouloir vous déconnecter ?" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tem certeza que deseja sair?" } }
+      }
+    },
+    "settings.delete_confirm" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This action is irreversible. All your data will be permanently deleted." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Esta acción es irreversible. Todos tus datos serán eliminados permanentemente." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Questa azione è irreversibile. Tutti i tuoi dati saranno eliminati definitivamente." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Cette action est irréversible. Toutes vos données seront supprimées définitivement." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Esta ação é irreversível. Todos os seus dados serão excluídos permanentemente." } }
+      }
+    },
+    "settings.appearance" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Appearance" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Apariencia" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Aspetto" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Apparence" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Aparência" } }
+      }
+    },
+    "settings.theme" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Theme" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tema" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Tema" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Thème" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tema" } }
+      }
+    },
+    "settings.light" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Light" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Claro" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Chiaro" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Clair" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Claro" } }
+      }
+    },
+    "settings.dark" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dark" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Oscuro" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Scuro" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Sombre" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Escuro" } }
+      }
+    },
+    "settings.system" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "System" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sistema" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sistema" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Système" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sistema" } }
+      }
+    },
+    "onboarding.personal_info" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Personal Information" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Información Personal" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Informazioni Personali" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Informations personnelles" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Informações Pessoais" } }
+      }
+    },
+    "onboarding.company_basics" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Company Basics" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Datos de la Empresa" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Dati Aziendali" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Informations sur l'entreprise" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Dados da Empresa" } }
+      }
+    },
+    "onboarding.review_finish" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review & Finish" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Revisar y Finalizar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rivedi e Completa" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vérifier et terminer" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Revisar e Finalizar" } }
+      }
+    },
+    "onboarding.basics_subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Let's start with the basics. This helps others get to know you." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Empecemos con lo básico. Esto ayuda a que otros te conozcan." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Iniziamo con le informazioni di base. Aiuta gli altri a conoscerti." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Commençons par les bases. Cela aide les autres à vous connaître." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Vamos começar com o básico. Isso ajuda outros a te conhecerem." } }
+      }
+    },
+    "common.save" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Guardar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Salva" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Enregistrer" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Salvar" } }
+      }
+    },
+    "common.cancel" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Annulla" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Annuler" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } }
+      }
+    },
+    "common.done" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Hecho" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Fatto" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Terminé" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Concluído" } }
+      }
+    },
+    "common.back" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atrás" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Indietro" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Retour" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Voltar" } }
+      }
+    },
+    "common.delete" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Elimina" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Excluir" } }
+      }
+    },
+    "common.ok" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aceptar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "OK" } }
+      }
+    },
+    "common.loading" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading..." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cargando..." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Caricamento..." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Chargement..." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Carregando..." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

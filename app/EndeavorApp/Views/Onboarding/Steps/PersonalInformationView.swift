@@ -19,17 +19,17 @@ struct PersonalInformationView: View {
                 
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
-                Text("Personal Information")
+                Text(String(localized: "onboarding.personal_info", defaultValue: "Personal Information"))
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 
                 if viewModel.isSocialLogin {
-                    Text("Welcome, \(viewModel.user.firstName)! Please confirm your role.")
+                    Text(String(format: String(localized: "onboarding.welcome_confirm_role", defaultValue: "Welcome, %@! Please confirm your role."), viewModel.user.firstName))
                         .font(.headline)
                         .foregroundColor(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 } else {
-                    Text("Let's start with the basics. This helps others get to know you.")
+                    Text(String(localized: "onboarding.basics_subtitle", defaultValue: "Let's start with the basics. This helps others get to know you."))
                         .font(.headline)
                         .foregroundColor(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -52,7 +52,7 @@ struct PersonalInformationView: View {
                             .clipShape(Circle())
                             .overlay(Circle().stroke(Color.brandPrimary, lineWidth: 2))
                             
-                            Text("Using your Google Profile Picture")
+                            Text(String(localized: "onboarding.using_google_pic", defaultValue: "Using your Google Profile Picture"))
                                 .font(.subheadline.weight(.medium))
                                 .foregroundColor(.secondary)
                             
@@ -62,16 +62,16 @@ struct PersonalInformationView: View {
                     }
                 } else {
                     // Regular Mode: Show Name Fields
-                    CustomTextField(title: "First Name", placeholder: "Enter your first name", text: $viewModel.user.firstName, isFocused: $focusFirstName, isRequired: true)
+                    CustomTextField(title: String(localized: "profile.first_name", defaultValue: "First Name"), placeholder: String(localized: "onboarding.enter_first_name", defaultValue: "Enter your first name"), text: $viewModel.user.firstName, isFocused: $focusFirstName, isRequired: true)
                         .submitLabel(.next)
                         .onSubmit { focusLastName = true }
                     
-                    CustomTextField(title: "Last Name", placeholder: "Enter your last name", text: $viewModel.user.lastName, isFocused: $focusLastName, isRequired: true)
+                    CustomTextField(title: String(localized: "profile.last_name", defaultValue: "Last Name"), placeholder: String(localized: "onboarding.enter_last_name", defaultValue: "Enter your last name"), text: $viewModel.user.lastName, isFocused: $focusLastName, isRequired: true)
                         .submitLabel(.next)
                         .onSubmit { focusRole = true }
                 }
                 
-                CustomTextField(title: "Role / Title", placeholder: "e.g., CEO, Founder, CTO", text: $viewModel.user.role, isFocused: $focusRole, isRequired: true)
+                CustomTextField(title: String(localized: "profile.role", defaultValue: "Role / Title"), placeholder: String(localized: "onboarding.role_placeholder", defaultValue: "e.g., CEO, Founder, CTO"), text: $viewModel.user.role, isFocused: $focusRole, isRequired: true)
                     .submitLabel(.done)
                     .onSubmit {
                         focusRole = false

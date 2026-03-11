@@ -102,7 +102,7 @@ struct NetworkView: View {
                                 .foregroundColor(.secondary)
                             TextField("", text: $searchText)
                                 .placeholder(when: searchText.isEmpty) {
-                                    Text("Search by name or sector...")
+                                    Text(String(localized: "network.search_placeholder"))
                                         .foregroundColor(.secondary.opacity(0.6))
                                 }
                                 .foregroundColor(.primary)
@@ -175,7 +175,7 @@ struct NetworkView: View {
                                     ProgressView()
                                         .scaleEffect(1.5)
                                         .tint(.brandPrimary)
-                                    Text("Loading network...")
+                                    Text(String(localized: "network.loading"))
                                         .font(.headline)
                                         .foregroundColor(.secondary)
                                 }
@@ -310,7 +310,7 @@ struct NetworkView: View {
                 Button(action: {
                     selectedProfile = profile
                 }) {
-                    Text("View Profile")
+                    Text(String(localized: "network.view_profile"))
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)

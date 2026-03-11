@@ -17,23 +17,23 @@ struct CompanyBasicsView: View {
                 }
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
-                Text("Company Basics")
+                Text(String(localized: "onboarding.company_basics", defaultValue: "Company Basics"))
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 
-                Text("Tell us about the amazing company you're building.")
+                Text(String(localized: "onboarding.about_company", defaultValue: "Tell us about the amazing company you're building."))
                     .font(.headline)
                     .foregroundColor(.secondary)
             }
             
             VStack(spacing: DesignSystem.Spacing.standard) {
-                CustomTextField(title: "Company Name", placeholder: "Enter company name", text: $viewModel.company.name, isFocused: $focusName, isRequired: true)
+                CustomTextField(title: String(localized: "profile.company_name", defaultValue: "Company Name"), placeholder: String(localized: "profile.company_name_placeholder", defaultValue: "Enter company name"), text: $viewModel.company.name, isFocused: $focusName, isRequired: true)
                     .submitLabel(.next)
                     .onSubmit {
                         focusWebsite = true
                     }
                 
-                CustomTextField(title: "Website", placeholder: "https://example.com", text: $viewModel.company.website, isFocused: $focusWebsite, isRequired: false, keyboardType: .URL)
+                CustomTextField(title: String(localized: "profile.website", defaultValue: "Website"), placeholder: "https://example.com", text: $viewModel.company.website, isFocused: $focusWebsite, isRequired: false, keyboardType: .URL)
                     .submitLabel(.done)
                     .onSubmit {
                         focusWebsite = false
@@ -49,7 +49,7 @@ struct CompanyBasicsView: View {
                 
                 if !isWebsiteValid {
                     HStack {
-                        Text("Enter a valid URL starting with https:// or http://")
+                        Text(String(localized: "onboarding.error.invalid_url", defaultValue: "Enter a valid URL starting with https:// or http://"))
                             .font(.caption.weight(.medium))
                             .foregroundColor(.red)
                         Spacer()
@@ -60,7 +60,7 @@ struct CompanyBasicsView: View {
                 // HQ Country Dropdown
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                     HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                        Text("HQ Country")
+                        Text(String(localized: "profile.hq_country", defaultValue: "HQ Country"))
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(.secondary)
                         Text("*")
@@ -78,7 +78,7 @@ struct CompanyBasicsView: View {
                         }
                     } label: {
                         HStack {
-                            Text(viewModel.company.hqCountry.isEmpty ? "Select a country" : viewModel.company.hqCountry)
+                            Text(viewModel.company.hqCountry.isEmpty ? String(localized: "profile.select_country", defaultValue: "Select a country") : viewModel.company.hqCountry)
                                 .foregroundColor(viewModel.company.hqCountry.isEmpty ? .secondary.opacity(0.5) : .primary)
                             Spacer()
                             Image(systemName: "chevron.down")
@@ -95,7 +95,7 @@ struct CompanyBasicsView: View {
                 // HQ City Dropdown (filtered by selected country)
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                     HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                        Text("HQ City")
+                        Text(String(localized: "profile.hq_city", defaultValue: "HQ City"))
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(.secondary)
                         Text("*")
@@ -105,7 +105,7 @@ struct CompanyBasicsView: View {
                     
                     Menu {
                         if viewModel.company.hqCountry.isEmpty {
-                            Button("Select a country first", action: {})
+                            Button(String(localized: "profile.select_country_first", defaultValue: "Select a country first"), action: {})
                         } else {
                             ForEach(viewModel.citiesForCountry(viewModel.company.hqCountry), id: \.self) { city in
                                 Button(city) {
@@ -115,7 +115,7 @@ struct CompanyBasicsView: View {
                         }
                     } label: {
                         HStack {
-                            Text(viewModel.company.hqCity.isEmpty ? "Select a city" : viewModel.company.hqCity)
+                            Text(viewModel.company.hqCity.isEmpty ? String(localized: "profile.select_city", defaultValue: "Select a city") : viewModel.company.hqCity)
                                 .foregroundColor(viewModel.company.hqCity.isEmpty ? .secondary.opacity(0.5) : .primary)
                             Spacer()
                             Image(systemName: "chevron.down")
@@ -133,14 +133,14 @@ struct CompanyBasicsView: View {
                 // Industry (Read Only)
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                     HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                        Text("Industry")
+                        Text(String(localized: "profile.industry", defaultValue: "Industry"))
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(.secondary)
                     }
                     
                     HStack {
                         let indStrings = viewModel.company.industries
-                        Text(indStrings.isEmpty ? "Not available" : indStrings.joined(separator: ", "))
+                        Text(indStrings.isEmpty ? String(localized: "profile.not_available", defaultValue: "Not available") : indStrings.joined(separator: ", "))
                             .foregroundColor(.secondary)
                         Spacer()
                         Image(systemName: "lock.fill")
@@ -156,7 +156,7 @@ struct CompanyBasicsView: View {
                 // Company Stage Dropdown
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                     HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                        Text("Company Stage")
+                        Text(String(localized: "profile.company_stage", defaultValue: "Company Stage"))
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(.secondary)
                         Text("*")
@@ -170,7 +170,7 @@ struct CompanyBasicsView: View {
                         }
                     } label: {
                         HStack {
-                            Text(viewModel.company.stage.isEmpty ? "Select a stage" : viewModel.company.stage)
+                            Text(viewModel.company.stage.isEmpty ? String(localized: "profile.select_stage", defaultValue: "Select a stage") : viewModel.company.stage)
                                 .foregroundColor(viewModel.company.stage.isEmpty ? .secondary.opacity(0.5) : .primary)
                             Spacer()
                             Image(systemName: "chevron.down")
@@ -187,7 +187,7 @@ struct CompanyBasicsView: View {
                 // Employee Range Dropdown
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                      HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                        Text("Number of Employees")
+                        Text(String(localized: "profile.number_of_employees", defaultValue: "Number of Employees"))
                              .font(.subheadline.weight(.medium))
                              .foregroundColor(.secondary)
                          Text("*")
@@ -201,7 +201,7 @@ struct CompanyBasicsView: View {
                         }
                     } label: {
                         HStack {
-                            Text(viewModel.company.employeeRange.isEmpty ? "Select a range" : viewModel.company.employeeRange)
+                            Text(viewModel.company.employeeRange.isEmpty ? String(localized: "profile.select_employee_range", defaultValue: "Select a range") : viewModel.company.employeeRange)
                                 .foregroundColor(viewModel.company.employeeRange.isEmpty ? .secondary.opacity(0.5) : .primary)
                             Spacer()
                             Image(systemName: "chevron.down")

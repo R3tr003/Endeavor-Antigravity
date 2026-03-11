@@ -39,7 +39,7 @@ struct ConversationView: View {
                 headerBar
                 messagesScrollView
                 if viewModel.isUploadingMedia {
-                    ProgressView("Uploading Media...")
+                    ProgressView(String(localized: "messages.uploading_media", defaultValue: "Uploading Media..."))
                         .font(.system(size: 13, design: .rounded))
                         .padding(.vertical, 8)
                 }
@@ -56,14 +56,14 @@ struct ConversationView: View {
             withAnimation { showMediaMenu = false }
         }
         // Action Sheet per selezione Media
-        .confirmationDialog("Choose Attachment", isPresented: $showMediaMenu, titleVisibility: .visible) {
-            Button("Photo Library") {
+        .confirmationDialog(String(localized: "messages.choose_attachment", defaultValue: "Choose Attachment"), isPresented: $showMediaMenu, titleVisibility: .visible) {
+            Button(String(localized: "messages.photo_library", defaultValue: "Photo Library")) {
                 showPhotoPicker = true
             }
-            Button("Files & Documents") {
+            Button(String(localized: "messages.files_documents", defaultValue: "Files & Documents")) {
                 showDocumentPicker = true
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "common.cancel"), role: .cancel) {}
         }
         // Image Picker
         .sheet(isPresented: $showPhotoPicker) {
@@ -86,14 +86,14 @@ struct ConversationView: View {
         }
         // Mostra errori dal ViewModel (ex. problemi di permessi o Firebase)
         .alert(
-            "Error",
+            String(localized: "common.error", defaultValue: "Error"),
             isPresented: Binding(
                 get: { viewModel.appError != nil },
                 set: { if !$0 { viewModel.appError = nil } }
             ),
             presenting: viewModel.appError
         ) { _ in
-            Button("OK", role: .cancel) { }
+            Button(String(localized: "common.ok"), role: .cancel) { }
         } message: { error in
             Text(error.localizedDescription)
         }
@@ -156,7 +156,7 @@ struct ConversationView: View {
                     let isLoadingCompany = (viewModel.recipientProfile != nil && viewModel.recipientCompanyName == nil)
                     
                     if isLoadingCompany {
-                        Text("Loading company...")
+                        Text(String(localized: "messages.loading_company", defaultValue: "Loading company..."))
                             .font(.system(size: 11, design: .rounded))
                             .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
                             .lineLimit(1)
@@ -183,7 +183,7 @@ struct ConversationView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "calendar")
                         .font(.system(size: 13))
-                    Text("Schedule")
+                    Text(String(localized: "messages.schedule", defaultValue: "Schedule"))
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
                 }
                 .foregroundColor(.brandPrimary)
@@ -249,10 +249,10 @@ struct ConversationView: View {
                                         .foregroundColor(.brandPrimary.opacity(0.6))
                                 }
                                 VStack(spacing: DesignSystem.Spacing.xSmall) {
-                                    Text("Start the conversation")
+                                    Text(String(localized: "messages.start_the_conversation", defaultValue: "Start the conversation"))
                                         .font(.system(size: 17, weight: .bold, design: .rounded))
                                         .foregroundColor(.primary)
-                                    Text("Send a message to connect with\n\(viewModel.recipientProfile?.fullName ?? "this person").")
+                                    Text(String(localized: "messages.send_message_connect", defaultValue: "Send a message to connect with\n\(viewModel.recipientProfile?.fullName ?? "this person")."))
                                         .font(.system(size: 14, design: .rounded))
                                         .foregroundColor(.secondary)
                                         .multilineTextAlignment(.center)
@@ -295,7 +295,7 @@ struct ConversationView: View {
                                                         UIApplication.shared.open(url)
                                                     }
                                                 } label: {
-                                                    Label("Download Document", systemImage: "arrow.down.circle")
+                                                    Label(String(localized: "messages.download_document", defaultValue: "Download Document"), systemImage: "arrow.down.circle")
                                                 }
                                             }
                                         }
@@ -316,7 +316,7 @@ struct ConversationView: View {
                                                     Button {
                                                         UIApplication.shared.open(url)
                                                     } label: {
-                                                        Label("View & Download", systemImage: "arrow.down.circle")
+                                                        Label(String(localized: "messages.view_download", defaultValue: "View & Download"), systemImage: "arrow.down.circle")
                                                     }
                                                 }
                                         }
@@ -390,7 +390,7 @@ struct ConversationView: View {
                     .foregroundColor(.brandPrimary)
             }
 
-            TextField("Type a message...", text: $messageText, axis: .vertical)
+            TextField(String(localized: "messages.type_message", defaultValue: "Type a message..."), text: $messageText, axis: .vertical)
                 .lineLimit(1...4)
                 .font(.system(size: 16, design: .rounded))
                 .foregroundColor(.primary)

@@ -56,13 +56,13 @@ struct MessagesView: View {
                         
                         // Header
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
-                            Text("Messages")
+                            Text(String(localized: "nav.messages"))
                                 .font(.system(size: 42, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
                                 .tracking(-1.5)
                             
                             HStack {
-                                Text("Purpose-driven conversations.")
+                                Text(String(localized: "messages.purpose_driven"))
                                     .font(.headline)
                                     .foregroundColor(.secondary)
                                 
@@ -88,7 +88,7 @@ struct MessagesView: View {
                                 .foregroundColor(.secondary)
                                 .font(.system(size: 16))
                             
-                            TextField("Search conversations...", text: $searchText)
+                            TextField(String(localized: "messages.search_placeholder", defaultValue: "Search conversations..."), text: $searchText)
                                 .font(.system(size: 16, design: .rounded))
                                 .foregroundColor(.primary)
                         }
@@ -129,10 +129,10 @@ struct MessagesView: View {
                                             .foregroundColor(.brandPrimary.opacity(0.7))
                                     }
                                     VStack(spacing: DesignSystem.Spacing.xSmall) {
-                                        Text("No conversations yet")
+                                        Text(String(localized: "messages.no_conversations"))
                                             .font(.system(size: 20, weight: .bold, design: .rounded))
                                             .foregroundColor(.primary)
-                                        Text("Start a conversation with someone\nfrom your Endeavor network.")
+                                        Text(String(localized: "messages.no_conversations_subtitle", defaultValue: "Start a conversation with someone\nfrom your Endeavor network."))
                                             .font(.system(size: 15, design: .rounded))
                                             .foregroundColor(.secondary)
                                             .multilineTextAlignment(.center)
@@ -141,7 +141,7 @@ struct MessagesView: View {
                                         HStack(spacing: 8) {
                                             Image(systemName: "square.and.pencil")
                                                 .font(.system(size: 15, weight: .semibold))
-                                            Text("Start a Conversation")
+                                            Text(String(localized: "messages.start_conversation"))
                                                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                                         }
                                         .foregroundColor(.white)
@@ -192,13 +192,13 @@ struct MessagesView: View {
             pendingConversationId = nil
             pendingRecipientId = nil
         }
-        .alert("Delete Conversation", isPresented: $showDeleteConfirmation, presenting: conversationToDelete) { convo in
-            Button("Delete", role: .destructive) {
+        .alert(String(localized: "messages.delete_conversation", defaultValue: "Delete Conversation"), isPresented: $showDeleteConfirmation, presenting: conversationToDelete) { convo in
+            Button(String(localized: "common.delete"), role: .destructive) {
                 viewModel.deleteConversation(convo)
             }
-            Button("Cancel", role: .cancel) {}
+            Button(String(localized: "common.cancel"), role: .cancel) {}
         } message: { convo in
-            Text("Are you sure you want to delete this conversation with \(convo.otherParticipantName)? This action cannot be undone.")
+            Text(String(localized: "messages.delete_confirmation", defaultValue: "Are you sure you want to delete this conversation with \(convo.otherParticipantName)? This action cannot be undone."))
         }
     }
 }
@@ -225,7 +225,7 @@ struct SwipeableConversationRow: View {
                 VStack(spacing: 4) {
                     Image(systemName: "trash.fill")
                         .font(.system(size: 18, weight: .semibold))
-                    Text("Delete")
+                    Text(String(localized: "common.delete"))
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                 }
                 .foregroundColor(.black)
@@ -248,7 +248,7 @@ struct SwipeableConversationRow: View {
                 VStack(spacing: 4) {
                     Image(systemName: isPinned ? "pin.slash.fill" : "pin.fill")
                         .font(.system(size: 18, weight: .semibold))
-                    Text(isPinned ? "Unpin" : "Pin")
+                    Text(isPinned ? String(localized: "messages.unpin", defaultValue: "Unpin") : String(localized: "messages.pin", defaultValue: "Pin"))
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                 }
                 .foregroundColor(.black)

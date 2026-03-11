@@ -61,23 +61,23 @@ struct MainTabView: View {
             
             // Floating Liquid Glass Tab Bar
             HStack(spacing: 0) {
-                TabItem(icon: "house", title: "Home", isSelected: selectedTab == 0) {
+                TabItem(icon: "house", title: String(localized: "nav.home"), isSelected: selectedTab == 0) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 0 }
                 }
                 Spacer()
-                TabItem(icon: "person.3", title: "Network", isSelected: selectedTab == 1) {
+                TabItem(icon: "person.3", title: String(localized: "nav.network"), isSelected: selectedTab == 1) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 1 }
                 }
                 Spacer()
-                TabItem(icon: "sparkles", title: "Discover", isSelected: selectedTab == 2, selectedIcon: "sparkles") {
+                TabItem(icon: "sparkles", title: String(localized: "nav.discover"), isSelected: selectedTab == 2, selectedIcon: "sparkles") {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 2 }
                 }
                 Spacer()
-                TabItem(icon: "message", title: "Messages", isSelected: selectedTab == 3, badgeCount: conversationsViewModel.totalUnreadCount) {
+                TabItem(icon: "message", title: String(localized: "nav.messages"), isSelected: selectedTab == 3, badgeCount: conversationsViewModel.totalUnreadCount) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 3 }
                 }
                 Spacer()
-                TabItem(icon: "person", title: "Profile", isSelected: selectedTab == 4) {
+                TabItem(icon: "person", title: String(localized: "nav.profile"), isSelected: selectedTab == 4) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 4 }
                 }
             }

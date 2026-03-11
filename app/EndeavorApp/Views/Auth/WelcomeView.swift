@@ -39,7 +39,7 @@ struct WelcomeView: View {
                         .foregroundColor(.brandPrimary) // Teal come richiesto
                         .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
                     
-                    Text("Access reserved for authorized Endeavor members and mentors.")
+                    Text(String(localized: "auth.access_reserved"))
                         .font(.subheadline)
                         .foregroundColor(.primary.opacity(0.85)) // Contrasto per light/dark
                         .multilineTextAlignment(.center)
@@ -67,7 +67,7 @@ struct WelcomeView: View {
         VStack(spacing: DesignSystem.Spacing.medium) {
             // Email Input
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
-                TextField("Enter your authorized email", text: $email)
+                TextField(String(localized: "auth.work_email"), text: $email)
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
@@ -199,7 +199,7 @@ struct WelcomeView: View {
                         appViewModel.sendPasswordReset(email: email)
                     }) {
                         HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                            Text("Forgot Password?")
+                            Text(String(localized: "auth.forgot_password"))
                                 .foregroundColor(.primary.opacity(0.8))
                             Text("Reset it here")
                                 .foregroundColor(.brandPrimary)
@@ -226,7 +226,7 @@ struct WelcomeView: View {
                             .transition(.scale.combined(with: .opacity))
                     }
                     
-                    Text(appViewModel.isSalesforceChecking ? "Verifying Endeavor Membership..." : (appViewModel.isLoading ? "Please wait..." : "Sign In"))
+                    Text(appViewModel.isSalesforceChecking ? "Verifying Endeavor Membership..." : (appViewModel.isLoading ? "Please wait..." : String(localized: "auth.join")))
                         .font(appViewModel.isSalesforceChecking || appViewModel.isLoading ? .subheadline : .headline.weight(.bold))
                         .foregroundColor((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty) ? .textInverted : .primary.opacity(0.5))
                         .lineLimit(1)
@@ -267,7 +267,7 @@ struct WelcomeView: View {
                             .scaledToFit()
                             .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                             .opacity((appViewModel.isLoading || appViewModel.isSalesforceChecking) ? 0.5 : 1)
-                        Text("Continue with Google")
+                        Text(String(localized: "auth.continue_google"))
                             .font(.subheadline.weight(.medium))
                     }
                     .foregroundColor(.primary)

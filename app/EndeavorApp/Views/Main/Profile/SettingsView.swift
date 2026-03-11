@@ -35,7 +35,7 @@ struct SettingsView: View {
                     
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xLarge) {
                         // Title
-                        Text("Settings")
+                        Text(String(localized: "nav.settings", defaultValue: "Settings"))
                             .font(.system(size: 40, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
                             .tracking(-1)
@@ -60,7 +60,7 @@ struct SettingsView: View {
                     HStack {
                         Spacer()
                         Button(action: { presentationMode.wrappedValue.dismiss() }) {
-                            Text("Done")
+                            Text(String(localized: "common.done"))
                                 .font(.headline)
                                 .foregroundColor(.brandPrimary)
                                 .padding(.horizontal, DesignSystem.Spacing.standard)
@@ -91,18 +91,18 @@ struct SettingsView: View {
             EditProfileView()
                 .environmentObject(appViewModel)
         }
-        .alert("Log Out", isPresented: $showLogoutConfirmation) {
-            Button("Cancel", role: .cancel) {}
-            Button("Log Out", role: .destructive) {
+        .alert(String(localized: "settings.log_out", defaultValue: "Log Out"), isPresented: $showLogoutConfirmation) {
+            Button(String(localized: "common.cancel"), role: .cancel) {}
+            Button(String(localized: "settings.log_out", defaultValue: "Log Out"), role: .destructive) {
                 appViewModel.logout()
                 presentationMode.wrappedValue.dismiss()
             }
         } message: {
-            Text("Are you sure you want to log out?")
+            Text(String(localized: "settings.logout_confirm", defaultValue: "Are you sure you want to log out?"))
         }
-        .alert("Delete Account", isPresented: $showDeleteConfirmation) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete Account", role: .destructive) {
+        .alert(String(localized: "settings.delete_account", defaultValue: "Delete Account"), isPresented: $showDeleteConfirmation) {
+            Button(String(localized: "common.cancel"), role: .cancel) {}
+            Button(String(localized: "settings.delete_account", defaultValue: "Delete Account"), role: .destructive) {
                 if appViewModel.isGoogleUser {
                     performDeleteAccount(password: nil)
                 } else {
@@ -110,21 +110,21 @@ struct SettingsView: View {
                 }
             }
         } message: {
-            Text("This action is irreversible. All your data will be permanently deleted.")
+            Text(String(localized: "settings.delete_warning", defaultValue: "This action is irreversible. All your data will be permanently deleted."))
         }
-        .alert("Enter Password", isPresented: $showPasswordInput) {
-            SecureField("Password", text: $deletePassword)
-            Button("Cancel", role: .cancel) {
+        .alert(String(localized: "settings.enter_password", defaultValue: "Enter Password"), isPresented: $showPasswordInput) {
+            SecureField(String(localized: "settings.password", defaultValue: "Password"), text: $deletePassword)
+            Button(String(localized: "common.cancel"), role: .cancel) {
                 deletePassword = ""
             }
-            Button("Delete", role: .destructive) {
+            Button(String(localized: "common.delete"), role: .destructive) {
                 performDeleteAccount(password: deletePassword)
             }
         } message: {
-            Text("Enter your password to confirm account deletion.")
+            Text(String(localized: "settings.enter_password_confirm", defaultValue: "Enter your password to confirm account deletion."))
         }
-        .alert("Error", isPresented: $showDeleteError) {
-            Button("OK", role: .cancel) {}
+        .alert(String(localized: "common.error", defaultValue: "Error"), isPresented: $showDeleteError) {
+            Button(String(localized: "common.ok"), role: .cancel) {}
         } message: {
             Text(deleteErrorMessage)
         }
@@ -174,7 +174,7 @@ struct SettingsView: View {
     
     // MARK: - Profile Section
     private var profileSection: some View {
-        settingsSection(title: "Profile") {
+        settingsSection(title: String(localized: "settings.profile", defaultValue: "Profile")) {
             Button(action: { showEditProfile = true }) {
                 HStack {
                     ZStack {
@@ -186,7 +186,7 @@ struct SettingsView: View {
                             .font(.system(size: 16))
                     }
                     
-                    Text("Edit Profile Data")
+                    Text(String(localized: "settings.edit_profile_data", defaultValue: "Edit Profile Data"))
                         .font(.body.weight(.medium))
                         .foregroundColor(.primary)
                     
@@ -203,7 +203,7 @@ struct SettingsView: View {
     
     // MARK: - Appearance Section
     private var appearanceSection: some View {
-        settingsSection(title: "Appearance") {
+        settingsSection(title: String(localized: "settings.appearance", defaultValue: "Appearance")) {
             HStack {
                 ZStack {
                     Circle()
@@ -214,7 +214,7 @@ struct SettingsView: View {
                         .font(.system(size: 16))
                 }
                 
-                Text("Theme")
+                Text(String(localized: "settings.theme", defaultValue: "Theme"))
                     .font(.body.weight(.medium))
                     .foregroundColor(.primary)
                 
@@ -224,9 +224,9 @@ struct SettingsView: View {
                     get: { appViewModel.selectedTheme },
                     set: { appViewModel.setTheme($0) }
                 )) {
-                    Text("Light").tag("Light")
-                    Text("Dark").tag("Dark")
-                    Text("System").tag("System")
+                    Text(String(localized: "settings.theme.light", defaultValue: "Light")).tag("Light")
+                    Text(String(localized: "settings.theme.dark", defaultValue: "Dark")).tag("Dark")
+                    Text(String(localized: "settings.theme.system", defaultValue: "System")).tag("System")
                 }
                 .pickerStyle(.menu)
                 .tint(.primary)
@@ -240,7 +240,7 @@ struct SettingsView: View {
     
     // MARK: - Account Section
     private var accountSection: some View {
-        settingsSection(title: "Account") {
+        settingsSection(title: String(localized: "settings.account", defaultValue: "Account")) {
             Button(action: { showLogoutConfirmation = true }) {
                 HStack {
                     ZStack {
@@ -252,7 +252,7 @@ struct SettingsView: View {
                             .font(.system(size: 16))
                     }
                     
-                    Text("Log Out")
+                    Text("settings.log_out")
                         .font(.body.weight(.medium))
                         .foregroundColor(.primary)
                     
@@ -265,7 +265,7 @@ struct SettingsView: View {
     
     // MARK: - Delete Account Section
     private var deleteAccountSection: some View {
-        settingsSection(title: "Danger Zone", isDestructive: true) {
+        settingsSection(title: String(localized: "settings.danger_zone", defaultValue: "Danger Zone"), isDestructive: true) {
             Button(action: { showDeleteConfirmation = true }) {
                 HStack {
                     ZStack {
@@ -277,7 +277,7 @@ struct SettingsView: View {
                             .font(.system(size: 16))
                     }
                     
-                    Text("Delete Account")
+                    Text("settings.delete_account")
                         .font(.body.weight(.bold))
                         .foregroundColor(.red)
                     
@@ -296,9 +296,9 @@ struct SettingsView: View {
     
     // MARK: - About Section
     private var aboutSection: some View {
-        settingsSection(title: "About") {
+        settingsSection(title: String(localized: "settings.about", defaultValue: "About")) {
             HStack {
-                Text("Version")
+                Text(String(localized: "settings.version", defaultValue: "Version"))
                     .font(.body.weight(.medium))
                     .foregroundColor(.primary)
                 

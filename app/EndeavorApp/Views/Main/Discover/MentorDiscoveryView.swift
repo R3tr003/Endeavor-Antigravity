@@ -50,14 +50,14 @@ struct MentorDiscoveryView: View {
                         
                         // Header
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxSmall) {
-                            Text("Find Your")
+                            Text(String(localized: "discover.header.title1"))
                                 .font(.system(size: 20, weight: .medium, design: .rounded))
                                 .foregroundColor(.secondary)
-                            Text("Expert Match")
+                            Text(String(localized: "discover.header.title2"))
                                 .font(.system(size: 42, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
                                 .tracking(-1.5)
-                            Text("Describe what you need. AI finds who can help.")
+                            Text(String(localized: "discover.header.subtitle"))
                                 .font(.headline)
                                 .foregroundColor(.secondary)
                                 .padding(.top, DesignSystem.Spacing.xxSmall)
@@ -103,7 +103,7 @@ struct MentorDiscoveryView: View {
                                         }
                                     }
                             }) {
-                                Text("Search")
+                                Text(String(localized: "discover.search_button"))
                                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                                     .foregroundColor(query.trimmingCharacters(in: .whitespaces).isEmpty ? .secondary : .white)
                                     .padding(.horizontal, DesignSystem.Spacing.large)
@@ -122,7 +122,7 @@ struct MentorDiscoveryView: View {
                         if !hasSearched {
                             // Example Queries
                             VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
-                                Text("TRY ASKING...")
+                                Text(String(localized: "discover.try_asking"))
                                     .font(.system(size: 12, weight: .bold, design: .rounded))
                                     .tracking(1)
                                     .foregroundColor(.textSecondary)
@@ -140,7 +140,7 @@ struct MentorDiscoveryView: View {
                                     ProgressView()
                                         .progressViewStyle(CircularProgressViewStyle(tint: .brandPrimary))
                                         .scaleEffect(1.2)
-                                    Text("Finding the best matches...")
+                                    Text(String(localized: "discover.finding_matches"))
                                         .font(.system(size: 15, design: .rounded))
                                         .foregroundColor(.secondary)
                                 }
@@ -149,7 +149,7 @@ struct MentorDiscoveryView: View {
                             } else {
                                 // Results State
                                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
-                                    Text("Best Matches")
+                                    Text(String(localized: "discover.best_matches"))
                                         .font(.system(size: 20, weight: .bold, design: .rounded))
                                         .foregroundColor(.primary)
                                     
@@ -166,7 +166,7 @@ struct MentorDiscoveryView: View {
                                     }
                                     
                                     if joinedMatches.isEmpty {
-                                        Text("No matches found. You might have already connected with everyone or your search was too specific.")
+                                        Text(String(localized: "discover.no_matches"))
                                             .font(.system(size: 15, design: .rounded))
                                             .foregroundColor(.secondary)
                                             .padding(.vertical)
@@ -208,7 +208,7 @@ struct MentorDiscoveryView: View {
                                         hasSearched = false
                                         isSearching = false
                                     }) {
-                                        Text("New Search")
+                                        Text(String(localized: "discover.new_search"))
                                             .font(.system(size: 15, weight: .semibold, design: .rounded))
                                             .foregroundColor(.brandPrimary)
                                             .frame(maxWidth: .infinity)
@@ -355,7 +355,7 @@ struct MatchCard: View {
             
             // Action Button
             Button(action: onConnect) {
-                Text("Connect")
+                Text(String(localized: "discover.connect"))
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)

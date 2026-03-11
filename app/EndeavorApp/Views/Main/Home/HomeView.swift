@@ -67,7 +67,7 @@ struct HomeView: View {
                                 Image(systemName: "envelope.badge.fill")
                                     .font(.title2)
                                     .foregroundColor(.brandPrimary)
-                                Text("Awaiting Messages")
+                                Text(String(localized: "messages.awaiting"))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 Text("\(conversationsViewModel.totalUnreadCount)")
@@ -166,7 +166,7 @@ struct HomeView: View {
             if scrollOffset < -60 {
                 VStack {
                     HStack {
-                        Text("Home").font(.headline).foregroundColor(.primary)
+                        Text(String(localized: "nav.home")).font(.headline).foregroundColor(.primary)
                         Spacer()
                     }
                     .padding()

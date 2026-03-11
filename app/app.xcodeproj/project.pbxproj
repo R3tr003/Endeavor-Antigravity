@@ -75,6 +75,7 @@
 		EDB35044980B473E825F0BD5 /* NetworkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8578755F65A84AFAB25F0E41 /* NetworkViewModel.swift */; };
 		F393F8F54A77468098980786 /* FluidBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26846CEDDA264CC8A0C99A22 /* FluidBackgroundView.swift */; };
 		F759D414D8CF8F9FA89B9F6E /* MessagesRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 322B368C9FCA80FD0EFC8014 /* MessagesRepositoryProtocol.swift */; };
+		AA000002LOCALIZABLEXCSTRINGS /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AA000001LOCALIZABLEXCSTRINGS /* Localizable.xcstrings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -120,6 +121,7 @@
 		651787F32F356B310095C184 /* AppIcon60x60@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon60x60@3x.png"; sourceTree = "<group>"; };
 		651787F42F356B310095C184 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		651787F52F356B310095C184 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		AA000001LOCALIZABLEXCSTRINGS /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = "Resources/Localizable.xcstrings"; name = Localizable.xcstrings; sourceTree = "<group>"; };
 		65EB34B5F82F7BF0D3E78612 /* NewConversationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NewConversationView.swift; sourceTree = "<group>"; };
 		65EE72952F3614FB00E6F591 /* app-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "app-Info.plist"; sourceTree = "<group>"; };
 		69207CC2A34045868148BE03 /* ../Repositories/Protocols/StorageRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Protocols/StorageRepositoryProtocol.swift; sourceTree = "<group>"; };
@@ -376,6 +378,7 @@
 				651787F32F356B310095C184 /* AppIcon60x60@3x.png */,
 				651787F42F356B310095C184 /* Assets.xcassets */,
 				651787F52F356B310095C184 /* GoogleService-Info.plist */,
+				AA000001LOCALIZABLEXCSTRINGS /* Localizable.xcstrings */,
 				7C22C858EC41CD85C917D953 /* ConversationsViewModel.swift */,
 				322B368C9FCA80FD0EFC8014 /* MessagesRepositoryProtocol.swift */,
 				233EC5DBF6799263EFF27D89 /* FirebaseMessagesRepository.swift */,
@@ -460,7 +463,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2610;
-				LastUpgradeCheck = 2610;
+				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					651787B72F356AD60095C184 = {
 						CreatedOnToolsVersion = 26.1;
@@ -473,6 +476,10 @@
 			knownRegions = (
 				en,
 				Base,
+				fr,
+				it,
+				es,
+				"pt-BR",
 			);
 			mainGroup = 651787AF2F356AD60095C184;
 			minimizedProjectReferenceProxies = 1;
@@ -500,6 +507,7 @@
 				651788132F356B310095C184 /* GoogleService-Info.plist in Resources */,
 				651788152F356B310095C184 /* AppIcon60x60@2x.png in Resources */,
 				651788162F356B310095C184 /* AppIcon60x60@3x.png in Resources */,
+				AA000002LOCALIZABLEXCSTRINGS /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -575,6 +583,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -629,6 +638,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -640,6 +650,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -687,6 +698,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;

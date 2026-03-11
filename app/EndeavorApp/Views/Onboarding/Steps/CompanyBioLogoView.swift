@@ -28,11 +28,11 @@ struct CompanyBioLogoView: View {
                 }
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
-                Text(hideImageUpload ? "Company Bio & Profile" : "Company Bio & Logo")
+                Text(hideImageUpload ? String(localized: "onboarding.company_bio_profile", defaultValue: "Company Bio & Profile") : String(localized: "onboarding.company_bio_logo", defaultValue: "Company Bio & Logo"))
                     .font(.system(size: 32, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                 
-                Text(hideImageUpload ? "Share your mission and what makes your company unique." : "Bring your company to life. Share your mission and brand.")
+                Text(hideImageUpload ? String(localized: "onboarding.company_bio_desc_profile", defaultValue: "Share your mission and what makes your company unique.") : String(localized: "onboarding.company_bio_desc_logo", defaultValue: "Bring your company to life. Share your mission and brand."))
                     .font(.headline)
                     .foregroundColor(.secondary)
             }
@@ -62,13 +62,13 @@ struct CompanyBioLogoView: View {
                         
                         Menu {
                             Button(action: { showCamera = true }) {
-                                Label("Take Photo", systemImage: "camera")
+                                Label(String(localized: "profile.take_photo", defaultValue: "Take Photo"), systemImage: "camera")
                             }
                             Button(action: { showPhotoLibrary = true }) {
-                                Label("Choose from Library", systemImage: "photo.on.rectangle")
+                                Label(String(localized: "profile.choose_from_library", defaultValue: "Choose from Library"), systemImage: "photo.on.rectangle")
                             }
                         } label: {
-                            Text("Upload Image")
+                            Text(String(localized: "profile.upload_image", defaultValue: "Upload Image"))
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .frame(width: 160)
@@ -77,7 +77,7 @@ struct CompanyBioLogoView: View {
                                 .cornerRadius(DesignSystem.CornerRadius.medium)
                         }
                         
-                        Text("PNG, JPG, SVG up to 5MB.")
+                        Text(String(localized: "onboarding.upload_limits", defaultValue: "PNG, JPG, SVG up to 5MB."))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -121,7 +121,7 @@ struct CompanyBioLogoView: View {
                             }
                         }
                         
-                        Text("Using your Google Profile Picture")
+                        Text(String(localized: "onboarding.using_google_pic", defaultValue: "Using your Google Profile Picture"))
                             .font(.caption)
                             .foregroundColor(.brandPrimary)
                     }
@@ -130,7 +130,7 @@ struct CompanyBioLogoView: View {
                 // About You (Personal Bio)
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                     HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                        Text("About You")
+                        Text(String(localized: "profile.about_you", defaultValue: "About You"))
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(isFocusedPersonalBio ? .brandPrimary : .secondary)
                         Text("*")
@@ -167,7 +167,7 @@ struct CompanyBioLogoView: View {
                 // About the Company
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                     HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                        Text("About the Company")
+                        Text(String(localized: "profile.about_company", defaultValue: "About the Company"))
                             .font(.subheadline.weight(.medium))
                             .foregroundColor(isFocusedCompanyBio ? .brandPrimary : .secondary)
                         Text("*")
