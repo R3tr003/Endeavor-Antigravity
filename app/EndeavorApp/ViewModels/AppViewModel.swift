@@ -3,6 +3,7 @@ import Combine
 import FirebaseAuth
 import FirebaseStorage
 import GoogleSignIn
+import FirebasePerformance
 
 /// `AppViewModel` acts as a Facade Coordinator. 
 /// It maintains the exact same `@Published` API to avoid breaking existing views,
@@ -22,6 +23,11 @@ class AppViewModel: ObservableObject {
     let onboardingViewModel = OnboardingViewModel()
 
     private var cancellables = Set<AnyCancellable>()
+    
+    // Performance Traces
+    private var authCheckTrace: Trace?
+    private var loginFlowTrace: Trace?
+    private var onboardingSaveTrace: Trace?
     
     // MARK: - Exposed State (Facade)
     @Published var currentUser: UserProfile?
@@ -89,6 +95,7 @@ class AppViewModel: ObservableObject {
     
     // MARK: - Initialization
     private func checkInitialAuthState() {
+        authCheckTrace = Performance.startTrace(name: "Auth_Check_Duration")
         self.isCheckingAuth = true
         let savedIsLoggedIn = UserDefaults.standard.bool(forKey: "isLoggedIn")
         
@@ -98,6 +105,7 @@ class AppViewModel: ObservableObject {
             authService.logout()
             router.clearState()
             self.isCheckingAuth = false
+            authCheckTrace?.stop()
             return
         }
         
@@ -111,8 +119,10 @@ class AppViewModel: ObservableObject {
                 logout()
             }
             self.isCheckingAuth = false
+            authCheckTrace?.stop()
         } else {
             self.isCheckingAuth = false
+            authCheckTrace?.stop()
         }
     }
     
@@ -129,6 +139,7 @@ class AppViewModel: ObservableObject {
                 self?.messagesRepository.saveUserMapping(firebaseUid: firebaseUid, uuid: uuid)
             }
             self?.isCheckingAuth = false
+            self?.authCheckTrace?.stop()
         }
     }
     
@@ -139,6 +150,7 @@ class AppViewModel: ObservableObject {
     /// - Returning users (existing Firestore profile): Firebase Auth only, NO Salesforce call. Fast.
     /// - New users (no Firestore profile): Firebase Auth → Salesforce check → Salesforce data → Onboarding.
     func authenticate(email: String, password: String) {
+        loginFlowTrace = Performance.startTrace(name: "Login_Flow_Duration")
         router.appError = nil
         router.isLoading = true
         
@@ -157,6 +169,7 @@ class AppViewModel: ObservableObject {
                     AnalyticsService.shared.logLogin(method: .email)
                     self.handleAuthSuccess(user: data.user, email: data.email)
                     self.router.isLoading = false
+                    self.loginFlowTrace?.stop()
                 }
                 
             case .failure(let error):
@@ -165,6 +178,7 @@ class AppViewModel: ObservableObject {
                 if nsError.code != 17011 && nsError.code != 17004 { // 17011 = userNotFound, 17004 = invalidEmail
                     await MainActor.run {
                         self.router.isLoading = false
+                        self.loginFlowTrace?.stop()
                         if nsError.code == 17009 {
                             self.router.appError = .authFailed(reason: "Incorrect password.")
                         } else {
@@ -185,6 +199,7 @@ class AppViewModel: ObservableObject {
                     guard authResult.authorized else {
                         await MainActor.run {
                             self.router.isLoading = false
+                            self.loginFlowTrace?.stop()
                             self.router.appError = .notAuthorized
                         }
                         return
@@ -207,11 +222,13 @@ class AppViewModel: ObservableObject {
                         
                         self.isOnboardingAuthPending = true
                         self.router.isLoading = false
+                        self.loginFlowTrace?.stop()
                     }
                 } catch {
                     await MainActor.run {
                         self.isSalesforceChecking = false
                         self.router.isLoading = false
+                        self.loginFlowTrace?.stop()
                         let err = error as NSError
                         if err.domain == "com.firebase.functions" && err.code == 5 {
                             self.router.appError = .notAuthorized
@@ -490,6 +507,7 @@ class AppViewModel: ObservableObject {
     // MARK: - Onboarding & Profile
     
     func completeOnboarding(user: UserProfile, company: CompanyProfile, profileImage: UIImage? = nil) {
+        onboardingSaveTrace = Performance.startTrace(name: "Onboarding_Save_Duration")
         let finishOnboardingSave = { [weak self] in
             guard let self = self else { return }
             var finalUser = user
@@ -526,6 +544,7 @@ class AppViewModel: ObservableObject {
                 guard !Task.isCancelled else { return }
                 if self?.router.isLoading == true {
                     self?.router.isLoading = false
+                    self?.onboardingSaveTrace?.stop()
                     self?.router.appError = .networkUnavailable
                 }
             }
@@ -542,6 +561,7 @@ class AppViewModel: ObservableObject {
                     timeoutTask.cancel()
                     DispatchQueue.main.async {
                         self.router.isLoading = false
+                        self.onboardingSaveTrace?.stop()
                         if let err = error {
                             let nsErr = err as NSError
                             print("❌ [Firestore] saveUserAndCompany FAILED: domain=\(nsErr.domain) code=\(nsErr.code) msg=\(err.localizedDescription)")
@@ -602,6 +622,7 @@ class AppViewModel: ObservableObject {
                                 finishOnboardingSave()
                             case .failure(let error):
                                 self.router.isLoading = false
+                                self.onboardingSaveTrace?.stop()
                                 self.router.appError = .authFailed(reason: error.localizedDescription)
                             }
                         }
@@ -616,6 +637,7 @@ class AppViewModel: ObservableObject {
                                 finishOnboardingSave()
                             case .failure(let signupError):
                                 self.router.isLoading = false
+                                self.onboardingSaveTrace?.stop()
                                 let err = signupError as NSError
                                 if err.code == 17007 { self.router.appError = .emailAlreadyInUse }
                                 else if err.code == 17026 { self.router.appError = .weakPassword }

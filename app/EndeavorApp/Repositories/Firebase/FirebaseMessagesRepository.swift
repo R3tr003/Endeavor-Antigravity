@@ -1,6 +1,7 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
+import FirebasePerformance
 
 class FirebaseMessagesRepository: MessagesRepositoryProtocol {
 
@@ -87,6 +88,7 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
         documentName: String?,
         completion: @escaping (Error?) -> Void
     ) {
+        let trace = Performance.startTrace(name: "Send_Message_Duration")
         let batch = db.batch()
         let now = Timestamp(date: Date())
         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -144,6 +146,7 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
         batch.updateData(conversationUpdate, forDocument: conversationRef)
 
         batch.commit { error in
+            trace?.stop()
             DispatchQueue.main.async { completion(error) }
         }
     }

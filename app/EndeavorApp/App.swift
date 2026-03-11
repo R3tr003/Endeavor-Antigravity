@@ -4,12 +4,8 @@ import FirebaseCore
 import FirebaseAppCheck
 import SDWebImage
 
-@main
-struct EndeavorApp: App {
-    @StateObject private var appViewModel = AppViewModel()
-    @Environment(\.scenePhase) private var scenePhase
-    
-    init() {
+class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         // --- Firebase App Check Setup ---
         // In DEBUG: skip App Check entirely (debug tokens require manual registration in
         // Firebase Console and silently block ALL Firestore writes if not registered).
@@ -19,7 +15,7 @@ struct EndeavorApp: App {
         AppCheck.setAppCheckProviderFactory(providerFactory)
         #endif
         
-        // Initialize Firebase when the app launches
+        // Initialize Firebase when the app launches. MUST be in AppDelegate for Firebase Performance to track _app_start.
         FirebaseApp.configure()
         
         // --- SDWebImage Cache Configuration ---
@@ -35,8 +31,17 @@ struct EndeavorApp: App {
         
         // Decompressione immagini in background thread — evita jank sulla main thread
         SDImageCoderHelper.defaultScaleDownLimitBytes = 50 * 1024 * 1024
+        
+        return true
     }
-    
+}
+
+@main
+struct EndeavorApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @StateObject private var appViewModel = AppViewModel()
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some Scene {
         WindowGroup {
             ZStack {
