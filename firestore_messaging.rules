@@ -27,8 +27,30 @@ service cloud.firestore {
       allow create: if isAuthenticated() && getUserUuid() in request.resource.data.participantIds;
 
       match /messages/{messageId} {
-        // Per i messaggi, verifica che l'UUID dell'utente sia nei participantIds della conversazione padre
-        allow read, write: if isAuthenticated() && getUserUuid() in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
+        // Ottieni i participantIds della conversazione padre una volta sola
+        function isParticipant() {
+          return isAuthenticated() &&
+            getUserUuid() in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
+        }
+
+        // Verifica che un update riguardi solo i campi consentiti ai partecipanti:
+        // readBy, deliveredTo (ricevuti dal destinatario), e nessun altro campo
+        function isReceiptUpdate() {
+          let allowed = ['readBy', 'deliveredTo'];
+          return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowed);
+        }
+
+        // Lettura: qualsiasi partecipante può leggere i messaggi
+        allow read: if isParticipant();
+
+        // Creazione: solo i partecipanti possono inviare messaggi
+        allow create: if isParticipant();
+
+        // Update: i partecipanti possono aggiornare solo readBy e deliveredTo
+        allow update: if isParticipant() && isReceiptUpdate();
+
+        // Delete: solo i partecipanti possono eliminare messaggi (es. cancel upload)
+        allow delete: if isParticipant();
       }
     }
   }

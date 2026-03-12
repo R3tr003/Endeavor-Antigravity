@@ -104,7 +104,8 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             "senderId": senderId,
             "text": trimmedText,
             "createdAt": now,
-            "readBy": [senderId]   // il mittente ha già letto il proprio messaggio
+            "readBy": [senderId],   // il mittente ha già letto il proprio messaggio
+            "deliveredTo": []       // il destinatario non ha ancora ricevuto
         ]
         
         if let imageUrl = imageUrl {
@@ -140,6 +141,8 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             "lastMessage": indicator,
             "lastMessageAt": now,
             "lastSenderId": senderId,
+            "lastMessageReadBy": [senderId],  // al momento dell'invio solo il mittente ha "letto"
+            "lastMessageDeliveredTo": [],      // ancora nessun destinatario ha ricevuto
             "unreadCounts.\(recipientId)": FieldValue.increment(Int64(1))
             // Il contatore del mittente NON viene incrementato
         ]
@@ -207,6 +210,7 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
                 if let error = error {
                     completion(.failure(error))
                 } else {
+                    AnalyticsService.shared.logConversationCreated()
                     completion(.success(newRef.documentID))
                 }
             }
@@ -360,7 +364,9 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             lastMessageAt: lastMessageAt,
             lastSenderId: data["lastSenderId"] as? String ?? "",
             unreadCounts: data["unreadCounts"] as? [String: Int] ?? [:],
-            pinnedBy: data["pinnedBy"] as? [String] ?? []
+            pinnedBy: data["pinnedBy"] as? [String] ?? [],
+            lastMessageReadBy: data["lastMessageReadBy"] as? [String] ?? [],
+            lastMessageDeliveredTo: data["lastMessageDeliveredTo"] as? [String] ?? []
         )
     }
 
@@ -377,9 +383,92 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             text: text,
             createdAt: createdAt,
             readBy: data["readBy"] as? [String] ?? [],
+            deliveredTo: data["deliveredTo"] as? [String] ?? [],
             imageUrl: data["imageUrl"] as? String,
             documentUrl: data["documentUrl"] as? String,
             documentName: data["documentName"] as? String
         )
+    }
+
+    // MARK: - Mark as Delivered
+
+    /// Aggiunge currentUserId a `deliveredTo` di tutti i messaggi inviati dall'altro partecipante
+    /// che non lo contengono ancora. Chiamato quando l'utente apre la conversazione.
+    func markAsDelivered(conversationId: String, currentUserId: String) async {
+        let messagesRef = db
+            .collection(conversationsCollection)
+            .document(conversationId)
+            .collection(messagesCollection)
+
+        guard let allSnap = try? await messagesRef
+            .whereField("senderId", isNotEqualTo: currentUserId)
+            .getDocuments()
+        else { return }
+
+        let batch = db.batch()
+        var hasChanges = false
+
+        for doc in allSnap.documents {
+            let deliveredTo = doc.data()["deliveredTo"] as? [String] ?? []
+            if !deliveredTo.contains(currentUserId) {
+                batch.updateData(
+                    ["deliveredTo": FieldValue.arrayUnion([currentUserId])],
+                    forDocument: doc.reference
+                )
+                hasChanges = true
+            }
+        }
+
+        if hasChanges {
+            try? await batch.commit()
+            // Aggiorna anche il documento conversazione per aggiornare la lista
+            let convRef = db.collection(conversationsCollection).document(conversationId)
+            try? await convRef.updateData([
+                "lastMessageDeliveredTo": FieldValue.arrayUnion([currentUserId])
+            ])
+        }
+    }
+
+    // MARK: - Mark Messages as Read
+
+    /// Aggiunge currentUserId sia a `readBy` che a `deliveredTo` (per coerenza) dei messaggi
+    /// inviati dall'altro partecipante. Chiamato subito dopo l'apertura per marcare come letti.
+    func markMessagesAsRead(conversationId: String, currentUserId: String) async {
+        let messagesRef = db
+            .collection(conversationsCollection)
+            .document(conversationId)
+            .collection(messagesCollection)
+
+        guard let allSnap = try? await messagesRef
+            .whereField("senderId", isNotEqualTo: currentUserId)
+            .getDocuments()
+        else { return }
+
+        let batch = db.batch()
+        var hasChanges = false
+
+        for doc in allSnap.documents {
+            let readBy = doc.data()["readBy"] as? [String] ?? []
+            if !readBy.contains(currentUserId) {
+                batch.updateData(
+                    [
+                        "readBy": FieldValue.arrayUnion([currentUserId]),
+                        "deliveredTo": FieldValue.arrayUnion([currentUserId])
+                    ],
+                    forDocument: doc.reference
+                )
+                hasChanges = true
+            }
+        }
+
+        if hasChanges {
+            try? await batch.commit()
+            // Aggiorna anche il documento conversazione per aggiornare la lista
+            let convRef = db.collection(conversationsCollection).document(conversationId)
+            try? await convRef.updateData([
+                "lastMessageReadBy": FieldValue.arrayUnion([currentUserId]),
+                "lastMessageDeliveredTo": FieldValue.arrayUnion([currentUserId])
+            ])
+        }
     }
 }

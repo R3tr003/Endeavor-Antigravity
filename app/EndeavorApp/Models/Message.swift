@@ -9,8 +9,9 @@ struct Message: Identifiable, Codable, Equatable {
     let text: String
     let createdAt: Date
     var readBy: [String]         // Array di Firebase Auth UIDs
-    
-    // Iniziative Media Aggiunte
+    var deliveredTo: [String]    // Array di Firebase Auth UIDs che hanno ricevuto il messaggio
+
+    // Media
     var imageUrl: String?
     var documentUrl: String?
     var documentName: String?
@@ -28,5 +29,20 @@ struct Message: Identifiable, Codable, Equatable {
             formatter.dateFormat = "dd/MM"
         }
         return formatter.string(from: createdAt)
+    }
+
+    // MARK: - Read Receipt
+
+    enum ReceiptStatus {
+        case sent       // consegnato al server, destinatario non ancora connesso
+        case delivered  // destinatario ha aperto la chat (deliveredTo contiene recipientId)
+        case read       // destinatario ha letto (readBy contiene recipientId)
+    }
+
+    /// Restituisce lo stato di consegna/lettura del messaggio dal punto di vista del mittente.
+    func receiptStatus(currentUserId: String, recipientId: String) -> ReceiptStatus {
+        if readBy.contains(recipientId)      { return .read }
+        if deliveredTo.contains(recipientId) { return .delivered }
+        return .sent
     }
 }

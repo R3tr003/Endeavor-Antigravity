@@ -12,6 +12,8 @@ struct Conversation: Identifiable, Equatable {
     var lastSenderId: String
     var unreadCounts: [String: Int]     // UID → contatore non letti
     var pinnedBy: [String] = []         // Array di UID che hanno pinnato questa chat
+    var lastMessageReadBy: [String] = []      // UID che hanno letto l'ultimo messaggio
+    var lastMessageDeliveredTo: [String] = [] // UID a cui è stato recapitato l'ultimo messaggio
 
     // Campi UI — popolati dopo il fetch di UserProfile, non da Firestore
     var otherParticipantName: String = ""

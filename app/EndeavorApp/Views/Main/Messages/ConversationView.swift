@@ -353,9 +353,25 @@ struct ConversationView: View {
                                                 )
                                         }
 
-                                        Text(msg.displayTime)
-                                            .font(.system(size: 11, design: .rounded))
-                                            .foregroundColor(.secondary)
+                                        // Timestamp + spunte (solo per messaggi in uscita)
+                                        let recipientId = conversation.participantIds.first(where: { $0 != currentUserId }) ?? ""
+                                        if fromMe {
+                                            HStack(spacing: 3) {
+                                                Text(msg.displayTime)
+                                                    .font(.system(size: 11, design: .rounded))
+                                                    .foregroundColor(.secondary)
+                                                ReceiptStatusView(
+                                                    status: msg.receiptStatus(
+                                                        currentUserId: currentUserId,
+                                                        recipientId: recipientId
+                                                    )
+                                                )
+                                            }
+                                        } else {
+                                            Text(msg.displayTime)
+                                                .font(.system(size: 11, design: .rounded))
+                                                .foregroundColor(.secondary)
+                                        }
                                     }
                                     .frame(maxWidth: geometry.size.width * 0.72, alignment: fromMe ? .trailing : .leading)
                                     if !fromMe { Spacer() }
@@ -371,6 +387,10 @@ struct ConversationView: View {
                     if let lastId = viewModel.messages.last?.id {
                         withAnimation { proxy.scrollTo(lastId, anchor: .bottom) }
                     }
+                }
+                .task {
+                    // Marca come "consegnati" i messaggi dell'altro al primo caricamento
+                    await viewModel.markAsDelivered()
                 }
             }
         }

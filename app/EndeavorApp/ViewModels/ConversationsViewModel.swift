@@ -110,7 +110,7 @@ class ConversationsViewModel: ObservableObject {
 
     func deleteConversation(_ conversation: Conversation) {
         let conversationId = conversation.id
-        
+        AnalyticsService.shared.logConversationDeleted()
         repository.deleteConversation(conversationId: conversationId) { [weak self] error in
             if let error = error {
                 self?.appError = .unknown(reason: "Could not delete conversation: \(error.localizedDescription)")
@@ -126,6 +126,8 @@ class ConversationsViewModel: ObservableObject {
 
     func togglePin(_ conversation: Conversation, isPinned: Bool) {
         guard let currentUserId = UserDefaults.standard.string(forKey: "userId") else { return }
+        
+        AnalyticsService.shared.logConversationPinToggled(isPinned: isPinned)
         
         // Aggiorna optimisticamente l'UI
         if let index = conversations.firstIndex(where: { $0.id == conversation.id }) {

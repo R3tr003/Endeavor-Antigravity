@@ -73,16 +73,61 @@ final class AnalyticsService {
 
     // MARK: - Messages
 
-    /// Called when the user sends a message.
-    func logMessageSent(hasAttachment: Bool) {
+    enum MessageType: String {
+        case text        = "text"
+        case image       = "image"
+        case document    = "document"
+        case textImage   = "text_image"
+        case textDocument = "text_document"
+    }
+
+    /// Called when the user sends a message. Tracks type and rough length bucket.
+    func logMessageSent(type: MessageType, characterCount: Int) {
+        let lengthBucket: String
+        switch characterCount {
+        case 0:        lengthBucket = "media_only"
+        case 1...50:   lengthBucket = "short"
+        case 51...200: lengthBucket = "medium"
+        default:       lengthBucket = "long"
+        }
         Analytics.logEvent("message_sent", parameters: [
-            "has_attachment": hasAttachment
+            "message_type": type.rawValue,
+            "length_bucket": lengthBucket
         ])
+    }
+
+    /// Called when a new conversation is created (first message to a new contact).
+    func logConversationCreated() {
+        Analytics.logEvent("conversation_created", parameters: nil)
     }
 
     /// Called when the user opens a conversation thread.
     func logConversationOpened() {
         Analytics.logEvent("conversation_opened", parameters: nil)
+    }
+
+    /// Called when the user deletes a conversation.
+    func logConversationDeleted() {
+        Analytics.logEvent("conversation_deleted", parameters: nil)
+    }
+
+    /// Called when the user pins or unpins a conversation.
+    func logConversationPinToggled(isPinned: Bool) {
+        Analytics.logEvent("conversation_pin_toggled", parameters: [
+            "action": isPinned ? "pinned" : "unpinned"
+        ])
+    }
+
+    /// Called when a media file is uploaded and sent in a conversation.
+    func logMediaUploaded(type: String) {
+        Analytics.logEvent("chat_media_uploaded", parameters: [
+            "media_type": type  // "image" | "document"
+        ])
+    }
+
+    /// Called when the user reads messages in an open conversation (fires once per open).
+    func logMessagesRead() {
+        Analytics.logEvent("messages_read", parameters: nil)
     }
 
     // MARK: - Discover

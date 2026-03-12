@@ -355,10 +355,23 @@ struct ConversationRow: View {
                         .lineLimit(1)
                 }
                 
-                Text(conversation.lastMessage)
-                    .font(.system(size: 14, weight: conversation.unreadCount(for: currentUserId) > 0 ? .medium : .regular, design: .rounded))
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
+                let isMine = conversation.lastSenderId == currentUserId
+                let recipientId = conversation.participantIds.first(where: { $0 != currentUserId }) ?? ""
+                HStack(spacing: 3) {
+                    if isMine {
+                        // Determina lo stato dalla conversazione (no fetch extra)
+                        let status: Message.ReceiptStatus = {
+                            if conversation.lastMessageReadBy.contains(recipientId) { return .read }
+                            if conversation.lastMessageDeliveredTo.contains(recipientId) { return .delivered }
+                            return .sent
+                        }()
+                        ReceiptStatusView(status: status)
+                    }
+                    Text(conversation.lastMessage)
+                        .font(.system(size: 14, weight: conversation.unreadCount(for: currentUserId) > 0 ? .medium : .regular, design: .rounded))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
             }
             
             Spacer()

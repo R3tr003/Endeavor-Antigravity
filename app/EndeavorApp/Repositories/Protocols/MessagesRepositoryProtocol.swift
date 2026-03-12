@@ -48,6 +48,13 @@ protocol MessagesRepositoryProtocol {
         completion: @escaping (Error?) -> Void
     )
 
+    /// Aggiunge currentUserId a `deliveredTo` di tutti i messaggi inviati dall'altro partecipante
+    /// che non contengono ancora currentUserId in deliveredTo.
+    func markAsDelivered(conversationId: String, currentUserId: String) async
+
+    /// Aggiunge currentUserId a `readBy` (e a `deliveredTo` per coerenza) dei messaggi dell'altro partecipante.
+    func markMessagesAsRead(conversationId: String, currentUserId: String) async
+
     /// Elimina un'intera conversazione e tutti i suoi messaggi
     func deleteConversation(
         conversationId: String,

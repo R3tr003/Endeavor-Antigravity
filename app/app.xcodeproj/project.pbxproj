@@ -72,6 +72,7 @@
 		D260DC99484BB66F1618780C /* FirebaseMessagesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 233EC5DBF6799263EFF27D89 /* FirebaseMessagesRepository.swift */; };
 		D2FC56AB0E4044B9B30E0F58 /* ../Repositories/Protocols/AuthRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEB9F245A8974E93BEE12465 /* ../Repositories/Protocols/AuthRepositoryProtocol.swift */; };
 		DF14E280B7AD77D1BFBC8CEF /* ConversationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9110CAF806A8A7BC9419D4CB /* ConversationView.swift */; };
+		AA100001RECEIPTSTATUS /* ReceiptStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000RECEIPTSTATUS /* ReceiptStatusView.swift */; };
 		EDB35044980B473E825F0BD5 /* NetworkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8578755F65A84AFAB25F0E41 /* NetworkViewModel.swift */; };
 		F393F8F54A77468098980786 /* FluidBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26846CEDDA264CC8A0C99A22 /* FluidBackgroundView.swift */; };
 		F759D414D8CF8F9FA89B9F6E /* MessagesRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 322B368C9FCA80FD0EFC8014 /* MessagesRepositoryProtocol.swift */; };
@@ -130,6 +131,7 @@
 		8578755F65A84AFAB25F0E41 /* NetworkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkViewModel.swift; sourceTree = "<group>"; };
 		8A75F2AF083A37A4A97E1F18 /* MentorDiscoveryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MentorDiscoveryView.swift; sourceTree = "<group>"; };
 		9110CAF806A8A7BC9419D4CB /* ConversationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConversationView.swift; sourceTree = "<group>"; };
+		AA100000RECEIPTSTATUS /* ReceiptStatusView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReceiptStatusView.swift; sourceTree = "<group>"; };
 		991788012F356B310095C184 /* LocationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationData.swift; sourceTree = "<group>"; };
 		992788012F356B310095C184 /* StackNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackNavigationView.swift; sourceTree = "<group>"; };
 		A7E8F901B1234C56D7890123 /* ../Repositories/Salesforce/SalesforceRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Salesforce/SalesforceRepository.swift; sourceTree = "<group>"; };
@@ -187,6 +189,7 @@
 				5BC702E785B8F5371622610A /* MessagesView.swift */,
 				9110CAF806A8A7BC9419D4CB /* ConversationView.swift */,
 				65EB34B5F82F7BF0D3E78612 /* NewConversationView.swift */,
+				AA100000RECEIPTSTATUS /* ReceiptStatusView.swift */,
 			);
 			path = Messages;
 			sourceTree = "<group>";
@@ -569,6 +572,7 @@
 				B1B82C5CA6C0800A131EFD1B /* Conversation.swift in Sources */,
 				332767A8E9A914BCBD11007F /* ConversationViewModel.swift in Sources */,
 				99A9E7194441D5D1D7F35D3F /* NewConversationView.swift in Sources */,
+				AA100001RECEIPTSTATUS /* ReceiptStatusView.swift in Sources */,
 				A7E8F903B1234C56D7890123 /* ../Repositories/Salesforce/SalesforceRepository.swift in Sources */,
 				37D493AC9C2597D6BB419F87 /* AnalyticsService.swift in Sources */,
 				BF646849552E94E87EC75E83 /* UserProfileView.swift in Sources */,

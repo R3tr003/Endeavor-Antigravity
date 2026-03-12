@@ -35,6 +35,7 @@ class ConversationViewModel: ObservableObject {
         self.storageRepository = storageRepository
         startListening()
         fetchRecipientProfile()
+        AnalyticsService.shared.logConversationOpened()
     }
 
     deinit {
@@ -57,7 +58,7 @@ class ConversationViewModel: ObservableObject {
             case .success(let msgs):
                 self.messages = msgs
                 // Marca come letti all'apertura e ad ogni nuovo messaggio
-                self.markAsRead()
+                Task { await self.markMessagesAsRead() }
             case .failure(let error):
                 self.appError = .unknown(reason: error.localizedDescription)
             }
@@ -73,8 +74,19 @@ class ConversationViewModel: ObservableObject {
         documentName: String? = nil
     ) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if trimmed.isEmpty && imageUrl == nil && documentUrl == nil { return } // non inviare nulla se è tutto vuoto
-        
+        if trimmed.isEmpty && imageUrl == nil && documentUrl == nil { return }
+
+        // Determina il tipo di messaggio per analytics
+        let msgType: AnalyticsService.MessageType
+        switch (imageUrl != nil, documentUrl != nil, !trimmed.isEmpty) {
+        case (true, _, true):   msgType = .textImage
+        case (_, true, true):   msgType = .textDocument
+        case (true, _, false):  msgType = .image
+        case (_, true, false):  msgType = .document
+        default:                msgType = .text
+        }
+        AnalyticsService.shared.logMessageSent(type: msgType, characterCount: trimmed.count)
+
         repository.sendMessage(
             conversationId: conversationId,
             senderId: currentUserId,
@@ -96,13 +108,13 @@ class ConversationViewModel: ObservableObject {
     
     func uploadAndSendImage(_ image: UIImage, additionalText: String = "") {
         DispatchQueue.main.async { self.isUploadingMedia = true }
-        
         let path = "chat_media/\(conversationId)/\(UUID().uuidString).jpg"
         storageRepository.uploadImage(image: image, path: path) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isUploadingMedia = false
                 switch result {
                 case .success(let url):
+                    AnalyticsService.shared.logMediaUploaded(type: "image")
                     self?.sendMessage(text: additionalText, imageUrl: url)
                 case .failure(let error):
                     self?.appError = .unknown(reason: error.localizedDescription)
@@ -113,15 +125,14 @@ class ConversationViewModel: ObservableObject {
     
     func uploadAndSendDocument(url fileURL: URL, documentName: String) {
         DispatchQueue.main.async { self.isUploadingMedia = true }
-        
         let fileExtension = fileURL.pathExtension
         let path = "chat_media/\(conversationId)/\(UUID().uuidString).\(fileExtension)"
-        
         storageRepository.uploadDocument(url: fileURL, path: path) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isUploadingMedia = false
                 switch result {
                 case .success(let downloadUrl):
+                    AnalyticsService.shared.logMediaUploaded(type: "document")
                     self?.sendMessage(text: "", documentUrl: downloadUrl, documentName: documentName)
                 case .failure(let error):
                     self?.appError = .unknown(reason: error.localizedDescription)
@@ -130,13 +141,30 @@ class ConversationViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Mark as Read
+    // MARK: - Read Receipts
 
-    private func markAsRead() {
+    /// Marca i messaggi dell'altro partecipante come "consegnati" (aperto la chat).
+    func markAsDelivered() async {
+        await repository.markAsDelivered(
+            conversationId: conversationId,
+            currentUserId: currentUserId
+        )
+    }
+
+    /// Marca i messaggi dell'altro partecipante come "letti" (e come consegnati per coerenza).
+    func markMessagesAsRead() async {
+        let hasUnread = messages.contains { !isFromMe($0) && !$0.readBy.contains(currentUserId) }
+        await repository.markMessagesAsRead(
+            conversationId: conversationId,
+            currentUserId: currentUserId
+        )
+        // Azzera anche il badge unread nella conversazione
         repository.markConversationAsRead(
             conversationId: conversationId,
             userId: currentUserId
-        ) { _ in /* silent fail — non critico */ }
+        ) { _ in }
+        // Log solo se c'erano effettivamente messaggi non letti da marcare
+        if hasUnread { AnalyticsService.shared.logMessagesRead() }
     }
 
     // MARK: - Helper
