@@ -53,7 +53,7 @@ struct HomeView: View {
                             .font(.system(size: 44, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
                             .tracking(-1)
-                        Text("You have 2 mentorship sessions this week")
+                        Text(String(localized: "home.sessions_subtitle"))
                             .font(.system(size: 16, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
                     }
@@ -86,7 +86,7 @@ struct HomeView: View {
                                 Image(systemName: "calendar")
                                     .font(.title2)
                                     .foregroundColor(.purple)
-                                Text("Events This Week")
+                                Text(String(localized: "home.events_this_week"))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 Text("12")
@@ -104,7 +104,7 @@ struct HomeView: View {
                     
                     // 3. Smart Recommendations
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
-                        Text("RECOMMENDED FOR YOU")
+                        Text(String(localized: "home.recommended"))
                             .font(.system(size: 13, weight: .semibold, design: .rounded))
                             .tracking(1.5)
                             .foregroundColor(.secondary)
@@ -138,7 +138,7 @@ struct HomeView: View {
                     
                     // 4. Upcoming Sessions
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
-                        Text("Upcoming Sessions")
+                        Text(String(localized: "home.upcoming_sessions"))
                             .font(.system(size: 24, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
                             .padding(.horizontal, DesignSystem.Spacing.large)
@@ -259,7 +259,7 @@ struct EventCard: View {
                     Circle()
                         .fill(Color.green)
                         .frame(width: 6, height: 6)
-                    Text("Confirmed")
+                    Text(String(localized: "home.confirmed"))
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundColor(.green)
                 }
@@ -268,7 +268,7 @@ struct EventCard: View {
             
             // Action Button
             Button(action: {}) {
-                Text("Join")
+                Text(String(localized: "home.join"))
                     .font(.headline)
                     .foregroundColor(color)
                     .frame(maxWidth: .infinity)

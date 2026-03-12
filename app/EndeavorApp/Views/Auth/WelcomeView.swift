@@ -54,10 +54,10 @@ struct WelcomeView: View {
                     .padding(.horizontal, DesignSystem.Spacing.large)
                     .padding(.bottom, DesignSystem.Spacing.xxLarge)
             }
-            .alert("No Mail App Found", isPresented: $showMailError) {
-                Button("OK", role: .cancel) { }
+            .alert(String(localized: "auth.no_mail_app"), isPresented: $showMailError) {
+                Button(String(localized: "common.ok"), role: .cancel) { }
             } message: {
-                Text("The email 'help@endeavor.org' has been copied to your clipboard.")
+                Text(String(localized: "auth.email_copied"))
             }
         }
     }
@@ -100,7 +100,7 @@ struct WelcomeView: View {
                     }
                 
                 if !isValidEmail && !email.isEmpty && focusedField != .email {
-                    Text("Please enter a valid email address.")
+                    Text(String(localized: "auth.email_invalid"))
                         .font(.caption)
                         .foregroundColor(.error)
                 }
@@ -109,7 +109,7 @@ struct WelcomeView: View {
             if isValidEmail {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                     ZStack(alignment: .trailing) {
-                        TextField("Password", text: $password)
+                        TextField(String(localized: "auth.password_placeholder"), text: $password)
                             .padding()
                             .padding(.trailing, DesignSystem.Spacing.xxLarge)
                             .background(
@@ -132,7 +132,7 @@ struct WelcomeView: View {
                             }
                             .opacity(showPassword ? 1 : 0)
                             
-                        SecureField("Password", text: $password)
+                        SecureField(String(localized: "auth.password_placeholder"), text: $password)
                             .padding()
                             .padding(.trailing, DesignSystem.Spacing.xxLarge)
                             .background(
@@ -201,7 +201,7 @@ struct WelcomeView: View {
                         HStack(spacing: DesignSystem.Spacing.xxSmall) {
                             Text(String(localized: "auth.forgot_password"))
                                 .foregroundColor(.primary.opacity(0.8))
-                            Text("Reset it here")
+                            Text(String(localized: "auth.reset_here"))
                                 .foregroundColor(.brandPrimary)
                         }
                         .font(.subheadline.weight(.semibold))
@@ -282,13 +282,13 @@ struct WelcomeView: View {
                 .disabled(appViewModel.isLoading || appViewModel.isSalesforceChecking)
                 
                 HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                    Text("By continuing, you agree to our")
+                    Text(String(localized: "auth.terms_intro"))
                         .foregroundColor(.primary.opacity(0.7))
-                    Button("Terms") { showTerms = true }
+                    Button(String(localized: "auth.terms")) { showTerms = true }
                         .foregroundColor(.brandPrimary)
                     Text("&")
                         .foregroundColor(.primary.opacity(0.7))
-                    Button("Privacy") { showPrivacy = true }
+                    Button(String(localized: "auth.privacy")) { showPrivacy = true }
                         .foregroundColor(.brandPrimary)
                 }
                 .font(.caption2)
@@ -307,9 +307,9 @@ struct WelcomeView: View {
                 }
             }) {
                 HStack(spacing: DesignSystem.Spacing.xxSmall) {
-                    Text("Having troubles?")
+                    Text(String(localized: "auth.having_troubles"))
                         .foregroundColor(.primary.opacity(0.6))
-                    Text("Get Help")
+                    Text(String(localized: "auth.get_help"))
                         .foregroundColor(.brandPrimary)
                 }
                 .font(.caption)
@@ -320,10 +320,10 @@ struct WelcomeView: View {
         .padding(DesignSystem.Spacing.large)
         // LIQUID GLASS EFFECT applied to the panel container
         .modifier(LiquidGlassEffect(cornerRadius: DesignSystem.Spacing.xLarge))
-        .alert("Reset Email Sent", isPresented: $appViewModel.passwordResetSent) {
-            Button("OK", role: .cancel) { }
+        .alert(String(localized: "auth.reset_sent_title"), isPresented: $appViewModel.passwordResetSent) {
+            Button(String(localized: "common.ok"), role: .cancel) { }
         } message: {
-            Text("If an account exists for \(email), you will receive a password reset link shortly.")
+            Text("If an account exists for \\(email), you will receive a password reset link shortly.")
         }
         .sheet(isPresented: $showTerms) {
             PolicyView(title: "Terms & Conditions", content: DummyLegalContent.terms, isPresented: $showTerms)

@@ -66,7 +66,7 @@ struct MentorDiscoveryView: View {
                         
                         // Search Input Card
                         VStack(alignment: .trailing, spacing: DesignSystem.Spacing.small) {
-                            TextField("e.g. Who has experience scaling SaaS from 50 to 200 employees?", text: $query, axis: .vertical)
+                            TextField(String(localized: "discover.search_placeholder"), text: $query, axis: .vertical)
                                 .lineLimit(1...4)
                                 .font(.system(size: 16, design: .rounded))
                                 .foregroundColor(.primary)

@@ -42,7 +42,7 @@ struct OnboardingContainerView: View {
                             .frame(width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large)
                     }
                     
-                    Text("Setup Profile")
+                    Text(String(localized: "onboarding.setup_profile"))
                         .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                     Spacer()
@@ -93,7 +93,7 @@ struct OnboardingContainerView: View {
                                 viewModel.previousStep()
                             }
                         }) {
-                            Text("Back")
+                            Text(String(localized: "common.back"))
                                 .font(.headline)
                                 .foregroundColor(.primary)
                                 .padding(.horizontal, DesignSystem.Spacing.medium)
@@ -110,7 +110,7 @@ struct OnboardingContainerView: View {
                                 showExitConfirmation = true
                             }
                         }) {
-                            Text("Exit")
+                            Text(String(localized: "onboarding.exit"))
                                 .font(.headline)
                                 .foregroundColor(.red)
                                 .padding(.horizontal, DesignSystem.Spacing.medium)
@@ -148,7 +148,7 @@ struct OnboardingContainerView: View {
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             }
-                            Text(viewModel.currentStep == viewModel.totalSteps ? (appViewModel.isLoading ? "Entering..." : "Enter App") : "Next")
+                            Text(viewModel.currentStep == viewModel.totalSteps ? (appViewModel.isLoading ? String(localized: "onboarding.entering") : String(localized: "onboarding.enter_app")) : String(localized: "onboarding.next"))
                                 .font(.headline)
                                 .foregroundColor(.white)
                         }
@@ -168,9 +168,9 @@ struct OnboardingContainerView: View {
                 )
             }
         }
-        .alert("Are you sure to Exit the registration process?", isPresented: $showExitConfirmation) {
-            Button("Cancel", role: .cancel) { }
-            Button("Exit", role: .destructive) {
+        .alert(String(localized: "onboarding.exit_confirm"), isPresented: $showExitConfirmation) {
+            Button(String(localized: "common.cancel"), role: .cancel) { }
+            Button(String(localized: "onboarding.exit"), role: .destructive) {
                 appViewModel.logout()
             }
         }

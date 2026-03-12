@@ -83,13 +83,13 @@ struct NetworkView: View {
                         
                         // Header
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
-                            Text("Mentor\nNetwork")
+                            Text(String(localized: "network.mentor_network"))
                                 .font(.system(size: 42, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
                                 .tracking(-1.5)
                                 .lineSpacing(-4)
                             
-                            Text("Find the right expert to help you grow.")
+                            Text(String(localized: "network.subtitle"))
                                 .font(.headline)
                                 .foregroundColor(.secondary)
                         }
@@ -297,7 +297,7 @@ struct NetworkView: View {
                                 .lineLimit(1)
                         } else {
                             // Placeholder animato mentre carica
-                            Text("Loading...")
+                            Text(String(localized: "common.loading"))
                                 .font(.subheadline)
                                 .foregroundColor(.clear)
                                 .redacted(reason: .placeholder)

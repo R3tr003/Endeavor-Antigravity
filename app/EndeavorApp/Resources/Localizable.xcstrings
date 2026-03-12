@@ -415,6 +415,240 @@
         "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Vamos começar com o básico. Isso ajuda outros a te conhecerem." } }
       }
     },
+    "auth.email_invalid" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Please enter a valid email address." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Por favor, introduce una dirección de email válida." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Inserisci un indirizzo email valido." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Veuillez saisir une adresse email valide." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Por favor, insira um endereço de email válido." } }
+      }
+    },
+    "auth.reset_here" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset it here" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Recupérala aquí" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Recuperala qui" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réinitialisez-la ici" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Recupere-a aqui" } }
+      }
+    },
+    "auth.terms_intro" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "By continuing, you agree to our" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Al continuar, aceptas nuestros" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Continuando, accetti i nostri" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En continuant, vous acceptez nos" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ao continuar, você concorda com nossos" } }
+      }
+    },
+    "auth.terms" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Terms" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Términos" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Termini" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "CGU" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Termos" } }
+      }
+    },
+    "auth.privacy" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Privacy" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Privacidad" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Privacy" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Confidentialité" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Privacidade" } }
+      }
+    },
+    "auth.having_troubles" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Having troubles?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Tienes problemas?" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Hai problemi?" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Des difficultés ?" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Está com problemas?" } }
+      }
+    },
+    "auth.get_help" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Get Help" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Obtener ayuda" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ottieni supporto" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Obtenir de l'aide" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Obter ajuda" } }
+      }
+    },
+    "auth.email_copied" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "The email 'help@endeavor.org' has been copied to your clipboard." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "El email 'help@endeavor.org' ha sido copiado al portapapeles." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "L'email 'help@endeavor.org' è stata copiata negli appunti." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "L'email 'help@endeavor.org' a été copiée dans le presse-papiers." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "O email 'help@endeavor.org' foi copiado para a área de transferência." } }
+      }
+    },
+    "auth.no_mail_app" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Mail App Found" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se encontró la app de correo" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessuna app email trovata" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune app Mail trouvée" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhum app de email encontrado" } }
+      }
+    },
+    "auth.reset_sent_title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset Email Sent" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Email de recuperación enviado" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Email di recupero inviata" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Email de réinitialisation envoyé" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Email de recuperación enviado" } }
+      }
+    },
+    "auth.password_placeholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Password" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Contraseña" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Password" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Mot de passe" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Senha" } }
+      }
+    },
+    "network.mentor_network" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mentor\nNetwork" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Red de\nMentores" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mentor\nNetwork" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réseau de\nMentors" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Rede de\nMentores" } }
+      }
+    },
+    "network.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Find the right expert to help you grow." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Encuentra al experto adecuado para ayudarte a crecer." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Trova l'esperto giusto per aiutarti a crescere." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Trouvez le bon expert pour vous aider à grandir." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Encontre o especialista certo para ajudar você a crescer." } }
+      }
+    },
+    "home.recommended" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "RECOMMENDED FOR YOU" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "RECOMENDADO PARA TI" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "CONSIGLIATO PER TE" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "RECOMMANDÉ POUR VOUS" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "RECOMENDADO PARA VOCÊ" } }
+      }
+    },
+    "home.upcoming_sessions" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Upcoming Sessions" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Próximas Sesiones" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sessioni in Arrivo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Sessions à venir" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Próximas Sessões" } }
+      }
+    },
+    "home.events_this_week" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Events This Week" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eventos Esta Semana" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Eventi Questa Settimana" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Événements cette semaine" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Eventos Esta Semana" } }
+      }
+    },
+    "home.sessions_subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "You have 2 mentorship sessions this week" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tienes 2 sesiones de mentoría esta semana" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Hai 2 sessioni di mentorship questa settimana" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vous avez 2 sessions de mentorat cette semaine" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Você tem 2 sessões de mentoria esta semana" } }
+      }
+    },
+    "home.confirmed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirmed" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Confirmado" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Confermato" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Confirmé" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Confirmado" } }
+      }
+    },
+    "home.join" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Join" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Unirse" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Partecipa" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rejoindre" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Participar" } }
+      }
+    },
+    "onboarding.setup_profile" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Setup Profile" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Configurar Perfil" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Configura Profilo" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Configurer le profil" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Configurar Perfil" } }
+      }
+    },
+    "onboarding.exit" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Exit" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Salir" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Esci" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Quitter" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sair" } }
+      }
+    },
+    "onboarding.exit_confirm" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Are you sure you want to exit the registration process?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Estás seguro de que quieres salir del registro?" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sei sicuro di voler uscire dalla registrazione?" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Êtes-vous sûr de vouloir quitter l'inscription ?" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tem certeza que deseja sair do registro?" } }
+      }
+    },
+    "onboarding.next" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Next" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Siguiente" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Avanti" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Suivant" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Próximo" } }
+      }
+    },
+    "onboarding.enter_app" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter App" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Entrar a la App" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Entra nell'App" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Accéder à l'app" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entrar no App" } }
+      }
+    },
+    "onboarding.entering" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Entering..." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Entrando..." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Accesso..." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connexion..." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entrando..." } }
+      }
+    },
+    "discover.search_placeholder" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "e.g. Who has experience scaling SaaS from 50 to 200 employees?" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "ej. ¿Quién tiene experiencia escalando SaaS de 50 a 200 empleados?" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "es. Chi ha esperienza nel far crescere SaaS da 50 a 200 dipendenti?" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "ex. Qui a de l'expérience pour passer de 50 à 200 employés en SaaS ?" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "ex. Quem tem experiência em escalar SaaS de 50 para 200 funcionários?" } }
+      }
+    },
     "common.save" : {
       "localizations" : {
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
