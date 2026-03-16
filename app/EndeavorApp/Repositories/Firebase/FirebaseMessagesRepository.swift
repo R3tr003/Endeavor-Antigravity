@@ -202,7 +202,10 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             "lastMessageAt": now,
             "lastSenderId": "",
             "unreadCounts": [userId1: 0, userId2: 0],
-            "pinnedBy": []
+            "pinnedBy": [],
+            "isFiltered": false,
+            "filterReason": "",
+            "filterCheckedAt": NSNull()
         ]
 
         newRef.setData(data) { error in
@@ -349,6 +352,45 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
         }
     }
 
+    // MARK: - Filter and System messages
+
+    func unfilterConversation(conversationId: String, completion: @escaping (Error?) -> Void) {
+        db.collection(conversationsCollection)
+            .document(conversationId)
+            .updateData([
+                "isFiltered": false,
+                "filterReason": "",
+                "filterCheckedAt": Timestamp(date: Date())
+            ]) { error in
+                DispatchQueue.main.async { completion(error) }
+            }
+    }
+
+    func sendSystemMessage(
+        conversationId: String,
+        text: String,
+        completion: @escaping (Error?) -> Void
+    ) {
+        let messageRef = db
+            .collection(conversationsCollection)
+            .document(conversationId)
+            .collection(messagesCollection)
+            .document()
+
+        let data: [String: Any] = [
+            "senderId": "system",
+            "text": text,
+            "createdAt": Timestamp(date: Date()),
+            "readBy": [],
+            "deliveredTo": [],
+            "isSystemMessage": true
+        ]
+
+        messageRef.setData(data) { error in
+            DispatchQueue.main.async { completion(error) }
+        }
+    }
+
     // MARK: - Parse Helpers
 
     private func parseConversation(from data: [String: Any], id: String) -> Conversation? {
@@ -366,7 +408,10 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             unreadCounts: data["unreadCounts"] as? [String: Int] ?? [:],
             pinnedBy: data["pinnedBy"] as? [String] ?? [],
             lastMessageReadBy: data["lastMessageReadBy"] as? [String] ?? [],
-            lastMessageDeliveredTo: data["lastMessageDeliveredTo"] as? [String] ?? []
+            lastMessageDeliveredTo: data["lastMessageDeliveredTo"] as? [String] ?? [],
+            isFiltered: data["isFiltered"] as? Bool ?? false,
+            filterReason: data["filterReason"] as? String ?? "",
+            filterCheckedAt: (data["filterCheckedAt"] as? Timestamp)?.dateValue()
         )
     }
 
@@ -384,6 +429,7 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             createdAt: createdAt,
             readBy: data["readBy"] as? [String] ?? [],
             deliveredTo: data["deliveredTo"] as? [String] ?? [],
+            isSystemMessage: data["isSystemMessage"] as? Bool ?? false,
             imageUrl: data["imageUrl"] as? String,
             documentUrl: data["documentUrl"] as? String,
             documentName: data["documentName"] as? String

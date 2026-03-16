@@ -711,6 +711,42 @@
         "fr" : { "stringUnit" : { "state" : "translated", "value" : "Chargement..." } },
         "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Carregando..." } }
       }
+    },
+    "messages.filtered" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Filtered" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Filtrado" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Filtrati" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Filtrés" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Filtrados" } }
+      }
+    },
+    "messages.filtered_subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld conversations" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "%lld conversaciones" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "%lld conversazioni" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "%lld conversations" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "%lld conversas" } }
+      }
+    },
+    "messages.filtered_info" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "These conversations were flagged by AI as potentially irrelevant or promotional." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Estas conversaciones fueron marcadas por IA como potencialmente irrelevantes o promocionales." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Queste conversazioni sono state segnalate dall'AI come potenzialmente irrilevanti o promozionali." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ces conversations ont été signalées par l'IA comme potentiellement non pertinentes ou promotionnelles." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Estas conversas foram sinalizadas pela IA como potencialmente irrelevantes ou promocionais." } }
+      }
+    },
+    "messages.not_spam" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not Spam" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No es spam" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Non è spam" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pas du spam" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Não é spam" } }
+      }
     }
   },
   "version" : "1.0"

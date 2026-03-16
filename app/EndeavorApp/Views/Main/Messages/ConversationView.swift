@@ -266,10 +266,34 @@ struct ConversationView: View {
                         // Lista messaggi (visibile quando messages non è vuoto)
                         VStack(spacing: DesignSystem.Spacing.small) {
                             ForEach(viewModel.messages) { msg in
-                                let fromMe = viewModel.isFromMe(msg)
-                                HStack {
-                                    if fromMe { Spacer() }
-                                    VStack(alignment: fromMe ? .trailing : .leading, spacing: 4) {
+                                if msg.isSystemMessage {
+                                    // — Pill centrato stile sistema, tema Endeavor —
+                                    HStack(alignment: .center, spacing: 6) {
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                            .font(.system(size: 16, weight: .semibold))
+                                            .foregroundColor(.red)
+                                        Text(msg.text.replacingOccurrences(of: "⚠️ ", with: ""))
+                                            .font(.system(size: 13, weight: .medium, design: .rounded))
+                                            .foregroundColor(.secondary)
+                                            .multilineTextAlignment(.center)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                    .padding(.horizontal, DesignSystem.Spacing.medium)
+                                    .padding(.vertical, 10)
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .background(Color.red.opacity(0.12), in: Capsule())
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                                    )
+                                    .padding(.horizontal, DesignSystem.Spacing.large)
+                                    .padding(.vertical, DesignSystem.Spacing.small)
+                                    .id(msg.id)
+                                } else {
+                                    let fromMe = viewModel.isFromMe(msg)
+                                    HStack {
+                                        if fromMe { Spacer() }
+                                        VStack(alignment: fromMe ? .trailing : .leading, spacing: 4) {
                                         if let documentUrl = msg.documentUrl, let documentName = msg.documentName {
                                             // Document Bubble
                                             Button(action: {
@@ -377,6 +401,7 @@ struct ConversationView: View {
                                     if !fromMe { Spacer() }
                                 }
                                 .id(msg.id)
+                                }
                             }
                         }
                         .padding(.horizontal, DesignSystem.Spacing.medium)

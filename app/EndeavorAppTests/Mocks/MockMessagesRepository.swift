@@ -66,6 +66,18 @@ class MockMessagesRepository: MessagesRepositoryProtocol {
             completion(.failure(NSError(domain: "Test", code: 404, userInfo: [NSLocalizedDescriptionKey: "Not found"])))
         }
     }
+    
+    func unfilterConversation(conversationId: String, completion: @escaping (Error?) -> Void) {
+        if let i = mockConversations.firstIndex(where: { $0.id == conversationId }) {
+            mockConversations[i].isFiltered = false
+            mockConversations[i].filterReason = ""
+        }
+        completion(nil)
+    }
+
+    func sendSystemMessage(conversationId: String, text: String, completion: @escaping (Error?) -> Void) {
+        completion(nil) // no-op nei test
+    }
 }
 
 class DummyListenerRegistration: NSObject, ListenerRegistration {

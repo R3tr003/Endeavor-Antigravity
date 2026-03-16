@@ -74,4 +74,8 @@ protocol MessagesRepositoryProtocol {
         userId: String,
         completion: @escaping (Result<UserProfile, Error>) -> Void
     )
+
+    /// Filtra conversazioni e invia messaggi di sistema limitati.
+    func unfilterConversation(conversationId: String, completion: @escaping (Error?) -> Void)
+    func sendSystemMessage(conversationId: String, text: String, completion: @escaping (Error?) -> Void)
 }

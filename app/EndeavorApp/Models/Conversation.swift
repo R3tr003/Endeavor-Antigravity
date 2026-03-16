@@ -4,16 +4,26 @@ import SwiftUI
 /// Rappresenta una conversazione tra due utenti.
 /// `name`, `role`, `initials` vengono popolati dopo il fetch dei profili utente — NON sono salvati in Firestore.
 /// `accentColor` è generata deterministicamente dall'UID per coerenza visiva.
-struct Conversation: Identifiable, Equatable {
+struct Conversation: Identifiable, Equatable, Hashable {
     let id: String                      // Firestore document ID
     let participantIds: [String]        // Array di Firebase Auth UIDs [uid_A, uid_B]
     var lastMessage: String
     var lastMessageAt: Date
     var lastSenderId: String
+    
+    // MARK: - Hashable Conformance
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
     var unreadCounts: [String: Int]     // UID → contatore non letti
     var pinnedBy: [String] = []         // Array di UID che hanno pinnato questa chat
     var lastMessageReadBy: [String] = []      // UID che hanno letto l'ultimo messaggio
     var lastMessageDeliveredTo: [String] = [] // UID a cui è stato recapitato l'ultimo messaggio
+    
+    // Filtro AI System
+    var isFiltered: Bool = false
+    var filterReason: String = ""
+    var filterCheckedAt: Date? = nil
 
     // Campi UI — popolati dopo il fetch di UserProfile, non da Firestore
     var otherParticipantName: String = ""

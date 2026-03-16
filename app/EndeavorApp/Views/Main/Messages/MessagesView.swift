@@ -12,15 +12,21 @@ struct MessagesView: View {
     @State private var pendingRecipientId: String? = nil
     @State private var conversationToDelete: Conversation? = nil
     @State private var showDeleteConfirmation: Bool = false
-
+    @State private var showFilteredConversations: Bool = false
     var filteredConversations: [Conversation] {
-        if searchText.trimmingCharacters(in: .whitespaces).isEmpty {
-            return viewModel.conversations
-        } else {
-            return viewModel.conversations.filter {
-                $0.otherParticipantName.localizedCaseInsensitiveContains(searchText) ||
-                $0.otherParticipantCompany.localizedCaseInsensitiveContains(searchText)
+        let currentUserId = UserDefaults.standard.string(forKey: "userId") ?? ""
+        let base = viewModel.conversations.filter { convo in
+            if convo.isFiltered {
+                return convo.lastSenderId == currentUserId
             }
+            return true
+        }
+        if searchText.trimmingCharacters(in: .whitespaces).isEmpty {
+            return base
+        }
+        return base.filter {
+            $0.otherParticipantName.localizedCaseInsensitiveContains(searchText) ||
+            $0.otherParticipantCompany.localizedCaseInsensitiveContains(searchText)
         }
     }
 
@@ -96,8 +102,46 @@ struct MessagesView: View {
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
 
-                        // Conversations List
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.large)
+
+                    // Riga "Filtered" posizionata subito dopo la barra di ricerca, attaccata in alto
+                    if !viewModel.filteredConversations.isEmpty {
+                        Button(action: { showFilteredConversations = true }) {
+                            HStack(spacing: DesignSystem.Spacing.standard) {
+                                Image(systemName: "archivebox")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.secondary)
+                                    .frame(width: 52, height: 52)
+                                    
+                                Text(String(localized: "messages.filtered", defaultValue: "Filtered"))
+                                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                                    .foregroundColor(.primary)
+                                    
+                                Spacer()
+                                
+                                Text("\(viewModel.filteredConversations.count)")
+                                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                                    .foregroundColor(.secondary)
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(.secondary.opacity(0.5))
+                            }
+                            .padding(.horizontal, DesignSystem.Spacing.large)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.vertical, DesignSystem.Spacing.xSmall)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
+                        .padding(.horizontal, DesignSystem.Spacing.large)
+                        .padding(.top, DesignSystem.Spacing.small)
+                    }
+
+                    ScrollView(.vertical, showsIndicators: false) {
                         VStack(spacing: DesignSystem.Spacing.small) {
+                            
                             ForEach(filteredConversations) { convo in
                                 SwipeableConversationRow(
                                     conversation: convo,
@@ -158,7 +202,6 @@ struct MessagesView: View {
 
                         Spacer(minLength: DesignSystem.Spacing.bottomSafePadding)
                     }
-                    .padding(.horizontal, DesignSystem.Spacing.large)
                 }
             }
         }
@@ -167,6 +210,10 @@ struct MessagesView: View {
                 conversation: conversation,
                 currentUserId: UserDefaults.standard.string(forKey: "userId") ?? ""
             )
+        }
+        .sheet(isPresented: $showFilteredConversations) {
+            FilteredConversationsView()
+                .environmentObject(viewModel)
         }
         .sheet(isPresented: $showNewConversation) {
             NewConversationView { conversationId, recipientId in
@@ -390,7 +437,13 @@ struct ConversationRow: View {
                         .foregroundColor(.secondary)
                 }
                 
-                if conversation.unreadCount(for: currentUserId) > 0 {
+                if conversation.isFiltered && conversation.lastSenderId == currentUserId {
+                    Image(systemName: "exclamationmark")
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .frame(width: 22, height: 22)
+                        .background(Color.red, in: Circle())
+                } else if conversation.unreadCount(for: currentUserId) > 0 {
                     Text("\(conversation.unreadCount(for: currentUserId))")
                         .font(.system(size: 11, weight: .bold, design: .rounded))
                         .foregroundColor(.white)

@@ -21,10 +21,23 @@ service cloud.firestore {
     }
 
     match /conversations/{conversationId} {
-      // Per leggere, aggiornare o eliminare, l'UUID dell'utente deve essere nei participantIds
-      allow read, update, delete: if isAuthenticated() && getUserUuid() in resource.data.participantIds;
-      // Per creare, l'utente deve mettersi nei participantIds
-      allow create: if isAuthenticated() && getUserUuid() in request.resource.data.participantIds;
+      // Controlla che gli aggiornamenti non modifichino lo stato del filtro AI
+      function isNotUpdatingFilter() {
+        return !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isFiltered', 'filterReason', 'filterCheckedAt']);
+      }
+
+      // Per leggere l'UUID dell'utente deve essere nei participantIds
+      allow read: if isAuthenticated() && getUserUuid() in resource.data.participantIds;
+      
+      // Per aggiornare, l'UUID deve essere nei participantIds e l'utente non deve modificare i campi del filtro
+      allow update: if isAuthenticated() && getUserUuid() in resource.data.participantIds && isNotUpdatingFilter();
+      
+      // Eliminazione della conversazione
+      allow delete: if isAuthenticated() && getUserUuid() in resource.data.participantIds;
+
+      // Per creare, l'utente deve mettersi nei participantIds. Un utente normale non può creare conversazioni filtrate in partenza.
+      allow create: if isAuthenticated() && getUserUuid() in request.resource.data.participantIds &&
+                    (!request.resource.data.keys().hasAny(['isFiltered']) || request.resource.data.isFiltered == false);
 
       match /messages/{messageId} {
         // Ottieni i participantIds della conversazione padre una volta sola
@@ -43,8 +56,9 @@ service cloud.firestore {
         // Lettura: qualsiasi partecipante può leggere i messaggi
         allow read: if isParticipant();
 
-        // Creazione: solo i partecipanti possono inviare messaggi
-        allow create: if isParticipant();
+        // Creazione: solo i partecipanti possono inviare messaggi, e un utente non può creare "system messages"
+        allow create: if isParticipant() && 
+                      (!request.resource.data.keys().hasAny(['isSystemMessage']) || request.resource.data.isSystemMessage == false);
 
         // Update: i partecipanti possono aggiornare solo readBy e deliveredTo
         allow update: if isParticipant() && isReceiptUpdate();

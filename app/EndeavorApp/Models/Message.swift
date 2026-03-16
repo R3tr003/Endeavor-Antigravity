@@ -10,6 +10,7 @@ struct Message: Identifiable, Codable, Equatable {
     let createdAt: Date
     var readBy: [String]         // Array di Firebase Auth UIDs
     var deliveredTo: [String]    // Array di Firebase Auth UIDs che hanno ricevuto il messaggio
+    var isSystemMessage: Bool = false  // NUOVO: true = messaggio di sistema (centro schermo)
 
     // Media
     var imageUrl: String?

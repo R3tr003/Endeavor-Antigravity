@@ -14,3 +14,4 @@ export {
 } from "./salesforce";
 
 export { searchUsersWithAI } from "./aiSearch";
+export { classifyMessage } from "./messageFilter";

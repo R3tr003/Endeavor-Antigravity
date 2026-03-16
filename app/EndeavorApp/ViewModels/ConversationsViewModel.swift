@@ -13,7 +13,8 @@ class ConversationsViewModel: ObservableObject {
     var totalUnreadCount: Int {
         guard let currentUserId = UserDefaults.standard.string(forKey: "userId") else { return 0 }
         return conversations.reduce(0) { total, conv in
-            total + (conv.unreadCounts[currentUserId] ?? 0)
+            if conv.isFiltered { return total }
+            return total + (conv.unreadCounts[currentUserId] ?? 0)
         }
     }
 
@@ -238,5 +239,20 @@ class ConversationsViewModel: ObservableObject {
             enriched.otherParticipantCompany = ""
         }
         return enriched
+    }
+    
+    // MARK: - Filters
+    
+    func unfilterConversation(conversationId: String) {
+        repository.unfilterConversation(conversationId: conversationId) { [weak self] error in
+            if let error = error {
+                self?.appError = .unknown(reason: error.localizedDescription)
+            }
+        }
+    }
+
+    var filteredConversations: [Conversation] {
+        let currentUserId = UserDefaults.standard.string(forKey: "userId") ?? ""
+        return conversations.filter { $0.isFiltered && $0.lastSenderId != currentUserId }
     }
 }
