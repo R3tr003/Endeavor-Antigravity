@@ -61,19 +61,21 @@ class ConversationsViewModel: ObservableObject {
         ) { [weak self] result in
             guard let self = self else { return }
             self.isLoading = false
-            
-            // Stop the trace on first load
-            if let trace = self.fetchConversationsTrace {
-                trace.stop()
-                self.fetchConversationsTrace = nil
-            }
 
             switch result {
             case .success(let rawConversations):
+                // Registra conversation_count e ferma il trace sul primo caricamento
+                if let trace = self.fetchConversationsTrace {
+                    trace.incrementMetric("conversation_count", by: Int64(rawConversations.count))
+                    trace.stop()
+                    self.fetchConversationsTrace = nil
+                }
                 // Le conversazioni arrivano senza nome/ruolo del partecipante — va arricchito
                 self.enrichConversations(rawConversations, currentUserId: currentUserId)
 
             case .failure(let error):
+                self.fetchConversationsTrace?.stop()
+                self.fetchConversationsTrace = nil
                 self.appError = .unknown(reason: error.localizedDescription)
             }
         }
@@ -254,5 +256,12 @@ class ConversationsViewModel: ObservableObject {
     var filteredConversations: [Conversation] {
         let currentUserId = UserDefaults.standard.string(forKey: "userId") ?? ""
         return conversations.filter { $0.isFiltered && $0.lastSenderId != currentUserId }
+    }
+
+    /// Numero di messaggi non letti nelle conversazioni filtrate.
+    /// Usato per il badge nella MessagesView — si azzera quando l'utente legge le conversazioni.
+    var filteredUnreadCount: Int {
+        let currentUserId = UserDefaults.standard.string(forKey: "userId") ?? ""
+        return filteredConversations.reduce(0) { $0 + $1.unreadCount(for: currentUserId) }
     }
 }

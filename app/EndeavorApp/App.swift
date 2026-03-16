@@ -2,6 +2,7 @@ import SwiftUI
 import GoogleSignIn
 import FirebaseCore
 import FirebaseAppCheck
+import FirebasePerformance
 import SDWebImage
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -17,6 +18,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         
         // Initialize Firebase when the app launches. MUST be in AppDelegate for Firebase Performance to track _app_start.
         FirebaseApp.configure()
+
+        // Abilita data collection esplicita per Performance in DEBUG — utile per verificare
+        // che il reporting funzioni su device fisico prima di passare a TestFlight.
+        // _app_start viene popolato solo da device reali (non simulatore), con ritardo di 12-24h.
+        #if DEBUG
+        Performance.sharedInstance().isDataCollectionEnabled = true
+        #endif
         
         // --- SDWebImage Cache Configuration ---
         // Memory cache: 100MB — sufficient per ~200 avatar 500x500

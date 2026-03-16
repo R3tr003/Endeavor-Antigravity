@@ -26,6 +26,7 @@ class AppViewModel: ObservableObject {
     
     // Performance Traces
     private var authCheckTrace: Trace?
+    private var sessionRestoreTrace: Trace?
     private var loginFlowTrace: Trace?
     private var onboardingSaveTrace: Trace?
     
@@ -112,6 +113,9 @@ class AppViewModel: ObservableObject {
         authService.isLoggedIn = savedIsLoggedIn
         
         if authService.isLoggedIn && router.isOnboardingComplete {
+            // Auth state determinato: stoppa subito il trace di check (operazione sync, deve essere veloce)
+            authCheckTrace?.stop()
+            authCheckTrace = nil
             restoreSession()
         } else if authService.isLoggedIn {
             if Auth.auth().currentUser == nil {
@@ -120,26 +124,36 @@ class AppViewModel: ObservableObject {
             }
             self.isCheckingAuth = false
             authCheckTrace?.stop()
+            authCheckTrace = nil
         } else {
             self.isCheckingAuth = false
             authCheckTrace?.stop()
+            authCheckTrace = nil
         }
     }
-    
+
     // MARK: - Orchestration Logic
-    
+
     func restoreSession() {
+        // Trace separato: misura solo il fetch Firestore, non il check auth
+        sessionRestoreTrace = Performance.startTrace(name: "Session_Restore_Duration")
         userRepo.restoreSession { [weak self] in
             if self?.currentUser == nil {
                 print("⚠️ Invalid session state. Logging out.")
+                self?.sessionRestoreTrace?.stop()
+                self?.sessionRestoreTrace = nil
                 self?.logout()
             } else if let firebaseUid = Auth.auth().currentUser?.uid,
                       let uuid = self?.currentUser?.id.uuidString {
                 // Assicura che la mappatura firebaseUid -> uuid esista nel database messaging
                 self?.messagesRepository.saveUserMapping(firebaseUid: firebaseUid, uuid: uuid)
+                self?.sessionRestoreTrace?.stop()
+                self?.sessionRestoreTrace = nil
+            } else {
+                self?.sessionRestoreTrace?.stop()
+                self?.sessionRestoreTrace = nil
             }
             self?.isCheckingAuth = false
-            self?.authCheckTrace?.stop()
         }
     }
     

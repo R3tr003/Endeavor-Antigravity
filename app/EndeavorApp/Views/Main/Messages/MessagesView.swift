@@ -105,38 +105,40 @@ struct MessagesView: View {
                     }
                     .padding(.horizontal, DesignSystem.Spacing.large)
 
-                    // Riga "Filtered" posizionata subito dopo la barra di ricerca, attaccata in alto
+                    // Riga "Filtered" — slim, stile WhatsApp
                     if !viewModel.filteredConversations.isEmpty {
                         Button(action: { showFilteredConversations = true }) {
-                            HStack(spacing: DesignSystem.Spacing.standard) {
-                                Image(systemName: "archivebox")
-                                    .font(.system(size: 20))
+                            HStack(spacing: DesignSystem.Spacing.small) {
+                                Image(systemName: "line.3.horizontal.decrease.circle")
+                                    .font(.system(size: 15))
                                     .foregroundColor(.secondary)
-                                    .frame(width: 52, height: 52)
-                                    
+
                                 Text(String(localized: "messages.filtered", defaultValue: "Filtered"))
-                                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                                    .foregroundColor(.primary)
-                                    
-                                Spacer()
-                                
-                                Text("\(viewModel.filteredConversations.count)")
-                                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                                    .font(.system(size: 15, design: .rounded))
                                     .foregroundColor(.secondary)
-                                
+
+                                Spacer()
+
+                                if viewModel.filteredUnreadCount > 0 {
+                                    Text("\(viewModel.filteredUnreadCount)")
+                                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.red, in: Capsule())
+                                }
+
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(.secondary.opacity(0.5))
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(.secondary.opacity(0.4))
                             }
                             .padding(.horizontal, DesignSystem.Spacing.large)
+                            .padding(.vertical, DesignSystem.Spacing.small)
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .padding(.vertical, DesignSystem.Spacing.xSmall)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
                         .padding(.horizontal, DesignSystem.Spacing.large)
-                        .padding(.top, DesignSystem.Spacing.small)
+                        .padding(.top, DesignSystem.Spacing.xSmall)
                     }
 
                     ScrollView(.vertical, showsIndicators: false) {

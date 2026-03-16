@@ -1,5 +1,6 @@
 import Foundation
 import FirebaseFirestore
+import FirebasePerformance
 import Combine
 
 class ConversationViewModel: ObservableObject {
@@ -16,6 +17,9 @@ class ConversationViewModel: ObservableObject {
     private let repository: MessagesRepositoryProtocol
     private let storageRepository: StorageRepositoryProtocol
     private var messagesListener: ListenerRegistration?
+    private var loadMessagesTrace: Trace?
+    private var fetchProfileTrace: Trace?
+    private var isFirstMessagesLoad = true
 
     let conversationId: String
     let currentUserId: String
@@ -49,6 +53,11 @@ class ConversationViewModel: ObservableObject {
         isLoading = true
         messagesListener?.remove()
 
+        // Trace solo sul primo caricamento — misura latenza + cattura CPU/RAM nel Sessions panel
+        if isFirstMessagesLoad {
+            loadMessagesTrace = Performance.startTrace(name: "Load_Messages_Duration")
+        }
+
         messagesListener = repository.listenToMessages(
             conversationId: conversationId
         ) { [weak self] result in
@@ -57,9 +66,20 @@ class ConversationViewModel: ObservableObject {
             switch result {
             case .success(let msgs):
                 self.messages = msgs
+                if self.isFirstMessagesLoad {
+                    self.isFirstMessagesLoad = false
+                    if let trace = self.loadMessagesTrace {
+                        trace.incrementMetric("message_count", by: Int64(msgs.count))
+                        trace.stop()
+                        self.loadMessagesTrace = nil
+                    }
+                }
                 // Marca come letti all'apertura e ad ogni nuovo messaggio
                 Task { await self.markMessagesAsRead() }
             case .failure(let error):
+                self.loadMessagesTrace?.stop()
+                self.loadMessagesTrace = nil
+                self.isFirstMessagesLoad = false
                 self.appError = .unknown(reason: error.localizedDescription)
             }
         }
@@ -176,7 +196,10 @@ class ConversationViewModel: ObservableObject {
 
     // MARK: - Fetch Recipient Profile
     private func fetchRecipientProfile() {
+        fetchProfileTrace = Performance.startTrace(name: "Fetch_Recipient_Profile_Duration")
         repository.fetchUserProfile(userId: recipientId) { [weak self] result in
+            self?.fetchProfileTrace?.stop()
+            self?.fetchProfileTrace = nil
             if case .success(let profile) = result {
                 DispatchQueue.main.async {
                     self?.recipientProfile = profile

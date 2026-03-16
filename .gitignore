@@ -43,7 +43,8 @@ add_*.py
 fix_*.py
 test_out.txt
 .env.local
-
+.claude
+claude.md
 # Locally appended
 app/build_log.txt
 firestore-messaging.rules
