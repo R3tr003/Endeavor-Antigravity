@@ -2,6 +2,7 @@ import SwiftUI
 import GoogleSignIn
 import FirebaseCore
 import FirebaseAppCheck
+import FirebaseFirestore
 import FirebasePerformance
 import SDWebImage
 
@@ -18,6 +19,19 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         
         // Initialize Firebase when the app launches. MUST be in AppDelegate for Firebase Performance to track _app_start.
         FirebaseApp.configure()
+
+        // MARK: - Firestore Offline Persistence
+        let defaultSettings = FirestoreSettings()
+        defaultSettings.cacheSettings = PersistentCacheSettings(
+            sizeBytes: 100 * 1024 * 1024 as NSNumber
+        )
+        Firestore.firestore().settings = defaultSettings
+
+        let messagingSettings = FirestoreSettings()
+        messagingSettings.cacheSettings = PersistentCacheSettings(
+            sizeBytes: 50 * 1024 * 1024 as NSNumber
+        )
+        Firestore.firestore(database: "messaging").settings = messagingSettings
 
         // Abilita data collection esplicita per Performance in DEBUG — utile per verificare
         // che il reporting funzioni su device fisico prima di passare a TestFlight.
