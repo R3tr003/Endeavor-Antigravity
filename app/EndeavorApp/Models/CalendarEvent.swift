@@ -15,6 +15,7 @@ struct CalendarEvent: Identifiable, Codable, Equatable {
     var meetLink: String?
     var meetProvider: MeetProvider = .none
     var declinedBy: [String] = []
+    var rescheduledBy: [String] = []
     var createdAt: Date
 
     enum MeetProvider: String, Codable {

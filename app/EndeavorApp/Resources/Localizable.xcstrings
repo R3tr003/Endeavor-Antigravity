@@ -2075,6 +2075,189 @@
         }
       }
     },
+    "home.cancel_meeting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel Meeting"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar Reunión"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annulla Riunione"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler la Réunion"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar Reunião"
+          }
+        }
+      }
+    },
+    "home.reschedule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reschedule"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reprogramar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riprogramma"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reprogrammer"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reagendar"
+          }
+        }
+      }
+    },
+    "home.greeting_morning": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Good morning!" } },
+        "es": { "stringUnit": { "state": "translated", "value": "¡Buenos días!" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Buongiorno!" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Bonjour !" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Bom dia!" } }
+      }
+    },
+    "home.greeting_afternoon": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Good afternoon!" } },
+        "es": { "stringUnit": { "state": "translated", "value": "¡Buenas tardes!" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Buon pomeriggio!" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Bon après-midi !" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Boa tarde!" } }
+      }
+    },
+    "home.greeting_evening": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Good evening!" } },
+        "es": { "stringUnit": { "state": "translated", "value": "¡Buenas tardes!" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Buonasera!" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Bonsoir !" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Boa noite!" } }
+      }
+    },
+    "home.greeting_night": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Good night!" } },
+        "es": { "stringUnit": { "state": "translated", "value": "¡Buenas noches!" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Buona notte!" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Bonne nuit !" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Boa noite!" } }
+      }
+    },
+    "calendar.cancel_confirm_title": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Cancel Meeting?" } },
+        "es": { "stringUnit": { "state": "translated", "value": "¿Cancelar reunión?" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Annullare la riunione?" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Annuler la réunion ?" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Cancelar reunião?" } }
+      }
+    },
+    "calendar.cancel_confirm_message": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "This action cannot be undone." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Esta acción no se puede deshacer." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Questa azione non può essere annullata." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Cette action est irréversible." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Esta ação não pode ser desfeita." } }
+      }
+    },
+    "calendar.cancel_keep": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Keep" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Mantener" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mantieni" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Garder" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Manter" } }
+      }
+    },
+    "calendar.system_meeting_cancelled": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Meeting cancelled" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Reunión cancelada" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Riunione annullata" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Réunion annulée" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Reunião cancelada" } }
+      }
+    },
+    "schedule.duration_label": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Duration: " } },
+        "es": { "stringUnit": { "state": "translated", "value": "Duración: " } },
+        "it": { "stringUnit": { "state": "translated", "value": "Durata: " } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Durée : " } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Duração: " } }
+      }
+    },
+    "calendar.with_person": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con %@"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avec %@"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Com %@"
+          }
+        }
+      }
+    },
     "home.events_this_week": {
       "localizations": {
         "en": {
@@ -4043,6 +4226,74 @@
           "stringUnit": {
             "state": "translated",
             "value": "Propor nova"
+          }
+        }
+      }
+    },
+    "schedule.rescheduled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rescheduled"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reprogramado"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riprogrammato"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reprogrammé"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reagendado"
+          }
+        }
+      }
+    },
+    "schedule.propose_new_time": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Propose New Time"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proponer Nuevo Horario"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proponi Nuovo Orario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proposer un Nouvel Horaire"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Propor Novo Horário"
           }
         }
       }

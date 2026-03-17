@@ -367,7 +367,7 @@ struct ConversationRow: View {
                 Circle()
                     .fill(avatarColor.opacity(0.15))
                     .frame(width: 52, height: 52)
-                
+
                 if conversation.otherParticipantImageUrl.isEmpty {
                     Text(conversation.initials)
                         .font(.system(size: 18, weight: .bold, design: .rounded))
@@ -380,12 +380,12 @@ struct ConversationRow: View {
                             .frame(width: 52, height: 52)
                             .clipShape(Circle())
                     } placeholder: {
-                        Text(conversation.initials)
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
-                            .foregroundColor(avatarColor)
+                        EmptyView()
                     }
+                    .transition(.fade(duration: 0))
                 }
             }
+            .transaction { $0.animation = nil }
             .frame(width: 52, height: 52)
             .clipShape(Circle())
             .overlay(

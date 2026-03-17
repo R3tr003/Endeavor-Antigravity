@@ -15,7 +15,7 @@ struct ConversationView: View {
     @State private var showDocumentPicker: Bool = false
     @State private var selectedImage: UIImage? = nil
     @State private var showScheduleMeeting: Bool = false
-    @State private var showProposeNewTime: Bool = false
+    @State private var proposeNewForEvent: CalendarEvent? = nil
     @State private var showNotEnoughMessagesAlert: Bool = false
 
     @FocusState private var isInputFocused: Bool
@@ -96,13 +96,14 @@ struct ConversationView: View {
                 existingEvents: viewModel.myCalendarEvents
             )
         }
-        .sheet(isPresented: $showProposeNewTime) {
+        .sheet(item: $proposeNewForEvent) { event in
             ScheduleMeetingView(
                 conversationId: conversation.id,
                 currentUserId: currentUserId,
                 recipientId: viewModel.recipientId,
                 recipientName: viewModel.recipientProfile?.fullName ?? conversation.otherParticipantName,
-                existingEvents: viewModel.myCalendarEvents
+                existingEvents: viewModel.myCalendarEvents,
+                existingEvent: event
             )
         }
         // Mostra errori dal ViewModel (ex. problemi di permessi o Firebase)
@@ -154,7 +155,7 @@ struct ConversationView: View {
                 Circle()
                     .fill(accentColor.opacity(0.15))
                     .frame(width: 38, height: 38)
-                
+
                 if imageUrl.isEmpty {
                     Text(getInitials(from: currentName))
                         .font(.system(size: 14, weight: .bold, design: .rounded))
@@ -167,12 +168,12 @@ struct ConversationView: View {
                             .frame(width: 38, height: 38)
                             .clipShape(Circle())
                     } placeholder: {
-                        Text(getInitials(from: currentName))
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
-                            .foregroundColor(accentColor)
+                        EmptyView()
                     }
+                    .transition(.fade(duration: 0))
                 }
             }
+            .transaction { $0.animation = nil }
             .frame(width: 38, height: 38)
             .clipShape(Circle())
 
@@ -314,13 +315,14 @@ struct ConversationView: View {
                         // Lista messaggi (visibile quando messages non è vuoto)
                         VStack(spacing: DesignSystem.Spacing.small) {
                             ForEach(viewModel.messages) { msg in
-                                if msg.messageType == .meetingInvite || msg.messageType == .meetingResponse {
+                                if msg.messageType == .meetingInvite {
                                     let fromMe = viewModel.isFromMe(msg)
                                     HStack {
                                         if fromMe { Spacer() }
                                         MeetingInviteCard(
                                             message: msg,
                                             isFromMe: fromMe,
+                                            currentUserId: currentUserId,
                                             onAccept: {
                                                 guard let eventId = msg.meetingEventId else { return }
                                                 viewModel.acceptMeeting(eventId: eventId)
@@ -329,21 +331,20 @@ struct ConversationView: View {
                                                 guard let eventId = msg.meetingEventId else { return }
                                                 viewModel.declineMeeting(eventId: eventId)
                                             },
-                                            onProposeNew: {
-                                                showProposeNewTime = true
+                                            onProposeNew: { event in
+                                                proposeNewForEvent = event
                                             }
                                         )
                                         .frame(maxWidth: geometry.size.width * 0.72, alignment: fromMe ? .trailing : .leading)
                                         if !fromMe { Spacer() }
                                     }
-                                    .padding(.horizontal, DesignSystem.Spacing.medium)
                                     .id(msg.id)
                                 } else if msg.isSystemMessage {
-                                    // — Pill centrato stile sistema, tema Endeavor —
+                                    let isWarning = msg.text.hasPrefix("⚠️")
                                     HStack(alignment: .center, spacing: 6) {
-                                        Image(systemName: "exclamationmark.triangle.fill")
-                                            .font(.system(size: 16, weight: .semibold))
-                                            .foregroundColor(.red)
+                                        Image(systemName: isWarning ? "exclamationmark.triangle.fill" : "info.circle.fill")
+                                            .font(.system(size: 14, weight: .semibold))
+                                            .foregroundColor(isWarning ? .red : .secondary)
                                         Text(msg.text.replacingOccurrences(of: "⚠️ ", with: ""))
                                             .font(.system(size: 13, weight: .medium, design: .rounded))
                                             .foregroundColor(.secondary)
@@ -353,10 +354,16 @@ struct ConversationView: View {
                                     .padding(.horizontal, DesignSystem.Spacing.medium)
                                     .padding(.vertical, 10)
                                     .frame(maxWidth: .infinity, alignment: .center)
-                                    .background(Color.red.opacity(0.12), in: Capsule())
+                                    .background(
+                                        isWarning ? Color.red.opacity(0.12) : Color(.systemGray5).opacity(0.5),
+                                        in: Capsule()
+                                    )
                                     .overlay(
                                         Capsule()
-                                            .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                                            .stroke(
+                                                isWarning ? Color.red.opacity(0.3) : Color(.systemGray4).opacity(0.6),
+                                                lineWidth: 1
+                                            )
                                     )
                                     .padding(.horizontal, DesignSystem.Spacing.large)
                                     .padding(.vertical, DesignSystem.Spacing.small)
@@ -443,7 +450,7 @@ struct ConversationView: View {
                                                         .stroke(
                                                             fromMe
                                                                 ? Color.clear
-                                                                : (colorScheme == .dark ? Color.white.opacity(0.12) : Color.brandPrimary.opacity(0.2)),
+                                                                : Color.brandPrimary.opacity(0.55),
                                                             lineWidth: 1
                                                         )
                                                 )

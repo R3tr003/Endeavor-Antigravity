@@ -201,7 +201,8 @@ class ConversationViewModel: ObservableObject {
 
             MeetProviderService.shared.generateMeetLink(
                 eventId: eventId,
-                provider: provider
+                provider: provider,
+                userId: self.currentUserId
             ) { [weak self] result in
                 guard let self = self else { return }
                 let link = (try? result.get()) ?? ""
@@ -216,15 +217,7 @@ class ConversationViewModel: ObservableObject {
                         self.appError = .meetingUpdateFailed
                         return
                     }
-                    self.repository.sendMeetingResponseMessage(
-                        conversationId: self.conversationId,
-                        senderId: self.currentUserId,
-                        recipientId: self.recipientId,
-                        eventId: eventId,
-                        responseType: "accepted"
-                    ) { _ in
-                        AnalyticsService.shared.logMeetingAccepted(provider: provider.rawValue)
-                    }
+                    AnalyticsService.shared.logMeetingAccepted(provider: provider.rawValue)
                 }
             }
         }

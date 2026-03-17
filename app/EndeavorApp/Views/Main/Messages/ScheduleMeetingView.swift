@@ -6,12 +6,32 @@ struct ScheduleMeetingView: View {
     let recipientId: String
     let recipientName: String
     let existingEvents: [CalendarEvent]
+    let existingEvent: CalendarEvent?
 
     @Environment(\.dismiss) var dismiss
-    @StateObject private var viewModel = ScheduleMeetingViewModel()
+    @StateObject private var viewModel: ScheduleMeetingViewModel
     @FocusState private var focusedField: Field?
 
     private enum Field { case title, agenda }
+
+    private var isProposeMode: Bool { existingEvent != nil }
+
+    init(
+        conversationId: String,
+        currentUserId: String,
+        recipientId: String,
+        recipientName: String,
+        existingEvents: [CalendarEvent],
+        existingEvent: CalendarEvent? = nil
+    ) {
+        self.conversationId = conversationId
+        self.currentUserId = currentUserId
+        self.recipientId = recipientId
+        self.recipientName = recipientName
+        self.existingEvents = existingEvents
+        self.existingEvent = existingEvent
+        self._viewModel = StateObject(wrappedValue: ScheduleMeetingViewModel(prefilling: existingEvent))
+    }
 
     var body: some View {
         NavigationStack {
@@ -207,7 +227,8 @@ struct ScheduleMeetingView: View {
                                 conversationId: conversationId,
                                 currentUserId: currentUserId,
                                 recipientId: recipientId,
-                                recipientName: recipientName
+                                recipientName: recipientName,
+                                declineEventId: existingEvent?.id
                             ) {
                                 dismiss()
                             }
@@ -216,8 +237,10 @@ struct ScheduleMeetingView: View {
                                 if viewModel.isSending {
                                     ProgressView().tint(.white)
                                 } else {
-                                    Image(systemName: "calendar.badge.plus")
-                                    Text(String(localized: "schedule.send_invite", defaultValue: "Send Meeting Invite"))
+                                    Image(systemName: isProposeMode ? "calendar.badge.clock" : "calendar.badge.plus")
+                                    Text(isProposeMode
+                                         ? String(localized: "schedule.propose_new_time", defaultValue: "Propose New Time")
+                                         : String(localized: "schedule.send_invite", defaultValue: "Send Meeting Invite"))
                                 }
                             }
                             .font(.system(size: 16, weight: .semibold, design: .rounded))
@@ -242,7 +265,9 @@ struct ScheduleMeetingView: View {
                     .padding(DesignSystem.Spacing.large)
                 }
             }
-            .navigationTitle(String(localized: "schedule.title", defaultValue: "Schedule Meeting"))
+            .navigationTitle(isProposeMode
+                ? String(localized: "schedule.propose_new_time", defaultValue: "Propose New Time")
+                : String(localized: "schedule.title", defaultValue: "Schedule Meeting"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {

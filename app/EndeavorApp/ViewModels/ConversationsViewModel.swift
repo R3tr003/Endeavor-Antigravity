@@ -3,6 +3,7 @@ import FirebaseFirestore
 import FirebaseAuth
 import Combine
 import FirebasePerformance
+import SDWebImage
 
 class ConversationsViewModel: ObservableObject {
 
@@ -174,6 +175,7 @@ class ConversationsViewModel: ObservableObject {
             }
             self.conversations = enriched
             self.sortConversations(currentUserId: currentUserId)
+            self.prefetchAvatars()
             return
         }
 
@@ -214,7 +216,17 @@ class ConversationsViewModel: ObservableObject {
             }
             self.conversations = enriched
             self.sortConversations(currentUserId: currentUserId)
+            self.prefetchAvatars()
         }
+    }
+
+    private func prefetchAvatars() {
+        let urls = conversations
+            .map { $0.otherParticipantImageUrl }
+            .filter { !$0.isEmpty }
+            .compactMap { URL(string: $0) }
+        guard !urls.isEmpty else { return }
+        SDWebImagePrefetcher.shared.prefetchURLs(urls)
     }
 
     private func sortConversations(currentUserId: String) {

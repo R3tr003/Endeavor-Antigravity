@@ -4,12 +4,15 @@ import FirebaseFirestore
 struct MeetingInviteCard: View {
     let message: Message
     let isFromMe: Bool
+    let currentUserId: String
     let onAccept: () -> Void
     let onDecline: () -> Void
-    let onProposeNew: () -> Void
+    let onProposeNew: (CalendarEvent) -> Void
 
     @State private var event: CalendarEvent? = nil
     @State private var listener: ListenerRegistration? = nil
+    @State private var showDetail = false
+    @State private var isAccepting = false
     private let calendarRepository = FirebaseCalendarRepository()
 
     var body: some View {
@@ -52,7 +55,7 @@ struct MeetingInviteCard: View {
                         // Data, ora e durata — tutto su una riga in grassetto
                         Label(
                             event.startDate.formatted(.dateTime.weekday(.abbreviated).day().month().hour().minute())
-                                + "  –  Duration: "
+                                + "  –  " + String(localized: "schedule.duration_label", defaultValue: "Duration: ")
                                 + event.durationFormatted,
                             systemImage: "clock"
                         )
@@ -90,10 +93,11 @@ struct MeetingInviteCard: View {
                                         .overlay(Capsule().stroke(Color.error.opacity(0.5), lineWidth: 1))
                                 }
                                 .buttonStyle(.plain)
+                                .disabled(isAccepting)
 
                                 Button(action: {
                                     AnalyticsService.shared.logMeetingNewTimeProposed()
-                                    onProposeNew()
+                                    onProposeNew(event)
                                 }) {
                                     Text(String(localized: "schedule.propose_new", defaultValue: "Propose new"))
                                         .font(.system(size: 11, weight: .semibold, design: .rounded))
@@ -105,30 +109,37 @@ struct MeetingInviteCard: View {
                                         .overlay(Capsule().stroke(Color.yellow.opacity(0.7), lineWidth: 1))
                                 }
                                 .buttonStyle(.plain)
+                                .disabled(isAccepting)
 
-                                Button(action: onAccept) {
-                                    Text(String(localized: "schedule.accept", defaultValue: "Accept"))
-                                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                                        .foregroundColor(.white)
-                                        .lineLimit(1)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 8)
-                                        .background(Color.brandPrimary, in: Capsule())
+                                Button(action: {
+                                    guard !isAccepting else { return }
+                                    isAccepting = true
+                                    onAccept()
+                                }) {
+                                    Group {
+                                        if isAccepting {
+                                            ProgressView()
+                                                .progressViewStyle(.circular)
+                                                .tint(.white)
+                                                .scaleEffect(0.8)
+                                        } else {
+                                            Text(String(localized: "schedule.accept", defaultValue: "Accept"))
+                                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                                .foregroundColor(.white)
+                                        }
+                                    }
+                                    .lineLimit(1)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 28)
+                                    .background(Color.brandPrimary.opacity(isAccepting ? 0.6 : 1), in: Capsule())
                                 }
                                 .buttonStyle(.plain)
+                                .disabled(isAccepting)
                             }
                         }
 
                         // Stato finale
                         if event.status == .confirmed {
-                            HStack(spacing: 6) {
-                                Image(systemName: "checkmark.circle.fill").foregroundColor(.success)
-                                Text(String(localized: "schedule.confirmed", defaultValue: "Confirmed"))
-                                    .font(.system(size: 13, weight: .semibold, design: .rounded))
-                                    .foregroundColor(.success)
-                            }
-                            .padding(.top, 2)
-
                             if let link = event.meetLink, !link.isEmpty {
                                 Button(action: {
                                     MeetProviderService.shared.openMeetingLink(link, provider: event.meetProvider)
@@ -147,14 +158,6 @@ struct MeetingInviteCard: View {
                                 .buttonStyle(.plain)
                                 .padding(.top, 4)
                             }
-                        } else if event.status == .cancelled {
-                            HStack(spacing: 6) {
-                                Image(systemName: "xmark.circle.fill").foregroundColor(.error)
-                                Text(String(localized: "schedule.declined_label", defaultValue: "Declined"))
-                                    .font(.system(size: 13, weight: .semibold, design: .rounded))
-                                    .foregroundColor(.error)
-                            }
-                            .padding(.top, 2)
                         }
                     }
                 }
@@ -171,6 +174,14 @@ struct MeetingInviteCard: View {
         }
         .onAppear { startListening() }
         .onDisappear { listener?.remove() }
+        .onTapGesture {
+            if event?.status == .confirmed { showDetail = true }
+        }
+        .sheet(isPresented: $showDetail) {
+            if let e = event {
+                CalendarEventDetailView(event: e, currentUserId: currentUserId)
+            }
+        }
     }
 
     @ViewBuilder
@@ -190,11 +201,19 @@ struct MeetingInviteCard: View {
                     .padding(.horizontal, 8).padding(.vertical, 3)
                     .background(Color.success.opacity(0.12), in: Capsule())
             case .cancelled:
-                Text(String(localized: "schedule.declined_label", defaultValue: "Declined"))
-                    .font(.system(size: 10, weight: .semibold, design: .rounded))
-                    .foregroundColor(.error)
-                    .padding(.horizontal, 8).padding(.vertical, 3)
-                    .background(Color.error.opacity(0.12), in: Capsule())
+                if !event.rescheduledBy.isEmpty {
+                    Text(String(localized: "schedule.rescheduled", defaultValue: "Rescheduled"))
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .foregroundColor(.yellow)
+                        .padding(.horizontal, 8).padding(.vertical, 3)
+                        .background(Color.yellow.opacity(0.12), in: Capsule())
+                } else {
+                    Text(String(localized: "schedule.declined_label", defaultValue: "Declined"))
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .foregroundColor(.error)
+                        .padding(.horizontal, 8).padding(.vertical, 3)
+                        .background(Color.error.opacity(0.12), in: Capsule())
+                }
             }
         }
     }
@@ -202,7 +221,13 @@ struct MeetingInviteCard: View {
     private func startListening() {
         guard let eventId = message.meetingEventId else { return }
         listener = calendarRepository.listenToEvent(eventId: eventId) { updatedEvent in
-            DispatchQueue.main.async { self.event = updatedEvent }
+            DispatchQueue.main.async {
+                self.event = updatedEvent
+                // Reset loading state once the event is no longer pending
+                if updatedEvent?.status != .pending {
+                    self.isAccepting = false
+                }
+            }
         }
     }
 }

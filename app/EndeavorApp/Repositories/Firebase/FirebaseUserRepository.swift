@@ -51,6 +51,28 @@ class FirebaseUserRepository: UserRepositoryProtocol {
         }
     }
     
+    func fetchCompanyForUser(userId: String, completion: @escaping (CompanyProfile?) -> Void) {
+        db.collection(companiesCollection).whereField("userId", isEqualTo: userId).limit(to: 1).getDocuments { snapshot, _ in
+            guard let doc = snapshot?.documents.first else { completion(nil); return }
+            let cData = doc.data()
+            let company = CompanyProfile(
+                id: UUID(uuidString: cData["id"] as? String ?? "") ?? UUID(),
+                name: cData["name"] as? String ?? "",
+                website: cData["website"] as? String ?? "",
+                hqCountry: cData["hqCountry"] as? String ?? "",
+                hqCity: cData["hqCity"] as? String ?? "",
+                industries: cData["industries"] as? [String] ?? [],
+                stage: cData["stage"] as? String ?? "",
+                employeeRange: cData["employeeRange"] as? String ?? "",
+                companyBio: cData["companyBio"] as? String ?? "",
+                logoUrl: cData["logoUrl"] as? String ?? "",
+                vertical: cData["vertical"] as? String ?? "",
+                endeavorChapter: cData["endeavorChapter"] as? String ?? ""
+            )
+            completion(company)
+        }
+    }
+
     func fetchCompanyProfile(companyId: String, completion: @escaping (Result<CompanyProfile, Error>) -> Void) {
         db.collection(companiesCollection).document(companyId).getDocument { snapshot, error in
             if let error = error {

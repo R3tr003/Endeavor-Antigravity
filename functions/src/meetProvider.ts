@@ -1,17 +1,19 @@
 import { onCall } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
+import { google } from "googleapis";
 
 export const generateMeetLink = onCall(
   { region: "europe-west1" },
   async (request) => {
     if (!request.auth) throw new Error("Unauthenticated");
 
-    const { eventId, provider } = request.data as {
+    const { eventId, provider, userId } = request.data as {
       eventId: string;
       provider: "google_meet" | "microsoft_teams" | "none";
+      userId: string;
     };
 
-    if (!eventId || !provider) throw new Error("Missing params");
+    if (!eventId || !provider || !userId) throw new Error("Missing params");
 
     const db = getFirestore();
     const eventRef = db.collection("events").doc(eventId);
@@ -20,18 +22,28 @@ export const generateMeetLink = onCall(
 
     const eventData = eventSnap.data()!;
 
-    // Verifica che il richiedente sia partecipante
-    if (!eventData.participantIds.includes(request.auth.uid)) {
+    // Verifica che il richiedente (UUID) sia partecipante dell'evento
+    if (!eventData.participantIds.includes(userId)) {
       throw new Error("Forbidden");
     }
 
     let meetLink = "";
 
     switch (provider) {
-      case "google_meet":
-        // meet.new crea istantaneamente un meeting Google Meet
-        meetLink = "https://meet.new";
+      case "google_meet": {
+        // Crea uno Space persistente tramite Google Meet REST API
+        const auth = new google.auth.GoogleAuth({
+          scopes: ["https://www.googleapis.com/auth/meetings.space.created"],
+        });
+        const authClient = await auth.getClient();
+        const res = await (authClient as any).request({
+          url: "https://meet.googleapis.com/v1/spaces",
+          method: "POST",
+          data: {},
+        });
+        meetLink = (res.data as { meetingUri?: string }).meetingUri ?? "";
         break;
+      }
 
       case "microsoft_teams":
         // Deep link Teams per creare un meeting instant

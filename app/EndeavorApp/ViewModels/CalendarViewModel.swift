@@ -17,11 +17,12 @@ class CalendarViewModel: ObservableObject {
         let cal = Calendar.current
         var result: [Int: [Color]] = [:]
         for event in events {
+            guard event.status != .cancelled else { continue }
             guard cal.isDate(event.startDate, equalTo: selectedDate, toGranularity: .month) else { continue }
             let day = cal.component(.day, from: event.startDate)
             let color: Color = {
                 switch event.type {
-                case .meeting: return .brandPrimary
+                case .meeting: return .purple
                 case .endeavorEvent: return .purple
                 case .mentorship: return .orange
                 }
@@ -35,14 +36,26 @@ class CalendarViewModel: ObservableObject {
 
     /// Eventi del giorno selezionato
     var eventsForSelectedDate: [CalendarEvent] {
-        events.filter { Calendar.current.isDate($0.startDate, inSameDayAs: selectedDate) }
+        events.filter { $0.status != .cancelled && Calendar.current.isDate($0.startDate, inSameDayAs: selectedDate) }
             .sorted { $0.startDate < $1.startDate }
     }
 
     /// Prossimi eventi (oggi in poi), max 5
     var upcomingEvents: [CalendarEvent] {
-        events.filter { $0.startDate >= Calendar.current.startOfDay(for: Date()) }
+        events.filter { $0.startDate >= Calendar.current.startOfDay(for: Date()) && $0.status == .confirmed }
             .sorted { $0.startDate < $1.startDate }
+    }
+
+    func cancelEvent(eventId: String, declinedBy: String) {
+        repository.updateEventStatus(eventId: eventId, status: .cancelled, declinedBy: declinedBy) { [weak self] _ in
+            DispatchQueue.main.async {
+                self?.events.removeAll { $0.id == eventId }
+            }
+        }
+    }
+
+    func removeEvent(id: String) {
+        events.removeAll { $0.id == id }
     }
 
     func fetchEvents(userId: String) {

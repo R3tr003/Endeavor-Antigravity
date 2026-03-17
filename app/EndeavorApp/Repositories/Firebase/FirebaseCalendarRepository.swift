@@ -10,7 +10,6 @@ class FirebaseCalendarRepository {
     func fetchEvents(userId: String, completion: @escaping (Result<[CalendarEvent], Error>) -> Void) {
         db.collection(collection)
             .whereField("participantIds", arrayContains: userId)
-            .order(by: "startDate", descending: false)
             .getDocuments { snapshot, error in
                 if let error = error {
                     completion(.failure(error))
@@ -46,6 +45,7 @@ class FirebaseCalendarRepository {
                         meetLink: d["meetLink"] as? String,
                         meetProvider: CalendarEvent.MeetProvider(rawValue: d["meetProvider"] as? String ?? "none") ?? .none,
                         declinedBy: d["declinedBy"] as? [String] ?? [],
+                        rescheduledBy: d["rescheduledBy"] as? [String] ?? [],
                         createdAt: createdAtTs.dateValue()
                     )
                 } ?? []
@@ -70,6 +70,7 @@ class FirebaseCalendarRepository {
             "meetLink": event.meetLink as Any,
             "meetProvider": event.meetProvider.rawValue,
             "declinedBy": event.declinedBy,
+            "rescheduledBy": event.rescheduledBy,
             "createdAt": Timestamp(date: event.createdAt)
         ]
         ref.setData(data) { error in
@@ -80,17 +81,19 @@ class FirebaseCalendarRepository {
         }
     }
 
-    /// Aggiorna lo status di un evento e opzionalmente meetLink e declinedBy
+    /// Aggiorna lo status di un evento e opzionalmente meetLink, declinedBy, rescheduledBy
     func updateEventStatus(
         eventId: String,
         status: CalendarEvent.EventStatus,
         meetLink: String? = nil,
         declinedBy: String? = nil,
+        rescheduledBy: String? = nil,
         completion: @escaping (Error?) -> Void
     ) {
         var update: [String: Any] = ["status": status.rawValue]
         if let link = meetLink { update["meetLink"] = link }
         if let declined = declinedBy { update["declinedBy"] = FieldValue.arrayUnion([declined]) }
+        if let rescheduled = rescheduledBy { update["rescheduledBy"] = FieldValue.arrayUnion([rescheduled]) }
         db.collection(collection).document(eventId).updateData(update) { error in
             DispatchQueue.main.async { completion(error) }
         }
@@ -131,6 +134,7 @@ class FirebaseCalendarRepository {
                 meetLink: d["meetLink"] as? String,
                 meetProvider: CalendarEvent.MeetProvider(rawValue: d["meetProvider"] as? String ?? "none") ?? .none,
                 declinedBy: d["declinedBy"] as? [String] ?? [],
+                rescheduledBy: d["rescheduledBy"] as? [String] ?? [],
                 createdAt: createdAtTs.dateValue()
             )
             onUpdate(event)

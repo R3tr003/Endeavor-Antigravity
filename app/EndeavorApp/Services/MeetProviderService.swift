@@ -14,6 +14,7 @@ class MeetProviderService {
     func generateMeetLink(
         eventId: String,
         provider: CalendarEvent.MeetProvider,
+        userId: String,
         completion: @escaping (Result<String, Error>) -> Void
     ) {
         guard provider != .none else {
@@ -23,7 +24,8 @@ class MeetProviderService {
 
         let data: [String: Any] = [
             "eventId": eventId,
-            "provider": provider.rawValue
+            "provider": provider.rawValue,
+            "userId": userId
         ]
 
         functions.httpsCallable("generateMeetLink").call(data) { result, error in
@@ -38,30 +40,11 @@ class MeetProviderService {
         }
     }
 
-    /// Apre l'app nativa (Google Meet o Teams) se installata, altrimenti Safari
+    /// Apre il meeting link nel browser/app via Universal Links
     func openMeetingLink(_ link: String, provider: CalendarEvent.MeetProvider) {
-        guard !link.isEmpty else { return }
+        guard !link.isEmpty, let url = URL(string: link) else { return }
         AnalyticsService.shared.logMeetingJoinLinkOpened(provider: provider.rawValue)
-
-        switch provider {
-        case .googleMeet:
-            // Prova ad aprire l'app Google Meet nativa
-            let meetAppScheme = "com.google.meet://"
-            if let appUrl = URL(string: meetAppScheme),
-               UIApplication.shared.canOpenURL(appUrl) {
-                UIApplication.shared.open(appUrl)
-            } else if let url = URL(string: link) {
-                UIApplication.shared.open(url)
-            }
-
-        case .microsoftTeams:
-            if let url = URL(string: link) {
-                UIApplication.shared.open(url)
-            }
-
-        case .none:
-            break
-        }
+        UIApplication.shared.open(url)
     }
 
     /// Lancia l'AI recheck in background (fire and forget)

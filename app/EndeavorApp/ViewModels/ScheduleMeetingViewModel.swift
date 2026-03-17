@@ -18,6 +18,18 @@ class ScheduleMeetingViewModel: ObservableObject {
     private let calendarRepository = FirebaseCalendarRepository()
     private let messagesRepository: MessagesRepositoryProtocol = FirebaseMessagesRepository()
 
+    init(prefilling event: CalendarEvent? = nil) {
+        guard let event = event else { return }
+        title = event.title
+        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
+        let defaultDate = Calendar.current.date(bySettingHour: 10, minute: 0, second: 0, of: tomorrow)!
+        startDate = event.startDate > Date() ? event.startDate : defaultDate
+        let duration = Int(event.endDate.timeIntervalSince(event.startDate) / 60)
+        durationMinutes = [30, 60, 90, 120].contains(duration) ? duration : 60
+        description = event.description
+        meetProvider = event.meetProvider
+    }
+
     var endDate: Date {
         Calendar.current.date(byAdding: .minute, value: durationMinutes, to: startDate) ?? startDate
     }
@@ -31,11 +43,21 @@ class ScheduleMeetingViewModel: ObservableObject {
         currentUserId: String,
         recipientId: String,
         recipientName: String,
+        declineEventId: String? = nil,
         completion: @escaping () -> Void
     ) {
         guard isValid else { return }
         isSending = true
         errorMessage = nil
+
+        // Auto-cancel the previous event when proposing a new time
+        if let declineEventId = declineEventId {
+            calendarRepository.updateEventStatus(
+                eventId: declineEventId,
+                status: .cancelled,
+                rescheduledBy: currentUserId
+            ) { _ in }
+        }
 
         let event = CalendarEvent(
             id: "",
