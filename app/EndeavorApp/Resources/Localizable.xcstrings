@@ -747,6 +747,159 @@
         "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pas du spam" } },
         "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Não é spam" } }
       }
+    },
+    "home.open_calendar" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Calendar" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir Calendario" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Apri Calendario" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrir Calendrier" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abrir Calendário" } }
+      }
+    },
+    "home.events_scheduled" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "events scheduled" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "eventos programados" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "eventi in programma" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "événements prévus" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "eventos agendados" } }
+      }
+    },
+    "nav.calendar" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Calendar" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Calendario" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Calendario" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Calendrier" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Calendário" } }
+      }
+    },
+    "calendar.subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your Endeavor schedule" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tu agenda Endeavor" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Il tuo programma Endeavor" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre agenda Endeavor" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sua agenda Endeavor" } }
+      }
+    },
+    "calendar.today" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Today" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Hoy" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Oggi" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aujourd'hui" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Hoje" } }
+      }
+    },
+    "calendar.no_events" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No events this day" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sin eventos este día" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessun evento questo giorno" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucun événement ce jour" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhum evento neste dia" } }
+      }
+    },
+    "calendar.no_upcoming" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No upcoming events" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sin próximos eventos" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessun evento in programma" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucun événement à venir" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhum evento futuro" } }
+      }
+    },
+    "calendar.pending" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pending" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pendiente" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "In attesa" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En attente" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pendente" } }
+      }
+    },
+    "calendar.subscribe_title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add to Your Calendar" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir a tu Calendario" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Aggiungi al tuo Calendario" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajouter à votre Calendrier" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Adicionar ao seu Calendário" } }
+      }
+    },
+    "calendar.subscribe_subtitle" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Subscribe to your Endeavor calendar in Google Calendar, Apple Calendar, or Outlook. Events sync automatically." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Suscríbete a tu calendario Endeavor en Google Calendar, Apple Calendar u Outlook. Los eventos se sincronizan automáticamente." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Iscriviti al tuo calendario Endeavor in Google Calendar, Apple Calendar o Outlook. Gli eventi si sincronizzano automaticamente." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Abonnez-vous à votre calendrier Endeavor dans Google Agenda, Apple Calendar ou Outlook. Les événements se synchronisent automatiquement." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Assine seu calendário Endeavor no Google Agenda, Apple Calendar ou Outlook. Os eventos sincronizam automaticamente." } }
+      }
+    },
+    "calendar.generate_link" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generate my calendar link" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Generar mi enlace de calendario" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Genera il mio link calendario" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Générer mon lien de calendrier" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Gerar meu link de calendário" } }
+      }
+    },
+    "calendar.copied" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copied to clipboard!" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¡Copiado al portapapeles!" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Copiato negli appunti!" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Copié dans le presse-papiers !" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Copiado para a área de transferência!" } }
+      }
+    },
+    "calendar.your_link" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your calendar link" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tu enlace de calendario" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Il tuo link calendario" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre lien de calendrier" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Seu link de calendário" } }
+      }
+    },
+    "calendar.privacy_note" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "This link is personal and private. Only your Endeavor events are included — never your other calendar entries." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Este enlace es personal y privado. Solo se incluyen tus eventos Endeavor, nunca tus otras entradas de calendario." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Questo link è personale e privato. Include solo i tuoi eventi Endeavor, mai gli altri impegni del calendario." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ce lien est personnel et privé. Seuls vos événements Endeavor sont inclus — jamais vos autres entrées de calendrier." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Este link é pessoal e privado. Apenas seus eventos Endeavor estão incluídos — nunca suas outras entradas de calendário." } }
+      }
+    },
+    "calendar.google_steps" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Google Calendar → + Other calendars → From URL → Paste the link" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre Google Calendar → + Otros calendarios → Desde URL → Pega el enlace" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Apri Google Calendar → + Altri calendari → Da URL → Incolla il link" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrez Google Agenda → + Autres agendas → À partir de l'URL → Collez le lien" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abra o Google Agenda → + Outros calendários → De URL → Cole o link" } }
+      }
+    },
+    "calendar.apple_steps" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Calendar app → File → New Calendar Subscription → Paste the link" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre la app Calendario → Archivo → Nueva suscripción → Pega el enlace" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Apri Calendario → File → Nuova iscrizione calendario → Incolla il link" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrez Calendrier → Fichier → Nouvel abonnement → Collez le lien" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abra o Calendário → Arquivo → Nova assinatura → Cole o link" } }
+      }
+    },
+    "calendar.outlook_steps" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Outlook → Add calendar → From internet → Paste the link" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre Outlook → Agregar calendario → De Internet → Pega el enlace" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Apri Outlook → Aggiungi calendario → Da Internet → Incolla il link" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrez Outlook → Ajouter un calendrier → Depuis Internet → Collez le lien" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abra o Outlook → Adicionar calendário → Da internet → Cole o link" } }
+      }
     }
   },
   "version" : "1.0"

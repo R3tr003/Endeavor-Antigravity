@@ -3,7 +3,10 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var conversationsViewModel: ConversationsViewModel
-    
+    @StateObject private var calendarViewModel = CalendarViewModel()
+    @AppStorage("userId") private var currentUserId: String = ""
+    @State private var showCalendar = false
+
     // For scroll-based animations
     @State private var scrollOffset: CGFloat = 0
     
@@ -60,46 +63,46 @@ struct HomeView: View {
                     .padding(.top, DesignSystem.Spacing.standard)
                     .padding(.horizontal, DesignSystem.Spacing.large)
                     
-                    // 2. Quick Stats
-                    HStack(spacing: DesignSystem.Spacing.medium) {
-                        Button(action: {}) {
-                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
-                                Image(systemName: "envelope.badge.fill")
-                                    .font(.title2)
-                                    .foregroundColor(.brandPrimary)
-                                Text(String(localized: "messages.awaiting"))
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                Text("\(conversationsViewModel.totalUnreadCount)")
-                                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    // 2. Calendar Card
+                    Button(action: { showCalendar = true }) {
+                        HStack(spacing: DesignSystem.Spacing.medium) {
+                            // Left: icon + label + count
+                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
+                                HStack(spacing: DesignSystem.Spacing.xSmall) {
+                                    Image(systemName: "calendar")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.purple)
+                                    Text(String(localized: "home.events_this_week"))
+                                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                                        .foregroundColor(.secondary)
+                                }
+                                Text("\(calendarViewModel.upcomingEvents.filter { Calendar.current.isDate($0.startDate, equalTo: Date(), toGranularity: .weekOfYear) }.count)")
+                                    .font(.system(size: 44, weight: .bold, design: .rounded))
                                     .foregroundColor(.primary)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(DesignSystem.Spacing.medium)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
-                            .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 5)
-                        }
-                        
-                        Button(action: {}) {
-                            VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
-                                Image(systemName: "calendar")
-                                    .font(.title2)
-                                    .foregroundColor(.purple)
-                                Text(String(localized: "home.events_this_week"))
-                                    .font(.caption)
+                                    .tracking(-1)
+                                Text(String(localized: "home.events_scheduled", defaultValue: "events scheduled"))
+                                    .font(.system(size: 12, design: .rounded))
                                     .foregroundColor(.secondary)
-                                Text("12")
-                                    .font(.system(size: 32, weight: .bold, design: .rounded))
-                                    .foregroundColor(.primary)
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(DesignSystem.Spacing.medium)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
-                            .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 5)
+                            Spacer()
+                            // Right: open button
+                            VStack {
+                                Spacer()
+                                Text(String(localized: "home.open_calendar", defaultValue: "Open Calendar"))
+                                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, DesignSystem.Spacing.standard)
+                                    .padding(.vertical, DesignSystem.Spacing.xSmall)
+                                    .background(Color.purple, in: Capsule())
+                            }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(DesignSystem.Spacing.medium)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.purple.opacity(0.2), lineWidth: 1))
+                        .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 5)
                     }
+                    .buttonStyle(.plain)
                     .padding(.horizontal, DesignSystem.Spacing.large)
                     
                     // 3. Smart Recommendations
@@ -142,14 +145,24 @@ struct HomeView: View {
                             .font(.system(size: 24, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
                             .padding(.horizontal, DesignSystem.Spacing.large)
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: DesignSystem.Spacing.standard) {
-                                EventCard(title: "Founder's Circle", time: "Tomorrow, 2:00 PM", color: .brandPrimary)
-                                EventCard(title: "AI Workshop", time: "Friday, 10:00 AM", color: .purple)
+
+                        if calendarViewModel.isLoading {
+                            ProgressView().tint(.brandPrimary).frame(maxWidth: .infinity)
+                        } else if calendarViewModel.upcomingEvents.isEmpty {
+                            Text(String(localized: "calendar.no_upcoming", defaultValue: "No upcoming events"))
+                                .font(.system(size: 14, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, DesignSystem.Spacing.large)
+                        } else {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: DesignSystem.Spacing.standard) {
+                                    ForEach(calendarViewModel.upcomingEvents.prefix(5)) { event in
+                                        UpcomingEventCard(event: event)
+                                    }
+                                }
+                                .padding(.horizontal, DesignSystem.Spacing.large)
+                                .padding(.bottom, DesignSystem.Spacing.medium)
                             }
-                            .padding(.horizontal, DesignSystem.Spacing.large)
-                            .padding(.bottom, DesignSystem.Spacing.medium)
                         }
                     }
                     .padding(.top, DesignSystem.Spacing.standard)
@@ -160,6 +173,15 @@ struct HomeView: View {
             .coordinateSpace(name: "scroll")
             .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
                 scrollOffset = value
+            }
+            .onAppear {
+                if !currentUserId.isEmpty {
+                    calendarViewModel.fetchEvents(userId: currentUserId)
+                }
+            }
+            .sheet(isPresented: $showCalendar) {
+                CalendarView()
+                    .environmentObject(appViewModel)
             }
             
             // Floating Header
@@ -225,64 +247,52 @@ struct RecommendationCard: View {
     }
 }
 
-struct EventCard: View {
-    let title: String
-    let time: String
-    let color: Color
-    
+struct UpcomingEventCard: View {
+    let event: CalendarEvent
+
+    var color: Color {
+        switch event.type {
+        case .meeting: return .brandPrimary
+        case .endeavorEvent: return .purple
+        case .mentorship: return .orange
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
-            
-            // Header: Avatar placeholder and options
             HStack {
                 Circle()
                     .fill(color.opacity(0.15))
-                    .frame(width: DesignSystem.Spacing.xxLarge, height: DesignSystem.Spacing.xxLarge)
-                    .overlay(Image(systemName: "person.2.fill").foregroundColor(color))
-                    
+                    .frame(width: 40, height: 40)
+                    .overlay(Image(systemName: event.type.icon).foregroundColor(color))
                 Spacer()
-                Image(systemName: "ellipsis")
-                    .foregroundColor(.secondary)
+                Image(systemName: "ellipsis").foregroundColor(.secondary)
             }
-            
-            // Content
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxSmall) {
-                Text(title)
-                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                Text(event.title)
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundColor(.primary)
-                Text(time)
+                    .lineLimit(2)
+                Text(event.startDate.formatted(.dateTime.weekday(.abbreviated).day().hour().minute()))
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                
-                // Status Badge
                 HStack(spacing: 4) {
-                    Circle()
-                        .fill(Color.green)
-                        .frame(width: 6, height: 6)
-                    Text(String(localized: "home.confirmed"))
+                    Circle().fill(event.status == .confirmed ? Color.success : Color.orange).frame(width: 6, height: 6)
+                    Text(event.status == .confirmed
+                        ? String(localized: "home.confirmed")
+                        : String(localized: "calendar.pending", defaultValue: "Pending"))
                         .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundColor(.green)
+                        .foregroundColor(event.status == .confirmed ? .success : .orange)
                 }
                 .padding(.top, 4)
             }
-            
-            // Action Button
-            Button(action: {}) {
-                Text(String(localized: "home.join"))
-                    .font(.headline)
-                    .foregroundColor(color)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, DesignSystem.Spacing.small)
-                    .overlay(
-                        Capsule().stroke(color, lineWidth: 1.5)
-                    )
-            }
         }
         .padding(DesignSystem.Spacing.medium)
-        .frame(width: 260)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous).stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
-        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+        .frame(width: 220)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge))
+        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge)
+            .stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
+        .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 5)
     }
 }
 

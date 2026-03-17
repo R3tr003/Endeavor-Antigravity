@@ -22,17 +22,16 @@ struct MainTabView: View {
                 // or letting it just underlap.
                 HomeView()
                     .tag(0)
-                
+
                 NetworkView()
                     .tag(1)
-                
-                // Mentor Discovery
+
                 MentorDiscoveryView()
                     .tag(2)
-                
+
                 MessagesView()
                     .tag(3)
-                
+
                 ProfileView()
                     .tag(4)
             }

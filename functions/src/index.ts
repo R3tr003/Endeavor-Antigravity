@@ -15,3 +15,4 @@ export {
 
 export { searchUsersWithAI } from "./aiSearch";
 export { classifyMessage } from "./messageFilter";
+export { icalFeed } from "./icalFeed";
