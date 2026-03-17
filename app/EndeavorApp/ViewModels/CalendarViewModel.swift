@@ -10,7 +10,7 @@ class CalendarViewModel: ObservableObject {
     @Published var selectedDate: Date = Date()
     @Published var appError: AppError?
 
-    private let repository = CalendarRepository()
+    private let repository = FirebaseCalendarRepository()
 
     /// Colori degli eventi per ogni giorno del mese selezionato (max 3 colori per giorno)
     var daysWithEventColors: [Int: [Color]] {

@@ -1,89 +1,68 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import { onCall } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import { getFirestore } from "firebase-admin/firestore";
 import { GoogleGenAI } from "@google/genai";
 
 const googleAIApiKey = defineSecret("GOOGLE_GENAI_API_KEY");
 
-export const classifyMessage = onDocumentCreated(
-  {
-    document: "conversations/{conversationId}/messages/{messageId}",
-    database: "messaging",
-    region: "europe-west1",
-    secrets: [googleAIApiKey],
-  },
-  async (event) => {
-    const messageData = event.data?.data();
-    if (!messageData) return;
+// ─────────────────────────────────────────────────────────────────────────────
+// SHARED HELPER – usata sia dal trigger che dalla callable
+// ─────────────────────────────────────────────────────────────────────────────
 
-    // Ignora messaggi di sistema
-    if (messageData.isSystemMessage === true) return;
+async function classifyConversation(conversationId: string, apiKey: string): Promise<{
+  isSpam: boolean;
+  reason: string;
+  alreadyFiltered: boolean;
+}> {
+  const messagingDb = getFirestore("messaging");
+  const defaultDb = getFirestore();
 
-    const conversationId = event.params.conversationId;
-    const senderId = messageData.senderId as string;
+  const convRef = messagingDb.collection("conversations").doc(conversationId);
+  const convSnap = await convRef.get();
+  if (!convSnap.exists) return { isSpam: false, reason: "", alreadyFiltered: false };
 
-    const messagingDb = getFirestore("messaging");
-    const defaultDb = getFirestore();
+  const convData = convSnap.data()!;
+  const isAlreadyFiltered = convData.isFiltered as boolean ?? false;
 
-    // Leggi la conversazione
-    const convRef = messagingDb.collection("conversations").doc(conversationId);
-    const convSnap = await convRef.get();
-    if (!convSnap.exists) return;
-    const convData = convSnap.data()!;
+  // Recupera tutti i messaggi non-system
+  const messagesSnap = await messagingDb
+    .collection("conversations")
+    .doc(conversationId)
+    .collection("messages")
+    .orderBy("createdAt", "asc")
+    .get();
 
-    const participantIds = convData.participantIds as string[];
-    const recipientId = participantIds.find((id: string) => id !== senderId);
-    if (!recipientId) return;
+  const allMessages = messagesSnap.docs
+    .filter(doc => !doc.data().isSystemMessage)
+    .map(doc => ({
+      senderId: doc.data().senderId as string,
+      text: (doc.data().text as string) || "",
+    }))
+    .filter(m => m.text.trim().length > 0);
 
-    // Recupera TUTTI i messaggi della conversazione
-    const messagesSnap = await messagingDb
-      .collection("conversations")
-      .doc(conversationId)
-      .collection("messages")
-      .orderBy("createdAt", "asc")
-      .get();
+  if (allMessages.length < 1) return { isSpam: false, reason: "", alreadyFiltered: isAlreadyFiltered };
 
-    const allMessages = messagesSnap.docs
-      .filter(doc => !doc.data().isSystemMessage)
-      .map(doc => {
-        const d = doc.data();
-        return {
-          senderId: d.senderId as string,
-          text: (d.text as string) || "",
-        };
-      })
-      .filter(m => m.text.trim().length > 0);
+  // Il mittente originale è chi ha inviato il primo messaggio
+  const originalSenderId = allMessages[0].senderId;
 
-    const messageCount = allMessages.length;
+  // Contesto mittente
+  let senderContext = "";
+  try {
+    const senderDoc = await defaultDb.collection("users").doc(originalSenderId).get();
+    if (senderDoc.exists) {
+      const s = senderDoc.data()!;
+      senderContext = `Sender: ${s.firstName ?? ""} ${s.lastName ?? ""}, Role: ${s.role ?? ""}, Type: ${s.userType ?? ""}`;
+    }
+  } catch (_) {}
 
-    // Regola di attivazione:
-    // - Primo messaggio del mittente verso il destinatario
-    // - Oppure ogni 10 messaggi se la conversazione era già approvata (re-check)
-    const isFirstMessage = messageCount === 1;
-    const isAlreadyFiltered = convData.isFiltered as boolean;
-    const isRecheck = !isFirstMessage && messageCount % 10 === 0 && !isAlreadyFiltered;
+  const conversationTranscript = allMessages
+    .map(m => `[${m.senderId === originalSenderId ? "SENDER" : "RECIPIENT"}]: ${m.text}`)
+    .join("\n");
 
-    if (!isFirstMessage && !isRecheck) return;
+  const ai = new GoogleGenAI({ apiKey });
 
-    // Leggi il profilo del mittente per aggiungere contesto
-    let senderContext = "";
-    try {
-      const senderDoc = await defaultDb.collection("users").doc(senderId).get();
-      if (senderDoc.exists) {
-        const s = senderDoc.data()!;
-        senderContext = `Sender: ${s.firstName ?? ""} ${s.lastName ?? ""}, Role: ${s.role ?? ""}, Type: ${s.userType ?? ""}`;
-      }
-    } catch (_) {}
-
-    // Costruisci la trascrizione completa della conversazione
-    const conversationTranscript = allMessages
-      .map(m => `[${m.senderId === senderId ? "SENDER" : "RECIPIENT"}]: ${m.text}`)
-      .join("\n");
-
-    // Classificazione con Gemini 2.0 Flash
-    const ai = new GoogleGenAI({ apiKey: googleAIApiKey.value() });
-
-    const prompt = `You are a spam filter for a professional entrepreneur network app called Endeavor.
+  const prompt = `You are a spam filter for a professional entrepreneur network app called Endeavor.
 Analyze the FULL conversation transcript and determine if the sender's intent is legitimate or spam/inappropriate.
 
 ${senderContext}
@@ -93,7 +72,7 @@ ${conversationTranscript}
 
 ALLOWED (legitimate):
 - Advice requests with clear professional context
-- Partnership exploration between entrepreneurs  
+- Partnership exploration between entrepreneurs
 - Expertise-specific questions
 - Mentorship inquiries
 - Professional introductions relevant to the Endeavor network
@@ -116,63 +95,149 @@ Respond ONLY with a valid JSON object, no markdown, no explanation:
   "confidence": number between 0.0 and 1.0
 }`;
 
-    let isSpam = false;
-    let reason = "";
-    let confidence = 0;
+  try {
+    const result = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+    const clean = (result.text || "").trim().replace(/```json|```/g, "").trim();
+    const parsed = JSON.parse(clean);
+    const isSpam = parsed.isSpam === true && (parsed.confidence ?? 0) > 0.80;
+    return { isSpam, reason: parsed.reason ?? "", alreadyFiltered: isAlreadyFiltered };
+  } catch (e) {
+    console.error("[classifyConversation] AI error:", e);
+    return { isSpam: false, reason: "", alreadyFiltered: isAlreadyFiltered };
+  }
+}
 
-    try {
-      const result = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt
-      });
-      const responseText = (result.text || "").trim();
-      // Rimuovi eventuale markdown se presente
-      const clean = responseText.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(clean);
-      isSpam = parsed.isSpam === true && (parsed.confidence ?? 0) > 0.80;
-      reason = parsed.reason ?? "";
-      confidence = parsed.confidence ?? 0;
-      console.log(`[classifyMessage] conv=${conversationId} isSpam=${isSpam} confidence=${confidence} reason=${reason}`);
-    } catch (e) {
-      console.error("[classifyMessage] AI error:", e);
-      return; // Fail-safe: in caso di errore non filtrare
-    }
+// Applica il risultato della classificazione su Firestore
+async function applyClassificationResult(
+  conversationId: string,
+  isSpam: boolean,
+  reason: string,
+  isAlreadyFiltered: boolean,
+  isRecheck: boolean
+): Promise<void> {
+  const messagingDb = getFirestore("messaging");
+  const convRef = messagingDb.collection("conversations").doc(conversationId);
 
-    if (isSpam) {
-      // 1. Marca la conversazione come filtrata
-      await convRef.update({
-        isFiltered: true,
-        filterReason: reason,
-        filterCheckedAt: new Date(),
-      });
+  if (isSpam && !isAlreadyFiltered) {
+    await convRef.update({
+      isFiltered: true,
+      filterReason: reason,
+      filterCheckedAt: new Date(),
+    });
 
-      // 2. Inserisci messaggio di sistema visibile al mittente
-      const systemText = "This message was flagged by Endeavor's AI filter as potentially promotional or irrelevant to our network's purpose.";
-      const systemMsgRef = messagingDb
-        .collection("conversations")
-        .doc(conversationId)
-        .collection("messages")
-        .doc();
+    const systemMsgRef = messagingDb
+      .collection("conversations")
+      .doc(conversationId)
+      .collection("messages")
+      .doc();
 
-      await systemMsgRef.set({
-        senderId: "system",
-        text: systemText,
-        createdAt: new Date(),
-        readBy: [],
-        deliveredTo: [],
-        isSystemMessage: true,
-      });
+    await systemMsgRef.set({
+      senderId: "system",
+      text: "ai_filter_warning",
+      systemMessageType: "ai_filter_warning",
+      createdAt: new Date(),
+      readBy: [],
+      deliveredTo: [],
+      isSystemMessage: true,
+    });
 
-      console.log(`[classifyMessage] Filtered conv=${conversationId}, reason=${reason}`);
+  } else if (!isSpam && isRecheck && isAlreadyFiltered) {
+    await convRef.update({
+      isFiltered: false,
+      filterReason: "",
+      filterCheckedAt: new Date(),
+    });
+  } else {
+    // Aggiorna solo il timestamp del check
+    await convRef.update({ filterCheckedAt: new Date() });
+  }
+}
 
-    } else if (isRecheck && isAlreadyFiltered) {
-      // Re-check: se ora sembra legittima, togli il filtro
-      await convRef.update({
-        isFiltered: false,
-        filterReason: "",
-        filterCheckedAt: new Date(),
-      });
-      console.log(`[classifyMessage] Unfiltered conv=${conversationId} after recheck`);
-    }
+// ─────────────────────────────────────────────────────────────────────────────
+// TRIGGER ESISTENTE – invariato nella logica, ora usa l'helper
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const classifyMessage = onDocumentCreated(
+  {
+    document: "conversations/{conversationId}/messages/{messageId}",
+    database: "messaging",
+    region: "europe-west1",
+    secrets: [googleAIApiKey],
+  },
+  async (event) => {
+    const messageData = event.data?.data();
+    if (!messageData) return;
+    if (messageData.isSystemMessage === true) return;
+
+    const conversationId = event.params.conversationId;
+    const senderId = messageData.senderId as string;
+
+    const messagingDb = getFirestore("messaging");
+    const convSnap = await messagingDb.collection("conversations").doc(conversationId).get();
+    if (!convSnap.exists) return;
+
+    const convData = convSnap.data()!;
+    const participantIds = convData.participantIds as string[];
+    if (!participantIds.find((id: string) => id !== senderId)) return;
+
+    // Conta messaggi non-system
+    const messagesSnap = await messagingDb
+      .collection("conversations")
+      .doc(conversationId)
+      .collection("messages")
+      .get();
+
+    const messageCount = messagesSnap.docs.filter(d => !d.data().isSystemMessage).length;
+    const isFirstMessage = messageCount === 1;
+    const isAlreadyFiltered = convData.isFiltered as boolean ?? false;
+    const isRecheck = !isFirstMessage && messageCount % 10 === 0 && !isAlreadyFiltered;
+
+    if (!isFirstMessage && !isRecheck) return;
+
+    const { isSpam, reason, alreadyFiltered } = await classifyConversation(
+      conversationId,
+      googleAIApiKey.value()
+    );
+
+    console.log(`[classifyMessage] conv=${conversationId} isSpam=${isSpam} reason=${reason}`);
+    await applyClassificationResult(conversationId, isSpam, reason, alreadyFiltered, isRecheck);
+  }
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NUOVA CALLABLE – riusa classifyConversation, zero duplicazione
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const recheckConversation = onCall(
+  {
+    region: "europe-west1",
+    secrets: [googleAIApiKey],
+  },
+  async (request) => {
+    if (!request.auth) throw new Error("Unauthenticated");
+
+    const { conversationId } = request.data as { conversationId: string };
+    if (!conversationId) throw new Error("Missing conversationId");
+
+    // Verifica che il richiedente sia partecipante
+    const messagingDb = getFirestore("messaging");
+    const convSnap = await messagingDb.collection("conversations").doc(conversationId).get();
+    if (!convSnap.exists) return { filtered: false };
+
+    const participantIds = convSnap.data()!.participantIds as string[];
+    if (!participantIds.includes(request.auth.uid)) throw new Error("Forbidden");
+
+    const { isSpam, reason, alreadyFiltered } = await classifyConversation(
+      conversationId,
+      googleAIApiKey.value()
+    );
+
+    console.log(`[recheckConversation] conv=${conversationId} isSpam=${isSpam} reason=${reason}`);
+    await applyClassificationResult(conversationId, isSpam, reason, alreadyFiltered, true);
+
+    return { filtered: isSpam, reason };
   }
 );

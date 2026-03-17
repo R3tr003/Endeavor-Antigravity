@@ -75,7 +75,7 @@
 		AA100001RECEIPTSTATUS /* ReceiptStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000RECEIPTSTATUS /* ReceiptStatusView.swift */; };
 		AA200001FILTEREDCONVVIEW /* FilteredConversationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200000FILTEREDCONVVIEW /* FilteredConversationsView.swift */; };
 		BC7E145BB0AFB8C397459D6A /* CalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74EAC2268243B5619E1DB32D /* CalendarEvent.swift */; };
-		09506AED6706631A887DE09D /* CalendarRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE01DD7D01B901B33B3EE5E /* CalendarRepository.swift */; };
+		09506AED6706631A887DE09D /* FirebaseCalendarRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE01DD7D01B901B33B3EE5E /* FirebaseCalendarRepository.swift */; };
 		1583E391872926D57D182C5B /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8503492F26B866F788F8700 /* CalendarViewModel.swift */; };
 		3EDD15FD6EEFB125D9A7112C /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B322ED6558B9CFEB3EF79AE8 /* CalendarView.swift */; };
 		1FDAAEDE9FE295E733615E3D /* CalendarSubscribeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C25131A6369598D52497741 /* CalendarSubscribeView.swift */; };
@@ -83,6 +83,10 @@
 		F393F8F54A77468098980786 /* FluidBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26846CEDDA264CC8A0C99A22 /* FluidBackgroundView.swift */; };
 		F759D414D8CF8F9FA89B9F6E /* MessagesRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 322B368C9FCA80FD0EFC8014 /* MessagesRepositoryProtocol.swift */; };
 		AA000002LOCALIZABLEXCSTRINGS /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AA000001LOCALIZABLEXCSTRINGS /* Localizable.xcstrings */; };
+		AA300001SCHEDULEMEETVIEW /* ScheduleMeetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA300000SCHEDULEMEETVIEW /* ScheduleMeetingView.swift */; };
+		AA400001MEETINGINVITECARD /* MeetingInviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400000MEETINGINVITECARD /* MeetingInviteCard.swift */; };
+		AA500001SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA500000SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift */; };
+		AA600001MEETPROVSERVICE /* MeetProviderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA600000MEETPROVSERVICE /* MeetProviderService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -140,7 +144,7 @@
 		AA100000RECEIPTSTATUS /* ReceiptStatusView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReceiptStatusView.swift; sourceTree = "<group>"; };
 		AA200000FILTEREDCONVVIEW /* FilteredConversationsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FilteredConversationsView.swift; sourceTree = "<group>"; };
 		74EAC2268243B5619E1DB32D /* CalendarEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarEvent.swift; sourceTree = "<group>"; };
-		7CE01DD7D01B901B33B3EE5E /* CalendarRepository.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CalendarRepository.swift; path = Repositories/Firebase/CalendarRepository.swift; sourceTree = "<group>"; };
+		7CE01DD7D01B901B33B3EE5E /* FirebaseCalendarRepository.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FirebaseCalendarRepository.swift; path = Repositories/Firebase/FirebaseCalendarRepository.swift; sourceTree = "<group>"; };
 		F8503492F26B866F788F8700 /* CalendarViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
 		B322ED6558B9CFEB3EF79AE8 /* CalendarView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		3C25131A6369598D52497741 /* CalendarSubscribeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarSubscribeView.swift; sourceTree = "<group>"; };
@@ -155,6 +159,10 @@
 		CEB9F245A8974E93BEE12465 /* ../Repositories/Protocols/AuthRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Protocols/AuthRepositoryProtocol.swift; sourceTree = "<group>"; };
 		E6A26244A935426386D24777 /* ../Repositories/Firebase/FirebaseAuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Firebase/FirebaseAuthRepository.swift; sourceTree = "<group>"; };
 		EF399B6883E34B749FDC7FA9 /* UserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepository.swift; sourceTree = "<group>"; };
+		AA300000SCHEDULEMEETVIEW /* ScheduleMeetingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduleMeetingView.swift; sourceTree = "<group>"; };
+		AA400000MEETINGINVITECARD /* MeetingInviteCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MeetingInviteCard.swift; sourceTree = "<group>"; };
+		AA500000SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduleMeetingViewModel.swift; sourceTree = "<group>"; };
+		AA600000MEETPROVSERVICE /* MeetProviderService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MeetProviderService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,6 +211,8 @@
 				65EB34B5F82F7BF0D3E78612 /* NewConversationView.swift */,
 				AA100000RECEIPTSTATUS /* ReceiptStatusView.swift */,
 				AA200000FILTEREDCONVVIEW /* FilteredConversationsView.swift */,
+				AA300000SCHEDULEMEETVIEW /* ScheduleMeetingView.swift */,
+				AA400000MEETINGINVITECARD /* MeetingInviteCard.swift */,
 			);
 			path = Messages;
 			sourceTree = "<group>";
@@ -275,6 +285,7 @@
 			isa = PBXGroup;
 			children = (
 				2A78E0612A9719CA45072341 /* AnalyticsService.swift */,
+				AA600000MEETPROVSERVICE /* MeetProviderService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -298,6 +309,7 @@
 				651787D82F356B310095C184 /* OnboardingViewModel.swift */,
 				C761D9D2EC4FC43ED00AF553 /* ConversationViewModel.swift */,
 				F8503492F26B866F788F8700 /* CalendarViewModel.swift */,
+				AA500000SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift */,
 				A7E8F901B1234C56D7890123 /* ../Repositories/Salesforce/SalesforceRepository.swift */,
 			);
 			path = ViewModels;
@@ -402,7 +414,7 @@
 				7C22C858EC41CD85C917D953 /* ConversationsViewModel.swift */,
 				322B368C9FCA80FD0EFC8014 /* MessagesRepositoryProtocol.swift */,
 				233EC5DBF6799263EFF27D89 /* FirebaseMessagesRepository.swift */,
-				7CE01DD7D01B901B33B3EE5E /* CalendarRepository.swift */,
+				7CE01DD7D01B901B33B3EE5E /* FirebaseCalendarRepository.swift */,
 			);
 			path = EndeavorApp;
 			sourceTree = "<group>";
@@ -592,6 +604,9 @@
 				99A9E7194441D5D1D7F35D3F /* NewConversationView.swift in Sources */,
 				AA100001RECEIPTSTATUS /* ReceiptStatusView.swift in Sources */,
 				AA200001FILTEREDCONVVIEW /* FilteredConversationsView.swift in Sources */,
+				AA300001SCHEDULEMEETVIEW /* ScheduleMeetingView.swift in Sources */,
+				AA400001MEETINGINVITECARD /* MeetingInviteCard.swift in Sources */,
+				AA500001SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift in Sources */,
 				BC7E145BB0AFB8C397459D6A /* CalendarEvent.swift in Sources */,
 				09506AED6706631A887DE09D /* CalendarRepository.swift in Sources */,
 				1583E391872926D57D182C5B /* CalendarViewModel.swift in Sources */,
@@ -599,6 +614,7 @@
 				1FDAAEDE9FE295E733615E3D /* CalendarSubscribeView.swift in Sources */,
 				A7E8F903B1234C56D7890123 /* ../Repositories/Salesforce/SalesforceRepository.swift in Sources */,
 				37D493AC9C2597D6BB419F87 /* AnalyticsService.swift in Sources */,
+				AA600001MEETPROVSERVICE /* MeetProviderService.swift in Sources */,
 				BF646849552E94E87EC75E83 /* UserProfileView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

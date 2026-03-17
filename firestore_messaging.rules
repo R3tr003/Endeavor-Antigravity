@@ -20,17 +20,33 @@ service cloud.firestore {
       allow create, update, delete: if isAuthenticated() && request.auth.uid == odFirebaseUid;
     }
 
+    // Ban records — any authenticated user can read (needed for getOrCreateConversation check)
+    // and write (to ban a sender after delete & ban action).
+    match /bans/{bannedUserId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
     match /conversations/{conversationId} {
       // Controlla che gli aggiornamenti non modifichino lo stato del filtro AI
       function isNotUpdatingFilter() {
         return !request.resource.data.diff(resource.data).affectedKeys().hasAny(['isFiltered', 'filterReason', 'filterCheckedAt']);
       }
 
+      // Permette solo l'operazione di "unfilter" (isFiltered: true → false).
+      // I partecipanti possono segnare una conversazione come non-spam, ma non possono filtrarla.
+      function isUnfilteringConversation() {
+        return resource.data.isFiltered == true &&
+               request.resource.data.isFiltered == false;
+      }
+
       // Per leggere l'UUID dell'utente deve essere nei participantIds
       allow read: if isAuthenticated() && getUserUuid() in resource.data.participantIds;
-      
-      // Per aggiornare, l'UUID deve essere nei participantIds e l'utente non deve modificare i campi del filtro
-      allow update: if isAuthenticated() && getUserUuid() in resource.data.participantIds && isNotUpdatingFilter();
+
+      // Per aggiornare: l'UUID deve essere nei participantIds e
+      // l'update non deve toccare i campi filtro, OPPURE sta eseguendo un unfilter (not spam).
+      allow update: if isAuthenticated() && getUserUuid() in resource.data.participantIds &&
+                    (isNotUpdatingFilter() || isUnfilteringConversation());
       
       // Eliminazione della conversazione
       allow delete: if isAuthenticated() && getUserUuid() in resource.data.participantIds;

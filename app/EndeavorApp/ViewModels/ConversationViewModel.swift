@@ -10,12 +10,14 @@ class ConversationViewModel: ObservableObject {
     @Published var appError: AppError?
     @Published var recipientProfile: UserProfile?
     @Published var recipientCompanyName: String? = nil
-    
+    @Published var myCalendarEvents: [CalendarEvent] = []
+
     // Upload state
     @Published var isUploadingMedia: Bool = false
 
     private let repository: MessagesRepositoryProtocol
     private let storageRepository: StorageRepositoryProtocol
+    private let calendarRepository = FirebaseCalendarRepository()
     private var messagesListener: ListenerRegistration?
     private var loadMessagesTrace: Trace?
     private var fetchProfileTrace: Trace?
@@ -39,6 +41,7 @@ class ConversationViewModel: ObservableObject {
         self.storageRepository = storageRepository
         startListening()
         fetchRecipientProfile()
+        fetchMyCalendarEvents()
         AnalyticsService.shared.logConversationOpened()
     }
 
@@ -185,6 +188,90 @@ class ConversationViewModel: ObservableObject {
         ) { _ in }
         // Log solo se c'erano effettivamente messaggi non letti da marcare
         if hasUnread { AnalyticsService.shared.logMessagesRead() }
+    }
+
+    // MARK: - Meeting Responses
+
+    func acceptMeeting(eventId: String) {
+        // Recupera il provider dell'evento per sapere quale link generare
+        Firestore.firestore().collection("events").document(eventId).getDocument { [weak self] snap, _ in
+            guard let self = self else { return }
+            let providerRaw = snap?.data()?["meetProvider"] as? String ?? "none"
+            let provider = CalendarEvent.MeetProvider(rawValue: providerRaw) ?? .none
+
+            MeetProviderService.shared.generateMeetLink(
+                eventId: eventId,
+                provider: provider
+            ) { [weak self] result in
+                guard let self = self else { return }
+                let link = (try? result.get()) ?? ""
+
+                self.calendarRepository.updateEventStatus(
+                    eventId: eventId,
+                    status: .confirmed,
+                    meetLink: link.isEmpty ? nil : link
+                ) { [weak self] error in
+                    guard let self = self else { return }
+                    if error != nil {
+                        self.appError = .meetingUpdateFailed
+                        return
+                    }
+                    self.repository.sendMeetingResponseMessage(
+                        conversationId: self.conversationId,
+                        senderId: self.currentUserId,
+                        recipientId: self.recipientId,
+                        eventId: eventId,
+                        responseType: "accepted"
+                    ) { _ in
+                        AnalyticsService.shared.logMeetingAccepted(provider: provider.rawValue)
+                    }
+                }
+            }
+        }
+    }
+
+    func triggerAIRecheckIfNeeded(conversation: Conversation) {
+        MeetProviderService.shared.triggerAIRecheckIfNeeded(
+            conversationId: conversation.id,
+            filterCheckedAt: conversation.filterCheckedAt
+        ) { wasFiltered in
+            if wasFiltered {
+                print("[ConversationViewModel] Conversation filtered by AI recheck")
+            }
+        }
+    }
+
+    func fetchMyCalendarEvents() {
+        calendarRepository.fetchEvents(userId: currentUserId) { [weak self] result in
+            if case .success(let events) = result {
+                DispatchQueue.main.async {
+                    self?.myCalendarEvents = events
+                }
+            }
+        }
+    }
+
+    func declineMeeting(eventId: String) {
+        calendarRepository.updateEventStatus(
+            eventId: eventId,
+            status: .cancelled,
+            declinedBy: currentUserId
+        ) { [weak self] error in
+            guard let self = self else { return }
+            if error != nil {
+                self.appError = .meetingUpdateFailed
+                return
+            }
+            self.repository.sendMeetingResponseMessage(
+                conversationId: self.conversationId,
+                senderId: self.currentUserId,
+                recipientId: self.recipientId,
+                eventId: eventId,
+                responseType: "declined"
+            ) { _ in
+                AnalyticsService.shared.logMeetingDeclined()
+            }
+        }
     }
 
     // MARK: - Helper

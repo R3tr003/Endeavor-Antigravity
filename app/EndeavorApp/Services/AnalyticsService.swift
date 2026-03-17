@@ -145,6 +145,152 @@ final class AnalyticsService {
     func logSalesforcePrefillApplied() {
         Analytics.logEvent("salesforce_prefill_applied", parameters: nil)
     }
+
+    // MARK: - Meetings
+
+    /// Called when the user opens the scheduling sheet (pre-conditions met).
+    func logMeetingScheduleOpened(conversationMessageCount: Int) {
+        Analytics.logEvent("meeting_schedule_opened", parameters: [
+            "conversation_message_count": conversationMessageCount
+        ])
+    }
+
+    /// Called when the Schedule button is tapped but pre-conditions are not met.
+    func logMeetingScheduleBlocked(messageCount: Int, myCount: Int, theirCount: Int) {
+        Analytics.logEvent("meeting_schedule_blocked", parameters: [
+            "total_messages": messageCount,
+            "sender_messages": myCount,
+            "recipient_messages": theirCount
+        ])
+    }
+
+    /// Called when a meeting invite is sent successfully.
+    func logMeetingInviteSent(durationMinutes: Int, provider: String) {
+        Analytics.logEvent("meeting_invite_sent", parameters: [
+            "duration_minutes": durationMinutes,
+            "video_provider": provider
+        ])
+    }
+
+    /// Called when the recipient accepts a meeting invite.
+    func logMeetingAccepted(provider: String) {
+        Analytics.logEvent("meeting_accepted", parameters: [
+            "video_provider": provider
+        ])
+    }
+
+    /// Called when the recipient declines a meeting invite.
+    func logMeetingDeclined() {
+        Analytics.logEvent("meeting_declined", parameters: nil)
+    }
+
+    /// Called when the recipient proposes a new time.
+    func logMeetingNewTimeProposed() {
+        Analytics.logEvent("meeting_new_time_proposed", parameters: nil)
+    }
+
+    /// Called when the user taps "Join Meeting" to open Google Meet or Teams.
+    func logMeetingJoinLinkOpened(provider: String) {
+        Analytics.logEvent("meeting_join_link_opened", parameters: [
+            "video_provider": provider
+        ])
+    }
+
+    // MARK: - AI Filter
+
+    /// Called when a conversation is filtered as spam by the AI (trigger or recheck).
+    func logConversationFilteredByAI(isRecheck: Bool) {
+        Analytics.logEvent("conversation_ai_filtered", parameters: [
+            "trigger": isRecheck ? "recheck" : "first_message"
+        ])
+    }
+
+    /// Called when the user opens the Filtered tab.
+    func logFilteredConversationsViewed(count: Int) {
+        Analytics.logEvent("filtered_conversations_viewed", parameters: [
+            "filtered_count": count
+        ])
+    }
+
+    /// Called when the user marks a filtered conversation as "Not Spam".
+    func logConversationUnfiltered() {
+        Analytics.logEvent("conversation_unfiltered", parameters: nil)
+    }
+
+    /// Called when the AI recheck is triggered before the Schedule button.
+    func logAIRecheckTriggered() {
+        Analytics.logEvent("ai_recheck_triggered", parameters: nil)
+    }
+
+    // MARK: - Calendar
+
+    /// Called when the user opens CalendarView.
+    func logCalendarOpened() {
+        Analytics.logEvent("calendar_opened", parameters: nil)
+    }
+
+    /// Called when the user navigates to a different month.
+    func logCalendarMonthChanged() {
+        Analytics.logEvent("calendar_month_changed", parameters: nil)
+    }
+
+    /// Called when the user opens an event detail sheet.
+    func logCalendarEventOpened(eventType: String) {
+        Analytics.logEvent("calendar_event_opened", parameters: [
+            "event_type": eventType
+        ])
+    }
+
+    /// Called when the iCal subscribe sheet is opened.
+    func logCalendarSubscribeSheetOpened() {
+        Analytics.logEvent("calendar_subscribe_sheet_opened", parameters: nil)
+    }
+
+    /// Called when the user generates their personal iCal link.
+    func logCalendarICalLinkGenerated() {
+        Analytics.logEvent("calendar_ical_link_generated", parameters: nil)
+    }
+
+    /// Called when the user copies the iCal link to clipboard.
+    func logCalendarICalLinkCopied() {
+        Analytics.logEvent("calendar_ical_link_copied", parameters: nil)
+    }
+
+    // MARK: - Discover (AI Search)
+
+    /// Called when the user submits an AI search query.
+    func logAISearchPerformed(queryLength: Int) {
+        let bucket: String
+        switch queryLength {
+        case 0...20:  bucket = "short"
+        case 21...80: bucket = "medium"
+        default:      bucket = "long"
+        }
+        Analytics.logEvent("ai_search_performed", parameters: [
+            "query_length_bucket": bucket
+        ])
+    }
+
+    /// Called when AI search results are shown.
+    func logAISearchResultsShown(resultCount: Int) {
+        Analytics.logEvent("ai_search_results_shown", parameters: [
+            "result_count": resultCount
+        ])
+    }
+
+    /// Called when the user taps a search result.
+    func logAISearchResultTapped(rank: Int) {
+        Analytics.logEvent("ai_search_result_tapped", parameters: [
+            "result_rank": rank
+        ])
+    }
+
+    /// Called when the AI search fails.
+    func logAISearchFailed(reason: String) {
+        Analytics.logEvent("ai_search_failed", parameters: [
+            "failure_reason": reason
+        ])
+    }
 }
 
 // MARK: - Login Method

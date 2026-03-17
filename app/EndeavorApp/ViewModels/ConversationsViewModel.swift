@@ -115,8 +115,8 @@ class ConversationsViewModel: ObservableObject {
         let conversationId = conversation.id
         AnalyticsService.shared.logConversationDeleted()
         repository.deleteConversation(conversationId: conversationId) { [weak self] error in
-            if let error = error {
-                self?.appError = .unknown(reason: "Could not delete conversation: \(error.localizedDescription)")
+            if error != nil {
+                self?.appError = .conversationDeleteFailed
             } else {
                 // Rimuoviamo localmente. Il listener in ogni caso dovrebbe sincronizzare,
                 // ma aggiornare l'UI al volo rende tutto più fluido.
@@ -145,8 +145,8 @@ class ConversationsViewModel: ObservableObject {
         }
         
         repository.togglePinConversation(conversationId: conversation.id, userId: currentUserId, isPinned: isPinned) { [weak self] error in
-            if let error = error {
-                self?.appError = .unknown(reason: "Could not pin/unpin conversation: \(error.localizedDescription)")
+            if error != nil {
+                self?.appError = .conversationUpdateFailed
             }
         }
     }
@@ -246,9 +246,37 @@ class ConversationsViewModel: ObservableObject {
     // MARK: - Filters
     
     func unfilterConversation(conversationId: String) {
+        // Optimistic update — card disappears immediately without waiting for listener
+        if let i = conversations.firstIndex(where: { $0.id == conversationId }) {
+            conversations[i].isFiltered = false
+            conversations[i].filterReason = ""
+        }
         repository.unfilterConversation(conversationId: conversationId) { [weak self] error in
             if let error = error {
+                // Roll back optimistic update on failure
+                if let i = self?.conversations.firstIndex(where: { $0.id == conversationId }) {
+                    self?.conversations[i].isFiltered = true
+                }
                 self?.appError = .unknown(reason: error.localizedDescription)
+            }
+        }
+    }
+
+    func banAndDeleteConversation(_ conversation: Conversation) {
+        let currentUserId = UserDefaults.standard.string(forKey: "userId") ?? ""
+        let senderId = conversation.participantIds.first(where: { $0 != currentUserId }) ?? ""
+        let bannedUntil = Date().addingTimeInterval(10 * 24 * 3600)
+        let banMessage = String(localized: "messages.ban_system_message",
+                                defaultValue: "This conversation was removed and the sender has been restricted for 10 days.")
+
+        repository.banUser(senderId: senderId, currentUserId: currentUserId, bannedUntil: bannedUntil) { [weak self] error in
+            if error != nil { self?.appError = .conversationDeleteFailed; return }
+            self?.repository.sendSystemMessage(conversationId: conversation.id, text: banMessage) { _ in }
+            self?.repository.deleteConversation(conversationId: conversation.id) { [weak self] error in
+                if error != nil { self?.appError = .conversationDeleteFailed; return }
+                DispatchQueue.main.async {
+                    self?.conversations.removeAll { $0.id == conversation.id }
+                }
             }
         }
     }

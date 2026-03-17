@@ -194,7 +194,7 @@ class AppViewModel: ObservableObject {
                         self.router.isLoading = false
                         self.loginFlowTrace?.stop()
                         if nsError.code == 17009 {
-                            self.router.appError = .authFailed(reason: "Incorrect password.")
+                            self.router.appError = .incorrectPassword
                         } else {
                             self.router.appError = .authFailed(reason: error.localizedDescription)
                         }
@@ -264,7 +264,7 @@ class AppViewModel: ObservableObject {
                 if nsError.code == 17011 {
                     self?.router.appError = .userNotFound
                 } else {
-                    self?.router.appError = .unknown(reason: "Failed to send reset email: \(error.localizedDescription)")
+                    self?.router.appError = .passwordResetFailed
                 }
             } else {
                 self?.router.appError = nil
@@ -655,7 +655,7 @@ class AppViewModel: ObservableObject {
                                 let err = signupError as NSError
                                 if err.code == 17007 { self.router.appError = .emailAlreadyInUse }
                                 else if err.code == 17026 { self.router.appError = .weakPassword }
-                                else { self.router.appError = .authFailed(reason: "Registration failed: \(err.localizedDescription)") }
+                                else { self.router.appError = .registrationFailed }
                             }
                         }
                     }
@@ -705,7 +705,7 @@ class AppViewModel: ObservableObject {
                 self?.router.isLoading = false
                 if let error = error {
                     print("Error saving profile changes: \(error)")
-                    self?.router.appError = .unknown(reason: "Failed to save profile changes.")
+                    self?.router.appError = .profileSaveFailed
                     completion?(false)
                 } else {
                     AnalyticsService.shared.logProfileEdited()
@@ -734,8 +734,8 @@ class AppViewModel: ObservableObject {
                     // Attempt to delete the old legacy image if it existed
                     let oldPath = "profile_images/\(customUser.id.uuidString).jpg"
                     Storage.storage().reference().child(oldPath).delete { _ in /* silent */ }
-                case .failure(let error):
-                    self?.router.appError = .unknown(reason: "Failed to upload image: \(error.localizedDescription)")
+                case .failure:
+                    self?.router.appError = .imageUploadFailed
                 }
             }
         }
@@ -757,8 +757,8 @@ class AppViewModel: ObservableObject {
             userRepository.saveUserProfile(user) { [weak self] error in
                 DispatchQueue.main.async {
                     self?.router.isLoading = false
-                    if let error = error {
-                        self?.router.appError = .unknown(reason: "Failed to remove image: \(error.localizedDescription)")
+                    if error != nil {
+                        self?.router.appError = .imageRemoveFailed
                     }
                 }
             }

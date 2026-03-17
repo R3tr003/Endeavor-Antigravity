@@ -6,7 +6,20 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
+    // Ricava l'UUID Salesforce del richiedente dalla mappatura firebaseUid -> uuid.
+    // Restituisce null se la mappatura non esiste ancora.
+    function getUserUuid() {
+      let mappingDoc = /databases/$(database)/documents/userMappings/$(request.auth.uid);
+      return exists(mappingDoc) ? get(mappingDoc).data.uuid : null;
+    }
+
+    // Mappatura firebaseUid -> uuid (necessaria per le regole degli eventi).
+    match /userMappings/{firebaseUid} {
+      allow read: if isAuthenticated() && request.auth.uid == firebaseUid;
+      allow create, update, delete: if isAuthenticated() && request.auth.uid == firebaseUid;
+    }
+
     // Check if the incoming UserProfile data is structurally valid
     function isValidUser(data) {
       return data.size() >= 9 && data.size() <= 16
@@ -66,6 +79,21 @@ service cloud.firestore {
                     && resource.data.email == request.auth.token.email;
     }
     
+    match /events/{eventId} {
+      allow read: if isAuthenticated()
+                  && getUserUuid() in resource.data.participantIds;
+
+      allow create: if isAuthenticated()
+                    && getUserUuid() in request.resource.data.participantIds
+                    && getUserUuid() == request.resource.data.createdBy;
+
+      allow update: if isAuthenticated()
+                    && getUserUuid() in resource.data.participantIds;
+
+      allow delete: if isAuthenticated()
+                    && getUserUuid() == resource.data.createdBy;
+    }
+
     match /companies/{companyId} {
       // Anyone authenticated can read company profiles
       allow read: if isAuthenticated();

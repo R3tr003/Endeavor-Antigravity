@@ -14,7 +14,10 @@ struct ConversationView: View {
     @State private var showPhotoPicker: Bool = false
     @State private var showDocumentPicker: Bool = false
     @State private var selectedImage: UIImage? = nil
-    
+    @State private var showScheduleMeeting: Bool = false
+    @State private var showProposeNewTime: Bool = false
+    @State private var showNotEnoughMessagesAlert: Bool = false
+
     @FocusState private var isInputFocused: Bool
 
     init(conversation: Conversation, currentUserId: String) {
@@ -84,6 +87,24 @@ struct ConversationView: View {
                 print("Error picking document: \(error)")
             }
         }
+        .sheet(isPresented: $showScheduleMeeting) {
+            ScheduleMeetingView(
+                conversationId: conversation.id,
+                currentUserId: currentUserId,
+                recipientId: viewModel.recipientId,
+                recipientName: viewModel.recipientProfile?.fullName ?? conversation.otherParticipantName,
+                existingEvents: viewModel.myCalendarEvents
+            )
+        }
+        .sheet(isPresented: $showProposeNewTime) {
+            ScheduleMeetingView(
+                conversationId: conversation.id,
+                currentUserId: currentUserId,
+                recipientId: viewModel.recipientId,
+                recipientName: viewModel.recipientProfile?.fullName ?? conversation.otherParticipantName,
+                existingEvents: viewModel.myCalendarEvents
+            )
+        }
         // Mostra errori dal ViewModel (ex. problemi di permessi o Firebase)
         .alert(
             String(localized: "common.error", defaultValue: "Error"),
@@ -96,6 +117,16 @@ struct ConversationView: View {
             Button(String(localized: "common.ok"), role: .cancel) { }
         } message: { error in
             Text(error.localizedDescription)
+        }
+        // Avviso quando non ci sono abbastanza messaggi per pianificare un meeting
+        .alert(
+            String(localized: "schedule.not_ready_title", defaultValue: "Almost there!"),
+            isPresented: $showNotEnoughMessagesAlert
+        ) {
+            Button(String(localized: "common.ok"), role: .cancel) { }
+        } message: {
+            Text(String(localized: "schedule.not_enough_messages",
+                        defaultValue: "Keep the conversation going — you need at least 10 messages exchanged (3 from each side) before scheduling a meeting."))
         }
     }
 
@@ -179,7 +210,24 @@ struct ConversationView: View {
 
             Spacer()
 
-            Button(action: {}) {
+            Button(action: {
+                let totalMessages = viewModel.messages.filter { !$0.isSystemMessage }.count
+                let myMessages = viewModel.messages.filter { $0.senderId == currentUserId && !$0.isSystemMessage }.count
+                let theirMessages = totalMessages - myMessages
+                guard totalMessages >= 10 && myMessages >= 3 && theirMessages >= 3 else {
+                    AnalyticsService.shared.logMeetingScheduleBlocked(
+                        messageCount: totalMessages,
+                        myCount: myMessages,
+                        theirCount: theirMessages
+                    )
+                    showNotEnoughMessagesAlert = true
+                    return
+                }
+                AnalyticsService.shared.logMeetingScheduleOpened(conversationMessageCount: totalMessages)
+                // AI recheck in background (fire and forget)
+                viewModel.triggerAIRecheckIfNeeded(conversation: conversation)
+                showScheduleMeeting = true
+            }) {
                 HStack(spacing: 6) {
                     Image(systemName: "calendar")
                         .font(.system(size: 13))
@@ -266,7 +314,31 @@ struct ConversationView: View {
                         // Lista messaggi (visibile quando messages non è vuoto)
                         VStack(spacing: DesignSystem.Spacing.small) {
                             ForEach(viewModel.messages) { msg in
-                                if msg.isSystemMessage {
+                                if msg.messageType == .meetingInvite || msg.messageType == .meetingResponse {
+                                    let fromMe = viewModel.isFromMe(msg)
+                                    HStack {
+                                        if fromMe { Spacer() }
+                                        MeetingInviteCard(
+                                            message: msg,
+                                            isFromMe: fromMe,
+                                            onAccept: {
+                                                guard let eventId = msg.meetingEventId else { return }
+                                                viewModel.acceptMeeting(eventId: eventId)
+                                            },
+                                            onDecline: {
+                                                guard let eventId = msg.meetingEventId else { return }
+                                                viewModel.declineMeeting(eventId: eventId)
+                                            },
+                                            onProposeNew: {
+                                                showProposeNewTime = true
+                                            }
+                                        )
+                                        .frame(maxWidth: geometry.size.width * 0.72, alignment: fromMe ? .trailing : .leading)
+                                        if !fromMe { Spacer() }
+                                    }
+                                    .padding(.horizontal, DesignSystem.Spacing.medium)
+                                    .id(msg.id)
+                                } else if msg.isSystemMessage {
                                     // — Pill centrato stile sistema, tema Endeavor —
                                     HStack(alignment: .center, spacing: 6) {
                                         Image(systemName: "exclamationmark.triangle.fill")

@@ -84,6 +84,7 @@ struct CalendarSubscribeView: View {
                                     Spacer()
                                     Button(action: {
                                         UIPasteboard.general.string = feedUrl
+                                        AnalyticsService.shared.logCalendarICalLinkCopied()
                                         withAnimation { isCopied = true }
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                                             withAnimation { isCopied = false }
@@ -130,6 +131,9 @@ struct CalendarSubscribeView: View {
                         .foregroundColor(.brandPrimary)
                 }
             }
+            .onAppear {
+                AnalyticsService.shared.logCalendarSubscribeSheetOpened()
+            }
         }
     }
 
@@ -145,6 +149,7 @@ struct CalendarSubscribeView: View {
                 guard let token = token else { return }
                 let baseUrl = "https://europe-west1-endeavor-app-prod.cloudfunctions.net/icalFeed"
                 feedUrl = "\(baseUrl)?userId=\(userId)&token=\(token)"
+                AnalyticsService.shared.logCalendarICalLinkGenerated()
             }
         }
     }

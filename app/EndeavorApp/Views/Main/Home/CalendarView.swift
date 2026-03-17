@@ -84,6 +84,7 @@ struct CalendarView: View {
             }
         }
         .onAppear {
+            AnalyticsService.shared.logCalendarOpened()
             if !currentUserId.isEmpty {
                 viewModel.fetchEvents(userId: currentUserId)
             }
@@ -191,6 +192,7 @@ struct MonthCalendarGrid: View {
     private func changeMonth(by value: Int) {
         if let newDate = Calendar.current.date(byAdding: .month, value: value, to: selectedDate) {
             selectedDate = newDate
+            AnalyticsService.shared.logCalendarMonthChanged()
         }
     }
 }
@@ -327,6 +329,9 @@ struct CalendarEventDetailView: View {
                     Button(String(localized: "common.done", defaultValue: "Done")) { dismiss() }
                         .foregroundColor(.brandPrimary)
                 }
+            }
+            .onAppear {
+                AnalyticsService.shared.logCalendarEventOpened(eventType: event.type.rawValue)
             }
         }
     }

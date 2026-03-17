@@ -80,7 +80,8 @@ struct MentorDiscoveryView: View {
                                 aiMatches = []
                                 
                                 let trace = Performance.startTrace(name: "AI_Search_Duration")
-                                
+                                AnalyticsService.shared.logAISearchPerformed(queryLength: query.count)
+
                                 Functions.functions(region: "europe-west1")
                                     .httpsCallable("searchUsersWithAI")
                                     .call(["query": query, "currentUserId": currentUserId]) { result, error in
@@ -89,6 +90,7 @@ struct MentorDiscoveryView: View {
                                             guard error == nil,
                                                   let data = result?.data as? [String: Any],
                                                   let results = data["results"] as? [[String: Any]] else {
+                                                AnalyticsService.shared.logAISearchFailed(reason: "ai_error")
                                                 trace?.stop()
                                                 return
                                             }
@@ -98,6 +100,7 @@ struct MentorDiscoveryView: View {
                                                       let reason = r["reason"] as? String else { return nil }
                                                 return (userId: userId, score: score, reason: reason)
                                             }
+                                            AnalyticsService.shared.logAISearchResultsShown(resultCount: aiMatches.count)
                                             trace?.setValue(Int64(aiMatches.count), forMetric: "search_results_count")
                                             trace?.stop()
                                         }
@@ -179,6 +182,7 @@ struct MentorDiscoveryView: View {
                                                     companyName: networkViewModel.companyNames[matchData.profile.id.uuidString] ?? matchData.profile.role,
                                                     reason: matchData.reason,
                                                     onConnect: {
+                                                        AnalyticsService.shared.logAISearchResultTapped(rank: index + 1)
                                                         conversationsViewModel.getOrCreateConversation(with: matchData.profile.id.uuidString) { result in
                                                             if case .success(let convId) = result {
                                                                 let newConv = Conversation(

@@ -107,7 +107,10 @@ struct MessagesView: View {
 
                     // Riga "Filtered" — slim, stile WhatsApp
                     if !viewModel.filteredConversations.isEmpty {
-                        Button(action: { showFilteredConversations = true }) {
+                        Button(action: {
+                            AnalyticsService.shared.logFilteredConversationsViewed(count: viewModel.filteredConversations.count)
+                            showFilteredConversations = true
+                        }) {
                             HStack(spacing: DesignSystem.Spacing.small) {
                                 Image(systemName: "line.3.horizontal.decrease.circle")
                                     .font(.system(size: 15))
@@ -143,7 +146,7 @@ struct MessagesView: View {
 
                     ScrollView(.vertical, showsIndicators: false) {
                         VStack(spacing: DesignSystem.Spacing.small) {
-                            
+
                             ForEach(filteredConversations) { convo in
                                 SwipeableConversationRow(
                                     conversation: convo,
@@ -201,6 +204,7 @@ struct MessagesView: View {
                                 .padding(.top, DesignSystem.Spacing.large)
                             }
                         }
+                        .padding(.horizontal, DesignSystem.Spacing.medium)
 
                         Spacer(minLength: DesignSystem.Spacing.bottomSafePadding)
                     }
@@ -416,7 +420,15 @@ struct ConversationRow: View {
                         }()
                         ReceiptStatusView(status: status)
                     }
-                    Text(conversation.lastMessage)
+                    let isMeetingInvite = conversation.lastMessage.contains("Meeting invite:")
+                    if isMeetingInvite {
+                        Image(systemName: "video.badge.plus")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                    }
+                    Text(isMeetingInvite
+                         ? conversation.lastMessage.replacingOccurrences(of: "📅 ", with: "").replacingOccurrences(of: "📹 ", with: "")
+                         : conversation.lastMessage)
                         .font(.system(size: 14, weight: conversation.unreadCount(for: currentUserId) > 0 ? .medium : .regular, design: .rounded))
                         .foregroundColor(.secondary)
                         .lineLimit(1)

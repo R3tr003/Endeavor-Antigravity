@@ -5,6 +5,7 @@ struct FilteredConversationsView: View {
     @EnvironmentObject private var viewModel: ConversationsViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var selectedConversation: Conversation? = nil
+    @State private var conversationToBanDelete: Conversation? = nil
     private let currentUserId = UserDefaults.standard.string(forKey: "userId") ?? ""
 
     var body: some View {
@@ -12,13 +13,12 @@ struct FilteredConversationsView: View {
             Color.background.edgesIgnoringSafeArea(.all)
 
             VStack(spacing: 0) {
-                // Header — stesso pattern di ConversationView
                 headerBar
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: DesignSystem.Spacing.medium) {
 
-                        // Banner — stesso stile del system message in ConversationView
+                        // Banner
                         HStack(alignment: .center, spacing: DesignSystem.Spacing.small) {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .font(.system(size: 16, weight: .semibold))
@@ -39,19 +39,20 @@ struct FilteredConversationsView: View {
                         // Lista conversazioni filtrate
                         VStack(spacing: DesignSystem.Spacing.small) {
                             ForEach(viewModel.filteredConversations) { convo in
-                                FilteredConversationCard(
+                                SwipeableFilteredConversationCard(
                                     conversation: convo,
                                     currentUserId: currentUserId,
-                                    onUnfilter: {
-                                        viewModel.unfilterConversation(conversationId: convo.id)
+                                    onTap: {
+                                        selectedConversation = convo
                                     },
-                                    onDelete: {
-                                        viewModel.deleteConversation(convo)
+                                    onDeleteTapped: {
+                                        conversationToBanDelete = convo
+                                    },
+                                    onUnfilter: {
+                                        AnalyticsService.shared.logConversationUnfiltered()
+                                        viewModel.unfilterConversation(conversationId: convo.id)
                                     }
                                 )
-                                .onTapGesture {
-                                    selectedConversation = convo
-                                }
                             }
                         }
                     }
@@ -62,6 +63,27 @@ struct FilteredConversationsView: View {
         }
         .sheet(item: $selectedConversation) { convo in
             ConversationView(conversation: convo, currentUserId: currentUserId)
+        }
+        // Confirmation alert — Delete & Ban
+        .alert(
+            String(localized: "messages.ban_confirm_title", defaultValue: "Delete & Ban"),
+            isPresented: Binding(
+                get: { conversationToBanDelete != nil },
+                set: { if !$0 { conversationToBanDelete = nil } }
+            ),
+            presenting: conversationToBanDelete
+        ) { convo in
+            Button(String(localized: "messages.ban_confirm_button", defaultValue: "Delete & Ban"), role: .destructive) {
+                viewModel.banAndDeleteConversation(convo)
+                conversationToBanDelete = nil
+            }
+            Button(String(localized: "common.cancel"), role: .cancel) {
+                conversationToBanDelete = nil
+            }
+        } message: { convo in
+            Text(String(format: String(localized: "messages.ban_confirm_message",
+                                       defaultValue: "This will delete the conversation and prevent %@ from contacting you for 10 days."),
+                        convo.otherParticipantName))
         }
     }
 
@@ -87,7 +109,6 @@ struct FilteredConversationsView: View {
 
             Spacer()
 
-            // Placeholder per centrare il titolo
             Circle()
                 .fill(.clear)
                 .frame(width: 36, height: 36)
@@ -99,13 +120,142 @@ struct FilteredConversationsView: View {
     }
 }
 
+// MARK: - Swipeable Wrapper
+
+private struct SwipeableFilteredConversationCard: View {
+    let conversation: Conversation
+    let currentUserId: String
+    let onTap: () -> Void
+    let onDeleteTapped: () -> Void
+    let onUnfilter: () -> Void
+
+    @State private var offset: CGFloat = 0
+    @State private var isSwipedLeft: Bool = false
+    @State private var isSwipedRight: Bool = false
+
+    private func resetOffset() {
+        withAnimation(.spring()) { offset = 0; isSwipedLeft = false; isSwipedRight = false }
+    }
+
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            // Left swipe background — red, trash (shown when swiped left)
+            ZStack(alignment: .trailing) {
+                Color.red
+                VStack(spacing: 4) {
+                    Image(systemName: "trash.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                    Text(String(localized: "common.delete"))
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                }
+                .foregroundColor(.black)
+                .padding(.trailing, 24)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xxLarge, style: .continuous))
+            .onTapGesture {
+                resetOffset()
+                onDeleteTapped()
+            }
+            .opacity(offset < 0 ? 1 : 0)
+
+            // Right swipe background — green, checkmark (shown when swiped right)
+            ZStack(alignment: .leading) {
+                Color.green
+                VStack(spacing: 4) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                    Text(String(localized: "messages.not_spam", defaultValue: "Not Spam"))
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                }
+                .foregroundColor(.black)
+                .padding(.leading, 24)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xxLarge, style: .continuous))
+            .onTapGesture {
+                resetOffset()
+                onUnfilter()
+            }
+            .opacity(offset > 0 ? 1 : 0)
+
+            // Card foreground — tap and drag gestures live here to avoid conflicts
+            FilteredConversationCard(conversation: conversation, currentUserId: currentUserId)
+                .background(Color.background)
+                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xxLarge, style: .continuous))
+                .offset(x: offset)
+                .onTapGesture {
+                    if offset != 0 {
+                        resetOffset()
+                    } else {
+                        onTap()
+                    }
+                }
+                .gesture(
+                    DragGesture(minimumDistance: 10, coordinateSpace: .local)
+                        .onChanged { value in
+                            guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                            if isSwipedLeft {
+                                offset = min(max(value.translation.width - 100, -350), 0)
+                            } else if isSwipedRight {
+                                offset = min(max(value.translation.width + 100, 0), 350)
+                            } else {
+                                offset = min(max(value.translation.width, -350), 350)
+                            }
+                        }
+                        .onEnded { value in
+                            let dx = value.translation.width
+                            if isSwipedRight {
+                                // Card is showing "Not Spam" panel
+                                if dx < -30 {
+                                    // Dragging back left → cancel, return to center
+                                    resetOffset()
+                                } else if dx > 60 {
+                                    // Continuing right → confirm unfilter
+                                    resetOffset()
+                                    DispatchQueue.main.async { onUnfilter() }
+                                } else {
+                                    // Small movement → stay revealed
+                                    withAnimation(.spring()) { offset = 100 }
+                                }
+                            } else if isSwipedLeft {
+                                // Card is showing delete panel
+                                if dx > 30 {
+                                    // Dragging back right → cancel, return to center
+                                    resetOffset()
+                                } else if dx < -60 {
+                                    // Continuing left → confirm delete
+                                    resetOffset()
+                                    DispatchQueue.main.async { onDeleteTapped() }
+                                } else {
+                                    // Small movement → stay revealed
+                                    withAnimation(.spring()) { offset = -100 }
+                                }
+                            } else {
+                                // Card is at neutral position
+                                if dx < -150 {
+                                    resetOffset()
+                                    DispatchQueue.main.async { onDeleteTapped() }
+                                } else if dx < -60 {
+                                    withAnimation(.spring()) { offset = -100; isSwipedLeft = true; isSwipedRight = false }
+                                } else if dx > 150 {
+                                    resetOffset()
+                                    DispatchQueue.main.async { onUnfilter() }
+                                } else if dx > 60 {
+                                    withAnimation(.spring()) { offset = 100; isSwipedRight = true; isSwipedLeft = false }
+                                } else {
+                                    resetOffset()
+                                }
+                            }
+                        }
+                )
+        }
+    }
+}
+
 // MARK: - Card
 
 private struct FilteredConversationCard: View {
     let conversation: Conversation
     let currentUserId: String
-    let onUnfilter: () -> Void
-    let onDelete: () -> Void
 
     var body: some View {
         let avatarColor = conversation.accentColor(currentUserId: currentUserId)
@@ -199,23 +349,22 @@ private struct FilteredConversationCard: View {
             }
             .padding(DesignSystem.Spacing.standard)
 
-            // Motivazione AI — rossa, centrata, dentro la card
+            // Motivazione AI — striscia rossa, allineata a sinistra, sparkles grande
             if !conversation.filterReason.isEmpty {
                 Rectangle()
                     .fill(Color.red.opacity(0.12))
                     .frame(height: 1)
                     .padding(.horizontal, DesignSystem.Spacing.standard)
 
-                HStack(spacing: DesignSystem.Spacing.xSmall) {
+                HStack(alignment: .center, spacing: DesignSystem.Spacing.small) {
                     Image(systemName: "sparkles")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(size: 20, weight: .semibold))
                     Text(conversation.filterReason)
                         .font(.system(size: 12, design: .rounded))
-                        .multilineTextAlignment(.center)
                         .lineLimit(2)
                 }
                 .foregroundColor(.red)
-                .frame(maxWidth: .infinity, alignment: .center)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, DesignSystem.Spacing.standard)
                 .padding(.vertical, DesignSystem.Spacing.xSmall)
             }
@@ -229,18 +378,5 @@ private struct FilteredConversationCard: View {
                 .stroke(Color.red.opacity(0.2), lineWidth: 1)
         )
         .shadow(color: Color.red.opacity(0.07), radius: 8, x: 0, y: 4)
-        .contextMenu {
-            Button {
-                onUnfilter()
-            } label: {
-                Label(String(localized: "messages.not_spam", defaultValue: "Not Spam"),
-                      systemImage: "checkmark.shield")
-            }
-            Button(role: .destructive) {
-                onDelete()
-            } label: {
-                Label(String(localized: "common.delete"), systemImage: "trash")
-            }
-        }
     }
 }

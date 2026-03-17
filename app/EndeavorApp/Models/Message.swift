@@ -10,7 +10,20 @@ struct Message: Identifiable, Codable, Equatable {
     let createdAt: Date
     var readBy: [String]         // Array di Firebase Auth UIDs
     var deliveredTo: [String]    // Array di Firebase Auth UIDs che hanno ricevuto il messaggio
-    var isSystemMessage: Bool = false  // NUOVO: true = messaggio di sistema (centro schermo)
+    var isSystemMessage: Bool = false
+
+    // Tipo messaggio
+    var messageType: MessageType = .text
+    // eventId Firestore quando messageType == .meetingInvite o .meetingResponse
+    var meetingEventId: String?
+    // conversationId — set at parse time from Firestore path
+    var conversationId: String?
+
+    enum MessageType: String, Codable {
+        case text = "text"
+        case meetingInvite = "meeting_invite"
+        case meetingResponse = "meeting_response"
+    }
 
     // Media
     var imageUrl: String?

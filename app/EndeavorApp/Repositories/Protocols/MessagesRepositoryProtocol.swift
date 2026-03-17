@@ -78,4 +78,32 @@ protocol MessagesRepositoryProtocol {
     /// Filtra conversazioni e invia messaggi di sistema limitati.
     func unfilterConversation(conversationId: String, completion: @escaping (Error?) -> Void)
     func sendSystemMessage(conversationId: String, text: String, completion: @escaping (Error?) -> Void)
+
+    /// Bans a user from initiating new conversations for a given duration.
+    func banUser(
+        senderId: String,
+        currentUserId: String,
+        bannedUntil: Date,
+        completion: @escaping (Error?) -> Void
+    )
+
+    /// Invia un messaggio di tipo meeting invite con riferimento all'eventId
+    func sendMeetingInviteMessage(
+        conversationId: String,
+        senderId: String,
+        recipientId: String,
+        eventId: String,
+        eventTitle: String,
+        completion: @escaping (Error?) -> Void
+    )
+
+    /// Invia un messaggio di risposta all'invite (accept/decline/propose)
+    func sendMeetingResponseMessage(
+        conversationId: String,
+        senderId: String,
+        recipientId: String,
+        eventId: String,
+        responseType: String,
+        completion: @escaping (Error?) -> Void
+    )
 }

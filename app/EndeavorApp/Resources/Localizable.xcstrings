@@ -1,906 +1,5004 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "nav.home" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Home" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Inicio" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Home" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Accueil" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Início" } }
-      }
-    },
-    "nav.network" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Network" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Red" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Network" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réseau" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Rede" } }
-      }
-    },
-    "nav.discover" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Discover" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Descubrir" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Scopri" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Découvrir" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Descobrir" } }
-      }
-    },
-    "nav.messages" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Messages" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mensajes" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Messaggi" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Messages" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Mensagens" } }
-      }
-    },
-    "nav.profile" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Profile" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Perfil" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Profilo" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Profil" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Perfil" } }
-      }
-    },
-    "auth.work_email" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Work Email" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Email de trabajo" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Email di lavoro" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Email professionnel" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Email profissional" } }
-      }
-    },
-    "auth.join" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Join" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Unirse" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Unisciti" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rejoindre" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entrar" } }
-      }
-    },
-    "auth.continue_google" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue with Google" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Continuar con Google" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Continua con Google" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Continuer avec Google" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Continuar com Google" } }
-      }
-    },
-    "auth.forgot_password" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Forgot Password?" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Olvidaste tu contraseña?" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Password dimenticata?" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Mot de passe oublié ?" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Esqueceu a senha?" } }
-      }
-    },
-    "auth.access_reserved" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Access reserved for authorized Endeavor members and mentors." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acceso reservado para miembros y mentores autorizados de Endeavor." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Accesso riservato ai membri e mentor autorizzati di Endeavor." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Accès réservé aux membres et mentors Endeavor autorisés." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Acesso reservado para membros e mentores autorizados da Endeavor." } }
-      }
-    },
-    "discover.header.title1" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Find Your" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Encuentra Tu" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Trova Il Tuo" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Trouvez Votre" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Encontre Seu" } }
-      }
-    },
-    "discover.header.title2" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Expert Match" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Experto Ideal" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Expert Match" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Expert Idéal" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Expert Ideal" } }
-      }
-    },
-    "discover.header.subtitle" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Describe what you need. AI finds who can help." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Describe lo que necesitas. La IA encuentra quién puede ayudarte." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Descrivi di cosa hai bisogno. L'AI trova chi può aiutarti." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Décrivez vos besoins. L'IA trouve qui peut vous aider." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Descreva o que precisa. A IA encontra quem pode ajudar." } }
-      }
-    },
-    "discover.search_button" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Buscar" } }
-      }
-    },
-    "discover.try_asking" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "TRY ASKING..." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "PRUEBA PREGUNTAR..." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "PROVA A CHIEDERE..." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "ESSAYEZ DE DEMANDER..." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "TENTE PERGUNTAR..." } }
-      }
-    },
-    "discover.finding_matches" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Finding the best matches..." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscando las mejores coincidencias..." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Trovando i migliori profili..." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Recherche des meilleures correspondances..." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Encontrando os melhores perfis..." } }
-      }
-    },
-    "discover.best_matches" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Best Matches" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mejores Coincidencias" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Migliori Match" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Meilleures Correspondances" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Melhores Resultados" } }
-      }
-    },
-    "discover.no_matches" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No matches found. Try a different query." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se encontraron coincidencias. Prueba con otra búsqueda." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessun match trovato. Prova con una ricerca diversa." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune correspondance trouvée. Essayez une autre recherche." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhum resultado encontrado. Tente uma busca diferente." } }
-      }
-    },
-    "discover.new_search" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "New Search" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nueva Búsqueda" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nuova Ricerca" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nouvelle Recherche" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nova Busca" } }
-      }
-    },
-    "discover.connect" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connect" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Conectar" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Connetti" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connecter" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Conectar" } }
-      }
-    },
-    "network.search_placeholder" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search by name or sector..." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Buscar por nombre o sector..." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Cerca per nome o settore..." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rechercher par nom ou secteur..." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Buscar por nome ou setor..." } }
-      }
-    },
-    "network.loading" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading network..." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cargando red..." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Caricamento rete..." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Chargement du réseau..." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Carregando rede..." } }
-      }
-    },
-    "network.view_profile" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "View Profile" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ver Perfil" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Vedi Profilo" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Voir le profil" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ver Perfil" } }
-      }
-    },
-    "network.send_message" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Send a Message" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Enviar Mensaje" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Invia Messaggio" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Envoyer un message" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Enviar Mensagem" } }
-      }
-    },
-    "messages.no_conversations" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No conversations yet" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aún no hay conversaciones" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessuna conversazione" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune conversation" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhuma conversa ainda" } }
-      }
-    },
-    "messages.purpose_driven" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Purpose-driven conversations." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Conversaciones con propósito." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Conversazioni con uno scopo." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Des conversations avec un objectif." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Conversas com propósito." } }
-      }
-    },
-    "messages.new_message" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "New Message" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nuevo Mensaje" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nuovo Messaggio" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Nouveau message" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nova Mensagem" } }
-      }
-    },
-    "messages.awaiting" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Awaiting Messages" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Esperando mensajes" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "In attesa di messaggi" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En attente de messages" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Aguardando mensagens" } }
-      }
-    },
-    "messages.start_conversation" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start a Conversation" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Iniciar una Conversación" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Inizia una Conversazione" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Démarrer une conversation" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Iniciar uma Conversa" } }
-      }
-    },
-    "messages.schedule" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Schedule" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Programar" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Pianifica" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Planifier" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Agendar" } }
-      }
-    },
-    "profile.edit_profile" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Edit Profile" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Editar Perfil" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Modifica Profilo" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Modifier le profil" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Editar Perfil" } }
-      }
-    },
-    "profile.settings" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Configuración" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Impostazioni" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Paramètres" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Configurações" } }
-      }
-    },
-    "profile.loading" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading profile..." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cargando perfil..." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Caricamento profilo..." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Chargement du profil..." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Carregando perfil..." } }
-      }
-    },
-    "settings.log_out" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Log Out" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar Sesión" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Esci" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Se déconnecter" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sair" } }
-      }
-    },
-    "settings.delete_account" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete Account" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar Cuenta" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Elimina Account" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer le compte" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Excluir Conta" } }
-      }
-    },
-    "settings.logout_confirm" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Are you sure you want to log out?" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Estás seguro de que quieres cerrar sesión?" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sei sicuro di voler uscire?" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Êtes-vous sûr de vouloir vous déconnecter ?" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tem certeza que deseja sair?" } }
-      }
-    },
-    "settings.delete_confirm" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "This action is irreversible. All your data will be permanently deleted." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Esta acción es irreversible. Todos tus datos serán eliminados permanentemente." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Questa azione è irreversibile. Tutti i tuoi dati saranno eliminati definitivamente." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Cette action est irréversible. Toutes vos données seront supprimées définitivement." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Esta ação é irreversível. Todos os seus dados serão excluídos permanentemente." } }
-      }
-    },
-    "settings.appearance" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Appearance" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Apariencia" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Aspetto" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Apparence" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Aparência" } }
-      }
-    },
-    "settings.theme" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Theme" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tema" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Tema" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Thème" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tema" } }
-      }
-    },
-    "settings.light" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Light" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Claro" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Chiaro" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Clair" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Claro" } }
-      }
-    },
-    "settings.dark" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dark" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Oscuro" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Scuro" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Sombre" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Escuro" } }
-      }
-    },
-    "settings.system" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "System" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sistema" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sistema" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Système" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sistema" } }
-      }
-    },
-    "onboarding.personal_info" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Personal Information" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Información Personal" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Informazioni Personali" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Informations personnelles" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Informações Pessoais" } }
-      }
-    },
-    "onboarding.company_basics" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Company Basics" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Datos de la Empresa" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Dati Aziendali" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Informations sur l'entreprise" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Dados da Empresa" } }
-      }
-    },
-    "onboarding.review_finish" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Review & Finish" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Revisar y Finalizar" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Rivedi e Completa" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vérifier et terminer" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Revisar e Finalizar" } }
-      }
-    },
-    "onboarding.basics_subtitle" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Let's start with the basics. This helps others get to know you." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Empecemos con lo básico. Esto ayuda a que otros te conozcan." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Iniziamo con le informazioni di base. Aiuta gli altri a conoscerti." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Commençons par les bases. Cela aide les autres à vous connaître." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Vamos começar com o básico. Isso ajuda outros a te conhecerem." } }
-      }
-    },
-    "auth.email_invalid" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Please enter a valid email address." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Por favor, introduce una dirección de email válida." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Inserisci un indirizzo email valido." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Veuillez saisir une adresse email valide." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Por favor, insira um endereço de email válido." } }
-      }
-    },
-    "auth.reset_here" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset it here" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Recupérala aquí" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Recuperala qui" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réinitialisez-la ici" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Recupere-a aqui" } }
-      }
-    },
-    "auth.terms_intro" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "By continuing, you agree to our" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Al continuar, aceptas nuestros" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Continuando, accetti i nostri" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En continuant, vous acceptez nos" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ao continuar, você concorda com nossos" } }
-      }
-    },
-    "auth.terms" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Terms" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Términos" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Termini" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "CGU" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Termos" } }
-      }
-    },
-    "auth.privacy" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Privacy" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Privacidad" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Privacy" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Confidentialité" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Privacidade" } }
-      }
-    },
-    "auth.having_troubles" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Having troubles?" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Tienes problemas?" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Hai problemi?" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Des difficultés ?" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Está com problemas?" } }
-      }
-    },
-    "auth.get_help" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Get Help" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Obtener ayuda" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ottieni supporto" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Obtenir de l'aide" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Obter ajuda" } }
-      }
-    },
-    "auth.email_copied" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "The email 'help@endeavor.org' has been copied to your clipboard." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "El email 'help@endeavor.org' ha sido copiado al portapapeles." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "L'email 'help@endeavor.org' è stata copiata negli appunti." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "L'email 'help@endeavor.org' a été copiée dans le presse-papiers." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "O email 'help@endeavor.org' foi copiado para a área de transferência." } }
-      }
-    },
-    "auth.no_mail_app" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Mail App Found" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se encontró la app de correo" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessuna app email trovata" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune app Mail trouvée" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhum app de email encontrado" } }
-      }
-    },
-    "auth.reset_sent_title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset Email Sent" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Email de recuperación enviado" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Email di recupero inviata" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Email de réinitialisation envoyé" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Email de recuperación enviado" } }
-      }
-    },
-    "auth.password_placeholder" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Password" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Contraseña" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Password" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Mot de passe" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Senha" } }
-      }
-    },
-    "network.mentor_network" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Mentor\nNetwork" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Red de\nMentores" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Mentor\nNetwork" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réseau de\nMentors" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Rede de\nMentores" } }
-      }
-    },
-    "network.subtitle" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Find the right expert to help you grow." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Encuentra al experto adecuado para ayudarte a crecer." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Trova l'esperto giusto per aiutarti a crescere." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Trouvez le bon expert pour vous aider à grandir." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Encontre o especialista certo para ajudar você a crescer." } }
-      }
-    },
-    "home.recommended" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "RECOMMENDED FOR YOU" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "RECOMENDADO PARA TI" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "CONSIGLIATO PER TE" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "RECOMMANDÉ POUR VOUS" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "RECOMENDADO PARA VOCÊ" } }
-      }
-    },
-    "home.upcoming_sessions" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Upcoming Sessions" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Próximas Sesiones" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sessioni in Arrivo" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Sessions à venir" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Próximas Sessões" } }
-      }
-    },
-    "home.events_this_week" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Events This Week" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eventos Esta Semana" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Eventi Questa Settimana" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Événements cette semaine" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Eventos Esta Semana" } }
-      }
-    },
-    "home.sessions_subtitle" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "You have 2 mentorship sessions this week" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tienes 2 sesiones de mentoría esta semana" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Hai 2 sessioni di mentorship questa settimana" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vous avez 2 sessions de mentorat cette semaine" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Você tem 2 sessões de mentoria esta semana" } }
-      }
-    },
-    "home.confirmed" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirmed" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Confirmado" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Confermato" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Confirmé" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Confirmado" } }
-      }
-    },
-    "home.join" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Join" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Unirse" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Partecipa" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rejoindre" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Participar" } }
-      }
-    },
-    "onboarding.setup_profile" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Setup Profile" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Configurar Perfil" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Configura Profilo" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Configurer le profil" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Configurar Perfil" } }
-      }
-    },
-    "onboarding.exit" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Exit" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Salir" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Esci" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Quitter" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sair" } }
-      }
-    },
-    "onboarding.exit_confirm" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Are you sure you want to exit the registration process?" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "¿Estás seguro de que quieres salir del registro?" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Sei sicuro di voler uscire dalla registrazione?" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Êtes-vous sûr de vouloir quitter l'inscription ?" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Tem certeza que deseja sair do registro?" } }
-      }
-    },
-    "onboarding.next" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Next" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Siguiente" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Avanti" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Suivant" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Próximo" } }
-      }
-    },
-    "onboarding.enter_app" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter App" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Entrar a la App" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Entra nell'App" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Accéder à l'app" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entrar no App" } }
-      }
-    },
-    "onboarding.entering" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Entering..." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Entrando..." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Accesso..." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connexion..." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Entrando..." } }
-      }
-    },
-    "discover.search_placeholder" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "e.g. Who has experience scaling SaaS from 50 to 200 employees?" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "ej. ¿Quién tiene experiencia escalando SaaS de 50 a 200 empleados?" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "es. Chi ha esperienza nel far crescere SaaS da 50 a 200 dipendenti?" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "ex. Qui a de l'expérience pour passer de 50 à 200 employés en SaaS ?" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "ex. Quem tem experiência em escalar SaaS de 50 para 200 funcionários?" } }
-      }
-    },
-    "common.save" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Guardar" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Salva" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Enregistrer" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Salvar" } }
-      }
-    },
-    "common.cancel" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Annulla" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Annuler" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } }
-      }
-    },
-    "common.done" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Hecho" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Fatto" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Terminé" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Concluído" } }
-      }
-    },
-    "common.back" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Back" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atrás" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Indietro" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Retour" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Voltar" } }
-      }
-    },
-    "common.delete" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Elimina" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Excluir" } }
-      }
-    },
-    "common.ok" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aceptar" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "OK" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "OK" } }
-      }
-    },
-    "common.loading" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading..." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cargando..." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Caricamento..." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Chargement..." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Carregando..." } }
-      }
-    },
-    "messages.filtered" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Filtered" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Filtrado" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Filtrati" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Filtrés" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Filtrados" } }
-      }
-    },
-    "messages.filtered_subtitle" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld conversations" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "%lld conversaciones" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "%lld conversazioni" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "%lld conversations" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "%lld conversas" } }
-      }
-    },
-    "messages.filtered_info" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "These conversations were flagged by AI as potentially irrelevant or promotional." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Estas conversaciones fueron marcadas por IA como potencialmente irrelevantes o promocionales." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Queste conversazioni sono state segnalate dall'AI come potenzialmente irrilevanti o promozionali." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ces conversations ont été signalées par l'IA comme potentiellement non pertinentes ou promotionnelles." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Estas conversas foram sinalizadas pela IA como potencialmente irrelevantes ou promocionais." } }
-      }
-    },
-    "messages.not_spam" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Not Spam" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "No es spam" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Non è spam" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pas du spam" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Não é spam" } }
-      }
-    },
-    "home.open_calendar" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Calendar" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir Calendario" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Apri Calendario" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrir Calendrier" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abrir Calendário" } }
-      }
-    },
-    "home.events_scheduled" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "events scheduled" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "eventos programados" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "eventi in programma" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "événements prévus" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "eventos agendados" } }
-      }
-    },
-    "nav.calendar" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Calendar" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Calendario" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Calendario" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Calendrier" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Calendário" } }
-      }
-    },
-    "calendar.subtitle" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your Endeavor schedule" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tu agenda Endeavor" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Il tuo programma Endeavor" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre agenda Endeavor" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Sua agenda Endeavor" } }
-      }
-    },
-    "calendar.today" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Today" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Hoy" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Oggi" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aujourd'hui" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Hoje" } }
-      }
-    },
-    "calendar.no_events" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No events this day" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sin eventos este día" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessun evento questo giorno" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucun événement ce jour" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhum evento neste dia" } }
-      }
-    },
-    "calendar.no_upcoming" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No upcoming events" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sin próximos eventos" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Nessun evento in programma" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucun événement à venir" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Nenhum evento futuro" } }
-      }
-    },
-    "calendar.pending" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pending" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pendiente" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "In attesa" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En attente" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Pendente" } }
-      }
-    },
-    "calendar.subscribe_title" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Add to Your Calendar" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Añadir a tu Calendario" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Aggiungi al tuo Calendario" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ajouter à votre Calendrier" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Adicionar ao seu Calendário" } }
-      }
-    },
-    "calendar.subscribe_subtitle" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Subscribe to your Endeavor calendar in Google Calendar, Apple Calendar, or Outlook. Events sync automatically." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Suscríbete a tu calendario Endeavor en Google Calendar, Apple Calendar u Outlook. Los eventos se sincronizan automáticamente." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Iscriviti al tuo calendario Endeavor in Google Calendar, Apple Calendar o Outlook. Gli eventi si sincronizzano automaticamente." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Abonnez-vous à votre calendrier Endeavor dans Google Agenda, Apple Calendar ou Outlook. Les événements se synchronisent automatiquement." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Assine seu calendário Endeavor no Google Agenda, Apple Calendar ou Outlook. Os eventos sincronizam automaticamente." } }
-      }
-    },
-    "calendar.generate_link" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generate my calendar link" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Generar mi enlace de calendario" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Genera il mio link calendario" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Générer mon lien de calendrier" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Gerar meu link de calendário" } }
-      }
-    },
-    "calendar.copied" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copied to clipboard!" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "¡Copiado al portapapeles!" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Copiato negli appunti!" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Copié dans le presse-papiers !" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Copiado para a área de transferência!" } }
-      }
-    },
-    "calendar.your_link" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your calendar link" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tu enlace de calendario" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Il tuo link calendario" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre lien de calendrier" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Seu link de calendário" } }
-      }
-    },
-    "calendar.privacy_note" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "This link is personal and private. Only your Endeavor events are included — never your other calendar entries." } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Este enlace es personal y privado. Solo se incluyen tus eventos Endeavor, nunca tus otras entradas de calendario." } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Questo link è personale e privato. Include solo i tuoi eventi Endeavor, mai gli altri impegni del calendario." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ce lien est personnel et privé. Seuls vos événements Endeavor sont inclus — jamais vos autres entrées de calendrier." } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Este link é pessoal e privado. Apenas seus eventos Endeavor estão incluídos — nunca suas outras entradas de calendário." } }
-      }
-    },
-    "calendar.google_steps" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Google Calendar → + Other calendars → From URL → Paste the link" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre Google Calendar → + Otros calendarios → Desde URL → Pega el enlace" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Apri Google Calendar → + Altri calendari → Da URL → Incolla il link" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrez Google Agenda → + Autres agendas → À partir de l'URL → Collez le lien" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abra o Google Agenda → + Outros calendários → De URL → Cole o link" } }
-      }
-    },
-    "calendar.apple_steps" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Calendar app → File → New Calendar Subscription → Paste the link" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre la app Calendario → Archivo → Nueva suscripción → Pega el enlace" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Apri Calendario → File → Nuova iscrizione calendario → Incolla il link" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrez Calendrier → Fichier → Nouvel abonnement → Collez le lien" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abra o Calendário → Arquivo → Nova assinatura → Cole o link" } }
-      }
-    },
-    "calendar.outlook_steps" : {
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Outlook → Add calendar → From internet → Paste the link" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre Outlook → Agregar calendario → De Internet → Pega el enlace" } },
-        "it" : { "stringUnit" : { "state" : "translated", "value" : "Apri Outlook → Aggiungi calendario → Da Internet → Incolla il link" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrez Outlook → Ajouter un calendrier → Depuis Internet → Collez le lien" } },
-        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abra o Outlook → Adicionar calendário → Da internet → Cole o link" } }
+  "sourceLanguage": "en",
+  "strings": {
+    "nav.home": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicio"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accueil"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Início"
+          }
+        }
+      }
+    },
+    "nav.network": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réseau"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rede"
+          }
+        }
+      }
+    },
+    "nav.discover": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discover"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descubrir"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scopri"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Découvrir"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descobrir"
+          }
+        }
+      }
+    },
+    "nav.messages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensajes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messaggi"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensagens"
+          }
+        }
+      }
+    },
+    "nav.profile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profile"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfil"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profilo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Perfil"
+          }
+        }
+      }
+    },
+    "auth.work_email": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Work Email"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email de trabajo"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email di lavoro"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email professionnel"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email profissional"
+          }
+        }
+      }
+    },
+    "auth.join": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unirse"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unisciti"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rejoindre"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrar"
+          }
+        }
+      }
+    },
+    "auth.continue_google": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue with Google"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar con Google"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continua con Google"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuer avec Google"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuar com Google"
+          }
+        }
+      }
+    },
+    "auth.forgot_password": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forgot Password?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Olvidaste tu contraseña?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password dimenticata?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe oublié ?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esqueceu a senha?"
+          }
+        }
+      }
+    },
+    "auth.access_reserved": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access reserved for authorized Endeavor members and mentors."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acceso reservado para miembros y mentores autorizados de Endeavor."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accesso riservato ai membri e mentor autorizzati di Endeavor."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès réservé aux membres et mentors Endeavor autorisés."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acesso reservado para membros e mentores autorizados da Endeavor."
+          }
+        }
+      }
+    },
+    "discover.header.title1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find Your"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encuentra Tu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trova Il Tuo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trouvez Votre"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encontre Seu"
+          }
+        }
+      }
+    },
+    "discover.header.title2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expert Match"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Experto Ideal"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expert Match"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expert Idéal"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expert Ideal"
+          }
+        }
+      }
+    },
+    "discover.header.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Describe what you need. AI finds who can help."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Describe lo que necesitas. La IA encuentra quién puede ayudarte."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descrivi di cosa hai bisogno. L'AI trova chi può aiutarti."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Décrivez vos besoins. L'IA trouve qui peut vous aider."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descreva o que precisa. A IA encontra quem pode ajudar."
+          }
+        }
+      }
+    },
+    "discover.search_button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar"
+          }
+        }
+      }
+    },
+    "discover.try_asking": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TRY ASKING..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PRUEBA PREGUNTAR..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PROVA A CHIEDERE..."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ESSAYEZ DE DEMANDER..."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TENTE PERGUNTAR..."
+          }
+        }
+      }
+    },
+    "discover.finding_matches": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finding the best matches..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscando las mejores coincidencias..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trovando i migliori profili..."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche des meilleures correspondances..."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encontrando os melhores perfis..."
+          }
+        }
+      }
+    },
+    "discover.best_matches": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Best Matches"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mejores Coincidencias"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Migliori Match"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meilleures Correspondances"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melhores Resultados"
+          }
+        }
+      }
+    },
+    "discover.no_matches": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matches found. Try a different query."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontraron coincidencias. Prueba con otra búsqueda."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun match trovato. Prova con una ricerca diversa."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune correspondance trouvée. Essayez une autre recherche."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhum resultado encontrado. Tente uma busca diferente."
+          }
+        }
+      }
+    },
+    "discover.new_search": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Search"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nueva Búsqueda"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuova Ricerca"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouvelle Recherche"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nova Busca"
+          }
+        }
+      }
+    },
+    "discover.connect": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connetti"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecter"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conectar"
+          }
+        }
+      }
+    },
+    "network.search_placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search by name or sector..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar por nombre o sector..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca per nome o settore..."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher par nom ou secteur..."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar por nome ou setor..."
+          }
+        }
+      }
+    },
+    "network.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading network..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargando red..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caricamento rete..."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement du réseau..."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carregando rede..."
+          }
+        }
+      }
+    },
+    "network.view_profile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View Profile"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver Perfil"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vedi Profilo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voir le profil"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver Perfil"
+          }
+        }
+      }
+    },
+    "network.send_message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send a Message"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar Mensaje"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invia Messaggio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer un message"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar Mensagem"
+          }
+        }
+      }
+    },
+    "messages.no_conversations": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No conversations yet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no hay conversaciones"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna conversazione"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune conversation"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhuma conversa ainda"
+          }
+        }
+      }
+    },
+    "messages.purpose_driven": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purpose-driven conversations."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversaciones con propósito."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversazioni con uno scopo."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des conversations avec un objectif."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conversas com propósito."
+          }
+        }
+      }
+    },
+    "messages.new_message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Message"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuevo Mensaje"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuovo Messaggio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveau message"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nova Mensagem"
+          }
+        }
+      }
+    },
+    "messages.awaiting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Awaiting Messages"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esperando mensajes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In attesa di messaggi"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En attente de messages"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aguardando mensagens"
+          }
+        }
+      }
+    },
+    "messages.start_conversation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start a Conversation"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar una Conversación"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inizia una Conversazione"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Démarrer une conversation"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar uma Conversa"
+          }
+        }
+      }
+    },
+    "messages.schedule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schedule"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Programar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pianifica"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planifier"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agendar"
+          }
+        }
+      }
+    },
+    "profile.edit_profile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Profile"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar Perfil"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifica Profilo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier le profil"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar Perfil"
+          }
+        }
+      }
+    },
+    "profile.settings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configuración"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impostazioni"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paramètres"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurações"
+          }
+        }
+      }
+    },
+    "profile.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading profile..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargando perfil..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caricamento profilo..."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement du profil..."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carregando perfil..."
+          }
+        }
+      }
+    },
+    "settings.log_out": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log Out"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar Sesión"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esci"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se déconnecter"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sair"
+          }
+        }
+      }
+    },
+    "settings.delete_account": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Account"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar Cuenta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina Account"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer le compte"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excluir Conta"
+          }
+        }
+      }
+    },
+    "settings.logout_confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to log out?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Estás seguro de que quieres cerrar sesión?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sei sicuro di voler uscire?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Êtes-vous sûr de vouloir vous déconnecter ?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tem certeza que deseja sair?"
+          }
+        }
+      }
+    },
+    "settings.delete_confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This action is irreversible. All your data will be permanently deleted."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta acción es irreversible. Todos tus datos serán eliminados permanentemente."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa azione è irreversibile. Tutti i tuoi dati saranno eliminati definitivamente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette action est irréversible. Toutes vos données seront supprimées définitivement."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta ação é irreversível. Todos os seus dados serão excluídos permanentemente."
+          }
+        }
+      }
+    },
+    "settings.appearance": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apariencia"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aspetto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apparence"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aparência"
+          }
+        }
+      }
+    },
+    "settings.theme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tema"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tema"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thème"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tema"
+          }
+        }
+      }
+    },
+    "settings.light": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claro"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiaro"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clair"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claro"
+          }
+        }
+      }
+    },
+    "settings.dark": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oscuro"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scuro"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sombre"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escuro"
+          }
+        }
+      }
+    },
+    "settings.system": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Système"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        }
+      }
+    },
+    "onboarding.personal_info": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personal Information"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Información Personal"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informazioni Personali"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informations personnelles"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informações Pessoais"
+          }
+        }
+      }
+    },
+    "onboarding.company_basics": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Company Basics"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos de la Empresa"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dati Aziendali"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informations sur l'entreprise"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dados da Empresa"
+          }
+        }
+      }
+    },
+    "onboarding.review_finish": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review & Finish"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisar y Finalizar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rivedi e Completa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérifier et terminer"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revisar e Finalizar"
+          }
+        }
+      }
+    },
+    "onboarding.basics_subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let's start with the basics. This helps others get to know you."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empecemos con lo básico. Esto ayuda a que otros te conozcan."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniziamo con le informazioni di base. Aiuta gli altri a conoscerti."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commençons par les bases. Cela aide les autres à vous connaître."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vamos começar com o básico. Isso ajuda outros a te conhecerem."
+          }
+        }
+      }
+    },
+    "auth.email_invalid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please enter a valid email address."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por favor, introduce una dirección de email válida."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inserisci un indirizzo email valido."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veuillez saisir une adresse email valide."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Por favor, insira um endereço de email válido."
+          }
+        }
+      }
+    },
+    "auth.reset_here": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset it here"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recupérala aquí"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recuperala qui"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinitialisez-la ici"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recupere-a aqui"
+          }
+        }
+      }
+    },
+    "auth.terms_intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By continuing, you agree to our"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al continuar, aceptas nuestros"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuando, accetti i nostri"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En continuant, vous acceptez nos"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ao continuar, você concorda com nossos"
+          }
+        }
+      }
+    },
+    "auth.terms": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terms"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Términos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Termini"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CGU"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Termos"
+          }
+        }
+      }
+    },
+    "auth.privacy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacidad"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confidentialité"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacidade"
+          }
+        }
+      }
+    },
+    "auth.having_troubles": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Having troubles?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Tienes problemas?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hai problemi?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des difficultés ?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Está com problemas?"
+          }
+        }
+      }
+    },
+    "auth.get_help": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Help"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtener ayuda"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ottieni supporto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obtenir de l'aide"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obter ajuda"
+          }
+        }
+      }
+    },
+    "auth.email_copied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The email 'help@endeavor.org' has been copied to your clipboard."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El email 'help@endeavor.org' ha sido copiado al portapapeles."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'email 'help@endeavor.org' è stata copiata negli appunti."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'email 'help@endeavor.org' a été copiée dans le presse-papiers."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O email 'help@endeavor.org' foi copiado para a área de transferência."
+          }
+        }
+      }
+    },
+    "auth.no_mail_app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Mail App Found"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontró la app de correo"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuna app email trovata"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune app Mail trouvée"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhum app de email encontrado"
+          }
+        }
+      }
+    },
+    "auth.reset_sent_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset Email Sent"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email de recuperación enviado"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email di recupero inviata"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email de réinitialisation envoyé"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email de recuperación enviado"
+          }
+        }
+      }
+    },
+    "auth.password_placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senha"
+          }
+        }
+      }
+    },
+    "network.mentor_network": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mentor\nNetwork"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red de\nMentores"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mentor\nNetwork"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réseau de\nMentors"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rede de\nMentores"
+          }
+        }
+      }
+    },
+    "network.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find the right expert to help you grow."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encuentra al experto adecuado para ayudarte a crecer."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trova l'esperto giusto per aiutarti a crescere."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trouvez le bon expert pour vous aider à grandir."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encontre o especialista certo para ajudar você a crescer."
+          }
+        }
+      }
+    },
+    "home.recommended": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RECOMMENDED FOR YOU"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RECOMENDADO PARA TI"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CONSIGLIATO PER TE"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RECOMMANDÉ POUR VOUS"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RECOMENDADO PARA VOCÊ"
+          }
+        }
+      }
+    },
+    "home.upcoming_sessions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upcoming Sessions"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximas Sesiones"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sessioni in Arrivo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sessions à venir"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximas Sessões"
+          }
+        }
+      }
+    },
+    "home.events_this_week": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Events This Week"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eventos Esta Semana"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eventi Questa Settimana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Événements cette semaine"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eventos Esta Semana"
+          }
+        }
+      }
+    },
+    "home.sessions_subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You have 2 mentorship sessions this week"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tienes 2 sesiones de mentoría esta semana"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hai 2 sessioni di mentorship questa settimana"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous avez 2 sessions de mentorat cette semaine"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Você tem 2 sessões de mentoria esta semana"
+          }
+        }
+      }
+    },
+    "home.confirmed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmed"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmado"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confermato"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmé"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmado"
+          }
+        }
+      }
+    },
+    "home.join": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unirse"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partecipa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rejoindre"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Participar"
+          }
+        }
+      }
+    },
+    "onboarding.setup_profile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup Profile"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurar Perfil"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configura Profilo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurer le profil"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configurar Perfil"
+          }
+        }
+      }
+    },
+    "onboarding.exit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exit"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salir"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esci"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitter"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sair"
+          }
+        }
+      }
+    },
+    "onboarding.exit_confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to exit the registration process?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Estás seguro de que quieres salir del registro?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sei sicuro di voler uscire dalla registrazione?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Êtes-vous sûr de vouloir quitter l'inscription ?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tem certeza que deseja sair do registro?"
+          }
+        }
+      }
+    },
+    "onboarding.next": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siguiente"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avanti"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suivant"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Próximo"
+          }
+        }
+      }
+    },
+    "onboarding.enter_app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter App"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrar a la App"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entra nell'App"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accéder à l'app"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrar no App"
+          }
+        }
+      }
+    },
+    "onboarding.entering": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entering..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrando..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accesso..."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexion..."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrando..."
+          }
+        }
+      }
+    },
+    "discover.search_placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. Who has experience scaling SaaS from 50 to 200 employees?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ej. ¿Quién tiene experiencia escalando SaaS de 50 a 200 empleados?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "es. Chi ha esperienza nel far crescere SaaS da 50 a 200 dipendenti?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ex. Qui a de l'expérience pour passer de 50 à 200 employés en SaaS ?"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ex. Quem tem experiência em escalar SaaS de 50 para 200 funcionários?"
+          }
+        }
+      }
+    },
+    "common.save": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salva"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvar"
+          }
+        }
+      }
+    },
+    "common.cancel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annulla"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        }
+      }
+    },
+    "common.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hecho"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fatto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concluído"
+          }
+        }
+      }
+    },
+    "common.back": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atrás"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indietro"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retour"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voltar"
+          }
+        }
+      }
+    },
+    "common.delete": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excluir"
+          }
+        }
+      }
+    },
+    "common.ok": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aceptar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "common.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargando..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caricamento..."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement..."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carregando..."
+          }
+        }
+      }
+    },
+    "messages.filtered": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtered"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtrado"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtrati"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtrés"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtrados"
+          }
+        }
+      }
+    },
+    "messages.filtered_subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld conversations"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld conversaciones"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld conversazioni"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld conversations"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld conversas"
+          }
+        }
+      }
+    },
+    "messages.filtered_info": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These conversations were flagged by AI as potentially irrelevant or promotional."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estas conversaciones fueron marcadas por IA como potencialmente irrelevantes o promocionales."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Queste conversazioni sono state segnalate dall'AI come potenzialmente irrilevanti o promozionali."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ces conversations ont été signalées par l'IA comme potentiellement non pertinentes ou promotionnelles."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estas conversas foram sinalizadas pela IA como potencialmente irrelevantes ou promocionais."
+          }
+        }
+      }
+    },
+    "messages.not_spam": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not Spam"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No es spam"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Non è spam"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas du spam"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não é spam"
+          }
+        }
+      }
+    },
+    "messages.ban_system_message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This conversation was removed and the sender has been restricted for 10 days."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta conversación fue eliminada y el remitente ha sido restringido durante 10 días."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa conversazione è stata rimossa e il mittente è stato limitato per 10 giorni."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette conversation a été supprimée et l'expéditeur a été restreint pendant 10 jours."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta conversa foi removida e o remetente foi restringido por 10 dias."
+          }
+        }
+      }
+    },
+    "messages.ban_confirm_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete & Ban"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar y bloquear"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina e blocca"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer et bannir"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excluir e banir"
+          }
+        }
+      }
+    },
+    "messages.ban_confirm_message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This will delete the conversation and prevent %@ from contacting you for 10 days."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esto eliminará la conversación e impedirá que %@ te contacte durante 10 días."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verrà eliminata la conversazione e %@ non potrà contattarti per 10 giorni."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cela supprimera la conversation et empêchera %@ de vous contacter pendant 10 jours."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Isso excluirá a conversa e impedirá %@ de entrar em contato com você por 10 dias."
+          }
+        }
+      }
+    },
+    "messages.ban_confirm_button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete & Ban"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar y bloquear"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina e blocca"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer et bannir"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excluir e banir"
+          }
+        }
+      }
+    },
+    "home.open_calendar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Calendar"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Calendario"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Calendario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir Calendrier"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir Calendário"
+          }
+        }
+      }
+    },
+    "home.events_scheduled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "events scheduled"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eventos programados"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eventi in programma"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "événements prévus"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eventos agendados"
+          }
+        }
+      }
+    },
+    "nav.calendar": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendar"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendario"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendrier"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Calendário"
+          }
+        }
+      }
+    },
+    "calendar.subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Endeavor schedule"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu agenda Endeavor"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il tuo programma Endeavor"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre agenda Endeavor"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sua agenda Endeavor"
+          }
+        }
+      }
+    },
+    "calendar.today": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoy"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oggi"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aujourd'hui"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoje"
+          }
+        }
+      }
+    },
+    "calendar.no_events": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No events this day"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin eventos este día"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun evento questo giorno"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun événement ce jour"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhum evento neste dia"
+          }
+        }
+      }
+    },
+    "calendar.no_upcoming": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No upcoming events"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin próximos eventos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun evento in programma"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun événement à venir"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhum evento futuro"
+          }
+        }
+      }
+    },
+    "calendar.pending": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pending"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendiente"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In attesa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En attente"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendente"
+          }
+        }
+      }
+    },
+    "calendar.subscribe_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Your Calendar"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir a tu Calendario"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi al tuo Calendario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter à votre Calendrier"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adicionar ao seu Calendário"
+          }
+        }
+      }
+    },
+    "calendar.subscribe_subtitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subscribe to your Endeavor calendar in Google Calendar, Apple Calendar, or Outlook. Events sync automatically."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suscríbete a tu calendario Endeavor en Google Calendar, Apple Calendar u Outlook. Los eventos se sincronizan automáticamente."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iscriviti al tuo calendario Endeavor in Google Calendar, Apple Calendar o Outlook. Gli eventi si sincronizzano automaticamente."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abonnez-vous à votre calendrier Endeavor dans Google Agenda, Apple Calendar ou Outlook. Les événements se synchronisent automatiquement."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Assine seu calendário Endeavor no Google Agenda, Apple Calendar ou Outlook. Os eventos sincronizam automaticamente."
+          }
+        }
+      }
+    },
+    "calendar.generate_link": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generate my calendar link"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generar mi enlace de calendario"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Genera il mio link calendario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Générer mon lien de calendrier"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gerar meu link de calendário"
+          }
+        }
+      }
+    },
+    "calendar.copied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied to clipboard!"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Copiado al portapapeles!"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiato negli appunti!"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copié dans le presse-papiers !"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiado para a área de transferência!"
+          }
+        }
+      }
+    },
+    "calendar.your_link": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your calendar link"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu enlace de calendario"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il tuo link calendario"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre lien de calendrier"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seu link de calendário"
+          }
+        }
+      }
+    },
+    "calendar.privacy_note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This link is personal and private. Only your Endeavor events are included — never your other calendar entries."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este enlace es personal y privado. Solo se incluyen tus eventos Endeavor, nunca tus otras entradas de calendario."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questo link è personale e privato. Include solo i tuoi eventi Endeavor, mai gli altri impegni del calendario."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce lien est personnel et privé. Seuls vos événements Endeavor sont inclus — jamais vos autres entrées de calendrier."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este link é pessoal e privado. Apenas seus eventos Endeavor estão incluídos — nunca suas outras entradas de calendário."
+          }
+        }
+      }
+    },
+    "calendar.google_steps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Google Calendar → + Other calendars → From URL → Paste the link"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre Google Calendar → + Otros calendarios → Desde URL → Pega el enlace"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Google Calendar → + Altri calendari → Da URL → Incolla il link"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez Google Agenda → + Autres agendas → À partir de l'URL → Collez le lien"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra o Google Agenda → + Outros calendários → De URL → Cole o link"
+          }
+        }
+      }
+    },
+    "calendar.apple_steps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Calendar app → File → New Calendar Subscription → Paste the link"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre la app Calendario → Archivo → Nueva suscripción → Pega el enlace"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Calendario → File → Nuova iscrizione calendario → Incolla il link"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez Calendrier → Fichier → Nouvel abonnement → Collez le lien"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra o Calendário → Arquivo → Nova assinatura → Cole o link"
+          }
+        }
+      }
+    },
+    "calendar.outlook_steps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Outlook → Add calendar → From internet → Paste the link"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre Outlook → Agregar calendario → De Internet → Pega el enlace"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri Outlook → Aggiungi calendario → Da Internet → Incolla il link"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrez Outlook → Ajouter un calendrier → Depuis Internet → Collez le lien"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abra o Outlook → Adicionar calendário → Da internet → Cole o link"
+          }
+        }
+      }
+    },
+    "schedule.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schedule Meeting"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Programar Reunión"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pianifica Meeting"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planifier une Réunion"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agendar Reunião"
+          }
+        }
+      }
+    },
+    "schedule.meeting_title_label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meeting title"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Título de la reunión"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Titolo del meeting"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Titre de la réunion"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Título da reunião"
+          }
+        }
+      }
+    },
+    "schedule.title_placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. Strategy call"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ej. Llamada de estrategia"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es. Chiamata di strategia"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ex. Appel stratégique"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ex. Chamada de estratégia"
+          }
+        }
+      }
+    },
+    "schedule.date_time": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date & Time"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fecha y Hora"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data e Ora"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date & Heure"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data e Hora"
+          }
+        }
+      }
+    },
+    "schedule.duration": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duration"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duración"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durata"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durée"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duração"
+          }
+        }
+      }
+    },
+    "schedule.agenda": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agenda (optional)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agenda (opcional)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agenda (opzionale)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordre du jour (optionnel)"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pauta (opcional)"
+          }
+        }
+      }
+    },
+    "schedule.agenda_placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Topics to discuss..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temas a tratar..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Argomenti da discutere..."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sujets à aborder..."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tópicos a discutir..."
+          }
+        }
+      }
+    },
+    "schedule.video": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video call"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Videollamada"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video call"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appel vidéo"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chamada de vídeo"
+          }
+        }
+      }
+    },
+    "schedule.no_video": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ninguno"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessuno"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhum"
+          }
+        }
+      }
+    },
+    "schedule.video_note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The meeting link will be generated when the invite is accepted."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El enlace se generará cuando se acepte la invitación."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il link verrà generato quando l'invito sarà accettato."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le lien sera généré lorsque l'invitation sera acceptée."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O link será gerado quando o convite for aceito."
+          }
+        }
+      }
+    },
+    "schedule.send_invite": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send Meeting Invite"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar Invitación"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invia Invito al Meeting"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer l'invitation"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar Convite"
+          }
+        }
+      }
+    },
+    "schedule.invite_label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meeting Invite"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invitación a reunión"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invito al Meeting"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invitation à la réunion"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Convite de Reunião"
+          }
+        }
+      }
+    },
+    "schedule.accept": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accept"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aceptar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accetta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accepter"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aceitar"
+          }
+        }
+      }
+    },
+    "schedule.decline": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Decline"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechazar"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rifiuta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refuser"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recusar"
+          }
+        }
+      }
+    },
+    "schedule.propose_new": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Propose new"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proponer nueva"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proponi nuova"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proposer autre"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Propor nova"
+          }
+        }
+      }
+    },
+    "schedule.confirmed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmed"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmado"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confermato"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmé"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmado"
+          }
+        }
+      }
+    },
+    "schedule.declined_label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Declined"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechazado"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rifiutato"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refusé"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recusado"
+          }
+        }
+      }
+    },
+    "schedule.pending": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pending"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendiente"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In attesa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En attente"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendente"
+          }
+        }
+      }
+    },
+    "schedule.conflict_warning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conflict with existing event"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conflicto con evento existente"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conflitto con evento esistente"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conflit avec un événement existant"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conflito com evento existente"
+          }
+        }
+      }
+    },
+    "schedule.not_ready_title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Almost there!"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Casi listo!"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ancora un po'!"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encore un peu !"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quase lá!"
+          }
+        }
+      }
+    },
+    "schedule.not_enough_messages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep the conversation going — you need at least 10 messages exchanged (3 from each side) before scheduling a meeting."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sigue la conversación — necesitas al menos 10 mensajes intercambiados (3 de cada lado) antes de programar una reunión."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continua la conversazione — servono almeno 10 messaggi scambiati (3 per parte) prima di pianificare un meeting."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continuez la conversation — échangez au moins 10 messages (3 de chaque côté) avant de planifier une réunion."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Continue a conversa — você precisa de pelo menos 10 mensagens trocadas (3 de cada lado) antes de agendar uma reunião."
+          }
+        }
+      }
+    },
+    "schedule.join_meeting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join Meeting"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unirse a la reunión"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partecipa al Meeting"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rejoindre la réunion"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrar na reunião"
+          }
+        }
+      }
+    },
+    "common.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Errore"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erro"
+          }
+        }
+      }
+    },
+    "error.network_unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network timeout. Please check your connection."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiempo de conexión agotado. Comprueba tu conexión."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Timeout di rete. Controlla la tua connessione."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Délai réseau dépassé. Vérifiez votre connexion."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempo de conexão esgotado. Verifique sua conexão."
+          }
+        }
+      }
+    },
+    "error.data_corrupted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The data could not be read. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron leer los datos. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile leggere i dati. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de lire les données. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível ler os dados. Tente novamente."
+          }
+        }
+      }
+    },
+    "error.user_not_found": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No account found with this email."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontró ninguna cuenta con este correo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun account trovato con questa email."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun compte trouvé avec cet e-mail."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nenhuma conta encontrada com este e-mail."
+          }
+        }
+      }
+    },
+    "error.weak_password": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password too weak. Use at least 6 characters."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña demasiado débil. Usa al menos 6 caracteres."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password troppo debole. Usa almeno 6 caratteri."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe trop faible. Utilisez au moins 6 caractères."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senha muito fraca. Use pelo menos 6 caracteres."
+          }
+        }
+      }
+    },
+    "error.email_in_use": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This email is already registered. Try logging in instead."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este correo ya está registrado. Intenta iniciar sesión."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa email è già registrata. Prova ad accedere."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cet e-mail est déjà enregistré. Essayez de vous connecter."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este e-mail já está registrado. Tente fazer login."
+          }
+        }
+      }
+    },
+    "error.not_authorized": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This email isn't registered in the Endeavor network. Contact help@endeavor.org"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este correo no está registrado en la red Endeavor. Contacta help@endeavor.org"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa email non è registrata nella rete Endeavor. Contatta help@endeavor.org"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cet e-mail n'est pas enregistré dans le réseau Endeavor. Contactez help@endeavor.org"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este e-mail não está registrado na rede Endeavor. Contate help@endeavor.org"
+          }
+        }
+      }
+    },
+    "error.salesforce_unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to verify your account. Check your connection and try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo verificar tu cuenta. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile verificare il tuo account. Controlla la connessione e riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de vérifier votre compte. Vérifiez votre connexion et réessayez."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível verificar sua conta. Verifique sua conexão e tente novamente."
+          }
+        }
+      }
+    },
+    "error.service_unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Service temporarily unavailable. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servicio temporalmente no disponible. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servizio temporaneamente non disponibile. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Service temporairement indisponible. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serviço temporariamente indisponível. Tente novamente."
+          }
+        }
+      }
+    },
+    "error.unknown": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Algo salió mal. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qualcosa è andato storto. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une erreur s'est produite. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Algo deu errado. Tente novamente."
+          }
+        }
+      }
+    },
+    "error.incorrect_password": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incorrect password. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contraseña incorrecta. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password errata. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe incorrect. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senha incorreta. Tente novamente."
+          }
+        }
+      }
+    },
+    "error.reset_email_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not send password reset email. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo enviar el correo de restablecimiento. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile inviare l'email di recupero. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d'envoyer l'e-mail de réinitialisation. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível enviar o e-mail de recuperação. Tente novamente."
+          }
+        }
+      }
+    },
+    "error.save_profile_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not save your changes. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron guardar los cambios. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile salvare le modifiche. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de sauvegarder vos modifications. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível salvar as alterações. Tente novamente."
+          }
+        }
+      }
+    },
+    "error.upload_image_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not upload your photo. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo subir la foto. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile caricare la foto. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de télécharger votre photo. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível enviar sua foto. Tente novamente."
+          }
+        }
+      }
+    },
+    "error.remove_image_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not remove your photo. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo eliminar la foto. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile rimuovere la foto. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de supprimer votre photo. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível remover sua foto. Tente novamente."
+          }
+        }
+      }
+    },
+    "error.registration_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registration failed. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El registro falló. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registrazione fallita. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'inscription a échoué. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "O cadastro falhou. Tente novamente."
+          }
+        }
+      }
+    },
+    "messages.error_delete_conversation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not delete this conversation. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo eliminar la conversación. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile eliminare la conversazione. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de supprimer cette conversation. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível excluir esta conversa. Tente novamente."
+          }
+        }
+      }
+    },
+    "messages.error_update_conversation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not update this conversation. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo actualizar la conversación. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile aggiornare la conversazione. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de mettre à jour cette conversation. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível atualizar esta conversa. Tente novamente."
+          }
+        }
+      }
+    },
+    "schedule.error_save_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not create the meeting. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo crear la reunión. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile creare il meeting. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de créer la réunion. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível criar a reunião. Tente novamente."
+          }
+        }
+      }
+    },
+    "schedule.error_send_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meeting created, but the invite could not be sent. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reunión creada, pero no se pudo enviar la invitación. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Meeting creato, ma non è stato possibile inviare l'invito. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réunion créée, mais l'invitation n'a pas pu être envoyée. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reunião criada, mas o convite não pôde ser enviado. Tente novamente."
+          }
+        }
+      }
+    },
+    "schedule.error_update_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not update the meeting. Please try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo actualizar la reunión. Inténtalo de nuevo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile aggiornare il meeting. Riprova."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de mettre à jour la réunion. Veuillez réessayer."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível atualizar a reunião. Tente novamente."
+          }
+        }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

@@ -183,9 +183,35 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
                     return
                 }
 
-                // Non esiste — crea nuova conversazione
+                // Non esiste — controlla ban prima di creare
+                self.checkBanAndCreate(userId1: userId1, userId2: userId2, completion: completion)
+            }
+    }
+
+    private func checkBanAndCreate(
+        userId1: String,
+        userId2: String,
+        completion: @escaping (Result<String, Error>) -> Void
+    ) {
+        // Check if userId1 is banned by userId2
+        db.collection("bans").document(userId1).getDocument { [weak self] snap, _ in
+            guard let self = self else { return }
+            if let ts = snap?.data()?["bannedBy_\(userId2)"] as? Timestamp,
+               ts.dateValue() > Date() {
+                DispatchQueue.main.async { completion(.failure(BanError.userIsBanned)) }
+                return
+            }
+            // Check if userId2 is banned by userId1
+            self.db.collection("bans").document(userId2).getDocument { [weak self] snap2, _ in
+                guard let self = self else { return }
+                if let ts2 = snap2?.data()?["bannedBy_\(userId1)"] as? Timestamp,
+                   ts2.dateValue() > Date() {
+                    DispatchQueue.main.async { completion(.failure(BanError.userIsBanned)) }
+                    return
+                }
                 self.createConversation(between: userId1, and: userId2, completion: completion)
             }
+        }
     }
 
     private func createConversation(
@@ -342,12 +368,14 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
 
     // MARK: - User Mapping (firebaseUid -> uuid)
 
-    /// Salva la mappatura firebaseUid -> uuid nel database messaging.
-    /// Deve essere chiamato al login per permettere alle regole Firestore di funzionare.
+    /// Salva la mappatura firebaseUid -> uuid sia nel database messaging che nel database default.
+    /// Entrambi i database hanno regole Firestore che richiedono questa mappatura.
     func saveUserMapping(firebaseUid: String, uuid: String, completion: ((Error?) -> Void)? = nil) {
-        db.collection("userMappings").document(firebaseUid).setData([
-            "uuid": uuid
-        ]) { error in
+        let mapping = ["uuid": uuid]
+        // Write to messaging DB (for conversations/messages rules)
+        db.collection("userMappings").document(firebaseUid).setData(mapping)
+        // Write to default DB (for events rules)
+        profilesDb.collection("userMappings").document(firebaseUid).setData(mapping) { error in
             DispatchQueue.main.async { completion?(error) }
         }
     }
@@ -391,6 +419,22 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
         }
     }
 
+    // MARK: - Ban
+
+    func banUser(
+        senderId: String,
+        currentUserId: String,
+        bannedUntil: Date,
+        completion: @escaping (Error?) -> Void
+    ) {
+        db.collection("bans").document(senderId).setData(
+            ["bannedBy_\(currentUserId)": Timestamp(date: bannedUntil)],
+            merge: true
+        ) { error in
+            DispatchQueue.main.async { completion(error) }
+        }
+    }
+
     // MARK: - Parse Helpers
 
     private func parseConversation(from data: [String: Any], id: String) -> Conversation? {
@@ -422,6 +466,7 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             let createdAt = (data["createdAt"] as? Timestamp)?.dateValue()
         else { return nil }
 
+        let messageTypeRaw = data["messageType"] as? String ?? "text"
         return Message(
             id: id,
             senderId: senderId,
@@ -430,10 +475,105 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             readBy: data["readBy"] as? [String] ?? [],
             deliveredTo: data["deliveredTo"] as? [String] ?? [],
             isSystemMessage: data["isSystemMessage"] as? Bool ?? false,
+            messageType: Message.MessageType(rawValue: messageTypeRaw) ?? .text,
+            meetingEventId: data["meetingEventId"] as? String,
             imageUrl: data["imageUrl"] as? String,
             documentUrl: data["documentUrl"] as? String,
             documentName: data["documentName"] as? String
         )
+    }
+
+    // MARK: - Meeting Invite Messages
+
+    func sendMeetingInviteMessage(
+        conversationId: String,
+        senderId: String,
+        recipientId: String,
+        eventId: String,
+        eventTitle: String,
+        completion: @escaping (Error?) -> Void
+    ) {
+        let batch = db.batch()
+        let now = Timestamp(date: Date())
+
+        let messageRef = db.collection(conversationsCollection)
+            .document(conversationId)
+            .collection(messagesCollection)
+            .document()
+
+        batch.setData([
+            "senderId": senderId,
+            "text": "📹 Meeting invite: \(eventTitle)",
+            "createdAt": now,
+            "readBy": [senderId],
+            "deliveredTo": [],
+            "messageType": "meeting_invite",
+            "meetingEventId": eventId,
+            "isSystemMessage": false
+        ], forDocument: messageRef)
+
+        let conversationRef = db.collection(conversationsCollection).document(conversationId)
+        batch.updateData([
+            "lastMessage": "📹 Meeting invite: \(eventTitle)",
+            "lastMessageAt": now,
+            "lastSenderId": senderId,
+            "unreadCounts.\(recipientId)": FieldValue.increment(Int64(1)),
+            "lastMessageDeliveredTo": [],
+            "lastMessageReadBy": [senderId]
+        ], forDocument: conversationRef)
+
+        batch.commit { error in
+            DispatchQueue.main.async { completion(error) }
+        }
+    }
+
+    func sendMeetingResponseMessage(
+        conversationId: String,
+        senderId: String,
+        recipientId: String,
+        eventId: String,
+        responseType: String,
+        completion: @escaping (Error?) -> Void
+    ) {
+        let batch = db.batch()
+        let now = Timestamp(date: Date())
+        let text: String
+        switch responseType {
+        case "accepted":     text = "✅ Meeting accepted"
+        case "declined":     text = "❌ Meeting declined"
+        case "proposed_new": text = "📅 New time proposed"
+        default:             text = "Meeting response"
+        }
+
+        let messageRef = db.collection(conversationsCollection)
+            .document(conversationId)
+            .collection(messagesCollection)
+            .document()
+
+        batch.setData([
+            "senderId": senderId,
+            "text": text,
+            "createdAt": now,
+            "readBy": [senderId],
+            "deliveredTo": [],
+            "messageType": "meeting_response",
+            "meetingEventId": eventId,
+            "isSystemMessage": false
+        ], forDocument: messageRef)
+
+        let conversationRef = db.collection(conversationsCollection).document(conversationId)
+        batch.updateData([
+            "lastMessage": text,
+            "lastMessageAt": now,
+            "lastSenderId": senderId,
+            "unreadCounts.\(recipientId)": FieldValue.increment(Int64(1)),
+            "lastMessageDeliveredTo": [],
+            "lastMessageReadBy": [senderId]
+        ], forDocument: conversationRef)
+
+        batch.commit { error in
+            DispatchQueue.main.async { completion(error) }
+        }
     }
 
     // MARK: - Mark as Delivered
@@ -516,5 +656,16 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
                 "lastMessageDeliveredTo": FieldValue.arrayUnion([currentUserId])
             ])
         }
+    }
+}
+
+// MARK: - Ban Error
+
+enum BanError: LocalizedError {
+    case userIsBanned
+
+    var errorDescription: String? {
+        String(localized: "messages.ban_active_error",
+               defaultValue: "You cannot start a conversation with this user at this time.")
     }
 }

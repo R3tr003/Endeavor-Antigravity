@@ -21,7 +21,7 @@ class MockMessagesRepository: MessagesRepositoryProtocol {
     }
     
     func listenToMessages(conversationId: String, onUpdate: @escaping (Result<[Message], Error>) -> Void) -> ListenerRegistration {
-        onUpdate(.success(mockMessages.filter { $0.conversationId == conversationId }))
+        onUpdate(.success(mockMessages.filter { $0.conversationId == conversationId || $0.conversationId == nil }))
         return DummyListenerRegistration()
     }
     
@@ -76,7 +76,22 @@ class MockMessagesRepository: MessagesRepositoryProtocol {
     }
 
     func sendSystemMessage(conversationId: String, text: String, completion: @escaping (Error?) -> Void) {
-        completion(nil) // no-op nei test
+        completion(nil)
+    }
+
+    func markAsDelivered(conversationId: String, currentUserId: String) async {}
+    func markMessagesAsRead(conversationId: String, currentUserId: String) async {}
+
+    func sendMeetingInviteMessage(conversationId: String, senderId: String, recipientId: String, eventId: String, eventTitle: String, completion: @escaping (Error?) -> Void) {
+        completion(nil)
+    }
+
+    func sendMeetingResponseMessage(conversationId: String, senderId: String, recipientId: String, eventId: String, responseType: String, completion: @escaping (Error?) -> Void) {
+        completion(nil)
+    }
+
+    func banUser(senderId: String, currentUserId: String, bannedUntil: Date, completion: @escaping (Error?) -> Void) {
+        completion(nil)
     }
 }
 

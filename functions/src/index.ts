@@ -14,5 +14,6 @@ export {
 } from "./salesforce";
 
 export { searchUsersWithAI } from "./aiSearch";
-export { classifyMessage } from "./messageFilter";
+export { classifyMessage, recheckConversation } from "./messageFilter";
+export { generateMeetLink } from "./meetProvider";
 export { icalFeed } from "./icalFeed";
