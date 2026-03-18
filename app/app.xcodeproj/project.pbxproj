@@ -7,8 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		09506AED6706631A887DE09D /* FirebaseCalendarRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE01DD7D01B901B33B3EE5E /* FirebaseCalendarRepository.swift */; };
 		097E89C9228A4A38AFB7F184 /* NavigationRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9B0116D2CC4C7FA275D47E /* NavigationRouter.swift */; };
 		0B3B30F1D6A3F5E81963192F /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A962975DA8043FB12AB15B6 /* Message.swift */; };
+		1583E391872926D57D182C5B /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8503492F26B866F788F8700 /* CalendarViewModel.swift */; };
+		1FDAAEDE9FE295E733615E3D /* CalendarSubscribeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C25131A6369598D52497741 /* CalendarSubscribeView.swift */; };
 		254D1A0AC26246C1A6C7BB54 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3502CA0542164640B87EF1DF /* DesignSystem.swift */; };
 		257D39A0A6728181D9D14A7600000000 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8003DD40C769C619F9B742200000000 /* AppError.swift */; };
 		2813CCFD83E94826B11D40E4 /* ../Repositories/Protocols/NetworkRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA8C55CF8A74C9B85392468 /* ../Repositories/Protocols/NetworkRepositoryProtocol.swift */; };
@@ -17,6 +20,7 @@
 		37D493AC9C2597D6BB419F87 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A78E0612A9719CA45072341 /* AnalyticsService.swift */; };
 		38A8E1754FB44275A35BA89E /* ../Repositories/Firebase/FirebaseNetworkRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2312F221433B42E384FA7B38 /* ../Repositories/Firebase/FirebaseNetworkRepository.swift */; };
 		3EC83DF819A43CF381DA86BF /* MentorDiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFCDBD6EBBE2F1E2AC3F5C /* MentorDiscoveryView.swift */; };
+		3EDD15FD6EEFB125D9A7112C /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B322ED6558B9CFEB3EF79AE8 /* CalendarView.swift */; };
 		59528F5D6885460381BAF2FF /* ../Repositories/Firebase/FirebaseUserRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0B950F88C410689A55668 /* ../Repositories/Firebase/FirebaseUserRepository.swift */; };
 		63CDA88E70B240C0B22F198B /* ../Repositories/Protocols/StorageRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69207CC2A34045868148BE03 /* ../Repositories/Protocols/StorageRepositoryProtocol.swift */; };
 		651787F72F356B310095C184 /* LinearProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651787CD2F356B310095C184 /* LinearProgressView.swift */; };
@@ -50,6 +54,7 @@
 		6517881B2F356B6B0095C184 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 6517881A2F356B6B0095C184 /* FirebaseFirestore */; };
 		6517881C2F356EE50095C184 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 651787F42F356B310095C184 /* Assets.xcassets */; };
 		651789012F356B6B0095C184 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 651789002F356B6B0095C184 /* FirebaseStorage */; };
+		65ADB5462F6AD85D00773C54 /* MSAL in Frameworks */ = {isa = PBXBuildFile; productRef = 65ADB5452F6AD85D00773C54 /* MSAL */; };
 		65EE72982F36157200E6F591 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 65EE72972F36157200E6F591 /* GoogleSignIn */; };
 		65EE729A2F36157200E6F591 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 65EE72992F36157200E6F591 /* GoogleSignInSwift */; };
 		65F4304F2F35F5DB00023B22 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 65F4304E2F35F5DB00023B22 /* FirebaseAnalytics */; };
@@ -65,28 +70,25 @@
 		A7E8F903B1234C56D7890123 /* ../Repositories/Salesforce/SalesforceRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7E8F901B1234C56D7890123 /* ../Repositories/Salesforce/SalesforceRepository.swift */; };
 		A7E8F904B1234C56D7890124 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = A7E8F902B1234C56D7890122 /* FirebaseFunctions */; };
 		A7E8F905B1234C56D7890125 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = A7E8F906B1234C56D7890126 /* FirebasePerformance */; };
+		AA000002LOCALIZABLEXCSTRINGS /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AA000001LOCALIZABLEXCSTRINGS /* Localizable.xcstrings */; };
+		AA100001RECEIPTSTATUS /* ReceiptStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000RECEIPTSTATUS /* ReceiptStatusView.swift */; };
+		AA200001FILTEREDCONVVIEW /* FilteredConversationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200000FILTEREDCONVVIEW /* FilteredConversationsView.swift */; };
+		AA300001SCHEDULEMEETVIEW /* ScheduleMeetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA300000SCHEDULEMEETVIEW /* ScheduleMeetingView.swift */; };
+		AA400001MEETINGINVITECARD /* MeetingInviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400000MEETINGINVITECARD /* MeetingInviteCard.swift */; };
+		AA500001SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA500000SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift */; };
+		AA600001MEETPROVSERVICE /* MeetProviderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA600000MEETPROVSERVICE /* MeetProviderService.swift */; };
 		B1B82C5CA6C0800A131EFD1B /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4596AC3AD53E85365A71AFD3 /* Conversation.swift */; };
 		B217199E2A86262A2BBFF6AA /* MessagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BC702E785B8F5371622610A /* MessagesView.swift */; };
+		BC7E145BB0AFB8C397459D6A /* CalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74EAC2268243B5619E1DB32D /* CalendarEvent.swift */; };
 		BF646849552E94E87EC75E83 /* UserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B16871C641BED1A79452775 /* UserProfileView.swift */; };
 		CE776A0DD7754F8D9AFF171D /* ../Repositories/Firebase/FirebaseAuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A26244A935426386D24777 /* ../Repositories/Firebase/FirebaseAuthRepository.swift */; };
 		D260DC99484BB66F1618780C /* FirebaseMessagesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 233EC5DBF6799263EFF27D89 /* FirebaseMessagesRepository.swift */; };
 		D2FC56AB0E4044B9B30E0F58 /* ../Repositories/Protocols/AuthRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEB9F245A8974E93BEE12465 /* ../Repositories/Protocols/AuthRepositoryProtocol.swift */; };
 		DF14E280B7AD77D1BFBC8CEF /* ConversationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9110CAF806A8A7BC9419D4CB /* ConversationView.swift */; };
-		AA100001RECEIPTSTATUS /* ReceiptStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA100000RECEIPTSTATUS /* ReceiptStatusView.swift */; };
-		AA200001FILTEREDCONVVIEW /* FilteredConversationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA200000FILTEREDCONVVIEW /* FilteredConversationsView.swift */; };
-		BC7E145BB0AFB8C397459D6A /* CalendarEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74EAC2268243B5619E1DB32D /* CalendarEvent.swift */; };
-		09506AED6706631A887DE09D /* FirebaseCalendarRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE01DD7D01B901B33B3EE5E /* FirebaseCalendarRepository.swift */; };
-		1583E391872926D57D182C5B /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8503492F26B866F788F8700 /* CalendarViewModel.swift */; };
-		3EDD15FD6EEFB125D9A7112C /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B322ED6558B9CFEB3EF79AE8 /* CalendarView.swift */; };
-		1FDAAEDE9FE295E733615E3D /* CalendarSubscribeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C25131A6369598D52497741 /* CalendarSubscribeView.swift */; };
 		EDB35044980B473E825F0BD5 /* NetworkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8578755F65A84AFAB25F0E41 /* NetworkViewModel.swift */; };
 		F393F8F54A77468098980786 /* FluidBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26846CEDDA264CC8A0C99A22 /* FluidBackgroundView.swift */; };
 		F759D414D8CF8F9FA89B9F6E /* MessagesRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 322B368C9FCA80FD0EFC8014 /* MessagesRepositoryProtocol.swift */; };
-		AA000002LOCALIZABLEXCSTRINGS /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = AA000001LOCALIZABLEXCSTRINGS /* Localizable.xcstrings */; };
-		AA300001SCHEDULEMEETVIEW /* ScheduleMeetingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA300000SCHEDULEMEETVIEW /* ScheduleMeetingView.swift */; };
-		AA400001MEETINGINVITECARD /* MeetingInviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400000MEETINGINVITECARD /* MeetingInviteCard.swift */; };
-		AA500001SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA500000SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift */; };
-		AA600001MEETPROVSERVICE /* MeetProviderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA600000MEETPROVSERVICE /* MeetProviderService.swift */; };
+		CA1F3D5B7E9A2C4E6F8B0D2E /* CalendarRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB2E4F6C8A0B1D3F5E7A9C1B /* CalendarRepositoryProtocol.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -98,7 +100,9 @@
 		2A78E0612A9719CA45072341 /* AnalyticsService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		31E5D1F829284CDFA585B4EE /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		322B368C9FCA80FD0EFC8014 /* MessagesRepositoryProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MessagesRepositoryProtocol.swift; path = Repositories/Protocols/MessagesRepositoryProtocol.swift; sourceTree = "<group>"; };
+		DB2E4F6C8A0B1D3F5E7A9C1B /* CalendarRepositoryProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CalendarRepositoryProtocol.swift; path = Repositories/Protocols/CalendarRepositoryProtocol.swift; sourceTree = "<group>"; };
 		3502CA0542164640B87EF1DF /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		3C25131A6369598D52497741 /* CalendarSubscribeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarSubscribeView.swift; sourceTree = "<group>"; };
 		3DA0B950F88C410689A55668 /* ../Repositories/Firebase/FirebaseUserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Firebase/FirebaseUserRepository.swift; sourceTree = "<group>"; };
 		4596AC3AD53E85365A71AFD3 /* Conversation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		4A962975DA8043FB12AB15B6 /* Message.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
@@ -132,25 +136,27 @@
 		651787F32F356B310095C184 /* AppIcon60x60@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon60x60@3x.png"; sourceTree = "<group>"; };
 		651787F42F356B310095C184 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		651787F52F356B310095C184 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		AA000001LOCALIZABLEXCSTRINGS /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = "Resources/Localizable.xcstrings"; name = Localizable.xcstrings; sourceTree = "<group>"; };
 		65EB34B5F82F7BF0D3E78612 /* NewConversationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NewConversationView.swift; sourceTree = "<group>"; };
 		65EE72952F3614FB00E6F591 /* app-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "app-Info.plist"; sourceTree = "<group>"; };
 		69207CC2A34045868148BE03 /* ../Repositories/Protocols/StorageRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Protocols/StorageRepositoryProtocol.swift; sourceTree = "<group>"; };
 		6BA94BBC395A455691999B44 /* ../Repositories/Firebase/FirebaseStorageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Firebase/FirebaseStorageRepository.swift; sourceTree = "<group>"; };
+		74EAC2268243B5619E1DB32D /* CalendarEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarEvent.swift; sourceTree = "<group>"; };
 		7C22C858EC41CD85C917D953 /* ConversationsViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConversationsViewModel.swift; path = ViewModels/ConversationsViewModel.swift; sourceTree = "<group>"; };
+		7CE01DD7D01B901B33B3EE5E /* FirebaseCalendarRepository.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FirebaseCalendarRepository.swift; path = Repositories/Firebase/FirebaseCalendarRepository.swift; sourceTree = "<group>"; };
 		8578755F65A84AFAB25F0E41 /* NetworkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkViewModel.swift; sourceTree = "<group>"; };
 		8A75F2AF083A37A4A97E1F18 /* MentorDiscoveryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MentorDiscoveryView.swift; sourceTree = "<group>"; };
 		9110CAF806A8A7BC9419D4CB /* ConversationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConversationView.swift; sourceTree = "<group>"; };
-		AA100000RECEIPTSTATUS /* ReceiptStatusView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReceiptStatusView.swift; sourceTree = "<group>"; };
-		AA200000FILTEREDCONVVIEW /* FilteredConversationsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FilteredConversationsView.swift; sourceTree = "<group>"; };
-		74EAC2268243B5619E1DB32D /* CalendarEvent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarEvent.swift; sourceTree = "<group>"; };
-		7CE01DD7D01B901B33B3EE5E /* FirebaseCalendarRepository.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FirebaseCalendarRepository.swift; path = Repositories/Firebase/FirebaseCalendarRepository.swift; sourceTree = "<group>"; };
-		F8503492F26B866F788F8700 /* CalendarViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
-		B322ED6558B9CFEB3EF79AE8 /* CalendarView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
-		3C25131A6369598D52497741 /* CalendarSubscribeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarSubscribeView.swift; sourceTree = "<group>"; };
 		991788012F356B310095C184 /* LocationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationData.swift; sourceTree = "<group>"; };
 		992788012F356B310095C184 /* StackNavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackNavigationView.swift; sourceTree = "<group>"; };
 		A7E8F901B1234C56D7890123 /* ../Repositories/Salesforce/SalesforceRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Salesforce/SalesforceRepository.swift; sourceTree = "<group>"; };
+		AA000001LOCALIZABLEXCSTRINGS /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = Resources/Localizable.xcstrings; sourceTree = "<group>"; };
+		AA100000RECEIPTSTATUS /* ReceiptStatusView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReceiptStatusView.swift; sourceTree = "<group>"; };
+		AA200000FILTEREDCONVVIEW /* FilteredConversationsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FilteredConversationsView.swift; sourceTree = "<group>"; };
+		AA300000SCHEDULEMEETVIEW /* ScheduleMeetingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduleMeetingView.swift; sourceTree = "<group>"; };
+		AA400000MEETINGINVITECARD /* MeetingInviteCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MeetingInviteCard.swift; sourceTree = "<group>"; };
+		AA500000SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduleMeetingViewModel.swift; sourceTree = "<group>"; };
+		AA600000MEETPROVSERVICE /* MeetProviderService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MeetProviderService.swift; sourceTree = "<group>"; };
+		B322ED6558B9CFEB3EF79AE8 /* CalendarView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		B5EFCDBD6EBBE2F1E2AC3F5C /* MentorDiscoveryView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MentorDiscoveryView.swift; sourceTree = "<group>"; };
 		B8003DD40C769C619F9B742200000000 /* AppError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 		BEA8C55CF8A74C9B85392468 /* ../Repositories/Protocols/NetworkRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Protocols/NetworkRepositoryProtocol.swift; sourceTree = "<group>"; };
@@ -159,10 +165,7 @@
 		CEB9F245A8974E93BEE12465 /* ../Repositories/Protocols/AuthRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Protocols/AuthRepositoryProtocol.swift; sourceTree = "<group>"; };
 		E6A26244A935426386D24777 /* ../Repositories/Firebase/FirebaseAuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Firebase/FirebaseAuthRepository.swift; sourceTree = "<group>"; };
 		EF399B6883E34B749FDC7FA9 /* UserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRepository.swift; sourceTree = "<group>"; };
-		AA300000SCHEDULEMEETVIEW /* ScheduleMeetingView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduleMeetingView.swift; sourceTree = "<group>"; };
-		AA400000MEETINGINVITECARD /* MeetingInviteCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MeetingInviteCard.swift; sourceTree = "<group>"; };
-		AA500000SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduleMeetingViewModel.swift; sourceTree = "<group>"; };
-		AA600000MEETPROVSERVICE /* MeetProviderService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MeetProviderService.swift; sourceTree = "<group>"; };
+		F8503492F26B866F788F8700 /* CalendarViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -175,6 +178,7 @@
 				65EE72982F36157200E6F591 /* GoogleSignIn in Frameworks */,
 				6517881B2F356B6B0095C184 /* FirebaseFirestore in Frameworks */,
 				65F4304F2F35F5DB00023B22 /* FirebaseAnalytics in Frameworks */,
+				65ADB5462F6AD85D00773C54 /* MSAL in Frameworks */,
 				651789012F356B6B0095C184 /* FirebaseStorage in Frameworks */,
 				9DDFC94358278C11BC59002A /* SDWebImageSwiftUI in Frameworks */,
 				8F3D1F3C4E5E4E309D5E7A2A /* FirebaseAppCheck in Frameworks */,
@@ -413,6 +417,7 @@
 				AA000001LOCALIZABLEXCSTRINGS /* Localizable.xcstrings */,
 				7C22C858EC41CD85C917D953 /* ConversationsViewModel.swift */,
 				322B368C9FCA80FD0EFC8014 /* MessagesRepositoryProtocol.swift */,
+				DB2E4F6C8A0B1D3F5E7A9C1B /* CalendarRepositoryProtocol.swift */,
 				233EC5DBF6799263EFF27D89 /* FirebaseMessagesRepository.swift */,
 				7CE01DD7D01B901B33B3EE5E /* FirebaseCalendarRepository.swift */,
 			);
@@ -483,6 +488,7 @@
 				1F8E1C2B4C3D4D1A9F7E8D9C /* FirebaseAppCheck */,
 				A7E8F902B1234C56D7890122 /* FirebaseFunctions */,
 				A7E8F906B1234C56D7890126 /* FirebasePerformance */,
+				65ADB5452F6AD85D00773C54 /* MSAL */,
 			);
 			productName = app;
 			productReference = 651787B82F356AD60095C184 /* app.app */;
@@ -520,6 +526,7 @@
 				651788172F356B6B0095C184 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				65EE72962F36157200E6F591 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				BAF3AD852589846BC9E495F2 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				65ADB5442F6AD85D00773C54 /* XCRemoteSwiftPackageReference "microsoft-authentication-library-for-objc" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 651787B92F356AD60095C184 /* Products */;
@@ -597,6 +604,7 @@
 				DF14E280B7AD77D1BFBC8CEF /* ConversationView.swift in Sources */,
 				862EBCBA8EC890469696B0C3 /* ConversationsViewModel.swift in Sources */,
 				F759D414D8CF8F9FA89B9F6E /* MessagesRepositoryProtocol.swift in Sources */,
+				CA1F3D5B7E9A2C4E6F8B0D2E /* CalendarRepositoryProtocol.swift in Sources */,
 				D260DC99484BB66F1618780C /* FirebaseMessagesRepository.swift in Sources */,
 				0B3B30F1D6A3F5E81963192F /* Message.swift in Sources */,
 				B1B82C5CA6C0800A131EFD1B /* Conversation.swift in Sources */,
@@ -608,7 +616,7 @@
 				AA400001MEETINGINVITECARD /* MeetingInviteCard.swift in Sources */,
 				AA500001SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift in Sources */,
 				BC7E145BB0AFB8C397459D6A /* CalendarEvent.swift in Sources */,
-				09506AED6706631A887DE09D /* CalendarRepository.swift in Sources */,
+				09506AED6706631A887DE09D /* FirebaseCalendarRepository.swift in Sources */,
 				1583E391872926D57D182C5B /* CalendarViewModel.swift in Sources */,
 				3EDD15FD6EEFB125D9A7112C /* CalendarView.swift in Sources */,
 				1FDAAEDE9FE295E733615E3D /* CalendarSubscribeView.swift in Sources */,
@@ -861,6 +869,14 @@
 				minimumVersion = 12.9.0;
 			};
 		};
+		65ADB5442F6AD85D00773C54 /* XCRemoteSwiftPackageReference "microsoft-authentication-library-for-objc" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AzureAD/microsoft-authentication-library-for-objc";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.0;
+			};
+		};
 		65EE72962F36157200E6F591 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
@@ -899,6 +915,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 651788172F356B6B0095C184 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		65ADB5452F6AD85D00773C54 /* MSAL */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 65ADB5442F6AD85D00773C54 /* XCRemoteSwiftPackageReference "microsoft-authentication-library-for-objc" */;
+			productName = MSAL;
 		};
 		65EE72972F36157200E6F591 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;

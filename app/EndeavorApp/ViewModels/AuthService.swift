@@ -82,7 +82,11 @@ class AuthService: ObservableObject {
             return
         }
         
-        GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { result, error in
+        GIDSignIn.sharedInstance.signIn(
+            withPresenting: rootViewController,
+            hint: nil,
+            additionalScopes: ["https://www.googleapis.com/auth/calendar.events"]
+        ) { result, error in
             if let error = error {
                 completion(.failure(error))
                 return

@@ -1,7 +1,7 @@
 import Foundation
 import FirebaseFirestore
 
-class FirebaseCalendarRepository {
+class FirebaseCalendarRepository: CalendarRepositoryProtocol {
 
     private let db = Firestore.firestore()
     private let collection = "events"

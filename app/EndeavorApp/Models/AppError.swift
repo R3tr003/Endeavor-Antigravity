@@ -35,6 +35,11 @@ public enum AppError: LocalizedError, Equatable {
     case meetingSaveFailed
     case meetingInviteFailed
     case meetingUpdateFailed
+    case meetGoogleAccountRequired
+    case meetGoogleSignInRequired
+    case meetTeamsSignInRequired
+    case meetTeamsConfigurationError
+    case meetNoPresentingViewController
 
     // MARK: Generic
     case unknown(reason: String?)
@@ -117,6 +122,21 @@ extension AppError {
         case .meetingUpdateFailed:
             return String(localized: "schedule.error_update_failed",
                           defaultValue: "Could not update the meeting. Please try again.")
+        case .meetGoogleAccountRequired:
+            return String(localized: "meet.error_google_required",
+                          defaultValue: "Google Meet is only available for users signed in with Google.")
+        case .meetGoogleSignInRequired:
+            return String(localized: "meet.error_signin_required",
+                          defaultValue: "Please sign in with Google to use Google Meet.")
+        case .meetTeamsSignInRequired:
+            return String(localized: "meet.error_teams_signin_required",
+                          defaultValue: "Please sign in with your Microsoft account to use Teams.")
+        case .meetTeamsConfigurationError:
+            return String(localized: "meet.error_teams_config",
+                          defaultValue: "Microsoft Teams configuration error. Please try again.")
+        case .meetNoPresentingViewController:
+            return String(localized: "meet.error_generic",
+                          defaultValue: "Could not request access. Please try again.")
 
         // MARK: Generic
         case .unknown(let reason):

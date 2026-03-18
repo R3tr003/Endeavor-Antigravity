@@ -10,14 +10,14 @@ class CalendarViewModel: ObservableObject {
     @Published var selectedDate: Date = Date()
     @Published var appError: AppError?
 
-    private let repository = FirebaseCalendarRepository()
+    private let repository: CalendarRepositoryProtocol = FirebaseCalendarRepository()
 
     /// Colori degli eventi per ogni giorno del mese selezionato (max 3 colori per giorno)
     var daysWithEventColors: [Int: [Color]] {
         let cal = Calendar.current
         var result: [Int: [Color]] = [:]
         for event in events {
-            guard event.status != .cancelled else { continue }
+            guard event.status == .confirmed else { continue }
             guard cal.isDate(event.startDate, equalTo: selectedDate, toGranularity: .month) else { continue }
             let day = cal.component(.day, from: event.startDate)
             let color: Color = {
@@ -36,7 +36,7 @@ class CalendarViewModel: ObservableObject {
 
     /// Eventi del giorno selezionato
     var eventsForSelectedDate: [CalendarEvent] {
-        events.filter { $0.status != .cancelled && Calendar.current.isDate($0.startDate, inSameDayAs: selectedDate) }
+        events.filter { $0.status == .confirmed && Calendar.current.isDate($0.startDate, inSameDayAs: selectedDate) }
             .sorted { $0.startDate < $1.startDate }
     }
 

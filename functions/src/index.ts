@@ -15,5 +15,6 @@ export {
 
 export { searchUsersWithAI } from "./aiSearch";
 export { classifyMessage, recheckConversation } from "./messageFilter";
-export { generateMeetLink } from "./meetProvider";
+export { generateMeetLink, cancelCalendarEvent } from "./meetProvider";
 export { icalFeed } from "./icalFeed";
+export { checkMeetingCompletions } from "./meetingCompleted";

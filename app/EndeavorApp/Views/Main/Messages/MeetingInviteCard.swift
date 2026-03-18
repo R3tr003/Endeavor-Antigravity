@@ -13,7 +13,7 @@ struct MeetingInviteCard: View {
     @State private var listener: ListenerRegistration? = nil
     @State private var showDetail = false
     @State private var isAccepting = false
-    private let calendarRepository = FirebaseCalendarRepository()
+    private let calendarRepository: CalendarRepositoryProtocol = FirebaseCalendarRepository()
 
     var body: some View {
         VStack(alignment: isFromMe ? .trailing : .leading, spacing: DesignSystem.Spacing.xxSmall) {

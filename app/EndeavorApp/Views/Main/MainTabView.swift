@@ -3,6 +3,8 @@ import FirebaseAnalytics
 
 struct MainTabView: View {
     @State private var selectedTab: Int = 0
+    /// Tracks which top-level tabs the user visits per session for the session_depth event.
+    @State private var visitedTabs: Set<Int> = [0]
     @EnvironmentObject var appViewModel: AppViewModel
     
     @StateObject private var conversationsViewModel = ConversationsViewModel()
@@ -38,10 +40,15 @@ struct MainTabView: View {
             .edgesIgnoringSafeArea(.bottom)
             .environmentObject(conversationsViewModel)
             .onChange(of: selectedTab) { _, newTab in
+                visitedTabs.insert(newTab)
                 Analytics.logEvent(AnalyticsEventScreenView, parameters: [
                     AnalyticsParameterScreenName: tabScreenName(newTab),
                     AnalyticsParameterScreenClass: tabScreenName(newTab)
                 ])
+            }
+            .onDisappear {
+                // Session ended (view dismissed / app backgrounded) — log how many unique screens were visited
+                AnalyticsService.shared.logSessionDepth(screensVisited: visitedTabs.count)
             }
             .onAppear {
                 if appViewModel.isLoggedIn {

@@ -1,24 +1,33 @@
 import SwiftUI
 import GoogleSignIn
 import FirebaseCore
+import MSAL
 import FirebaseAppCheck
 import FirebaseFirestore
 import FirebasePerformance
+import FirebaseAnalytics
 import SDWebImage
+import UserNotifications
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         // --- Firebase App Check Setup ---
-        // In DEBUG: skip App Check entirely (debug tokens require manual registration in
-        // Firebase Console and silently block ALL Firestore writes if not registered).
-        // In RELEASE: use AppAttest for production security.
         #if !DEBUG
         let providerFactory = AppAttestProviderFactory()
         AppCheck.setAppCheckProviderFactory(providerFactory)
         #endif
         
-        // Initialize Firebase when the app launches. MUST be in AppDelegate for Firebase Performance to track _app_start.
+        // Initialize Firebase when the app launches.
         FirebaseApp.configure()
+
+        // app_open_source: cold start (Firebase was not initialized before this call)
+        AnalyticsService.shared.logAppOpenSource(source: .coldStart)
+
+        // Register for push notifications and set delegate to capture push open source
+        UNUserNotificationCenter.current().delegate = self
+
+        // Restore Google Sign-In session
+        GIDSignIn.sharedInstance.restorePreviousSignIn { _, _ in }
 
         // MARK: - Firestore Offline Persistence
         let defaultSettings = FirestoreSettings()
@@ -33,29 +42,31 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         )
         Firestore.firestore(database: "messaging").settings = messagingSettings
 
-        // Abilita data collection esplicita per Performance in DEBUG — utile per verificare
-        // che il reporting funzioni su device fisico prima di passare a TestFlight.
-        // _app_start viene popolato solo da device reali (non simulatore), con ritardo di 12-24h.
         #if DEBUG
         Performance.sharedInstance().isDataCollectionEnabled = true
         #endif
         
         // --- SDWebImage Cache Configuration ---
-        // Memory cache: 100MB — sufficient per ~200 avatar 500x500
         SDImageCache.shared.config.maxMemoryCost = 100 * 1024 * 1024
-        
-        // Disk cache: 200MB, scadenza 7 giorni
         SDImageCache.shared.config.maxDiskSize = 200 * 1024 * 1024
         SDImageCache.shared.config.maxDiskAge = 7 * 24 * 60 * 60
-        
-        // Download timeout: 15 secondi (default è 15, esplicitarlo per chiarezza)
         SDWebImageDownloader.shared.config.downloadTimeout = 15
-        
-        // Decompressione immagini in background thread — evita jank sulla main thread
         SDImageCoderHelper.defaultScaleDownLimitBytes = 50 * 1024 * 1024
         
         return true
     }
+
+    // MARK: - Push Notification delegate
+    // Called when the user taps a push notification while the app is in background/foreground.
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        AnalyticsService.shared.logAppOpenSource(source: .pushNotification)
+        completionHandler()
+    }
+
 }
 
 @main
@@ -104,6 +115,7 @@ struct EndeavorApp: App {
             .animation(.default, value: appViewModel.isOnboardingComplete)
             .preferredColorScheme(appViewModel.colorScheme)
             .onOpenURL { url in
+                MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: nil)
                 GIDSignIn.sharedInstance.handle(url)
             }
             .onChange(of: scenePhase) { _, newPhase in
@@ -111,6 +123,12 @@ struct EndeavorApp: App {
                 case .background:
                     print("📱 App moved to background")
                 case .active:
+                    // Distinguish between background resume and cold start.
+                    // Cold start is already logged in AppDelegate.didFinishLaunchingWithOptions.
+                    // Here we only log if Firebase is already initialized (i.e. this is a background resume).
+                    if FirebaseApp.app() != nil {
+                        AnalyticsService.shared.logAppOpenSource(source: .background)
+                    }
                     print("📱 App became active")
                 case .inactive:
                     print("📱 App became inactive")

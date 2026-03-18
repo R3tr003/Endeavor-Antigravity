@@ -6,6 +6,54 @@ final class AnalyticsService {
     static let shared = AnalyticsService()
     private init() {}
 
+    // MARK: - User Identity
+
+    /// Sets the stable user ID for Firebase Analytics so that retention, funnels,
+    /// and audience metrics can correctly link sessions to the same person.
+    /// Call after every successful login or session restore.
+    func setUserID(_ userId: String) {
+        Analytics.setUserID(userId)
+    }
+
+    /// Clears the user ID on logout so that subsequent events are not attributed
+    /// to the previous user (important on shared devices).
+    func clearUserID() {
+        Analytics.setUserID(nil)
+        Analytics.setUserProperty(nil, forName: "user_type")
+        Analytics.setUserProperty(nil, forName: "user_nationality")
+        // New user properties — must be cleared on logout to avoid cross-user data
+        Analytics.setUserProperty(nil, forName: "user_language")
+        Analytics.setUserProperty(nil, forName: "has_profile_image")
+        Analytics.setUserProperty(nil, forName: "onboarding_version")
+    }
+
+    /// Sets persistent user properties so Firebase Analytics can segment audiences.
+    /// - Parameters:
+    ///   - userType: Platform role (Entrepreneur, Mentor, Investor, Staff).
+    ///   - nationality: User's country of origin.
+    ///   - primaryLanguage: First language from the user's `languages` array (or "" if empty).
+    ///   - hasProfileImage: Whether the user has uploaded a profile image.
+    ///   - onboardingVersion: Onboarding flow version, e.g. "v1". Useful for A/B testing future flows.
+    func setUserProperties(
+        userType: String,
+        nationality: String,
+        primaryLanguage: String = "",
+        hasProfileImage: Bool = false,
+        onboardingVersion: String = "v1"
+    ) {
+        if !userType.isEmpty {
+            Analytics.setUserProperty(userType, forName: "user_type")
+        }
+        if !nationality.isEmpty {
+            Analytics.setUserProperty(nationality, forName: "user_nationality")
+        }
+        if !primaryLanguage.isEmpty {
+            Analytics.setUserProperty(primaryLanguage, forName: "user_language")
+        }
+        Analytics.setUserProperty(hasProfileImage ? "true" : "false", forName: "has_profile_image")
+        Analytics.setUserProperty(onboardingVersion, forName: "onboarding_version")
+    }
+
     // MARK: - Auth
 
     /// Called after successful email/password or Google login.
@@ -96,12 +144,18 @@ final class AnalyticsService {
         ])
     }
 
+    /// Conversion event — called the very first time a user sends any message.
+    /// Mark this as a conversion in Firebase Console → Analytics → Events → Conversions.
+    func logFirstMessageSent() {
+        Analytics.logEvent("first_message_sent", parameters: nil)
+    }
+
     /// Called when a new conversation is created (first message to a new contact).
     func logConversationCreated() {
         Analytics.logEvent("conversation_created", parameters: nil)
     }
 
-    /// Called when the user opens a conversation thread.
+    /// Called when the user opens a conversation thread (logged after first message batch loads).
     func logConversationOpened() {
         Analytics.logEvent("conversation_opened", parameters: nil)
     }
@@ -139,6 +193,18 @@ final class AnalyticsService {
         ])
     }
 
+    /// Called when the user spent time viewing a profile before closing it.
+    /// Useful to understand intent before a message is sent.
+    /// - Parameters:
+    ///   - seconds: How long the profile was open, in seconds.
+    ///   - userId: The ID of the profile being viewed.
+    func logProfileViewDuration(seconds: Int, userId: String) {
+        Analytics.logEvent("profile_view_duration", parameters: [
+            "view_duration_seconds": seconds,
+            AnalyticsParameterItemID: userId
+        ])
+    }
+
     // MARK: - Salesforce
 
     /// Called when Salesforce pre-fill data is applied to onboarding.
@@ -172,6 +238,20 @@ final class AnalyticsService {
         ])
     }
 
+    /// Conversion event — called the first time a user schedules a meeting.
+    /// Mark this as a conversion in Firebase Console → Analytics → Events → Conversions.
+    func logFirstMeetingScheduled() {
+        Analytics.logEvent("first_meeting_scheduled", parameters: nil)
+    }
+
+    /// Key funnel metric — how many messages were exchanged before the first meeting was scheduled.
+    /// Helps understand conversation depth needed to convert to a meeting.
+    func logMeetingToMessageRatio(messageCount: Int) {
+        Analytics.logEvent("meeting_to_message_ratio", parameters: [
+            "message_count_at_scheduling": messageCount
+        ])
+    }
+
     /// Called when the recipient accepts a meeting invite.
     func logMeetingAccepted(provider: String) {
         Analytics.logEvent("meeting_accepted", parameters: [
@@ -193,6 +273,15 @@ final class AnalyticsService {
     func logMeetingJoinLinkOpened(provider: String) {
         Analytics.logEvent("meeting_join_link_opened", parameters: [
             "video_provider": provider
+        ])
+    }
+
+    /// Called when a confirmed meeting's start time has passed — indicates meeting likely took place.
+    /// Triggered client-side from CalendarView when the user has confirmed events in the past.
+    func logMeetingCompleted(provider: String, durationMinutes: Int) {
+        Analytics.logEvent("meeting_completed", parameters: [
+            "video_provider": provider,
+            "duration_minutes": durationMinutes
         ])
     }
 
@@ -291,6 +380,37 @@ final class AnalyticsService {
             "failure_reason": reason
         ])
     }
+
+    // MARK: - Funnel: Search → Message
+
+    /// Key funnel metric — called when the user taps "Connect" on an AI search result,
+    /// i.e. they performed a search and then opened a conversation. Tracks the full
+    /// search-to-message funnel without needing BigQuery joins.
+    func logSearchToMessage(queryLengthBucket: String) {
+        Analytics.logEvent("search_to_message", parameters: [
+            "query_length_bucket": queryLengthBucket
+        ])
+    }
+
+    // MARK: - Session
+
+    /// Called when MainTabView disappears (app backgrounded / session ends).
+    /// Tracks the number of unique top-level tabs visited — a proxy for session engagement depth.
+    func logSessionDepth(screensVisited: Int) {
+        Analytics.logEvent("session_depth", parameters: [
+            "unique_screens_count": screensVisited
+        ])
+    }
+
+    // MARK: - App Open Source
+
+    /// Called on every app open to track how users returned to the app.
+    /// - Parameter source: One of "cold_start", "background", "push_notification".
+    func logAppOpenSource(source: AppOpenSource) {
+        Analytics.logEvent("app_open_source", parameters: [
+            "open_source": source.rawValue
+        ])
+    }
 }
 
 // MARK: - Login Method
@@ -299,4 +419,12 @@ enum LoginMethod: String {
     case email = "email"
     case google = "google"
     case apple = "apple"
+}
+
+// MARK: - App Open Source
+
+enum AppOpenSource: String {
+    case coldStart       = "cold_start"
+    case background      = "background"
+    case pushNotification = "push_notification"
 }

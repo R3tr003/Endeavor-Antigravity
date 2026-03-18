@@ -14,6 +14,21 @@
 				<string>com.googleusercontent.apps.306155509671-bh6m3qikgsrkfe8nvbushsvkuo6fhlkk</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>msauth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>msauth.com.endeavor.app</string>
+			</array>
+		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>msauthv2</string>
+		<string>msauthv3</string>
 	</array>
 	<key>GIDClientID</key>
 	<string>306155509671-bh6m3qikgsrkfe8nvbushsvkuo6fhlkk.apps.googleusercontent.com</string>

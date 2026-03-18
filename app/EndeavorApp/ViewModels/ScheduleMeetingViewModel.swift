@@ -15,7 +15,7 @@ class ScheduleMeetingViewModel: ObservableObject {
     @Published var isSending: Bool = false
     @Published var errorMessage: String? = nil
 
-    private let calendarRepository = FirebaseCalendarRepository()
+    private let calendarRepository: CalendarRepositoryProtocol = FirebaseCalendarRepository()
     private let messagesRepository: MessagesRepositoryProtocol = FirebaseMessagesRepository()
 
     init(prefilling event: CalendarEvent? = nil) {
@@ -43,6 +43,8 @@ class ScheduleMeetingViewModel: ObservableObject {
         currentUserId: String,
         recipientId: String,
         recipientName: String,
+        messageCount: Int = 0,
+        isFirstMeeting: Bool = false,
         declineEventId: String? = nil,
         completion: @escaping () -> Void
     ) {
@@ -85,24 +87,51 @@ class ScheduleMeetingViewModel: ObservableObject {
                 self.errorMessage = AppError.meetingSaveFailed.errorDescription
 
             case .success(let eventId):
-                self.messagesRepository.sendMeetingInviteMessage(
-                    conversationId: conversationId,
-                    senderId: currentUserId,
-                    recipientId: recipientId,
-                    eventId: eventId,
-                    eventTitle: self.title
-                ) { [weak self] error in
+                let capturedProvider = self.meetProvider
+                let capturedTitle = self.title
+                let capturedDuration = self.durationMinutes
+
+                let sendInvite = { [weak self] in
                     guard let self = self else { return }
-                    self.isSending = false
-                    if error != nil {
-                        self.errorMessage = AppError.meetingInviteFailed.errorDescription
-                    } else {
-                        AnalyticsService.shared.logMeetingInviteSent(
-                            durationMinutes: self.durationMinutes,
-                            provider: self.meetProvider.rawValue
-                        )
-                        completion()
+                    self.messagesRepository.sendMeetingInviteMessage(
+                        conversationId: conversationId,
+                        senderId: currentUserId,
+                        recipientId: recipientId,
+                        eventId: eventId,
+                        eventTitle: capturedTitle
+                    ) { [weak self] error in
+                        guard let self = self else { return }
+                        self.isSending = false
+                        if error != nil {
+                            self.errorMessage = AppError.meetingInviteFailed.errorDescription
+                        } else {
+                            AnalyticsService.shared.logMeetingInviteSent(
+                                durationMinutes: capturedDuration,
+                                provider: capturedProvider.rawValue
+                            )
+                            // Funnel: how many messages before the first meeting was scheduled
+                            AnalyticsService.shared.logMeetingToMessageRatio(messageCount: messageCount)
+                            // Conversion: first time this user schedules a meeting
+                            if isFirstMeeting {
+                                AnalyticsService.shared.logFirstMeetingScheduled()
+                            }
+                            completion()
+                        }
                     }
+                }
+
+                // Try to generate meet link from the sender's account before sending the invite.
+                // If successful, the Cloud Function already saves the link to Firestore.
+                // If the sender has no Google/Teams account, proceed without a link —
+                // the recipient will attempt generation on accept.
+                if capturedProvider != .none {
+                    MeetProviderService.shared.generateMeetLink(
+                        eventId: eventId,
+                        provider: capturedProvider,
+                        userId: currentUserId
+                    ) { _ in sendInvite() }
+                } else {
+                    sendInvite()
                 }
             }
         }

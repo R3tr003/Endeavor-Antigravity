@@ -183,6 +183,14 @@ struct MentorDiscoveryView: View {
                                                     reason: matchData.reason,
                                                     onConnect: {
                                                         AnalyticsService.shared.logAISearchResultTapped(rank: index + 1)
+                                                        // Funnel: user searched with AI and then opened a conversation
+                                                        let bucket: String
+                                                        switch query.count {
+                                                        case 0...20:  bucket = "short"
+                                                        case 21...80: bucket = "medium"
+                                                        default:      bucket = "long"
+                                                        }
+                                                        AnalyticsService.shared.logSearchToMessage(queryLengthBucket: bucket)
                                                         conversationsViewModel.getOrCreateConversation(with: matchData.profile.id.uuidString) { result in
                                                             if case .success(let convId) = result {
                                                                 let newConv = Conversation(

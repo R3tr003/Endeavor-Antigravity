@@ -109,5 +109,15 @@ service cloud.firestore {
       allow delete: if isAuthenticated()
                    && get(/databases/$(database)/documents/users/$(resource.data.userId)).data.email == request.auth.token.email;
     }
+
+    // Trigger documents written by the Cloud Function (checkMeetingCompletions) to signal
+    // that a confirmed meeting has passed. The iOS app reads these on CalendarView open,
+    // logs meeting_completed analytics client-side, then marks consumed: true.
+    // Only Cloud Functions (admin SDK) can CREATE; users can only read/update their own.
+    match /analytics_triggers/{docId} {
+      allow read, update: if isAuthenticated()
+                          && resource.data.userId == getUserUuid();
+      allow create, delete: if false;
+    }
   }
 }

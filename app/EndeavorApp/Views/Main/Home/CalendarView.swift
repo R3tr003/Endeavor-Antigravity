@@ -302,6 +302,7 @@ struct CalendarEventDetailView: View {
     @State private var otherCompany: CompanyProfile? = nil
     @State private var showReschedule = false
     @State private var showCancelAlert = false
+    @State private var linkCopied = false
     private let userRepo = FirebaseUserRepository()
     private let calendarRepo = FirebaseCalendarRepository()
     private let messagesRepo = FirebaseMessagesRepository()
@@ -480,6 +481,23 @@ struct CalendarEventDetailView: View {
                                         .font(.system(size: 15, design: .rounded))
                                         .foregroundColor(.primary)
                                     Spacer()
+                                    if hasLink {
+                                        Button(action: {
+                                            UIPasteboard.general.string = event.meetLink
+                                            linkCopied = true
+                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { linkCopied = false }
+                                        }) {
+                                            Image(systemName: linkCopied ? "checkmark" : "link")
+                                                .font(.system(size: 13, weight: .semibold))
+                                                .foregroundColor(linkCopied ? .white : .primary)
+                                                .frame(width: 34, height: 34)
+                                                .background(
+                                                    linkCopied ? Color.success : Color.secondary.opacity(0.15),
+                                                    in: Capsule()
+                                                )
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
                                     Button(action: {
                                         if let link = event.meetLink, !link.isEmpty {
                                             MeetProviderService.shared.openMeetingLink(link, provider: event.meetProvider)
@@ -522,6 +540,7 @@ struct CalendarEventDetailView: View {
                                         status: .cancelled,
                                         rescheduledBy: currentUserId
                                     ) { _ in }
+                                    MeetProviderService.shared.cancelGoogleCalendarEvent(eventId: event.id)
                                     showReschedule = true
                                 }) {
                                     Text(String(localized: "home.reschedule", defaultValue: "Reschedule"))
@@ -588,6 +607,7 @@ struct CalendarEventDetailView: View {
                         declinedBy: currentUserId
                     ) { [self] error in
                         guard error == nil else { return }
+                        MeetProviderService.shared.cancelGoogleCalendarEvent(eventId: event.id)
                         if let conversationId = event.conversationId {
                             messagesRepo.sendSystemMessage(
                                 conversationId: conversationId,

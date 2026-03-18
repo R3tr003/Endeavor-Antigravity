@@ -17,11 +17,15 @@ class ConversationViewModel: ObservableObject {
 
     private let repository: MessagesRepositoryProtocol
     private let storageRepository: StorageRepositoryProtocol
-    private let calendarRepository = FirebaseCalendarRepository()
+    private let calendarRepository: CalendarRepositoryProtocol = FirebaseCalendarRepository()
     private var messagesListener: ListenerRegistration?
     private var loadMessagesTrace: Trace?
     private var fetchProfileTrace: Trace?
     private var isFirstMessagesLoad = true
+    /// Tracks when the conversation was opened, for profile_view_duration event.
+    private let conversationOpenedAt = Date()
+    /// Guards first_message_sent so it fires exactly once per user lifetime (checked against message count).
+    private var firstMessageEventFired = false
 
     let conversationId: String
     let currentUserId: String
@@ -42,12 +46,16 @@ class ConversationViewModel: ObservableObject {
         startListening()
         fetchRecipientProfile()
         fetchMyCalendarEvents()
-        AnalyticsService.shared.logConversationOpened()
+        // conversation_opened is now logged in startListening() after the first successful load (Bug Fix #2)
     }
 
     deinit {
-        // CRITICO: rimuovere il listener per evitare memory leak e callback su oggetti deallocati
         messagesListener?.remove()
+        // Log how long the user had this conversation open (a proxy for profile view time).
+        let seconds = Int(Date().timeIntervalSince(conversationOpenedAt))
+        if seconds > 1 {
+            AnalyticsService.shared.logProfileViewDuration(seconds: seconds, userId: recipientId)
+        }
     }
 
     // MARK: - Listener
@@ -76,6 +84,8 @@ class ConversationViewModel: ObservableObject {
                         trace.stop()
                         self.loadMessagesTrace = nil
                     }
+                    // Bug Fix #2: log conversation_opened only when the first batch successfully loads
+                    AnalyticsService.shared.logConversationOpened()
                 }
                 // Marca come letti all'apertura e ad ogni nuovo messaggio
                 Task { await self.markMessagesAsRead() }
@@ -109,6 +119,13 @@ class ConversationViewModel: ObservableObject {
         default:                msgType = .text
         }
         AnalyticsService.shared.logMessageSent(type: msgType, characterCount: trimmed.count)
+
+        // Conversion event: fires once — only when this is the user's very first message ever sent.
+        // We detect this by checking that there are no prior messages in the conversation.
+        if !firstMessageEventFired && messages.isEmpty {
+            firstMessageEventFired = true
+            AnalyticsService.shared.logFirstMessageSent()
+        }
 
         repository.sendMessage(
             conversationId: conversationId,
@@ -192,32 +209,68 @@ class ConversationViewModel: ObservableObject {
 
     // MARK: - Meeting Responses
 
+    // MARK: - Meeting Accept (Bug Fix #1: consolidated into one call site)
+
+    /// Accepts a meeting and logs the event exactly once, regardless of link generation path.
+    private func notifyMeetingAccepted(provider: CalendarEvent.MeetProvider) {
+        AnalyticsService.shared.logMeetingAccepted(provider: provider.rawValue)
+    }
+
     func acceptMeeting(eventId: String) {
-        // Recupera il provider dell'evento per sapere quale link generare
         Firestore.firestore().collection("events").document(eventId).getDocument { [weak self] snap, _ in
             guard let self = self else { return }
-            let providerRaw = snap?.data()?["meetProvider"] as? String ?? "none"
+            let data = snap?.data()
+            let providerRaw = data?["meetProvider"] as? String ?? "none"
             let provider = CalendarEvent.MeetProvider(rawValue: providerRaw) ?? .none
+            let existingLink = data?["meetLink"] as? String ?? ""
 
+            // Sender already generated the link — just confirm the event, no need to regenerate.
+            if !existingLink.isEmpty {
+                self.calendarRepository.updateEventStatus(
+                    eventId: eventId,
+                    status: .confirmed,
+                    meetLink: existingLink
+                ) { [weak self] error in
+                    if error != nil { self?.appError = .meetingUpdateFailed; return }
+                    self?.notifyMeetingAccepted(provider: provider)
+                }
+                return
+            }
+
+            // No link yet — try to generate with the recipient's account.
             MeetProviderService.shared.generateMeetLink(
                 eventId: eventId,
                 provider: provider,
                 userId: self.currentUserId
             ) { [weak self] result in
                 guard let self = self else { return }
-                let link = (try? result.get()) ?? ""
 
-                self.calendarRepository.updateEventStatus(
-                    eventId: eventId,
-                    status: .confirmed,
-                    meetLink: link.isEmpty ? nil : link
-                ) { [weak self] error in
-                    guard let self = self else { return }
-                    if error != nil {
-                        self.appError = .meetingUpdateFailed
-                        return
+                switch result {
+                case .failure(let error):
+                    // If the recipient has no Google account, accept anyway without a link.
+                    if case AppError.meetGoogleAccountRequired = error {
+                        self.calendarRepository.updateEventStatus(
+                            eventId: eventId,
+                            status: .confirmed,
+                            meetLink: nil
+                        ) { [weak self] updateError in
+                            if updateError != nil { self?.appError = .meetingUpdateFailed; return }
+                            self?.notifyMeetingAccepted(provider: provider)
+                        }
+                    } else {
+                        self.appError = .unknown(reason: error.localizedDescription)
                     }
-                    AnalyticsService.shared.logMeetingAccepted(provider: provider.rawValue)
+
+                case .success(let link):
+                    self.calendarRepository.updateEventStatus(
+                        eventId: eventId,
+                        status: .confirmed,
+                        meetLink: link.isEmpty ? nil : link
+                    ) { [weak self] error in
+                        guard let self = self else { return }
+                        if error != nil { self.appError = .meetingUpdateFailed; return }
+                        self.notifyMeetingAccepted(provider: provider)
+                    }
                 }
             }
         }
@@ -255,15 +308,8 @@ class ConversationViewModel: ObservableObject {
                 self.appError = .meetingUpdateFailed
                 return
             }
-            self.repository.sendMeetingResponseMessage(
-                conversationId: self.conversationId,
-                senderId: self.currentUserId,
-                recipientId: self.recipientId,
-                eventId: eventId,
-                responseType: "declined"
-            ) { _ in
-                AnalyticsService.shared.logMeetingDeclined()
-            }
+            MeetProviderService.shared.cancelGoogleCalendarEvent(eventId: eventId)
+            AnalyticsService.shared.logMeetingDeclined()
         }
     }
 

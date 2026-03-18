@@ -223,11 +223,14 @@ struct ScheduleMeetingView: View {
 
                         // Bottone invia
                         Button(action: {
+                        let totalMessages = existingEvents.count
                             viewModel.send(
                                 conversationId: conversationId,
                                 currentUserId: currentUserId,
                                 recipientId: recipientId,
                                 recipientName: recipientName,
+                                messageCount: totalMessages,
+                                isFirstMeeting: existingEvents.filter({ $0.type == .meeting }).isEmpty,
                                 declineEventId: existingEvent?.id
                             ) {
                                 dismiss()

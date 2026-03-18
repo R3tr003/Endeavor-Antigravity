@@ -10,8 +10,9 @@ struct ConversationView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @State private var messageText: String = ""
-    @State private var showMediaMenu: Bool = false
+    @State private var showAttachmentPanel: Bool = false
     @State private var showPhotoPicker: Bool = false
+    @State private var showCameraPicker: Bool = false
     @State private var showDocumentPicker: Bool = false
     @State private var selectedImage: UIImage? = nil
     @State private var showScheduleMeeting: Bool = false
@@ -24,7 +25,6 @@ struct ConversationView: View {
         self.conversation = conversation
         self.currentUserId = currentUserId
 
-        // Calcola recipientId qui per passarlo al ViewModel
         let recipientId = conversation.participantIds.first { $0 != currentUserId } ?? ""
 
         self._viewModel = StateObject(wrappedValue: ConversationViewModel(
@@ -41,47 +41,29 @@ struct ConversationView: View {
             VStack(spacing: 0) {
                 headerBar
                 messagesScrollView
-                if viewModel.isUploadingMedia {
-                    ProgressView(String(localized: "messages.uploading_media", defaultValue: "Uploading Media..."))
-                        .font(.system(size: 13, design: .rounded))
-                        .padding(.vertical, 8)
-                }
-                
-                if let image = selectedImage {
-                    imagePreviewPanel(image: image)
-                }
-                
-                inputBar
             }
         }
         .onTapGesture {
             isInputFocused = false
-            withAnimation { showMediaMenu = false }
+            withAnimation(.easeInOut(duration: 0.25)) { showAttachmentPanel = false }
         }
-        // Action Sheet per selezione Media
-        .confirmationDialog(String(localized: "messages.choose_attachment", defaultValue: "Choose Attachment"), isPresented: $showMediaMenu, titleVisibility: .visible) {
-            Button(String(localized: "messages.photo_library", defaultValue: "Photo Library")) {
-                showPhotoPicker = true
-            }
-            Button(String(localized: "messages.files_documents", defaultValue: "Files & Documents")) {
-                showDocumentPicker = true
-            }
-            Button(String(localized: "common.cancel"), role: .cancel) {}
-        }
-        // Image Picker
+        // Image Picker (Photo Library)
         .sheet(isPresented: $showPhotoPicker) {
             ImagePicker(image: $selectedImage, sourceType: .photoLibrary, allowsEditing: false)
+        }
+        // Camera Picker
+        .sheet(isPresented: $showCameraPicker) {
+            ImagePicker(image: $selectedImage, sourceType: .camera, allowsEditing: false)
         }
         // Document Picker
         .fileImporter(
             isPresented: $showDocumentPicker,
-            allowedContentTypes: [.item], // General fallback for all file types
+            allowedContentTypes: [.item],
             allowsMultipleSelection: false
         ) { result in
             switch result {
             case .success(let urls):
                 guard let selectedUrl = urls.first else { return }
-                // Trigger upload function directly since we don't preview PDFs in the chat bar right now
                 viewModel.uploadAndSendDocument(url: selectedUrl, documentName: selectedUrl.lastPathComponent)
             case .failure(let error):
                 print("Error picking document: \(error)")
@@ -106,7 +88,6 @@ struct ConversationView: View {
                 existingEvent: event
             )
         }
-        // Mostra errori dal ViewModel (ex. problemi di permessi o Firebase)
         .alert(
             String(localized: "common.error", defaultValue: "Error"),
             isPresented: Binding(
@@ -119,7 +100,6 @@ struct ConversationView: View {
         } message: { error in
             Text(error.localizedDescription)
         }
-        // Avviso quando non ci sono abbastanza messaggi per pianificare un meeting
         .alert(
             String(localized: "schedule.not_ready_title", defaultValue: "Almost there!"),
             isPresented: $showNotEnoughMessagesAlert
@@ -182,11 +162,10 @@ struct ConversationView: View {
                     .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                     .lineLimit(1)
-                    // Se il profilo non è ancora caricato e il nome è vuoto/loading, mostra placeholder animato
                     .redacted(reason: viewModel.recipientProfile == nil && conversation.otherParticipantName == "Loading..." ? .placeholder : [])
                 Group {
                     let isLoadingCompany = (viewModel.recipientProfile != nil && viewModel.recipientCompanyName == nil)
-                    
+
                     if isLoadingCompany {
                         Text(String(localized: "messages.loading_company", defaultValue: "Loading company..."))
                             .font(.system(size: 11, design: .rounded))
@@ -196,9 +175,9 @@ struct ConversationView: View {
                     } else {
                         let company = viewModel.recipientCompanyName ?? conversation.otherParticipantCompany
                         let location = viewModel.recipientProfile?.location ?? ""
-                        
+
                         let subtitle = [company, location].filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: " • ")
-                        
+
                         if !subtitle.isEmpty {
                             Text(subtitle)
                                 .font(.system(size: 11, design: .rounded))
@@ -225,7 +204,6 @@ struct ConversationView: View {
                     return
                 }
                 AnalyticsService.shared.logMeetingScheduleOpened(conversationMessageCount: totalMessages)
-                // AI recheck in background (fire and forget)
                 viewModel.triggerAIRecheckIfNeeded(conversation: conversation)
                 showScheduleMeeting = true
             }) {
@@ -247,34 +225,6 @@ struct ConversationView: View {
         .overlay(Rectangle().frame(height: 1).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .bottom)
     }
 
-    // MARK: - Selected Image Preview
-    
-    private func imagePreviewPanel(image: UIImage) -> some View {
-        HStack {
-            ZStack(alignment: .topTrailing) {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 80, height: 80)
-                    .cornerRadius(DesignSystem.CornerRadius.small)
-                    .clipped()
-                
-                Button {
-                    withAnimation { selectedImage = nil }
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.black.opacity(0.6))
-                        .background(Circle().fill(.white))
-                }
-                .offset(x: 5, y: -5)
-            }
-            Spacer()
-        }
-        .padding(.horizontal, DesignSystem.Spacing.medium)
-        .padding(.top, DesignSystem.Spacing.small)
-        .background(.regularMaterial)
-    }
-
     // MARK: - Messages Scroll View
 
     private var messagesScrollView: some View {
@@ -285,7 +235,6 @@ struct ConversationView: View {
                         ProgressView()
                             .padding(.top, DesignSystem.Spacing.xxLarge)
                     } else {
-                        // Empty state
                         if !viewModel.isLoading && viewModel.messages.isEmpty {
                             VStack(spacing: DesignSystem.Spacing.medium) {
                                 Spacer().frame(height: DesignSystem.Spacing.xxLarge)
@@ -312,7 +261,6 @@ struct ConversationView: View {
                             .padding(.horizontal, DesignSystem.Spacing.large)
                         }
 
-                        // Lista messaggi (visibile quando messages non è vuoto)
                         VStack(spacing: DesignSystem.Spacing.small) {
                             ForEach(viewModel.messages) { msg in
                                 if msg.messageType == .meetingInvite {
@@ -374,7 +322,6 @@ struct ConversationView: View {
                                         if fromMe { Spacer() }
                                         VStack(alignment: fromMe ? .trailing : .leading, spacing: 4) {
                                         if let documentUrl = msg.documentUrl, let documentName = msg.documentName {
-                                            // Document Bubble
                                             Button(action: {
                                                 if let url = URL(string: documentUrl) {
                                                     UIApplication.shared.open(url)
@@ -404,7 +351,6 @@ struct ConversationView: View {
                                         }
 
                                         if let imageUrl = msg.imageUrl, let url = URL(string: imageUrl) {
-                                            // Image Bubble
                                             WebImage(url: url)
                                                 .resizable()
                                                 .indicator(.activity)
@@ -456,7 +402,6 @@ struct ConversationView: View {
                                                 )
                                         }
 
-                                        // Timestamp + spunte (solo per messaggi in uscita)
                                         let recipientId = conversation.participantIds.first(where: { $0 != currentUserId }) ?? ""
                                         if fromMe {
                                             HStack(spacing: 3) {
@@ -487,73 +432,234 @@ struct ConversationView: View {
                         .padding(.vertical, DesignSystem.Spacing.large)
                     }
                 }
-                .onChange(of: viewModel.messages.count) {
-                    if let lastId = viewModel.messages.last?.id {
-                        withAnimation { proxy.scrollTo(lastId, anchor: .bottom) }
-                    }
+                .defaultScrollAnchor(.bottom)
+                .scrollDismissesKeyboard(.interactively)
+                .onChange(of: viewModel.messages.last?.id) { _, lastId in
+                    guard let lastId else { return }
+                    proxy.scrollTo(lastId, anchor: .bottom)
                 }
                 .task {
-                    // Marca come "consegnati" i messaggi dell'altro al primo caricamento
                     await viewModel.markAsDelivered()
+                    if let lastId = viewModel.messages.last?.id {
+                        proxy.scrollTo(lastId, anchor: .bottom)
+                    }
                 }
             }
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            bottomBar
+        }
+    }
+
+    // MARK: - Bottom Bar (input + panels)
+
+    private var bottomBar: some View {
+        VStack(spacing: 0) {
+            if viewModel.isUploadingMedia {
+                ProgressView(String(localized: "messages.uploading_media", defaultValue: "Uploading Media..."))
+                    .font(.system(size: 13, design: .rounded))
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity)
+            }
+            if let image = selectedImage {
+                imagePreviewPanel(image: image)
+            }
+            inputBar
+            if showAttachmentPanel {
+                attachmentPanel
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .background {
+            Rectangle()
+                .fill(.regularMaterial)
+                .ignoresSafeArea(.all, edges: .bottom)
+        }
+        .overlay(Rectangle().frame(height: 0.5).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .top)
+    }
+
+    // MARK: - Selected Image Preview
+
+    private func imagePreviewPanel(image: UIImage) -> some View {
+        HStack {
+            ZStack(alignment: .topTrailing) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 80, height: 80)
+                    .cornerRadius(DesignSystem.CornerRadius.small)
+                    .clipped()
+
+                Button {
+                    withAnimation { selectedImage = nil }
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.black.opacity(0.6))
+                        .background(Circle().fill(.white))
+                }
+                .offset(x: 5, y: -5)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, DesignSystem.Spacing.medium)
+        .padding(.top, DesignSystem.Spacing.small)
     }
 
     // MARK: - Input Bar
 
     private var inputBar: some View {
-        HStack(spacing: DesignSystem.Spacing.small) {
+        HStack(spacing: 10) {
+            // + / keyboard toggle button
             Button(action: {
-                // Remove input focus to show native action sheet safely
-                isInputFocused = false
-                showMediaMenu = true
+                if showAttachmentPanel {
+                    withAnimation(.easeInOut(duration: 0.25)) { showAttachmentPanel = false }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { isInputFocused = true }
+                } else {
+                    isInputFocused = false
+                    withAnimation(.easeInOut(duration: 0.25)) { showAttachmentPanel = true }
+                }
             }) {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 28))
-                    .foregroundColor(.brandPrimary)
+                ZStack {
+                    Circle()
+                        .fill(showAttachmentPanel ? Color.brandPrimary : Color(.systemGray5).opacity(0.8))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: showAttachmentPanel ? "keyboard.fill" : "plus")
+                        .font(.system(size: showAttachmentPanel ? 13 : 15, weight: .semibold))
+                        .foregroundColor(showAttachmentPanel ? .white : .primary)
+                        .scaleEffect(showAttachmentPanel ? 0.95 : 1.0)
+                }
             }
 
+            // Text field
             TextField(String(localized: "messages.type_message", defaultValue: "Type a message..."), text: $messageText, axis: .vertical)
                 .lineLimit(1...4)
                 .font(.system(size: 16, design: .rounded))
                 .foregroundColor(.primary)
                 .focused($isInputFocused)
+                .onChange(of: isInputFocused) { _, focused in
+                    if focused { withAnimation(.easeInOut(duration: 0.25)) { showAttachmentPanel = false } }
+                }
                 .padding(.horizontal, DesignSystem.Spacing.standard)
-                .padding(.vertical, 10)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
+                .padding(.vertical, 7)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
                         .stroke(isInputFocused ? Color.brandPrimary.opacity(0.5) : Color.borderGlare.opacity(0.15), lineWidth: 1)
                         .animation(.easeInOut(duration: 0.2), value: isInputFocused)
                 )
 
+            // Send/Camera button
+            let canSend = !messageText.trimmingCharacters(in: .whitespaces).isEmpty || selectedImage != nil
             Button(action: {
-                let text = messageText
-                messageText = ""
-                isInputFocused = false
-                
-                if let finalImage = selectedImage {
-                    selectedImage = nil
-                    viewModel.uploadAndSendImage(finalImage, additionalText: text)
+                if canSend {
+                    let text = messageText
+                    messageText = ""
+                    isInputFocused = false
+                    withAnimation(.easeInOut(duration: 0.25)) { showAttachmentPanel = false }
+                    if let finalImage = selectedImage {
+                        selectedImage = nil
+                        viewModel.uploadAndSendImage(finalImage, additionalText: text)
+                    } else {
+                        viewModel.sendMessage(text: text)
+                    }
                 } else {
-                    viewModel.sendMessage(text: text)
+                    // No text: open camera directly
+                    isInputFocused = false
+                    withAnimation(.easeInOut(duration: 0.25)) { showAttachmentPanel = false }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { showCameraPicker = true }
                 }
             }) {
-                Image(systemName: "arrow.up.circle.fill")
-                    .font(.system(size: 32))
-                    .foregroundColor(
-                        (messageText.trimmingCharacters(in: .whitespaces).isEmpty && selectedImage == nil)
-                        ? .secondary.opacity(0.4)
-                        : .brandPrimary
-                    )
+                ZStack {
+                    Circle()
+                        .fill(canSend ? Color.brandPrimary : Color(.systemGray5).opacity(0.8))
+                        .frame(width: 36, height: 36)
+                    if canSend {
+                        Image("icon_send")
+                            .resizable()
+                            .renderingMode(.template)
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 18, height: 18)
+                            .foregroundColor(.white)
+                    } else {
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.primary)
+                    }
+                }
             }
-            .disabled(messageText.trimmingCharacters(in: .whitespaces).isEmpty && selectedImage == nil)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: canSend)
         }
         .padding(.horizontal, DesignSystem.Spacing.medium)
-        .padding(.vertical, DesignSystem.Spacing.small)
-        .background(.regularMaterial)
-        .overlay(Rectangle().frame(height: 0.5).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .top)
+        .padding(.vertical, 7)
+    }
+
+    // MARK: - Attachment Panel
+
+    private var attachmentPanel: some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
+            attachmentOption(
+                icon: "photo.on.rectangle.angled",
+                label: String(localized: "messages.photo_library", defaultValue: "Photos"),
+                gradient: [Color(hex: "3B82F6"), Color(hex: "6366F1")]
+            ) {
+                withAnimation(.easeInOut(duration: 0.25)) { showAttachmentPanel = false }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { showPhotoPicker = true }
+            }
+
+            attachmentOption(
+                icon: "camera.fill",
+                label: String(localized: "messages.camera", defaultValue: "Camera"),
+                gradient: [Color(.systemGray2), Color(.systemGray3)]
+            ) {
+                withAnimation(.easeInOut(duration: 0.25)) { showAttachmentPanel = false }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { showCameraPicker = true }
+            }
+
+            attachmentOption(
+                icon: "folder.fill",
+                label: String(localized: "messages.file", defaultValue: "File"),
+                gradient: [Color(hex: "10B981"), Color(hex: "059669")]
+            ) {
+                withAnimation(.easeInOut(duration: 0.25)) { showAttachmentPanel = false }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { showDocumentPicker = true }
+            }
+        }
+        .padding(.horizontal, DesignSystem.Spacing.large)
+        .padding(.top, 20)
+        .padding(.bottom, 28)
+    }
+
+    @ViewBuilder
+    private func attachmentOption(
+        icon: String,
+        label: String,
+        gradient: [Color],
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: gradient,
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 58, height: 58)
+                        .shadow(color: gradient.first?.opacity(0.35) ?? .clear, radius: 8, x: 0, y: 4)
+                    Image(systemName: icon)
+                        .font(.system(size: 24, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                Text(label)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     private func getInitials(from name: String) -> String {
@@ -568,7 +674,7 @@ struct ConversationView: View {
     }
 }
 
-// MARK: - RoundedCornerShape (invariato)
+// MARK: - RoundedCornerShape
 struct RoundedCornerShape: Shape {
     var radius: CGFloat
     var corners: UIRectCorner

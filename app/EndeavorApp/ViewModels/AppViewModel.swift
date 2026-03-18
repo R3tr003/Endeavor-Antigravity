@@ -145,6 +145,17 @@ class AppViewModel: ObservableObject {
                 self?.logout()
             } else if let firebaseUid = Auth.auth().currentUser?.uid,
                       let uuid = self?.currentUser?.id.uuidString {
+                // Set stable user ID and properties for Firebase Analytics
+                AnalyticsService.shared.setUserID(uuid)
+                if let profile = self?.currentUser {
+                    AnalyticsService.shared.setUserProperties(
+                        userType: profile.userType,
+                        nationality: profile.nationality,
+                        primaryLanguage: profile.languages.first ?? "",
+                        hasProfileImage: !profile.profileImageUrl.isEmpty,
+                        onboardingVersion: "v1"
+                    )
+                }
                 // Assicura che la mappatura firebaseUid -> uuid esista nel database messaging
                 self?.messagesRepository.saveUserMapping(firebaseUid: firebaseUid, uuid: uuid)
                 self?.sessionRestoreTrace?.stop()
@@ -394,6 +405,15 @@ class AppViewModel: ObservableObject {
                         UserDefaults.standard.set(true, forKey: "isOnboardingComplete")
                         UserDefaults.standard.set(true, forKey: "isLoggedIn")
 
+                        // Set stable user ID and properties for Firebase Analytics
+                        AnalyticsService.shared.setUserID(profile.id.uuidString)
+                        AnalyticsService.shared.setUserProperties(
+                            userType: profile.userType,
+                            nationality: profile.nationality,
+                            primaryLanguage: profile.languages.first ?? "",
+                            hasProfileImage: !profile.profileImageUrl.isEmpty,
+                            onboardingVersion: "v1"
+                        )
                         // Salva mappatura firebaseUid -> uuid per le regole Firestore del messaging
                         self?.messagesRepository.saveUserMapping(
                             firebaseUid: user.uid,
@@ -592,6 +612,15 @@ class AppViewModel: ObservableObject {
                                 userType: userToSave.userType,
                                 role: userToSave.role
                             )
+                            // Set stable user ID and properties for Firebase Analytics
+                            AnalyticsService.shared.setUserID(userToSave.id.uuidString)
+                            AnalyticsService.shared.setUserProperties(
+                                userType: userToSave.userType,
+                                nationality: userToSave.nationality,
+                                primaryLanguage: userToSave.languages.first ?? "",
+                                hasProfileImage: !userToSave.profileImageUrl.isEmpty,
+                                onboardingVersion: "v1"
+                            )
                             // Salva mappatura firebaseUid -> uuid per le regole Firestore del messaging
                             if let firebaseUid = Auth.auth().currentUser?.uid {
                                 self.messagesRepository.saveUserMapping(
@@ -788,6 +817,7 @@ class AppViewModel: ObservableObject {
     
     func logout() {
         AnalyticsService.shared.logLogout()
+        AnalyticsService.shared.clearUserID()
         authService.logout()
         userRepo.clearState()
         router.clearState()

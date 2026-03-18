@@ -5249,6 +5249,51 @@
           }
         }
       }
+    },
+    "meet.error_google_required" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Google Meet is only available for users signed in with Google." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Google Meet solo está disponible para usuarios que iniciaron sesión con Google." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Google Meet è disponibile solo per utenti che hanno effettuato l'accesso con Google." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Google Meet est uniquement disponible pour les utilisateurs connectés avec Google." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Google Meet está disponível apenas para usuários conectados com o Google." } }
+      }
+    },
+    "meet.error_signin_required" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Please sign in with Google to use Google Meet." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Inicia sesión con Google para usar Google Meet." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Accedi con Google per usare Google Meet." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connectez-vous avec Google pour utiliser Google Meet." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Faça login com o Google para usar o Google Meet." } }
+      }
+    },
+    "meet.error_generic" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Could not request Google Meet access. Please try again." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se pudo solicitar acceso a Google Meet. Inténtalo de nuevo." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Impossibile richiedere accesso a Google Meet. Riprova." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Impossible de demander l'accès à Google Meet. Veuillez réessayer." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Não foi possível solicitar acesso ao Google Meet. Tente novamente." } }
+      }
+    },
+    "meet.error_teams_signin_required" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Please sign in with your Microsoft account to use Teams." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Inicia sesión con tu cuenta Microsoft para usar Teams." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Accedi con il tuo account Microsoft per usare Teams." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Connectez-vous avec votre compte Microsoft pour utiliser Teams." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Faça login com sua conta Microsoft para usar o Teams." } }
+      }
+    },
+    "meet.error_teams_config" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Microsoft Teams configuration error. Please try again." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Error de configuración de Teams. Inténtalo de nuevo." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Errore di configurazione Teams. Riprova." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Erreur de configuration Teams. Veuillez réessayer." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Erro de configuração do Teams. Tente novamente." } }
+      }
     }
   },
   "version": "1.0"
