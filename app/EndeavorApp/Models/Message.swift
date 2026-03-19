@@ -30,18 +30,10 @@ struct Message: Identifiable, Codable, Equatable {
     var documentUrl: String?
     var documentName: String?
 
-    /// Formattazione timestamp per la UI (es. "10:32" o "Yesterday")
+    /// Ora di invio/ricezione — solo "HH:mm". Il giorno è mostrato dalle date separator pills nella chat.
     var displayTime: String {
-        let calendar = Calendar.current
         let formatter = DateFormatter()
-
-        if calendar.isDateInToday(createdAt) {
-            formatter.dateFormat = "HH:mm"
-        } else if calendar.isDateInYesterday(createdAt) {
-            return "Yesterday"
-        } else {
-            formatter.dateFormat = "dd/MM"
-        }
+        formatter.dateFormat = "HH:mm"
         return formatter.string(from: createdAt)
     }
 

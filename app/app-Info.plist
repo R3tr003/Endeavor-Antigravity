@@ -32,5 +32,7 @@
 	</array>
 	<key>GIDClientID</key>
 	<string>306155509671-bh6m3qikgsrkfe8nvbushsvkuo6fhlkk.apps.googleusercontent.com</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Endeavor needs access to save photos from conversations to your library.</string>
 </dict>
 </plist>

@@ -184,6 +184,7 @@ struct NetworkView: View {
                             } else {
                                 ForEach(categoryFilteredProfiles, id: \.id) { profile in
                                     Button(action: {
+                                        AnalyticsService.shared.logProfileViewed(userId: profile.id.uuidString)
                                         selectedProfile = profile
                                     }) {
                                         networkCard(profile: profile)
@@ -308,6 +309,7 @@ struct NetworkView: View {
                 
                 // Action Buttons (Side by Side)
                 Button(action: {
+                    AnalyticsService.shared.logProfileViewed(userId: profile.id.uuidString)
                     selectedProfile = profile
                 }) {
                     Text(String(localized: "network.view_profile"))

@@ -1021,6 +1021,96 @@
         }
       }
     },
+    "messages.camera": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Camera" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cámara" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Fotocamera" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Caméra" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Câmera" } }
+      }
+    },
+    "messages.download_document": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Download Document" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Descargar documento" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Scarica documento" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Télécharger le document" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Baixar documento" } }
+      }
+    },
+    "messages.file": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "File" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Archivo" } },
+        "it": { "stringUnit": { "state": "translated", "value": "File" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Fichier" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Arquivo" } }
+      }
+    },
+    "messages.loading_company": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Loading company..." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cargando empresa..." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Caricamento azienda..." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Chargement entreprise..." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Carregando empresa..." } }
+      }
+    },
+    "messages.photo_library": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Photos" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Fotos" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Foto" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Photos" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Fotos" } }
+      }
+    },
+    "messages.send_message_connect": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Send a message to connect with this person." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Envía un mensaje para conectar con esta persona." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Invia un messaggio per connetterti con questa persona." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Envoyez un message pour vous connecter avec cette personne." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Envie uma mensagem para se conectar com esta pessoa." } }
+      }
+    },
+    "messages.start_the_conversation": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Start the conversation" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Inicia la conversación" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Inizia la conversazione" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Démarrez la conversation" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Inicie a conversa" } }
+      }
+    },
+    "messages.type_message": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Type a message..." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Escribe un mensaje..." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Scrivi un messaggio..." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Écrivez un message..." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Digite uma mensagem..." } }
+      }
+    },
+    "messages.uploading_media": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Uploading Media..." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Subiendo archivo..." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Caricamento in corso..." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Envoi du fichier..." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Enviando arquivo..." } }
+      }
+    },
+    "messages.view_download": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "View & Download" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ver y descargar" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Visualizza e scarica" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Voir et télécharger" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Ver e baixar" } }
+      }
+    },
     "profile.edit_profile": {
       "localizations": {
         "en": {
@@ -1085,6 +1175,40 @@
           "stringUnit": {
             "state": "translated",
             "value": "Configurações"
+          }
+        }
+      }
+    },
+    "profile.about": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acerca de"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Info"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À propos"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sobre"
           }
         }
       }
@@ -2802,6 +2926,24 @@
         }
       }
     },
+    "common.today" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Today" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Hoy" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Oggi" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aujourd'hui" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Hoje" } }
+      }
+    },
+    "common.yesterday" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Yesterday" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ayer" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Ieri" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Hier" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ontem" } }
+      }
+    },
     "common.ok": {
       "localizations": {
         "en": {
@@ -2868,6 +3010,33 @@
             "value": "Carregando..."
           }
         }
+      }
+    },
+    "common.no_connection_title": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "No Internet Connection" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Sin conexión a Internet" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Nessuna connessione Internet" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Pas de connexion Internet" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Sem conexão com a Internet" } }
+      }
+    },
+    "common.no_connection_body": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Check your connection and try again." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Verifica tu conexión e inténtalo de nuevo." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Controlla la connessione e riprova." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Vérifiez votre connexion et réessayez." } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Verifique sua conexão e tente novamente." } }
+      }
+    },
+    "common.try_again": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Try Again" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Intentar de nuevo" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Riprova" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Réessayer" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Tentar novamente" } }
       }
     },
     "messages.filtered": {
@@ -5293,6 +5462,87 @@
         "it" : { "stringUnit" : { "state" : "translated", "value" : "Errore di configurazione Teams. Riprova." } },
         "fr" : { "stringUnit" : { "state" : "translated", "value" : "Erreur de configuration Teams. Veuillez réessayer." } },
         "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Erro de configuração do Teams. Tente novamente." } }
+      }
+    },
+    "messages.view_photo" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "View Photo" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ver foto" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Visualizza foto" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Voir la photo" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Ver foto" } }
+      }
+    },
+    "messages.save_to_photos" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save to Photos" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Guardar en Fotos" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Salva in Foto" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Enregistrer dans Photos" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Salvar em Fotos" } }
+      }
+    },
+    "messages.save" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Save" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Guardar" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Salva" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Enregistrer" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Salvar" } }
+      }
+    },
+    "messages.saved" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Saved!" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¡Guardado!" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Salvato!" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Enregistré !" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Salvo!" } }
+      }
+    },
+    "messages.share" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Share" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Compartir" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Condividi" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Partager" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Compartilhar" } }
+      }
+    },
+    "messages.you" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "You" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tú" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Tu" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vous" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Você" } }
+      }
+    },
+    "messages.photos_permission_title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Photos Access Required" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acceso a Fotos requerido" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Accesso a Foto necessario" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Accès aux Photos requis" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Acesso às Fotos necessário" } }
+      }
+    },
+    "messages.photos_permission_body" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Allow Endeavor to save photos in iOS Settings > Privacy > Photos." } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Permite a Endeavor guardar fotos en Ajustes iOS > Privacidad > Fotos." } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Consenti a Endeavor di salvare foto in Impostazioni iOS > Privacy > Foto." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Autorisez Endeavor à enregistrer des photos dans Réglages iOS > Confidentialité > Photos." } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Permita que Endeavor salve fotos em Ajustes iOS > Privacidade > Fotos." } }
+      }
+    },
+    "settings.open_settings" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open Settings" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abrir Ajustes" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Apri Impostazioni" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrir les Réglages" } },
+        "pt-BR" : { "stringUnit" : { "state" : "translated", "value" : "Abrir Ajustes" } }
       }
     }
   },

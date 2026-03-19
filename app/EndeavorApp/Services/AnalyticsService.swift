@@ -285,6 +285,11 @@ final class AnalyticsService {
         ])
     }
 
+    /// Called when the user saves an image from chat to the photo library.
+    func logChatImageSaved() {
+        Analytics.logEvent("chat_image_saved", parameters: nil)
+    }
+
     // MARK: - AI Filter
 
     /// Called when a conversation is filtered as spam by the AI (trigger or recheck).

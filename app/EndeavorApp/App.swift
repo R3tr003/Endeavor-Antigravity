@@ -56,6 +56,13 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         return true
     }
 
+    // MARK: - Background resume
+    // This fires ONLY when the app returns from background — never on cold start.
+    // Cold start is already handled in didFinishLaunchingWithOptions above.
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        AnalyticsService.shared.logAppOpenSource(source: .background)
+    }
+
     // MARK: - Push Notification delegate
     // Called when the user taps a push notification while the app is in background/foreground.
     func userNotificationCenter(
@@ -114,26 +121,27 @@ struct EndeavorApp: App {
             .animation(.default, value: appViewModel.isLoggedIn)
             .animation(.default, value: appViewModel.isOnboardingComplete)
             .preferredColorScheme(appViewModel.colorScheme)
+            .alert(
+                String(localized: "common.no_connection_title", defaultValue: "No Internet Connection"),
+                isPresented: $appViewModel.isOffline
+            ) {
+                Button(String(localized: "common.try_again", defaultValue: "Try Again")) {
+                    appViewModel.retryConnectivity()
+                }
+            } message: {
+                Text(String(localized: "common.no_connection_body",
+                            defaultValue: "Check your connection and try again."))
+            }
             .onOpenURL { url in
                 MSALPublicClientApplication.handleMSALResponse(url, sourceApplication: nil)
                 GIDSignIn.sharedInstance.handle(url)
             }
             .onChange(of: scenePhase) { _, newPhase in
                 switch newPhase {
-                case .background:
-                    print("📱 App moved to background")
-                case .active:
-                    // Distinguish between background resume and cold start.
-                    // Cold start is already logged in AppDelegate.didFinishLaunchingWithOptions.
-                    // Here we only log if Firebase is already initialized (i.e. this is a background resume).
-                    if FirebaseApp.app() != nil {
-                        AnalyticsService.shared.logAppOpenSource(source: .background)
-                    }
-                    print("📱 App became active")
-                case .inactive:
-                    print("📱 App became inactive")
-                @unknown default:
-                    break
+                case .background: print("📱 App moved to background")
+                case .active:     print("📱 App became active")
+                case .inactive:   print("📱 App became inactive")
+                @unknown default: break
                 }
             }
         }

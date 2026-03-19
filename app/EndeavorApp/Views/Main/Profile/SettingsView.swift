@@ -59,14 +59,10 @@ struct SettingsView: View {
                 if scrollOffset < -40 {
                     HStack {
                         Spacer()
-                        Button(action: { presentationMode.wrappedValue.dismiss() }) {
-                            Text(String(localized: "common.done"))
-                                .font(.headline)
-                                .foregroundColor(.brandPrimary)
-                                .padding(.horizontal, DesignSystem.Spacing.standard)
-                                .padding(.vertical, DesignSystem.Spacing.xSmall)
-                                .background(.ultraThinMaterial, in: Capsule())
+                        Button(String(localized: "common.done", defaultValue: "Done")) {
+                            presentationMode.wrappedValue.dismiss()
                         }
+                        .foregroundColor(.brandPrimary)
                     }
                     .padding()
                     .background(.ultraThinMaterial)
@@ -76,12 +72,10 @@ struct SettingsView: View {
                 } else {
                     HStack {
                         Spacer()
-                        Button(action: { presentationMode.wrappedValue.dismiss() }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 28))
-                                .foregroundColor(.secondary)
-                                .symbolRenderingMode(.hierarchical)
+                        Button(String(localized: "common.done", defaultValue: "Done")) {
+                            presentationMode.wrappedValue.dismiss()
                         }
+                        .foregroundColor(.brandPrimary)
                     }
                     .padding()
                 }

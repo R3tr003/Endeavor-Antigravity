@@ -2,18 +2,14 @@ import SwiftUI
 import SDWebImageSwiftUI
 import FirebaseFirestore
 
-struct UserProfileView: View {
+struct ChatUserProfileView: View {
     let profile: UserProfile
     let companyName: String?
 
-    @EnvironmentObject private var conversationsViewModel: ConversationsViewModel
     @State private var company: CompanyProfile? = nil
     @State private var isLoadingCompany: Bool = true
-    @State private var isStartingConversation: Bool = false
-    @State private var activeConversation: Conversation? = nil
-    @State private var showConversation: Bool = false
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -36,17 +32,13 @@ struct UserProfileView: View {
                     .ignoresSafeArea()
                 }
 
-                VStack(spacing: 0) {
-                    ScrollView(showsIndicators: false) {
-                        VStack(spacing: DesignSystem.Spacing.xLarge) {
-                            heroSection
-                            if !profile.personalBio.isEmpty { aboutSection }
-                            companySection
-                        }
-                        .padding(.bottom, 100)
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: DesignSystem.Spacing.xLarge) {
+                        heroSection
+                        if !profile.personalBio.isEmpty { aboutSection }
+                        companySection
                     }
-
-                    messageButton
+                    .padding(.bottom, DesignSystem.Spacing.xxLarge)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -83,12 +75,11 @@ struct UserProfileView: View {
                 }
         }
     }
-    
+
     // MARK: - Sections
-    
+
     private var heroSection: some View {
         VStack(spacing: 12) {
-            // Avatar 110x110 centrato
             Group {
                 if !profile.profileImageUrl.isEmpty {
                     WebImage(url: URL(string: profile.profileImageUrl))
@@ -110,12 +101,10 @@ struct UserProfileView: View {
                 }
             }
 
-            // Nome
             Text(profile.fullName)
                 .font(.system(size: 28, weight: .bold, design: .rounded))
                 .multilineTextAlignment(.center)
 
-            // userType badge — solo se non vuoto
             if !profile.userType.isEmpty {
                 Text(profile.userType)
                     .font(.system(size: 12, weight: .bold, design: .rounded))
@@ -125,13 +114,11 @@ struct UserProfileView: View {
                     .background(Color.brandPrimary.opacity(0.15), in: Capsule())
             }
 
-            // Role
             Text(profile.role)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
 
-            // Location
             if !profile.location.isEmpty {
                 HStack(spacing: 4) {
                     Image(systemName: "mappin.circle.fill").foregroundColor(.brandPrimary)
@@ -139,10 +126,9 @@ struct UserProfileView: View {
                 }
             }
         }
-        .padding(.top, DesignSystem.Spacing.standard)
         .padding(.horizontal, DesignSystem.Spacing.large)
     }
-    
+
     private var aboutSection: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
             sectionTitle(String(localized: "profile.about", defaultValue: "About"))
@@ -169,10 +155,8 @@ struct UserProfileView: View {
             } else if let company = company {
                 DashboardCard {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
-            
-                        // Header: logo + nome + location + link
+
                         HStack(spacing: DesignSystem.Spacing.standard) {
-                            // Logo 52x52 o fallback
                             Group {
                                 if !company.logoUrl.isEmpty {
                                     WebImage(url: URL(string: company.logoUrl))
@@ -186,7 +170,7 @@ struct UserProfileView: View {
                                         .overlay(Image(systemName: "building.2.fill").foregroundColor(.secondary.opacity(0.4)))
                                 }
                             }
-            
+
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(company.name).font(.title3.weight(.bold))
                                 if !company.hqCity.isEmpty {
@@ -202,10 +186,9 @@ struct UserProfileView: View {
                                 }
                             }
                         }
-            
+
                         Divider().opacity(0.15)
-            
-                        // Badges and Industries
+
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: DesignSystem.Spacing.xSmall) {
                                 ForEach(company.industries, id: \.self) { item in
@@ -222,8 +205,7 @@ struct UserProfileView: View {
                                 if !company.employeeRange.isEmpty { outlinedBadge(company.employeeRange) }
                             }
                         }
-            
-                        // companyBio
+
                         if !company.companyBio.isEmpty {
                             Text(company.companyBio)
                                 .font(.footnote).foregroundColor(.secondary)
@@ -236,63 +218,9 @@ struct UserProfileView: View {
             }
         }
     }
-    
 
-    
-    private var messageButton: some View {
-        Button(action: {
-            isStartingConversation = true
-            AnalyticsService.shared.logConnectionRequestSent()
-            conversationsViewModel.getOrCreateConversation(with: profile.id.uuidString) { result in
-                DispatchQueue.main.async {
-                    isStartingConversation = false
-                    if case .success(let conversationId) = result {
-                        let newConv = Conversation(
-                            id: conversationId,
-                            participantIds: [UserDefaults.standard.string(forKey: "userId") ?? "", profile.id.uuidString],
-                            lastMessage: "",
-                            lastMessageAt: Date(),
-                            lastSenderId: "",
-                            unreadCounts: [:],
-                            otherParticipantName: profile.fullName,
-                            otherParticipantCompany: companyName ?? profile.role,
-                            otherParticipantImageUrl: profile.profileImageUrl
-                        )
-                        activeConversation = newConv
-                        showConversation = true
-                    }
-                }
-            }
-        }) {
-            HStack(spacing: DesignSystem.Spacing.small) {
-                if isStartingConversation {
-                    ProgressView().tint(.white)
-                } else {
-                    Image(systemName: "message.fill")
-                    Text(String(localized: "messages.start_conversation"))
-                }
-            }
-            .font(.system(size: 16, weight: .semibold, design: .rounded))
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity)
-            .frame(height: DesignSystem.Layout.largeButtonHeight)
-            .background(Color.brandPrimary)
-            .clipShape(Capsule())
-        }
-        .disabled(isStartingConversation)
-        .padding(.horizontal, DesignSystem.Spacing.large)
-        .padding(.vertical, DesignSystem.Spacing.standard)
-        .background(.ultraThinMaterial)
-        .sheet(isPresented: $showConversation) {
-            if let conv = activeConversation,
-               let currentUserId = UserDefaults.standard.string(forKey: "userId") {
-                ConversationView(conversation: conv, currentUserId: currentUserId)
-            }
-        }
-    }
-    
     // MARK: - Helper Views
-    
+
     private func sectionTitle(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 12, weight: .bold, design: .rounded))
@@ -304,20 +232,8 @@ struct UserProfileView: View {
     private func outlinedBadge(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 13, weight: .medium, design: .rounded))
-            .foregroundColor(.primary.opacity(0.85)) // Increased legibility
+            .foregroundColor(.primary.opacity(0.85))
             .padding(.horizontal, 12).padding(.vertical, 6)
             .overlay(Capsule().stroke(Color.secondary.opacity(0.3), lineWidth: 1))
-    }
-
-    private func infoRow(icon: String, text: String) -> some View {
-        HStack(spacing: DesignSystem.Spacing.small) {
-            Image(systemName: icon)
-                .font(.system(size: 14))
-                .foregroundColor(.brandPrimary)
-                .frame(width: 20)
-            Text(text)
-                .font(.subheadline)
-                .foregroundColor(.primary.opacity(0.85))
-        }
     }
 }

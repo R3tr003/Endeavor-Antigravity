@@ -4,6 +4,7 @@ import FirebaseAuth
 import FirebaseStorage
 import GoogleSignIn
 import FirebasePerformance
+import Network
 
 /// `AppViewModel` acts as a Facade Coordinator. 
 /// It maintains the exact same `@Published` API to avoid breaking existing views,
@@ -46,6 +47,7 @@ class AppViewModel: ObservableObject {
     
     // Pending Auth State for Onboarding (account will be created ONLY at the end)
     @Published var isOnboardingAuthPending: Bool = false
+    @Published var isOffline: Bool = false
     private var pendingEmail: String?
     private var pendingPassword: String?
     private var pendingGoogleIdToken: String?
@@ -95,11 +97,42 @@ class AppViewModel: ObservableObject {
     }
     
     // MARK: - Initialization
+
     private func checkInitialAuthState() {
         authCheckTrace = Performance.startTrace(name: "Auth_Check_Duration")
-        self.isCheckingAuth = true
+        isCheckingAuth = true
+        isOffline = false
+
+        // Connectivity gate — check before touching Firestore (offline persistence
+        // would otherwise return stale cached data and skip the real network check).
+        let monitor = NWPathMonitor()
+        let queue = DispatchQueue(label: "com.endeavor.connectivity", qos: .userInitiated)
+        monitor.pathUpdateHandler = { [weak self] path in
+            monitor.cancel()
+            DispatchQueue.main.async {
+                guard let self else { return }
+                if path.status != .satisfied {
+                    self.isCheckingAuth = false
+                    self.isOffline = true
+                    self.authCheckTrace?.stop()
+                    self.authCheckTrace = nil
+                    return
+                }
+                self.performAuthCheck()
+            }
+        }
+        monitor.start(queue: queue)
+    }
+
+    /// Called by "Try Again" in the offline alert — resets state and re-runs the startup check.
+    func retryConnectivity() {
+        isOffline = false
+        checkInitialAuthState()
+    }
+
+    private func performAuthCheck() {
         let savedIsLoggedIn = UserDefaults.standard.bool(forKey: "isLoggedIn")
-        
+
         // Stale Firebase Session Check
         if !savedIsLoggedIn && Auth.auth().currentUser != nil {
             print("⚠️ Stale Firebase session detected. Signing out.")
@@ -109,11 +142,10 @@ class AppViewModel: ObservableObject {
             authCheckTrace?.stop()
             return
         }
-        
+
         authService.isLoggedIn = savedIsLoggedIn
-        
+
         if authService.isLoggedIn && router.isOnboardingComplete {
-            // Auth state determinato: stoppa subito il trace di check (operazione sync, deve essere veloce)
             authCheckTrace?.stop()
             authCheckTrace = nil
             restoreSession()

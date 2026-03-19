@@ -64,11 +64,34 @@ class CalendarViewModel: ObservableObject {
             DispatchQueue.main.async {
                 self?.isLoading = false
                 switch result {
-                case .success(let events): self?.events = events
+                case .success(let events):
+                    self?.events = events
+                    self?.logCompletedMeetingsIfNeeded(events: events)
                 case .failure(let error):
                     self?.appError = .unknown(reason: error.localizedDescription)
                 }
             }
         }
+    }
+
+    // Fires meeting_completed once per event, using UserDefaults to avoid re-logging.
+    private func logCompletedMeetingsIfNeeded(events: [CalendarEvent]) {
+        let key = "loggedCompletedMeetingIds"
+        var logged = Set(UserDefaults.standard.stringArray(forKey: key) ?? [])
+        let now = Date()
+        var changed = false
+        for event in events {
+            guard event.status == .confirmed,
+                  event.endDate < now,
+                  !logged.contains(event.id) else { continue }
+            let minutes = Int(event.endDate.timeIntervalSince(event.startDate) / 60)
+            AnalyticsService.shared.logMeetingCompleted(
+                provider: event.meetProvider.rawValue,
+                durationMinutes: minutes
+            )
+            logged.insert(event.id)
+            changed = true
+        }
+        if changed { UserDefaults.standard.set(Array(logged), forKey: key) }
     }
 }

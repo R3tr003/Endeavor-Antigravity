@@ -1,6 +1,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 import UniformTypeIdentifiers
+import Photos
 
 struct ConversationView: View {
     let conversation: Conversation
@@ -9,6 +10,7 @@ struct ConversationView: View {
     @StateObject private var viewModel: ConversationViewModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var conversationsViewModel: ConversationsViewModel
     @State private var messageText: String = ""
     @State private var showAttachmentPanel: Bool = false
     @State private var showPhotoPicker: Bool = false
@@ -18,6 +20,10 @@ struct ConversationView: View {
     @State private var showScheduleMeeting: Bool = false
     @State private var proposeNewForEvent: CalendarEvent? = nil
     @State private var showNotEnoughMessagesAlert: Bool = false
+    @State private var showRecipientProfile: Bool = false
+
+    // Image viewer state
+    @State private var selectedImageIndex: Int? = nil
 
     @FocusState private var isInputFocused: Bool
 
@@ -88,6 +94,23 @@ struct ConversationView: View {
                 existingEvent: event
             )
         }
+        .sheet(isPresented: $showRecipientProfile) {
+            if let profile = viewModel.recipientProfile {
+                ChatUserProfileView(
+                    profile: profile,
+                    companyName: viewModel.recipientCompanyName
+                )
+            }
+        }
+        .fullScreenCover(item: Binding(
+            get: { selectedImageIndex.map { IdentifiableInt(value: $0) } },
+            set: { selectedImageIndex = $0?.value }
+        )) { item in
+            ChatImageViewerView(
+                images: imageItems,
+                initialIndex: item.value
+            )
+        }
         .alert(
             String(localized: "common.error", defaultValue: "Error"),
             isPresented: Binding(
@@ -131,62 +154,69 @@ struct ConversationView: View {
             let accentColor = conversation.accentColor(currentUserId: currentUserId)
             let currentName = viewModel.recipientProfile?.fullName ?? conversation.otherParticipantName
 
-            ZStack {
-                Circle()
-                    .fill(accentColor.opacity(0.15))
-                    .frame(width: 38, height: 38)
-
-                if imageUrl.isEmpty {
-                    Text(getInitials(from: currentName))
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
-                        .foregroundColor(accentColor)
-                } else {
-                    WebImage(url: URL(string: imageUrl)) { image in
-                        image
-                            .resizable()
-                            .scaledToFill()
+            Button(action: {
+                if viewModel.recipientProfile != nil { showRecipientProfile = true }
+            }) {
+                HStack(spacing: DesignSystem.Spacing.small) {
+                    ZStack {
+                        Circle()
+                            .fill(accentColor.opacity(0.15))
                             .frame(width: 38, height: 38)
-                            .clipShape(Circle())
-                    } placeholder: {
-                        EmptyView()
+
+                        if imageUrl.isEmpty {
+                            Text(getInitials(from: currentName))
+                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                .foregroundColor(accentColor)
+                        } else {
+                            WebImage(url: URL(string: imageUrl)) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 38, height: 38)
+                                    .clipShape(Circle())
+                            } placeholder: {
+                                EmptyView()
+                            }
+                            .transition(.fade(duration: 0))
+                        }
                     }
-                    .transition(.fade(duration: 0))
-                }
-            }
-            .transaction { $0.animation = nil }
-            .frame(width: 38, height: 38)
-            .clipShape(Circle())
+                    .transaction { $0.animation = nil }
+                    .frame(width: 38, height: 38)
+                    .clipShape(Circle())
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(currentName)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-                    .redacted(reason: viewModel.recipientProfile == nil && conversation.otherParticipantName == "Loading..." ? .placeholder : [])
-                Group {
-                    let isLoadingCompany = (viewModel.recipientProfile != nil && viewModel.recipientCompanyName == nil)
-
-                    if isLoadingCompany {
-                        Text(String(localized: "messages.loading_company", defaultValue: "Loading company..."))
-                            .font(.system(size: 11, design: .rounded))
-                            .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(currentName)
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
                             .lineLimit(1)
-                            .redacted(reason: .placeholder)
-                    } else {
-                        let company = viewModel.recipientCompanyName ?? conversation.otherParticipantCompany
-                        let location = viewModel.recipientProfile?.location ?? ""
+                            .redacted(reason: viewModel.recipientProfile == nil && conversation.otherParticipantName == "Loading..." ? .placeholder : [])
+                        Group {
+                            let isLoadingCompany = (viewModel.recipientProfile != nil && viewModel.recipientCompanyName == nil)
 
-                        let subtitle = [company, location].filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: " • ")
+                            if isLoadingCompany {
+                                Text(String(localized: "messages.loading_company", defaultValue: "Loading company..."))
+                                    .font(.system(size: 11, design: .rounded))
+                                    .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
+                                    .lineLimit(1)
+                                    .redacted(reason: .placeholder)
+                            } else {
+                                let company = viewModel.recipientCompanyName ?? conversation.otherParticipantCompany
+                                let location = viewModel.recipientProfile?.location ?? ""
 
-                        if !subtitle.isEmpty {
-                            Text(subtitle)
-                                .font(.system(size: 11, design: .rounded))
-                                .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
-                                .lineLimit(1)
+                                let subtitle = [company, location].filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: " • ")
+
+                                if !subtitle.isEmpty {
+                                    Text(subtitle)
+                                        .font(.system(size: 11, design: .rounded))
+                                        .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
+                                        .lineLimit(1)
+                                }
+                            }
                         }
                     }
                 }
             }
+            .buttonStyle(.plain)
 
             Spacer()
 
@@ -262,7 +292,16 @@ struct ConversationView: View {
                         }
 
                         VStack(spacing: DesignSystem.Spacing.small) {
-                            ForEach(viewModel.messages) { msg in
+                            ForEach(Array(viewModel.messages.enumerated()), id: \.element.id) { idx, msg in
+                                // Date separator pill — shown when the day changes between messages
+                                let prevMsg = idx > 0 ? viewModel.messages[idx - 1] : nil
+                                let isNewDay = prevMsg.map {
+                                    !Calendar.current.isDate(msg.createdAt, inSameDayAs: $0.createdAt)
+                                } ?? true
+                                if isNewDay {
+                                    dateSeparatorPill(date: msg.createdAt)
+                                }
+
                                 if msg.messageType == .meetingInvite {
                                     let fromMe = viewModel.isFromMe(msg)
                                     HStack {
@@ -350,22 +389,38 @@ struct ConversationView: View {
                                             }
                                         }
 
-                                        if let imageUrl = msg.imageUrl, let url = URL(string: imageUrl) {
-                                            WebImage(url: url)
+                                        if let imageUrl = msg.imageUrl {
+                                            WebImage(url: URL(string: imageUrl))
                                                 .resizable()
                                                 .indicator(.activity)
-                                                .scaledToFit()
-                                                .frame(maxWidth: 200, maxHeight: 200)
+                                                .scaledToFill()
+                                                .frame(width: 200, height: 200)
+                                                .clipped()
                                                 .cornerRadius(DesignSystem.CornerRadius.medium)
                                                 .padding(.bottom, msg.text.isEmpty ? 0 : 4)
                                                 .onTapGesture {
-                                                    UIApplication.shared.open(url)
+                                                    selectedImageIndex = imageItems.firstIndex(where: { $0.url == imageUrl })
                                                 }
                                                 .contextMenu {
                                                     Button {
-                                                        UIApplication.shared.open(url)
+                                                        selectedImageIndex = imageItems.firstIndex(where: { $0.url == imageUrl })
                                                     } label: {
-                                                        Label(String(localized: "messages.view_download", defaultValue: "View & Download"), systemImage: "arrow.down.circle")
+                                                        Label(String(localized: "messages.view_photo", defaultValue: "View Photo"),
+                                                              systemImage: "photo")
+                                                    }
+
+                                                    Button {
+                                                        saveImageDirectly(imageUrl: imageUrl)
+                                                    } label: {
+                                                        Label(String(localized: "messages.save_to_photos", defaultValue: "Save to Photos"),
+                                                              systemImage: "arrow.down.circle")
+                                                    }
+
+                                                    Button {
+                                                        shareImageDirectly(imageUrl: imageUrl)
+                                                    } label: {
+                                                        Label(String(localized: "messages.share", defaultValue: "Share"),
+                                                              systemImage: "square.and.arrow.up")
                                                     }
                                                 }
                                         }
@@ -436,7 +491,12 @@ struct ConversationView: View {
                 .scrollDismissesKeyboard(.interactively)
                 .onChange(of: viewModel.messages.last?.id) { _, lastId in
                     guard let lastId else { return }
-                    proxy.scrollTo(lastId, anchor: .bottom)
+                    // Small delay lets SwiftUI lay out the new message before scrolling
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        withAnimation(.easeOut(duration: 0.25)) {
+                            proxy.scrollTo(lastId, anchor: .bottom)
+                        }
+                    }
                 }
                 .task {
                     await viewModel.markAsDelivered()
@@ -662,6 +722,37 @@ struct ConversationView: View {
         .buttonStyle(.plain)
     }
 
+    // MARK: - Date Separator
+
+    @ViewBuilder
+    private func dateSeparatorPill(date: Date) -> some View {
+        Text(dateSeparatorLabel(for: date))
+            .font(.system(size: 12, weight: .medium, design: .rounded))
+            .foregroundColor(.secondary)
+            .padding(.horizontal, DesignSystem.Spacing.small)
+            .padding(.vertical, 5)
+            .background(.ultraThinMaterial, in: Capsule())
+            .overlay(Capsule().stroke(Color.borderGlare.opacity(0.12), lineWidth: 1))
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.vertical, DesignSystem.Spacing.xSmall)
+    }
+
+    private func dateSeparatorLabel(for date: Date) -> String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(date) {
+            return String(localized: "common.today", defaultValue: "Today")
+        } else if calendar.isDateInYesterday(date) {
+            return String(localized: "common.yesterday", defaultValue: "Yesterday")
+        } else {
+            let formatter = DateFormatter()
+            formatter.locale = Locale.current
+            let isThisYear = calendar.component(.year, from: date) == calendar.component(.year, from: Date())
+            // setLocalizedDateFormatFromTemplate auto-localizes: "26 Mar" in EN, "26 mar" in IT, etc.
+            formatter.setLocalizedDateFormatFromTemplate(isThisYear ? "dMMM" : "dMMMy")
+            return formatter.string(from: date)
+        }
+    }
+
     private func getInitials(from name: String) -> String {
         let components = name.split(separator: " ").filter { !$0.isEmpty }
         if components.isEmpty { return "" }
@@ -671,6 +762,53 @@ struct ConversationView: View {
         let first = components[0].prefix(1)
         let last = components[components.count - 1].prefix(1)
         return "\(first)\(last)".uppercased()
+    }
+
+    // MARK: - Image Viewer Helpers
+
+    private struct IdentifiableInt: Identifiable {
+        let id = UUID()
+        let value: Int
+    }
+
+    /// All image messages in this conversation, in order, for the viewer's thumbnail strip.
+    private var imageItems: [ChatImageItem] {
+        viewModel.messages.compactMap { msg in
+            guard let imageUrl = msg.imageUrl else { return nil }
+            let name = viewModel.isFromMe(msg)
+                ? String(localized: "messages.you", defaultValue: "You")
+                : (viewModel.recipientProfile?.fullName ?? conversation.otherParticipantName)
+            return ChatImageItem(url: imageUrl, senderName: name, timestamp: msg.createdAt)
+        }
+    }
+
+    private func saveImageDirectly(imageUrl: String) {
+        guard let url = URL(string: imageUrl) else { return }
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            guard let data = data, let image = UIImage(data: data) else { return }
+            PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                DispatchQueue.main.async {
+                    if status == .authorized || status == .limited {
+                        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                        AnalyticsService.shared.logChatImageSaved()
+                    }
+                }
+            }
+        }.resume()
+    }
+
+    private func shareImageDirectly(imageUrl: String) {
+        guard let url = URL(string: imageUrl) else { return }
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            guard let data = data, let image = UIImage(data: data) else { return }
+            DispatchQueue.main.async {
+                let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let rootVC = windowScene.windows.first?.rootViewController {
+                    rootVC.present(activityVC, animated: true)
+                }
+            }
+        }.resume()
     }
 }
 
