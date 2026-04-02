@@ -3,6 +3,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { setGlobalOptions } from "firebase-functions/v2";
 import { logger } from "firebase-functions/v2";
 import fetch from "node-fetch";
+import { checkRateLimit } from "./rateLimiter";
 
 setGlobalOptions({ region: "europe-west1" });
 
@@ -198,6 +199,12 @@ export const checkAndFetchSalesforceContact = onCall(
     async (request) => {
         const email = ((request.data.email as string) || "").trim().toLowerCase();
         if (!email) throw new HttpsError("invalid-argument", "Email is required.");
+
+        // Rate limit: 10 calls per hour per user
+        const uid = request.auth?.uid;
+        if (uid) {
+            await checkRateLimit(uid, "checkAndFetchSalesforceContact", 10, 60);
+        }
 
         logger.info("checkAndFetchSalesforceContact called", { email });
 

@@ -4,6 +4,7 @@ import { getFirestore } from "firebase-admin/firestore";
 import { googleAI } from "@genkit-ai/google-genai";
 import { genkit, z } from "genkit";
 import { enableFirebaseTelemetry } from "@genkit-ai/firebase";
+import { checkRateLimit } from "./rateLimiter";
 
 enableFirebaseTelemetry();
 
@@ -34,6 +35,10 @@ const userMatchFlow = ai.defineFlow(
     outputSchema: MatchResultSchema,
   },
   async ({ query, currentUserId }) => {
+    // Rate limit: 20 calls per hour per user (currentUserId is the Firebase Auth UID)
+    if (currentUserId) {
+      await checkRateLimit(currentUserId, "searchUsersWithAI", 20, 60);
+    }
     console.log("[userMatchFlow] Starting match flow execution for user:", currentUserId);
     const db = getFirestore();
     let snap;

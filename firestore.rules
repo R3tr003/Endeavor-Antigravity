@@ -17,12 +17,12 @@ service cloud.firestore {
     // Mappatura firebaseUid -> uuid (necessaria per le regole degli eventi).
     match /userMappings/{firebaseUid} {
       allow read: if isAuthenticated() && request.auth.uid == firebaseUid;
-      allow create, update, delete: if isAuthenticated() && request.auth.uid == firebaseUid;
+      allow create, update, delete: if false;
     }
 
     // Check if the incoming UserProfile data is structurally valid
     function isValidUser(data) {
-      return data.size() >= 9 && data.size() <= 16
+      return data.size() >= 9 && data.size() <= 18
       && data.id is string
       && data.firstName is string && data.firstName.size() <= 50
       && data.lastName is string && data.lastName.size() <= 75
@@ -37,7 +37,9 @@ service cloud.firestore {
       && (!('languages' in data) || data.languages is list)
       && (!('phone' in data) || data.phone is string)
       && (!('createdAt' in data) || data.createdAt is timestamp)
-      && (!('lastLoginAt' in data) || data.lastLoginAt is timestamp);
+      && (!('lastLoginAt' in data) || data.lastLoginAt is timestamp)
+      && (!('icalToken' in data) || data.icalToken is string)
+      && (!('icalTokenExpiry' in data) || data.icalTokenExpiry is timestamp);
     }
     
     // Check if the incoming CompanyProfile data is structurally valid
@@ -118,6 +120,14 @@ service cloud.firestore {
       allow read, update: if isAuthenticated()
                           && resource.data.userId == getUserUuid();
       allow create, delete: if false;
+    }
+
+    // Per-user rate limit counters written exclusively by Cloud Functions (admin SDK).
+    // Users may read their own counters (e.g. to show remaining quota in the app),
+    // but may NEVER write them — only the admin SDK bypasses these rules.
+    match /rateLimits/{uid}/functions/{functionName} {
+      allow read: if isAuthenticated() && request.auth.uid == uid;
+      allow write: if false;
     }
   }
 }

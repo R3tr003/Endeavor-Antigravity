@@ -1,8 +1,9 @@
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
-import { onCall } from "firebase-functions/v2/https";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import { getFirestore } from "firebase-admin/firestore";
 import { GoogleGenAI } from "@google/genai";
+import { checkRateLimit } from "./rateLimiter";
 
 const googleAIApiKey = defineSecret("GOOGLE_GENAI_API_KEY");
 
@@ -217,10 +218,13 @@ export const recheckConversation = onCall(
     secrets: [googleAIApiKey],
   },
   async (request) => {
-    if (!request.auth) throw new Error("Unauthenticated");
+    if (!request.auth) throw new HttpsError("unauthenticated", "Unauthenticated");
 
     const { conversationId } = request.data as { conversationId: string };
-    if (!conversationId) throw new Error("Missing conversationId");
+    if (!conversationId) throw new HttpsError("invalid-argument", "Missing conversationId");
+
+    // Rate limit: 5 calls per day per user
+    await checkRateLimit(request.auth.uid, "recheckConversation", 5, 60 * 24);
 
     // Verifica che il richiedente sia partecipante
     const messagingDb = getFirestore("messaging");
@@ -228,7 +232,22 @@ export const recheckConversation = onCall(
     if (!convSnap.exists) return { filtered: false };
 
     const participantIds = convSnap.data()!.participantIds as string[];
-    if (!participantIds.includes(request.auth.uid)) throw new Error("Forbidden");
+    if (!participantIds.includes(request.auth.uid)) throw new HttpsError("permission-denied", "Forbidden");
+
+    // 7-day cooldown per conversation: prevent rechecking too frequently
+    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+    const filterCheckedAt = convSnap.data()!.filterCheckedAt as FirebaseFirestore.Timestamp | undefined;
+    if (filterCheckedAt) {
+      const lastCheckedMs = filterCheckedAt.toMillis();
+      const elapsedMs = Date.now() - lastCheckedMs;
+      if (elapsedMs < SEVEN_DAYS_MS) {
+        const daysRemaining = Math.ceil((SEVEN_DAYS_MS - elapsedMs) / (24 * 60 * 60 * 1000));
+        throw new HttpsError(
+          "resource-exhausted",
+          `This conversation was already checked recently. Please wait ${daysRemaining} more day(s) before rechecking.`
+        );
+      }
+    }
 
     const { isSpam, reason, alreadyFiltered } = await classifyConversation(
       conversationId,

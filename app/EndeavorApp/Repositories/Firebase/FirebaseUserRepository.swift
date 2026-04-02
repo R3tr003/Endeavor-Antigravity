@@ -571,16 +571,19 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                                 let mediaGroup = DispatchGroup()
                                 let msgGroup = DispatchGroup()
                                 
-                                // 1. Delete chat media
-                                mediaGroup.enter()
-                                storageRef.child("chat_media/\(conversationId)").listAll { result, _ in
-                                    if let items = result?.items {
-                                        for item in items {
-                                            mediaGroup.enter()
-                                            item.delete { _ in mediaGroup.leave() }
+                                // 1. Delete chat media (images/ and docs/ subfolders)
+                                let subfolders = ["images", "docs"]
+                                for subfolder in subfolders {
+                                    mediaGroup.enter()
+                                    storageRef.child("chat_media/\(conversationId)/\(subfolder)").listAll { result, _ in
+                                        if let items = result?.items {
+                                            for item in items {
+                                                mediaGroup.enter()
+                                                item.delete { _ in mediaGroup.leave() }
+                                            }
                                         }
+                                        mediaGroup.leave()
                                     }
-                                    mediaGroup.leave()
                                 }
                                 
                                 // 2. Delete messages
@@ -620,5 +623,29 @@ class FirebaseUserRepository: UserRepositoryProtocol {
                 }
             }
         }
+    }
+    func generateIcalToken(userId: String, completion: @escaping (Result<String, Error>) -> Void) {
+        let token = UUID().uuidString
+        let expiry = Date().addingTimeInterval(7 * 24 * 60 * 60) // 7 days from now
+        db.collection(usersCollection).document(userId).updateData([
+            "icalToken": token,
+            "icalTokenExpiry": Timestamp(date: expiry)
+        ]) { error in
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.success(token))
+            }
+        }
+    }
+
+    func revokeIcalToken(userId: String, completion: @escaping (Error?) -> Void) {
+        // Rotation: write a brand-new token so old subscription URLs stop working immediately.
+        let newToken = UUID().uuidString
+        let expiry = Date().addingTimeInterval(7 * 24 * 60 * 60)
+        db.collection(usersCollection).document(userId).updateData([
+            "icalToken": newToken,
+            "icalTokenExpiry": Timestamp(date: expiry)
+        ], completion: completion)
     }
 }

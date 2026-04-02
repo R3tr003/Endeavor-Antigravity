@@ -1,6 +1,7 @@
 import { onRequest } from "firebase-functions/v2/https";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
-import { getAuth } from "firebase-admin/auth";
+
+const ICAL_FEED_URL = "https://icalfeed-gpxg3at2wq-ew.a.run.app";
 
 export const icalFeed = onRequest(
     {
@@ -8,31 +9,56 @@ export const icalFeed = onRequest(
         cors: false,
     },
     async (req, res) => {
-        const userId = req.query.userId as string;
-        const token = req.query.token as string;
+        const token = (req.query.token as string | undefined)?.trim();
 
-        if (!userId || !token) {
-            res.status(401).send("Unauthorized");
-            return;
-        }
-
-        try {
-            const decoded = await getAuth().verifyIdToken(token);
-            if (decoded.uid !== userId && !(await isAdminUser(decoded.uid))) {
-                res.status(403).send("Forbidden");
-                return;
-            }
-        } catch {
-            res.status(401).send("Invalid token");
+        if (!token) {
+            res.status(401).send("Unauthorized: missing token");
             return;
         }
 
         const db = getFirestore();
-        const snap = await db.collection("events")
+
+        // Look up the user whose icalToken matches
+        const snap = await db
+            .collection("users")
+            .where("icalToken", "==", token)
+            .limit(1)
+            .get();
+
+        if (snap.empty) {
+            res.status(401).send("Unauthorized: invalid token");
+            return;
+        }
+
+        const userDoc = snap.docs[0];
+        const data = userDoc.data();
+
+        // Validate expiry
+        const expiryRaw = data.icalTokenExpiry as Timestamp | undefined;
+        if (!expiryRaw) {
+            res.status(401).send("Unauthorized: token has no expiry");
+            return;
+        }
+        const expiryMs = expiryRaw.toMillis();
+        if (Date.now() > expiryMs) {
+            res.status(401).send("Unauthorized: token expired");
+            return;
+        }
+
+        // userId is the Firestore document ID (same as UserProfile.id.uuidString)
+        const userId = data.id as string;
+        if (!userId) {
+            res.status(500).send("Internal error: user id missing");
+            return;
+        }
+
+        // Fetch events for this user
+        const eventsSnap = await db
+            .collection("events")
             .where("participantIds", "array-contains", userId)
             .get();
 
-        const events = snap.docs.map(doc => {
+        const events = eventsSnap.docs.map(doc => {
             const d = doc.data();
             return {
                 id: doc.id,
@@ -54,10 +80,27 @@ export const icalFeed = onRequest(
     }
 );
 
-function generateIcal(events: { id: string; title: string; description: string; startDate: Date; endDate: Date; location: string; status: string }[]): string {
-    const formatDate = (date: Date): string => {
-        return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-    };
+/**
+ * Returns the base URL for building an iCal feed link.
+ * Kept here so iOS and the function share the same canonical URL.
+ */
+export const icalFeedBaseUrl = ICAL_FEED_URL;
+
+// ---------------------------------------------------------------------------
+// iCal generation
+// ---------------------------------------------------------------------------
+
+function generateIcal(events: {
+    id: string;
+    title: string;
+    description: string;
+    startDate: Date;
+    endDate: Date;
+    location: string;
+    status: string;
+}[]): string {
+    const formatDate = (date: Date): string =>
+        date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 
     const escapeText = (text: string): string =>
         text.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
@@ -91,11 +134,4 @@ function generateIcal(events: { id: string; title: string; description: string; 
 
     lines.push("END:VCALENDAR");
     return lines.join("\r\n");
-}
-
-async function isAdminUser(uid: string): Promise<boolean> {
-    try {
-        const user = await getAuth().getUser(uid);
-        return (user.customClaims as Record<string, unknown>)?.admin === true;
-    } catch { return false; }
 }

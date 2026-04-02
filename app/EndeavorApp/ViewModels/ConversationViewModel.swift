@@ -148,8 +148,8 @@ class ConversationViewModel: ObservableObject {
     
     func uploadAndSendImage(_ image: UIImage, additionalText: String = "") {
         DispatchQueue.main.async { self.isUploadingMedia = true }
-        let path = "chat_media/\(conversationId)/\(UUID().uuidString).jpg"
-        storageRepository.uploadImage(image: image, path: path) { [weak self] result in
+        let path = "chat_media/\(conversationId)/images/\(UUID().uuidString).jpg"
+        storageRepository.uploadImage(image: image, path: path, uploaderId: currentUserId) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isUploadingMedia = false
                 switch result {
@@ -166,8 +166,8 @@ class ConversationViewModel: ObservableObject {
     func uploadAndSendDocument(url fileURL: URL, documentName: String) {
         DispatchQueue.main.async { self.isUploadingMedia = true }
         let fileExtension = fileURL.pathExtension
-        let path = "chat_media/\(conversationId)/\(UUID().uuidString).\(fileExtension)"
-        storageRepository.uploadDocument(url: fileURL, path: path) { [weak self] result in
+        let path = "chat_media/\(conversationId)/docs/\(UUID().uuidString).\(fileExtension)"
+        storageRepository.uploadDocument(url: fileURL, path: path, uploaderId: currentUserId) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isUploadingMedia = false
                 switch result {

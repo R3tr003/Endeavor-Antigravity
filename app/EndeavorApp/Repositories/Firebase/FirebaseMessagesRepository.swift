@@ -366,20 +366,6 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
             }
     }
 
-    // MARK: - User Mapping (firebaseUid -> uuid)
-
-    /// Salva la mappatura firebaseUid -> uuid sia nel database messaging che nel database default.
-    /// Entrambi i database hanno regole Firestore che richiedono questa mappatura.
-    func saveUserMapping(firebaseUid: String, uuid: String, completion: ((Error?) -> Void)? = nil) {
-        let mapping = ["uuid": uuid]
-        // Write to messaging DB (for conversations/messages rules)
-        db.collection("userMappings").document(firebaseUid).setData(mapping)
-        // Write to default DB (for events rules)
-        profilesDb.collection("userMappings").document(firebaseUid).setData(mapping) { error in
-            DispatchQueue.main.async { completion?(error) }
-        }
-    }
-
     // MARK: - Filter and System messages
 
     func unfilterConversation(conversationId: String, completion: @escaping (Error?) -> Void) {

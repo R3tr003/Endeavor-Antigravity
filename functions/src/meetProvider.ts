@@ -1,10 +1,14 @@
-import { onCall } from "firebase-functions/v2/https";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
+import { checkRateLimit } from "./rateLimiter";
 
 export const generateMeetLink = onCall(
   { region: "europe-west1" },
   async (request) => {
-    if (!request.auth) throw new Error("Unauthenticated");
+    if (!request.auth) throw new HttpsError("unauthenticated", "Unauthenticated");
+
+    // Rate limit: 30 calls per hour per user
+    await checkRateLimit(request.auth.uid, "generateMeetLink", 30, 60);
 
     const { eventId, provider, userId, googleAccessToken, microsoftAccessToken } = request.data as {
       eventId: string;

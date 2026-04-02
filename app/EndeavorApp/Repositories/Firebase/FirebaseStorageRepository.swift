@@ -1,11 +1,12 @@
 import UIKit
 import FirebaseStorage
 import FirebasePerformance
+import UniformTypeIdentifiers
 
 class FirebaseStorageRepository: StorageRepositoryProtocol {
     init() {}
     
-    func uploadImage(image: UIImage, path: String, completion: @escaping (Result<String, Error>) -> Void) {
+    func uploadImage(image: UIImage, path: String, uploaderId: String? = nil, completion: @escaping (Result<String, Error>) -> Void) {
         let trace = Performance.startTrace(name: "Image_Upload_Duration")
         
         guard let imageData = image.jpegData(compressionQuality: 0.6) else {
@@ -19,6 +20,14 @@ class FirebaseStorageRepository: StorageRepositoryProtocol {
         let storageRef = Storage.storage().reference().child(path)
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
+        if let uid = uploaderId {
+            // Path format: chat_media/{conversationId}/images/{fileId}
+            let conversationId = path.split(separator: "/").dropFirst().first.map(String.init) ?? ""
+            metadata.customMetadata = [
+                "uploaderId": uid,
+                "conversationId": conversationId
+            ]
+        }
         
         storageRef.putData(imageData, metadata: metadata) { metadata, error in
             if let error = error {
@@ -44,7 +53,7 @@ class FirebaseStorageRepository: StorageRepositoryProtocol {
         }
     }
     
-    func uploadDocument(url: URL, path: String, completion: @escaping (Result<String, Error>) -> Void) {
+    func uploadDocument(url: URL, path: String, uploaderId: String? = nil, completion: @escaping (Result<String, Error>) -> Void) {
         let trace = Performance.startTrace(name: "Document_Upload_Duration")
         
         guard url.startAccessingSecurityScopedResource() else {
@@ -58,8 +67,25 @@ class FirebaseStorageRepository: StorageRepositoryProtocol {
             let fileData = try Data(contentsOf: url)
             let storageRef = Storage.storage().reference().child(path)
             let metadata = StorageMetadata()
-            // We use generic octet-stream as a fallback; could be specialized further with UniformTypeIdentifiers if needed.
-            metadata.contentType = "application/octet-stream"
+            // Detect the real MIME type from the file extension so the Storage
+            // content-type allowlist rule (PDF / Word / OOXML / plain text) can
+            // validate it. Falls back to octet-stream if unknown — Storage will
+            // reject that by design.
+            if #available(iOS 14.0, *),
+               let utType = UTType(filenameExtension: url.pathExtension),
+               let mimeType = utType.preferredMIMEType {
+                metadata.contentType = mimeType
+            } else {
+                metadata.contentType = "application/octet-stream"
+            }
+            if let uid = uploaderId {
+                // Path format: chat_media/{conversationId}/docs/{fileId}
+                let conversationId = path.split(separator: "/").dropFirst().first.map(String.init) ?? ""
+                metadata.customMetadata = [
+                    "uploaderId": uid,
+                    "conversationId": conversationId
+                ]
+            }
             
             storageRef.putData(fileData, metadata: metadata) { metadata, error in
                 if let error = error {

@@ -7,20 +7,20 @@ service firebase.storage {
     function isAuthenticated() {
       return request.auth != null;
     }
-    
-    function isCurrentUser(userId) {
-      return request.auth.uid == userId;
-    }
 
-    // Constraints for images (max 5MB)
+    // Constraints for images (max 5MB, image/* content type)
     function isValidImage() {
       return request.resource.contentType.matches('image/.*') 
              && request.resource.size < 5 * 1024 * 1024;
     }
     
-    // Constraints for documents (max 10MB)
+    // Constraints for documents (max 10MB, allowlisted content types)
     function isValidDocument() {
-      return request.resource.size < 10 * 1024 * 1024;
+      return request.resource.size < 10 * 1024 * 1024
+             && (request.resource.contentType.matches('application/pdf')
+              || request.resource.contentType.matches('application/msword')
+              || request.resource.contentType.matches('application/vnd\\.openxmlformats.*')
+              || request.resource.contentType.matches('text/plain'));
     }
 
     // 1. Profile Pictures
@@ -33,15 +33,31 @@ service firebase.storage {
                    && fileName == request.auth.uid + ".jpg";
     }
     
-    // 2. Chat Media (Images & Documents)
-    // Secure chat media - Requires auth, size constraints
-    match /chat_media/{conversationId}/{fileId} {
+    // 2. Chat Images
+    // Read: open to all authenticated users.
+    // Known limitation: Storage rules cannot query Firestore, so we cannot verify
+    // that the reader is a participant of the conversation at the rules layer.
+    // Mitigation: file paths use unguessable UUIDs, and download URLs are only
+    // shared within the conversation via Firestore messages (which have their own
+    // access rules). An attacker would need both the file path AND auth.
+    //
+    // Create: requires auth + image-specific size + content-type constraints.
+    // Delete: restricted to the original uploader via custom metadata.
+    //         The iOS client writes `uploaderId = request.auth.uid` at upload time.
+    // Update: not permitted (metadata is set once at upload, never mutated).
+    match /chat_media/{conversationId}/images/{fileId} {
       allow read: if isAuthenticated();
-      // Allow if it matches image OR document constraints
-      allow create: if isAuthenticated() && (isValidImage() || isValidDocument());
-      // Updates usually not needed, but we must allow delete so users can clean up chat data when deleting accounts.
-      // This allows any authenticated user to delete, but since UUIDs are unguessable, it functions as a capability URL.
-      allow update, delete: if isAuthenticated(); 
+      allow create: if isAuthenticated() && isValidImage();
+      allow delete: if isAuthenticated() && request.auth.uid == resource.metadata['uploaderId'];
+    }
+
+    // 3. Chat Documents
+    // Same access model as chat images, but with document-specific constraints:
+    // allowlisted MIME types (PDF, Word, OOXML, plain text) and 10 MB cap.
+    match /chat_media/{conversationId}/docs/{fileId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidDocument();
+      allow delete: if isAuthenticated() && request.auth.uid == resource.metadata['uploaderId'];
     }
 
     // Catch-all (Deny anything else not explicitly matched above)

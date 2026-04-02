@@ -1,8 +1,8 @@
 import SwiftUI
-import FirebaseAuth
 
 struct CalendarSubscribeView: View {
     let userId: String
+    var userRepository: UserRepositoryProtocol = FirebaseUserRepository()
     @Environment(\.dismiss) var dismiss
     @State private var feedUrl: String = ""
     @State private var isCopied = false
@@ -139,17 +139,17 @@ struct CalendarSubscribeView: View {
 
     private func generateFeedUrl() {
         isGenerating = true
-        guard let user = Auth.auth().currentUser else {
-            isGenerating = false
-            return
-        }
-        user.getIDTokenForcingRefresh(false) { token, _ in
+        userRepository.generateIcalToken(userId: userId) { result in
             DispatchQueue.main.async {
                 isGenerating = false
-                guard let token = token else { return }
-                let baseUrl = "https://europe-west1-endeavor-app-prod.cloudfunctions.net/icalFeed"
-                feedUrl = "\(baseUrl)?userId=\(userId)&token=\(token)"
-                AnalyticsService.shared.logCalendarICalLinkGenerated()
+                switch result {
+                case .success(let token):
+                    let baseUrl = "https://icalfeed-gpxg3at2wq-ew.a.run.app"
+                    feedUrl = "\(baseUrl)?token=\(token)"
+                    AnalyticsService.shared.logCalendarICalLinkGenerated()
+                case .failure(let error):
+                    print("[CalendarSubscribeView] Failed to generate iCal token:", error)
+                }
             }
         }
     }

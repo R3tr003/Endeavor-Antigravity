@@ -39,4 +39,13 @@ protocol UserRepositoryProtocol {
 
     /// Removes the user's and company's data from the database.
     func deleteUserData(email: String, userId: String, firebaseUid: String?, completion: @escaping (Error?) -> Void)
+
+    /// Generates (or regenerates) a stable iCal feed token for the user,
+    /// persisting `icalToken` and `icalTokenExpiry` in their Firestore document.
+    /// Returns the opaque token string on success.
+    func generateIcalToken(userId: String, completion: @escaping (Result<String, Error>) -> Void)
+
+    /// Rotates the user's iCal token, immediately invalidating any previously
+    /// shared calendar subscription URLs.
+    func revokeIcalToken(userId: String, completion: @escaping (Error?) -> Void)
 }

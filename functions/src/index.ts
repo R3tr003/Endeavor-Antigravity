@@ -18,3 +18,4 @@ export { classifyMessage, recheckConversation } from "./messageFilter";
 export { generateMeetLink, cancelCalendarEvent } from "./meetProvider";
 export { icalFeed } from "./icalFeed";
 export { checkMeetingCompletions } from "./meetingCompleted";
+export { saveUserMapping } from "./userMapping";

@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 import FirebaseAuth
 import FirebaseStorage
+import FirebaseFunctions
 import GoogleSignIn
 import FirebasePerformance
 import Network
@@ -189,7 +190,7 @@ class AppViewModel: ObservableObject {
                     )
                 }
                 // Assicura che la mappatura firebaseUid -> uuid esista nel database messaging
-                self?.messagesRepository.saveUserMapping(firebaseUid: firebaseUid, uuid: uuid)
+                AppViewModel.callSaveUserMapping(firebaseUid: firebaseUid, uuid: uuid)
                 self?.sessionRestoreTrace?.stop()
                 self?.sessionRestoreTrace = nil
             } else {
@@ -447,10 +448,7 @@ class AppViewModel: ObservableObject {
                             onboardingVersion: "v1"
                         )
                         // Salva mappatura firebaseUid -> uuid per le regole Firestore del messaging
-                        self?.messagesRepository.saveUserMapping(
-                            firebaseUid: user.uid,
-                            uuid: profile.id.uuidString
-                        )
+                        AppViewModel.callSaveUserMapping(firebaseUid: user.uid, uuid: profile.id.uuidString)
 
                         self?.router.isOnboardingComplete = true
                         self?.authService.isLoggedIn = true
@@ -655,10 +653,7 @@ class AppViewModel: ObservableObject {
                             )
                             // Salva mappatura firebaseUid -> uuid per le regole Firestore del messaging
                             if let firebaseUid = Auth.auth().currentUser?.uid {
-                                self.messagesRepository.saveUserMapping(
-                                    firebaseUid: firebaseUid,
-                                    uuid: userToSave.id.uuidString
-                                )
+                                AppViewModel.callSaveUserMapping(firebaseUid: firebaseUid, uuid: userToSave.id.uuidString)
                             }
                             // Clear Salesforce pre-fill state after successful onboarding
                             self.onboardingViewModel.isSalesforcePrefilled = false
@@ -836,8 +831,14 @@ class AppViewModel: ObservableObject {
             completion?()
             return
         }
-        messagesRepository.saveUserMapping(firebaseUid: firebaseUid, uuid: uuid) { _ in
-            completion?()
+        AppViewModel.callSaveUserMapping(firebaseUid: firebaseUid, uuid: uuid, completion: completion)
+    }
+
+    /// Calls the `saveUserMapping` Cloud Function via Admin SDK so Firestore rules are never bypassed client-side.
+    private static func callSaveUserMapping(firebaseUid: String, uuid: String, completion: (() -> Void)? = nil) {
+        let fn = Functions.functions(region: "europe-west1").httpsCallable("saveUserMapping")
+        fn.call(["firebaseUid": firebaseUid, "uuid": uuid]) { _, _ in
+            DispatchQueue.main.async { completion?() }
         }
     }
 
