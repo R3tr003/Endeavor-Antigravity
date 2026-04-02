@@ -193,25 +193,27 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
         userId2: String,
         completion: @escaping (Result<String, Error>) -> Void
     ) {
-        // Check if userId1 is banned by userId2
-        db.collection("bans").document(userId1).getDocument { [weak self] snap, _ in
-            guard let self = self else { return }
-            if let ts = snap?.data()?["bannedBy_\(userId2)"] as? Timestamp,
-               ts.dateValue() > Date() {
-                DispatchQueue.main.async { completion(.failure(BanError.userIsBanned)) }
-                return
-            }
-            // Check if userId2 is banned by userId1
-            self.db.collection("bans").document(userId2).getDocument { [weak self] snap2, _ in
+        // Check if userId1 is banned by userId2: bans/{userId1}/byUser/{userId2}
+        db.collection("bans").document(userId1)
+            .collection("byUser").document(userId2)
+            .getDocument { [weak self] snap, _ in
                 guard let self = self else { return }
-                if let ts2 = snap2?.data()?["bannedBy_\(userId1)"] as? Timestamp,
-                   ts2.dateValue() > Date() {
+                if let ts = snap?.data()?["bannedUntil"] as? Timestamp, ts.dateValue() > Date() {
                     DispatchQueue.main.async { completion(.failure(BanError.userIsBanned)) }
                     return
                 }
-                self.createConversation(between: userId1, and: userId2, completion: completion)
+                // Check if userId2 is banned by userId1: bans/{userId2}/byUser/{userId1}
+                self.db.collection("bans").document(userId2)
+                    .collection("byUser").document(userId1)
+                    .getDocument { [weak self] snap2, _ in
+                        guard let self = self else { return }
+                        if let ts2 = snap2?.data()?["bannedUntil"] as? Timestamp, ts2.dateValue() > Date() {
+                            DispatchQueue.main.async { completion(.failure(BanError.userIsBanned)) }
+                            return
+                        }
+                        self.createConversation(between: userId1, and: userId2, completion: completion)
+                    }
             }
-        }
     }
 
     private func createConversation(
@@ -413,12 +415,15 @@ class FirebaseMessagesRepository: MessagesRepositoryProtocol {
         bannedUntil: Date,
         completion: @escaping (Error?) -> Void
     ) {
-        db.collection("bans").document(senderId).setData(
-            ["bannedBy_\(currentUserId)": Timestamp(date: bannedUntil)],
-            merge: true
-        ) { error in
-            DispatchQueue.main.async { completion(error) }
-        }
+        // Create ban as a dedicated sub-document: bans/{bannedUserId}/byUser/{currentUserId}
+        // This avoids needing update permissions — each ban entry is its own document.
+        db.collection("bans")
+            .document(senderId)
+            .collection("byUser")
+            .document(currentUserId)
+            .setData(["bannedUntil": Timestamp(date: bannedUntil)]) { error in
+                DispatchQueue.main.async { completion(error) }
+            }
     }
 
     // MARK: - Parse Helpers

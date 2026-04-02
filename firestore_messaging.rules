@@ -15,16 +15,23 @@ service cloud.firestore {
     }
 
     // Mappatura firebaseUid -> uuid. Ogni utente può creare/leggere solo il proprio documento.
-    match /userMappings/{odFirebaseUid} {
-      allow read: if isAuthenticated() && request.auth.uid == odFirebaseUid;
-      allow create, update, delete: if isAuthenticated() && request.auth.uid == odFirebaseUid;
+    match /userMappings/{firebaseUid} {
+      allow read: if isAuthenticated() && request.auth.uid == firebaseUid;
+      allow create, update, delete: if false;
     }
 
-    // Ban records — any authenticated user can read (needed for getOrCreateConversation check)
-    // and write (to ban a sender after delete & ban action).
+    // Ban records parent — read-only, written only via sub-collection
     match /bans/{bannedUserId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated();
+      allow create, update, delete: if false;
+
+      // Each ban entry: bans/{bannedUserId}/byUser/{bannerId}
+      match /byUser/{bannerId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated() && getUserUuid() == bannerId && bannerId != bannedUserId;
+        allow delete: if isAuthenticated() && getUserUuid() == bannerId;
+        allow update: if false;
+      }
     }
 
     match /conversations/{conversationId} {
@@ -80,7 +87,7 @@ service cloud.firestore {
         allow update: if isParticipant() && isReceiptUpdate();
 
         // Delete: solo i partecipanti possono eliminare messaggi (es. cancel upload)
-        allow delete: if isParticipant();
+        allow delete: if isParticipant() && resource.data.senderId == getUserUuid();
       }
     }
   }
