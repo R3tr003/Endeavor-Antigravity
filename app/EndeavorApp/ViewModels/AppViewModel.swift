@@ -665,7 +665,7 @@ class AppViewModel: ObservableObject {
             if let image = profileImage, user.profileImageUrl == "pending_upload" {
                 guard let firebaseUid = Auth.auth().currentUser?.uid else { return }
                 let imagePath = "profile_images/\(firebaseUid).jpg"
-                self.storageRepository.uploadImage(image: image, path: imagePath) { result in
+                self.storageRepository.uploadImage(image: image, path: imagePath, uploaderId: nil) { result in
                     DispatchQueue.main.async {
                         switch result {
                         case .success(let url): finalUser.profileImageUrl = url
@@ -777,7 +777,7 @@ class AppViewModel: ObservableObject {
         guard let firebaseUid = Auth.auth().currentUser?.uid else { return }
         let path = "profile_images/\(firebaseUid).jpg"
         
-        storageRepository.uploadImage(image: image, path: path) { [weak self] result in
+        storageRepository.uploadImage(image: image, path: path, uploaderId: nil) { [weak self] result in
             DispatchQueue.main.async {
                 self?.router.isLoading = false
                 switch result {
