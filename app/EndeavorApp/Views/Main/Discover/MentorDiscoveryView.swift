@@ -286,100 +286,119 @@ struct MatchCard: View {
     let companyName: String
     let reason: String
     let onConnect: () -> Void
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
-            
-            // Top Row
-            HStack(spacing: DesignSystem.Spacing.small) {
-                // Initial Circle or Avatar
-                if profile.profileImageUrl.isEmpty {
-                    Circle()
-                        .fill(Color.brandPrimary.opacity(0.15))
-                        .frame(width: 60, height: 60)
-                        .overlay(
-                            Text(String(profile.firstName.prefix(1)))
-                                .font(.system(size: 22, weight: .bold, design: .rounded))
-                                .foregroundColor(.brandPrimary)
-                        )
-                } else {
-                    WebImage(url: URL(string: profile.profileImageUrl)) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 60, height: 60)
-                            .clipShape(Circle())
-                    } placeholder: {
+        DashboardCard {
+            VStack(spacing: DesignSystem.Spacing.medium) {
+
+                // Avatar + Name + Match badge
+                HStack(spacing: DesignSystem.Spacing.standard) {
+                    if profile.profileImageUrl.isEmpty {
                         Circle()
-                            .fill(Color.brandPrimary.opacity(0.15))
+                            .fill(Color.primary.opacity(0.05))
                             .frame(width: 60, height: 60)
+                            .overlay(
+                                Image(systemName: "person.fill")
+                                    .font(.system(size: 30))
+                                    .foregroundColor(.secondary.opacity(0.5))
+                            )
+                            .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
+                    } else {
+                        WebImage(url: URL(string: profile.profileImageUrl)) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 60, height: 60)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
+                        } placeholder: {
+                            Circle()
+                                .fill(Color.primary.opacity(0.05))
+                                .frame(width: 60, height: 60)
+                                .overlay(
+                                    Image(systemName: "person.fill")
+                                        .font(.system(size: 30))
+                                        .foregroundColor(.secondary.opacity(0.5))
+                                )
+                                .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
+                        }
                     }
+
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxSmall) {
+                        Text(profile.fullName)
+                            .font(.title3.weight(.bold))
+                            .foregroundColor(.primary)
+
+                        if !profile.userType.isEmpty {
+                            Text(profile.userType)
+                                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                .foregroundColor(userTypeColor(profile.userType))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(userTypeColor(profile.userType).opacity(0.12))
+                                .clipShape(Capsule())
+                        }
+
+                        Text(companyName)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+
+                    Spacer()
+
+                    // Match percent badge
+                    Text("\(matchPercent)%\nMatch")
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(.brandPrimary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.brandPrimary.opacity(0.12), in: Capsule())
+                        .overlay(Capsule().stroke(Color.brandPrimary.opacity(0.3), lineWidth: 1))
                 }
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(profile.fullName)
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                    Text(companyName)
+
+                // Bio
+                if !profile.personalBio.isEmpty {
+                    Text(profile.personalBio)
                         .font(.system(size: 14, design: .rounded))
                         .foregroundColor(.secondary)
+                        .lineLimit(2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                
-                Spacer()
-                
-                // Match Percent Badge
-                Text("\(matchPercent)% Match")
-                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.brandPrimary, in: Capsule())
-            }
-            
-            // Description Row
-            Text("Experienced professional in the Endeavor network. Mentorship areas include: \(profile.role).")
-                .font(.system(size: 14, design: .rounded))
-                .foregroundColor(.secondary)
-                .lineLimit(2)
-            
-            // Tags Row
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: DesignSystem.Spacing.xSmall) {
-                    ForEach(["Leadership", "Strategy", "Growth"], id: \.self) { tag in
-                        Text(tag)
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
-                            .foregroundColor(Color.brandPrimary)
-                            .padding(.vertical, 5)
-                            .padding(.horizontal, 10)
-                            .background(Color.brandPrimary.opacity(0.12), in: Capsule())
-                            .overlay(Capsule().stroke(Color.brandPrimary.opacity(0.2), lineWidth: 1))
-                    }
+
+                // AI reason
+                if !reason.isEmpty {
+                    Text(reason)
+                        .font(.system(size: 13, design: .rounded))
+                        .foregroundColor(.secondary.opacity(0.85))
+                        .lineLimit(2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                // Start Conversation button
+                Button(action: onConnect) {
+                    Text(String(localized: "messages.start_conversation"))
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.brandPrimary)
+                        .clipShape(Capsule())
                 }
             }
-            
-            if !reason.isEmpty {
-                Text(reason)
-                    .font(.system(size: 13, design: .rounded))
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-                    .padding(.top, 4)
-            }
-            
-            // Action Button
-            Button(action: onConnect) {
-                Text(String(localized: "discover.connect"))
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.brandPrimary)
-                    .clipShape(Capsule())
-            }
+            .padding(DesignSystem.Spacing.large)
         }
-        .padding(DesignSystem.Spacing.medium)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous).stroke(Color.brandPrimary.opacity(0.25), lineWidth: 1))
-        .shadow(color: Color.brandPrimary.opacity(0.12), radius: 15, x: 0, y: 8)
+    }
+
+    private func userTypeColor(_ userType: String) -> Color {
+        switch userType {
+        case "Entrepreneur": return .brandPrimary
+        case "Mentor":       return .orange
+        case "Investor":     return Color(red: 0.4, green: 0.2, blue: 0.9)
+        case "Staff":        return .green
+        default:             return .secondary
+        }
     }
 }
 

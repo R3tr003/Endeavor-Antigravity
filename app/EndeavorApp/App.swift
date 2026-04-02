@@ -80,13 +80,15 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 struct EndeavorApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var appViewModel = AppViewModel()
+    @StateObject private var biometricService = BiometricAuthService.shared
     @Environment(\.scenePhase) private var scenePhase
+    @State private var showPrivacyOverlay: Bool = false
 
     var body: some Scene {
         WindowGroup {
             ZStack {
                 Color.background.edgesIgnoringSafeArea(.all)
-                
+
                 if appViewModel.isCheckingAuth {
                     // Show loading while checking for existing user data
                     ProgressView()
@@ -117,9 +119,25 @@ struct EndeavorApp: App {
                         .transition(.opacity)
                         .preferredColorScheme(appViewModel.colorScheme)
                 }
+
+                // Privacy overlay — hides content in app switcher snapshot (fires on .inactive)
+                if showPrivacyOverlay {
+                    AppSwitcherOverlayView(biometricService: biometricService, isLoggedIn: appViewModel.isLoggedIn)
+                        .zIndex(99)
+                }
+
+                // Biometric lock overlay — sits above all content including sheets
+                if biometricService.isLocked && appViewModel.isLoggedIn {
+                    BiometricLockView(onLogout: {
+                        appViewModel.logout()
+                    })
+                    .transition(.opacity)
+                    .zIndex(100)
+                }
             }
             .animation(.default, value: appViewModel.isLoggedIn)
             .animation(.default, value: appViewModel.isOnboardingComplete)
+            .animation(.easeInOut(duration: 0.25), value: biometricService.isLocked)
             .preferredColorScheme(appViewModel.colorScheme)
             .alert(
                 String(localized: "common.no_connection_title", defaultValue: "No Internet Connection"),
@@ -138,9 +156,22 @@ struct EndeavorApp: App {
             }
             .onChange(of: scenePhase) { _, newPhase in
                 switch newPhase {
-                case .background: print("📱 App moved to background")
-                case .active:     print("📱 App became active")
-                case .inactive:   print("📱 App became inactive")
+                case .inactive:
+                    // Show overlay only when biometric lock is active — otherwise show real content
+                    showPrivacyOverlay = biometricService.isBiometricEnabled && appViewModel.isLoggedIn
+                case .background:
+                    biometricService.lockIfEnabled()
+                case .active:
+                    showPrivacyOverlay = false
+                    // Trigger Face ID immediately on foreground return — before lock screen renders
+                    if biometricService.isLocked && appViewModel.isLoggedIn {
+                        Task {
+                            await biometricService.authenticate(
+                                reason: String(localized: "settings.biometric_reason",
+                                               defaultValue: "Unlock Endeavor")
+                            )
+                        }
+                    }
                 @unknown default: break
                 }
             }

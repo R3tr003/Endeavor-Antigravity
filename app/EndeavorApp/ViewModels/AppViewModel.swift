@@ -853,6 +853,7 @@ class AppViewModel: ObservableObject {
         authService.logout()
         userRepo.clearState()
         router.clearState()
+        BiometricAuthService.shared.resetOnLogout()
         
         // Clear onboarding draft to prevent leaking data to next user on same device
         onboardingViewModel.clearDraft()

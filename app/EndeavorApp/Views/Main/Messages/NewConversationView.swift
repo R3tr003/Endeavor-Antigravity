@@ -29,29 +29,47 @@ struct NewConversationView: View {
     }
 
     var body: some View {
-        ZStack {
-            Color.background.edgesIgnoringSafeArea(.all)
+        NavigationStack {
+            ZStack {
+                Color.background.edgesIgnoringSafeArea(.all)
 
-            VStack(spacing: 0) {
-                headerBar
-                searchBar
-                if let error = creationError {
-                    Text(error)
-                        .font(.system(size: 13, design: .rounded))
-                        .foregroundColor(.error)
-                        .padding(.horizontal, DesignSystem.Spacing.large)
-                        .padding(.bottom, DesignSystem.Spacing.small)
+                VStack(spacing: 0) {
+                    searchBar
+                    if let error = creationError {
+                        Text(error)
+                            .font(.system(size: 13, design: .rounded))
+                            .foregroundColor(.error)
+                            .padding(.horizontal, DesignSystem.Spacing.large)
+                            .padding(.bottom, DesignSystem.Spacing.small)
+                    }
+                    contentArea
                 }
-                contentArea
-            }
 
-            if isCreating {
-                Color.black.opacity(0.3).edgesIgnoringSafeArea(.all)
-                ProgressView()
-                    .tint(.brandPrimary)
-                    .scaleEffect(1.5)
-                    .padding(24)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                if isCreating {
+                    Color.black.opacity(0.3).edgesIgnoringSafeArea(.all)
+                    ProgressView()
+                        .tint(.brandPrimary)
+                        .scaleEffect(1.5)
+                        .padding(24)
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                }
+            }
+            .navigationTitle(String(localized: "messages.new_message"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.primary)
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(String(localized: "common.done", defaultValue: "Done")) {
+                        dismiss()
+                    }
+                    .foregroundColor(.brandPrimary)
+                }
             }
         }
         .onAppear {
@@ -59,29 +77,6 @@ struct NewConversationView: View {
                 networkViewModel.fetchUsers(currentUserId: currentUserId, isInitial: true)
             }
         }
-    }
-
-    private var headerBar: some View {
-        HStack {
-            Button(action: { dismiss() }) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.primary)
-                    .frame(width: 36, height: 36)
-                    .background(.ultraThinMaterial, in: Circle())
-                    .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
-            }
-            Spacer()
-            Text(String(localized: "messages.new_message"))
-                .font(.system(size: 17, weight: .bold, design: .rounded))
-                .foregroundColor(.primary)
-            Spacer()
-            Circle().fill(Color.clear).frame(width: 36, height: 36)
-        }
-        .padding(.horizontal, DesignSystem.Spacing.medium)
-        .padding(.vertical, DesignSystem.Spacing.standard)
-        .background(.regularMaterial)
-        .overlay(Rectangle().frame(height: 1).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .bottom)
     }
 
     private var searchBar: some View {

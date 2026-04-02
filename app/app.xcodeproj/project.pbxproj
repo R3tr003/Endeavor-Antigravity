@@ -77,6 +77,9 @@
 		AA400001MEETINGINVITECARD /* MeetingInviteCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA400000MEETINGINVITECARD /* MeetingInviteCard.swift */; };
 		BB100001CHATIMGVIEWR /* ChatImageViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB100000CHATIMGVIEWR /* ChatImageViewerView.swift */; };
 		CC100001CHATUSERPROFILE /* ChatUserProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC100000CHATUSERPROFILE /* ChatUserProfileView.swift */; };
+		CC200001BIOMETRICAUTH /* BiometricAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC200000BIOMETRICAUTH /* BiometricAuthService.swift */; };
+		CC200003BIOMETRICLV /* BiometricLockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC200002BIOMETRICLV /* BiometricLockView.swift */; };
+		CC200005APPSWITCHEROV /* AppSwitcherOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC200004APPSWITCHEROV /* AppSwitcherOverlayView.swift */; };
 		AA500001SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA500000SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift */; };
 		AA600001MEETPROVSERVICE /* MeetProviderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA600000MEETPROVSERVICE /* MeetProviderService.swift */; };
 		B1B82C5CA6C0800A131EFD1B /* Conversation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4596AC3AD53E85365A71AFD3 /* Conversation.swift */; };
@@ -158,6 +161,9 @@
 		AA400000MEETINGINVITECARD /* MeetingInviteCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MeetingInviteCard.swift; sourceTree = "<group>"; };
 		BB100000CHATIMGVIEWR /* ChatImageViewerView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChatImageViewerView.swift; sourceTree = "<group>"; };
 		CC100000CHATUSERPROFILE /* ChatUserProfileView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChatUserProfileView.swift; sourceTree = "<group>"; };
+		CC200000BIOMETRICAUTH /* BiometricAuthService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BiometricAuthService.swift; sourceTree = "<group>"; };
+		CC200002BIOMETRICLV /* BiometricLockView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BiometricLockView.swift; sourceTree = "<group>"; };
+		CC200004APPSWITCHEROV /* AppSwitcherOverlayView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppSwitcherOverlayView.swift; sourceTree = "<group>"; };
 		AA500000SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScheduleMeetingViewModel.swift; sourceTree = "<group>"; };
 		AA600000MEETPROVSERVICE /* MeetProviderService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MeetProviderService.swift; sourceTree = "<group>"; };
 		B322ED6558B9CFEB3EF79AE8 /* CalendarView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
@@ -296,6 +302,7 @@
 			children = (
 				2A78E0612A9719CA45072341 /* AnalyticsService.swift */,
 				AA600000MEETPROVSERVICE /* MeetProviderService.swift */,
+				CC200000BIOMETRICAUTH /* BiometricAuthService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -329,6 +336,8 @@
 			isa = PBXGroup;
 			children = (
 				651787DA2F356B310095C184 /* WelcomeView.swift */,
+				CC200002BIOMETRICLV /* BiometricLockView.swift */,
+				CC200004APPSWITCHEROV /* AppSwitcherOverlayView.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -622,6 +631,9 @@
 				AA400001MEETINGINVITECARD /* MeetingInviteCard.swift in Sources */,
 				BB100001CHATIMGVIEWR /* ChatImageViewerView.swift in Sources */,
 				CC100001CHATUSERPROFILE /* ChatUserProfileView.swift in Sources */,
+				CC200001BIOMETRICAUTH /* BiometricAuthService.swift in Sources */,
+				CC200003BIOMETRICLV /* BiometricLockView.swift in Sources */,
+				CC200005APPSWITCHEROV /* AppSwitcherOverlayView.swift in Sources */,
 				AA500001SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift in Sources */,
 				BC7E145BB0AFB8C397459D6A /* CalendarEvent.swift in Sources */,
 				09506AED6706631A887DE09D /* FirebaseCalendarRepository.swift in Sources */,

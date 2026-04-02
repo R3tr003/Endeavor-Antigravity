@@ -64,110 +64,92 @@ struct EditProfileView: View {
     }
     
     var body: some View {
-        ZStack {
-            // Immersive background
-            Color.background.edgesIgnoringSafeArea(.all)
-                .onTapGesture {
-                    focusFirstName = false
-                    focusLastName = false
-                    focusRole = false
-                    focusPersonalBio = false
-                    focusCompanyName = false
-                    focusWebsite = false
-                    focusCompanyBio = false
-                    focusNewEmail = false
-                    focusPassword = false
-                }
-            
-            // Ambient glow
-            Circle()
-                .fill(Color.brandPrimary.opacity(0.12))
-                .frame(width: 400, height: 400)
-                .blur(radius: 100)
-                .offset(y: animateGlow ? -280 : -250)
-                .ignoresSafeArea()
-            
-            VStack(spacing: 0) {
-                // MARK: - Floating Glass Header
-                HStack {
-                    Button(action: { presentationMode.wrappedValue.dismiss() }) {
-                        ZStack {
-                            Circle()
-                                .fill(.ultraThinMaterial)
-                                .frame(width: 36, height: 36)
-                                .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
-                            
-                            Image(systemName: "xmark")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(.primary)
+        NavigationStack {
+            ZStack {
+                // Immersive background
+                Color.background.edgesIgnoringSafeArea(.all)
+                    .onTapGesture {
+                        focusFirstName = false
+                        focusLastName = false
+                        focusRole = false
+                        focusPersonalBio = false
+                        focusCompanyName = false
+                        focusWebsite = false
+                        focusCompanyBio = false
+                        focusNewEmail = false
+                        focusPassword = false
+                    }
+
+                // Ambient glow
+                Circle()
+                    .fill(Color.brandPrimary.opacity(0.12))
+                    .frame(width: 400, height: 400)
+                    .blur(radius: 100)
+                    .offset(y: animateGlow ? -280 : -250)
+                    .ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    // MARK: - Glass Pill Tabs
+                    HStack(spacing: 12) {
+                        ForEach(["Personal", "Company"], id: \.self) { tab in
+                            Button(action: {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    selectedTab = tab
+                                }
+                            }) {
+                                Text(tab == "Personal" ? String(localized: "profile.tab.personal", defaultValue: "Personal") : String(localized: "profile.tab.company", defaultValue: "Company"))
+                                    .font(.system(size: 14, weight: selectedTab == tab ? .bold : .medium, design: .rounded))
+                                    .foregroundColor(selectedTab == tab ? .white : .primary)
+                                    .padding(.vertical, 10)
+                                    .padding(.horizontal, DesignSystem.Spacing.medium)
+                                    .background(
+                                        ZStack {
+                                            if selectedTab == tab {
+                                                Capsule().fill(Color.brandPrimary)
+                                            } else {
+                                                Capsule().fill(.ultraThinMaterial)
+                                            }
+                                        }
+                                    )
+                                    .overlay(
+                                        Capsule().stroke(Color.borderGlare.opacity(0.15), lineWidth: 1)
+                                    )
+                            }
                         }
                     }
-                    
-                    Spacer()
-                    
-                    Text(String(localized: "profile.edit_profile", defaultValue: "Edit Profile"))
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                    
-                    Spacer()
-                    
+                    .padding(.horizontal, DesignSystem.Spacing.medium)
+                    .padding(.vertical, DesignSystem.Spacing.standard)
+
+                    // MARK: - Content
+                    ScrollView(showsIndicators: false) {
+                        VStack(spacing: DesignSystem.Spacing.medium) {
+                            if selectedTab == "Personal" {
+                                personalEditContent
+                            } else if selectedTab == "Company" {
+                                companyEditContent
+                            }
+                        }
+                        .padding(DesignSystem.Spacing.medium)
+                        .padding(.bottom, DesignSystem.Spacing.xxLarge)
+                        .animation(.easeInOut(duration: 0.3), value: selectedTab)
+                    }
+                }
+            }
+            .navigationTitle(String(localized: "profile.edit_profile", defaultValue: "Edit Profile"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: { presentationMode.wrappedValue.dismiss() }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.primary)
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: saveChanges) {
                         Text(String(localized: "common.save"))
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(.brandPrimary)
-                            .padding(.horizontal, DesignSystem.Spacing.standard)
-                            .padding(.vertical, DesignSystem.Spacing.xSmall)
-                            .background(.ultraThinMaterial, in: Capsule())
-                            .overlay(Capsule().stroke(Color.brandPrimary.opacity(0.3), lineWidth: 1))
                     }
-                }
-                .padding(.horizontal, DesignSystem.Spacing.medium)
-                .padding(.vertical, DesignSystem.Spacing.standard)
-                .background(.regularMaterial)
-                
-                // MARK: - Glass Pill Tabs
-                HStack(spacing: 12) {
-                    ForEach(["Personal", "Company"], id: \.self) { tab in
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                selectedTab = tab
-                            }
-                        }) {
-                            Text(tab == "Personal" ? String(localized: "profile.tab.personal", defaultValue: "Personal") : String(localized: "profile.tab.company", defaultValue: "Company"))
-                                .font(.system(size: 14, weight: selectedTab == tab ? .bold : .medium, design: .rounded))
-                                .foregroundColor(selectedTab == tab ? .white : .primary)
-                                .padding(.vertical, 10)
-                                .padding(.horizontal, DesignSystem.Spacing.medium)
-                                .background(
-                                    ZStack {
-                                        if selectedTab == tab {
-                                            Capsule().fill(Color.brandPrimary)
-                                        } else {
-                                            Capsule().fill(.ultraThinMaterial)
-                                        }
-                                    }
-                                )
-                                .overlay(
-                                    Capsule().stroke(Color.borderGlare.opacity(0.15), lineWidth: 1)
-                                )
-                        }
-                    }
-                }
-                .padding(.horizontal, DesignSystem.Spacing.medium)
-                .padding(.vertical, DesignSystem.Spacing.standard)
-                
-                // MARK: - Content
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: DesignSystem.Spacing.medium) {
-                        if selectedTab == "Personal" {
-                            personalEditContent
-                        } else if selectedTab == "Company" {
-                            companyEditContent
-                        }
-                    }
-                    .padding(DesignSystem.Spacing.medium)
-                    .padding(.bottom, DesignSystem.Spacing.xxLarge)
-                    .animation(.easeInOut(duration: 0.3), value: selectedTab)
                 }
             }
         }

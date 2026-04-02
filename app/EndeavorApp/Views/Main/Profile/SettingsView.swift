@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var appViewModel: AppViewModel
+    @StateObject private var biometricService = BiometricAuthService.shared
     @Environment(\.presentationMode) var presentationMode
     @State private var showEditProfile: Bool = false
     @State private var showLogoutConfirmation: Bool = false
@@ -10,15 +11,13 @@ struct SettingsView: View {
     @State private var deletePassword: String = ""
     @State private var showDeleteError: Bool = false
     @State private var deleteErrorMessage: String = ""
-    
-    // For scroll tracking
-    @State private var scrollOffset: CGFloat = 0
-    
+    @State private var isEnablingBiometric: Bool = false
+
     var body: some View {
-        StackNavigationView {
-            ZStack(alignment: .top) {
+        NavigationStack {
+            ZStack {
                 Color.background.edgesIgnoringSafeArea(.all)
-                
+
                 // Ambient Glow
                 Circle()
                     .fill(Color.brandPrimary.opacity(0.15))
@@ -26,25 +25,21 @@ struct SettingsView: View {
                     .blur(radius: 100)
                     .offset(x: 100, y: -200)
                     .ignoresSafeArea()
-                
+
                 ScrollView(showsIndicators: false) {
-                    GeometryReader { proxy in
-                        Color.clear.preference(key: ScrollOffsetPreferenceKey.self, value: proxy.frame(in: .named("settingsScroll")).minY)
-                    }
-                    .frame(height: 0)
-                    
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xLarge) {
                         // Title
                         Text(String(localized: "nav.settings", defaultValue: "Settings"))
                             .font(.system(size: 40, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
                             .tracking(-1)
-                            .padding(.top, DesignSystem.Spacing.xxLarge)
+                            .padding(.top, DesignSystem.Spacing.small)
                             .padding(.horizontal, DesignSystem.Spacing.large)
-                        
+
                         VStack(spacing: DesignSystem.Spacing.large) {
                             profileSection
                             appearanceSection
+                            securitySection
                             accountSection
                             aboutSection
                             deleteAccountSection
@@ -53,31 +48,14 @@ struct SettingsView: View {
                         .padding(.bottom, 60)
                     }
                 }
-                .coordinateSpace(name: "settingsScroll")
-                
-                // Floating navigation bar on scroll
-                if scrollOffset < -40 {
-                    HStack {
-                        Spacer()
-                        Button(String(localized: "common.done", defaultValue: "Done")) {
-                            presentationMode.wrappedValue.dismiss()
-                        }
-                        .foregroundColor(.brandPrimary)
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(String(localized: "common.done", defaultValue: "Done")) {
+                        presentationMode.wrappedValue.dismiss()
                     }
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .overlay(Rectangle().frame(height: 1).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .bottom)
-                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
-                    .ignoresSafeArea(edges: .top)
-                } else {
-                    HStack {
-                        Spacer()
-                        Button(String(localized: "common.done", defaultValue: "Done")) {
-                            presentationMode.wrappedValue.dismiss()
-                        }
-                        .foregroundColor(.brandPrimary)
-                    }
-                    .padding()
+                    .foregroundColor(.brandPrimary)
                 }
             }
         }
@@ -124,7 +102,7 @@ struct SettingsView: View {
         }
         .preferredColorScheme(appViewModel.colorScheme)
     }
-    
+
     private func performDeleteAccount(password: String?) {
         appViewModel.deleteAccount(password: password) { result in
             switch result {
@@ -144,7 +122,7 @@ struct SettingsView: View {
             }
         }
     }
-    
+
     // MARK: - Reusable Section Builder
     private func settingsSection<Content: View>(title: String, isDestructive: Bool = false, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.small) {
@@ -153,7 +131,7 @@ struct SettingsView: View {
                 .textCase(.uppercase)
                 .foregroundColor(isDestructive ? .red.opacity(0.8) : .secondary)
                 .padding(.leading, DesignSystem.Spacing.xSmall)
-            
+
             VStack(spacing: 0) {
                 content()
             }
@@ -165,7 +143,7 @@ struct SettingsView: View {
             .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
         }
     }
-    
+
     // MARK: - Profile Section
     private var profileSection: some View {
         settingsSection(title: String(localized: "settings.profile", defaultValue: "Profile")) {
@@ -179,13 +157,13 @@ struct SettingsView: View {
                             .foregroundColor(.brandPrimary)
                             .font(.system(size: 16))
                     }
-                    
+
                     Text(String(localized: "settings.edit_profile_data", defaultValue: "Edit Profile Data"))
                         .font(.body.weight(.medium))
                         .foregroundColor(.primary)
-                    
+
                     Spacer()
-                    
+
                     Image(systemName: "chevron.right")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.secondary.opacity(0.5))
@@ -194,7 +172,7 @@ struct SettingsView: View {
             }
         }
     }
-    
+
     // MARK: - Appearance Section
     private var appearanceSection: some View {
         settingsSection(title: String(localized: "settings.appearance", defaultValue: "Appearance")) {
@@ -207,13 +185,13 @@ struct SettingsView: View {
                         .foregroundColor(.blue)
                         .font(.system(size: 16))
                 }
-                
+
                 Text(String(localized: "settings.theme", defaultValue: "Theme"))
                     .font(.body.weight(.medium))
                     .foregroundColor(.primary)
-                
+
                 Spacer()
-                
+
                 Picker("", selection: Binding(
                     get: { appViewModel.selectedTheme },
                     set: { appViewModel.setTheme($0) }
@@ -231,7 +209,60 @@ struct SettingsView: View {
             .padding(16)
         }
     }
-    
+
+    // MARK: - Security Section
+    private var securitySection: some View {
+        settingsSection(title: String(localized: "settings.security", defaultValue: "Security")) {
+            HStack {
+                ZStack {
+                    Circle()
+                        .fill(Color.green.opacity(0.15))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: biometricService.biometricIconName)
+                        .foregroundColor(.green)
+                        .font(.system(size: 16))
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "settings.biometric_toggle", defaultValue: "Face ID / Touch ID"))
+                        .font(.body.weight(.medium))
+                        .foregroundColor(.primary)
+                    Text(String(localized: "settings.biometric_toggle_subtitle", defaultValue: "Lock app when in background"))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                if isEnablingBiometric {
+                    ProgressView()
+                        .tint(.brandPrimary)
+                } else {
+                    Toggle("", isOn: Binding(
+                        get: { biometricService.isBiometricEnabled },
+                        set: { newValue in
+                            if newValue {
+                                isEnablingBiometric = true
+                                Task {
+                                    await biometricService.enableBiometric(
+                                        reason: String(localized: "settings.biometric_enable_reason",
+                                                       defaultValue: "Enable Face ID to lock Endeavor")
+                                    )
+                                    isEnablingBiometric = false
+                                }
+                            } else {
+                                biometricService.disableBiometric()
+                            }
+                        }
+                    ))
+                    .tint(.brandPrimary)
+                    .labelsHidden()
+                }
+            }
+            .padding(DesignSystem.Spacing.standard)
+        }
+    }
+
     // MARK: - Account Section
     private var accountSection: some View {
         settingsSection(title: String(localized: "settings.account", defaultValue: "Account")) {
@@ -245,18 +276,18 @@ struct SettingsView: View {
                             .foregroundColor(.red)
                             .font(.system(size: 16))
                     }
-                    
-                    Text("settings.log_out")
+
+                    Text(String(localized: "settings.log_out", defaultValue: "Log Out"))
                         .font(.body.weight(.medium))
                         .foregroundColor(.primary)
-                    
+
                     Spacer()
                 }
                 .padding(DesignSystem.Spacing.standard)
             }
         }
     }
-    
+
     // MARK: - Delete Account Section
     private var deleteAccountSection: some View {
         settingsSection(title: String(localized: "settings.danger_zone", defaultValue: "Danger Zone"), isDestructive: true) {
@@ -270,13 +301,13 @@ struct SettingsView: View {
                             .foregroundColor(.red)
                             .font(.system(size: 16))
                     }
-                    
-                    Text("settings.delete_account")
+
+                    Text(String(localized: "settings.delete_account", defaultValue: "Delete Account"))
                         .font(.body.weight(.bold))
                         .foregroundColor(.red)
-                    
+
                     Spacer()
-                    
+
                     if appViewModel.isLoading {
                         ProgressView()
                     }
@@ -287,7 +318,7 @@ struct SettingsView: View {
         }
         .padding(.top, DesignSystem.Spacing.large)
     }
-    
+
     // MARK: - About Section
     private var aboutSection: some View {
         settingsSection(title: String(localized: "settings.about", defaultValue: "About")) {
@@ -295,9 +326,9 @@ struct SettingsView: View {
                 Text(String(localized: "settings.version", defaultValue: "Version"))
                     .font(.body.weight(.medium))
                     .foregroundColor(.primary)
-                
+
                 Spacer()
-                
+
                 Text("0.1.1")
                     .font(.subheadline.weight(.semibold))
                     .foregroundColor(.secondary)

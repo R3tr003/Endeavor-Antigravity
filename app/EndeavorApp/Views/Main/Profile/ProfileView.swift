@@ -313,21 +313,9 @@ struct ProfileView: View {
     
     var companyContent: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.large) {
-            profileSection(title: String(localized: "profile.headquarters", defaultValue: "Headquarters")) {
-                profileInfoRow(icon: "mappin.and.ellipse", label: String(localized: "profile.location", defaultValue: "Location"), value: "\(appViewModel.companyProfile?.hqCity ?? "San Francisco"), \(appViewModel.companyProfile?.hqCountry ?? "USA")")
-                profileInfoRow(icon: "globe", label: String(localized: "profile.website", defaultValue: "Website"), value: appViewModel.companyProfile?.website ?? "endeavor.tech", showDivider: false)
-            }
-            
-            profileSection(title: String(localized: "profile.details", defaultValue: "Details")) {
-                profileInfoRow(icon: "building.2.fill", label: String(localized: "profile.company", defaultValue: "Company"), value: appViewModel.companyProfile?.name ?? "Endeavor Technologies")
-                profileInfoRow(icon: "briefcase.fill", label: String(localized: "profile.industry", defaultValue: "Industry"), value: appViewModel.companyProfile?.industries.first ?? "Technology / AI")
-                profileInfoRow(icon: "person.3.fill", label: String(localized: "profile.team_size", defaultValue: "Team Size"), value: appViewModel.companyProfile?.employeeRange ?? "25-50 employees")
-                profileInfoRow(icon: "chart.line.uptrend.xyaxis", label: String(localized: "profile.stage", defaultValue: "Stage"), value: appViewModel.companyProfile?.stage ?? "Series A", showDivider: false)
-            }
-            
             profileSection(title: String(localized: "profile.about_company", defaultValue: "About Company")) {
-                Text(appViewModel.companyProfile?.companyBio.isEmpty == false 
-                     ? appViewModel.companyProfile!.companyBio 
+                Text(appViewModel.companyProfile?.companyBio.isEmpty == false
+                     ? appViewModel.companyProfile!.companyBio
                      : String(localized: "profile.no_company_description", defaultValue: "No company description added yet."))
                     .font(.body)
                     .foregroundColor(.primary)
@@ -335,6 +323,18 @@ struct ProfileView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)
+            }
+
+            profileSection(title: String(localized: "profile.headquarters", defaultValue: "Headquarters")) {
+                profileInfoRow(icon: "mappin.and.ellipse", label: String(localized: "profile.location", defaultValue: "Location"), value: "\(appViewModel.companyProfile?.hqCity ?? "San Francisco"), \(appViewModel.companyProfile?.hqCountry ?? "USA")")
+                profileInfoRow(icon: "globe", label: String(localized: "profile.website", defaultValue: "Website"), value: appViewModel.companyProfile?.website ?? "endeavor.tech", showDivider: false)
+            }
+
+            profileSection(title: String(localized: "profile.details", defaultValue: "Details")) {
+                profileInfoRow(icon: "building.2.fill", label: String(localized: "profile.company", defaultValue: "Company"), value: appViewModel.companyProfile?.name ?? "Endeavor Technologies")
+                profileInfoRow(icon: "briefcase.fill", label: String(localized: "profile.industry", defaultValue: "Industry"), value: appViewModel.companyProfile?.industries.first ?? "Technology / AI")
+                profileInfoRow(icon: "person.3.fill", label: String(localized: "profile.team_size", defaultValue: "Team Size"), value: appViewModel.companyProfile?.employeeRange ?? "25-50 employees")
+                profileInfoRow(icon: "chart.line.uptrend.xyaxis", label: String(localized: "profile.stage", defaultValue: "Stage"), value: appViewModel.companyProfile?.stage ?? "Series A", showDivider: false)
             }
         }
     }
