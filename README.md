@@ -276,7 +276,14 @@ cd "Endeavor-Antigravity"
 ```
 
 **2. Firebase configuration**
-`GoogleService-Info.plist` is already included at `app/EndeavorApp/GoogleService-Info.plist`.
+
+`GoogleService-Info.plist` is **not committed to the repository** — it contains API keys and must be added manually.
+
+1. Go to the [Firebase Console](https://console.firebase.google.com/) → Project settings → Your apps
+2. Download `GoogleService-Info.plist` for the iOS app
+3. Place it at `app/EndeavorApp/GoogleService-Info.plist`
+
+> Without this file the app will crash on launch.
 
 **3. Install Cloud Functions dependencies**
 ```bash
