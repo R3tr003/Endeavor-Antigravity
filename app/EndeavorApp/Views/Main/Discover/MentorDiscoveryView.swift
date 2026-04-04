@@ -16,7 +16,42 @@ struct MentorDiscoveryView: View {
     @AppStorage("userId") private var currentUserId: String = ""
     @State private var activeConversation: Conversation?
     @State private var showConversation: Bool = false
-    
+
+    private func performSearch() {
+        guard !query.trimmingCharacters(in: .whitespaces).isEmpty, !isSearching else { return }
+        isInputFocused = false
+        isSearching = true
+        hasSearched = true
+        aiMatches = []
+
+        let trace = Performance.startTrace(name: "AI_Search_Duration")
+        AnalyticsService.shared.logAISearchPerformed(queryLength: query.count)
+
+        Functions.functions(region: "europe-west1")
+            .httpsCallable("searchUsersWithAI")
+            .call(["query": query, "currentUserId": currentUserId]) { result, error in
+                DispatchQueue.main.async {
+                    isSearching = false
+                    guard error == nil,
+                          let data = result?.data as? [String: Any],
+                          let results = data["results"] as? [[String: Any]] else {
+                        AnalyticsService.shared.logAISearchFailed(reason: "ai_error")
+                        trace?.stop()
+                        return
+                    }
+                    aiMatches = results.compactMap { r in
+                        guard let userId = r["userId"] as? String,
+                              let score = r["score"] as? Int,
+                              let reason = r["reason"] as? String else { return nil }
+                        return (userId: userId, score: score, reason: reason)
+                    }
+                    AnalyticsService.shared.logAISearchResultsShown(resultCount: aiMatches.count)
+                    trace?.setValue(Int64(aiMatches.count), forMetric: "search_results_count")
+                    trace?.stop()
+                }
+            }
+    }
+
     var body: some View {
         StackNavigationView {
             ZStack(alignment: .top) {
@@ -71,41 +106,11 @@ struct MentorDiscoveryView: View {
                                 .font(.system(size: 16, design: .rounded))
                                 .foregroundColor(.primary)
                                 .focused($isInputFocused)
+                                .submitLabel(.search)
+                                .onSubmit { performSearch() }
                                 .padding()
-                            
-                            Button(action: {
-                                isInputFocused = false
-                                isSearching = true
-                                hasSearched = true
-                                aiMatches = []
-                                
-                                let trace = Performance.startTrace(name: "AI_Search_Duration")
-                                AnalyticsService.shared.logAISearchPerformed(queryLength: query.count)
 
-                                Functions.functions(region: "europe-west1")
-                                    .httpsCallable("searchUsersWithAI")
-                                    .call(["query": query, "currentUserId": currentUserId]) { result, error in
-                                        DispatchQueue.main.async {
-                                            isSearching = false
-                                            guard error == nil,
-                                                  let data = result?.data as? [String: Any],
-                                                  let results = data["results"] as? [[String: Any]] else {
-                                                AnalyticsService.shared.logAISearchFailed(reason: "ai_error")
-                                                trace?.stop()
-                                                return
-                                            }
-                                            aiMatches = results.compactMap { r in
-                                                guard let userId = r["userId"] as? String,
-                                                      let score = r["score"] as? Int,
-                                                      let reason = r["reason"] as? String else { return nil }
-                                                return (userId: userId, score: score, reason: reason)
-                                            }
-                                            AnalyticsService.shared.logAISearchResultsShown(resultCount: aiMatches.count)
-                                            trace?.setValue(Int64(aiMatches.count), forMetric: "search_results_count")
-                                            trace?.stop()
-                                        }
-                                    }
-                            }) {
+                            Button(action: { performSearch() }) {
                                 Text(String(localized: "discover.search_button"))
                                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                                     .foregroundColor(query.trimmingCharacters(in: .whitespaces).isEmpty ? .secondary : .white)
@@ -241,6 +246,7 @@ struct MentorDiscoveryView: View {
                         networkViewModel.fetchUsers(currentUserId: currentUserId, isInitial: true)
                     }
                 }
+                .onTapGesture { isInputFocused = false }
             }
         }
         .sheet(isPresented: $showConversation) {

@@ -232,7 +232,13 @@ export const recheckConversation = onCall(
     if (!convSnap.exists) return { filtered: false };
 
     const participantIds = convSnap.data()!.participantIds as string[];
-    if (!participantIds.includes(request.auth.uid)) throw new HttpsError("permission-denied", "Forbidden");
+
+    // participantIds contains Salesforce UUIDs, not Firebase UIDs — look up the mapping
+    const userMappingSnap = await getFirestore().collection("userMappings").doc(request.auth.uid).get();
+    if (!userMappingSnap.exists) throw new HttpsError("permission-denied", "Forbidden");
+    const userUuid = userMappingSnap.data()!.uuid as string;
+
+    if (!participantIds.includes(userUuid)) throw new HttpsError("permission-denied", "Forbidden");
 
     // 7-day cooldown per conversation: prevent rechecking too frequently
     const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;

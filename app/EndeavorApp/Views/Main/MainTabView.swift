@@ -15,13 +15,12 @@ struct MainTabView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             Color.background.edgesIgnoringSafeArea(.all)
-            
-            // Content
+
+            // Content — safeAreaInset makes the tab bar part of the safe area,
+            // so the system automatically moves it up when the keyboard appears.
             TabView(selection: $selectedTab) {
-                // Ensure the content scrolls under the floating tab bar by adding bottom padding internally if needed,
-                // or letting it just underlap.
                 HomeView()
                     .tag(0)
 
@@ -37,7 +36,6 @@ struct MainTabView: View {
                 ProfileView()
                     .tag(4)
             }
-            .edgesIgnoringSafeArea(.bottom)
             .environmentObject(conversationsViewModel)
             .onChange(of: selectedTab) { _, newTab in
                 visitedTabs.insert(newTab)
@@ -47,60 +45,58 @@ struct MainTabView: View {
                 ])
             }
             .onDisappear {
-                // Session ended (view dismissed / app backgrounded) — log how many unique screens were visited
                 AnalyticsService.shared.logSessionDepth(screensVisited: visitedTabs.count)
             }
             .onAppear {
                 if appViewModel.isLoggedIn {
-                    // Crea la mappatura prima di ascoltare le conversazioni
                     appViewModel.ensureMessagingMappingExists {
                         conversationsViewModel.startListening()
                     }
                 }
-                
-                // Log initial screen on first open
                 Analytics.logEvent(AnalyticsEventScreenView, parameters: [
                     AnalyticsParameterScreenName: tabScreenName(selectedTab),
                     AnalyticsParameterScreenClass: tabScreenName(selectedTab)
                 ])
             }
-            
-            // Floating Liquid Glass Tab Bar
-            HStack(spacing: 0) {
-                TabItem(icon: "house", title: String(localized: "nav.home"), isSelected: selectedTab == 0) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 0 }
+            .safeAreaInset(edge: .bottom) {
+                // Floating Liquid Glass Tab Bar
+                HStack(spacing: 0) {
+                    TabItem(icon: "house", title: String(localized: "nav.home"), isSelected: selectedTab == 0) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 0 }
+                    }
+                    Spacer()
+                    TabItem(icon: "person.3", title: String(localized: "nav.network"), isSelected: selectedTab == 1) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 1 }
+                    }
+                    Spacer()
+                    TabItem(icon: "sparkles", title: String(localized: "nav.discover"), isSelected: selectedTab == 2, selectedIcon: "sparkles") {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 2 }
+                    }
+                    Spacer()
+                    TabItem(icon: "message", title: String(localized: "nav.messages"), isSelected: selectedTab == 3, badgeCount: conversationsViewModel.totalUnreadCount) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 3 }
+                    }
+                    Spacer()
+                    TabItem(icon: "person", title: String(localized: "nav.profile"), isSelected: selectedTab == 4) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 4 }
+                    }
                 }
-                Spacer()
-                TabItem(icon: "person.3", title: String(localized: "nav.network"), isSelected: selectedTab == 1) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 1 }
-                }
-                Spacer()
-                TabItem(icon: "sparkles", title: String(localized: "nav.discover"), isSelected: selectedTab == 2, selectedIcon: "sparkles") {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 2 }
-                }
-                Spacer()
-                TabItem(icon: "message", title: String(localized: "nav.messages"), isSelected: selectedTab == 3, badgeCount: conversationsViewModel.totalUnreadCount) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 3 }
-                }
-                Spacer()
-                TabItem(icon: "person", title: String(localized: "nav.profile"), isSelected: selectedTab == 4) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 4 }
-                }
+                .padding(.horizontal, DesignSystem.Spacing.medium)
+                .padding(.vertical, 14)
+                .background(.regularMaterial, in: Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(LinearGradient(
+                            colors: [Color.borderGlare.opacity(0.3), .clear, Color.borderGlare.opacity(0.1)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
+                .padding(.horizontal, DesignSystem.Spacing.large)
+                .padding(.bottom, 0)
+                .ignoresSafeArea(.keyboard)
             }
-            .padding(.horizontal, DesignSystem.Spacing.medium)
-            .padding(.vertical, 14)
-            .background(.regularMaterial, in: Capsule())
-            .overlay(
-                Capsule()
-                    .stroke(LinearGradient(
-                        colors: [Color.borderGlare.opacity(0.3), .clear, Color.borderGlare.opacity(0.1)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ), lineWidth: 1)
-            )
-            .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
-            .padding(.horizontal, DesignSystem.Spacing.large)
-            .padding(.bottom, 0) // Sit right above the home indicator
         }
     }
     private func tabScreenName(_ tab: Int) -> String {

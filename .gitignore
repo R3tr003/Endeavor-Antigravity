@@ -9,12 +9,16 @@
 *.network
 *.mov
 *.xcuserstate
+**/*.xcuserstate
 xcuserdata/
 .genkit/
 
 # Build generated
 Build/
 DerivedData/
+dist/
+lib/
+out/
 
 # Swift Package Manager
 .build/
@@ -28,29 +32,33 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 
-# Firebase — contains API keys, never commit
+# Firebase
 **/GoogleService-Info.plist
+.firebase/
+*-debug.log
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+functions/.runtimeconfig.json
+firestore-messaging.rules
 
 # Misc
 .env
+.env.local
+.env.*.local
 
 # Logs
 *.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
 
-# Agents Skills
-.agents/skills/
-
-# Custom Scripts
-*.rb
-add_*.py
-fix_*.py
-test_out.txt
-.env.local
-.claude
+# Agents / AI
+.agents/
+.claude/
 claude.md
-# Locally appended
+test_out.txt
 app/build_log.txt
-firestore-messaging.rules
 
 # Node / Firebase Functions
 node_modules/
@@ -58,3 +66,11 @@ functions/node_modules/
 functions/lib/
 functions/query_user.js
 functions/test_genai.js
+functions/testMock.js
+
+# Tests & Coverage
+.testsprite/
+testsprite_tests/
+testsprite_test/
+coverage/
+.jest-cache/

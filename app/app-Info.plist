@@ -36,5 +36,9 @@
 	<string>Endeavor needs access to save photos from conversations to your library.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Endeavor uses Face ID to protect your account.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Endeavor needs access to your photo library to share images in conversations.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Endeavor needs camera access to take and share photos in conversations.</string>
 </dict>
 </plist>

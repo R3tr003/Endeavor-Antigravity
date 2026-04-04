@@ -22,7 +22,7 @@ service cloud.firestore {
 
     // Check if the incoming UserProfile data is structurally valid
     function isValidUser(data) {
-      return data.size() >= 9 && data.size() <= 18
+      return data.size() >= 9
       && data.id is string
       && data.firstName is string && data.firstName.size() <= 50
       && data.lastName is string && data.lastName.size() <= 75
@@ -89,8 +89,14 @@ service cloud.firestore {
                     && getUserUuid() in request.resource.data.participantIds
                     && getUserUuid() == request.resource.data.createdBy;
 
+      // Participants can update event fields, but:
+      // - createdBy is immutable for everyone
+      // - participantIds can only be changed by the creator
       allow update: if isAuthenticated()
-                    && getUserUuid() in resource.data.participantIds;
+                    && getUserUuid() in resource.data.participantIds
+                    && request.resource.data.createdBy == resource.data.createdBy
+                    && (request.resource.data.participantIds == resource.data.participantIds
+                        || getUserUuid() == resource.data.createdBy);
 
       allow delete: if isAuthenticated()
                     && getUserUuid() == resource.data.createdBy;

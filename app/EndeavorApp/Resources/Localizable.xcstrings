@@ -2146,6 +2146,9 @@
         }
       }
     },
+    "Done" : {
+
+    },
     "Endeavor" : {
 
     },
@@ -7592,74 +7595,6 @@
         }
       }
     },
-    "settings.switcher_face_id_required" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Face ID Required\nto open Endeavor"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Face ID requerido\npara abrir Endeavor"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Face ID requis\npour ouvrir Endeavor"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Face ID richiesto\nper aprire Endeavor"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Face ID necessário\npara abrir Endeavor"
-          }
-        }
-      }
-    },
-    "settings.switcher_touch_id_required" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch ID Required\nto open Endeavor"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch ID requerido\npara abrir Endeavor"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch ID requis\npour ouvrir Endeavor"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch ID richiesto\nper aprire Endeavor"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch ID necessário\npara abrir Endeavor"
-          }
-        }
-      }
-    },
     "settings.danger_zone" : {
       "extractionState" : "extracted_with_value",
       "localizations" : {
@@ -8008,6 +7943,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Segurança"
+          }
+        }
+      }
+    },
+    "settings.switcher_face_id_required" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID Required\nto open Endeavor"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID requerido\npara abrir Endeavor"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID requis\npour ouvrir Endeavor"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID richiesto\nper aprire Endeavor"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Face ID necessário\npara abrir Endeavor"
+          }
+        }
+      }
+    },
+    "settings.switcher_touch_id_required" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch ID Required\nto open Endeavor"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch ID requerido\npara abrir Endeavor"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch ID requis\npour ouvrir Endeavor"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch ID richiesto\nper aprire Endeavor"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch ID necessário\npara abrir Endeavor"
           }
         }
       }

@@ -6,6 +6,7 @@ import FirebaseFirestore
 struct NetworkView: View {
     @State private var searchText: String = ""
     @State private var animateGlow = false
+    @FocusState private var isSearchFocused: Bool
     @State private var selectedCategories: Set<String> = ["All"]
     
     @StateObject private var viewModel = NetworkViewModel(repository: FirebaseNetworkRepository())
@@ -106,6 +107,9 @@ struct NetworkView: View {
                                         .foregroundColor(.secondary.opacity(0.6))
                                 }
                                 .foregroundColor(.primary)
+                                .focused($isSearchFocused)
+                                .submitLabel(.search)
+                                .onSubmit { isSearchFocused = false }
                         }
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
@@ -217,7 +221,14 @@ struct NetworkView: View {
                         viewModel.fetchUsers(currentUserId: currentUserId, isInitial: true)
                     }
                 }
-                
+                .onTapGesture { isSearchFocused = false }
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") { isSearchFocused = false }
+                    }
+                }
+
                 Rectangle()
                     .fill(.ultraThinMaterial)
                     .frame(height: 0)
