@@ -58,8 +58,11 @@ struct MainTabView: View {
                     AnalyticsParameterScreenClass: tabScreenName(selectedTab)
                 ])
             }
-            .safeAreaInset(edge: .bottom) {
-                // Floating Liquid Glass Tab Bar
+
+
+            // Floating tab bar pinned to bottom of ZStack — never moves with keyboard
+            VStack {
+                Spacer()
                 HStack(spacing: 0) {
                     TabItem(icon: "house", title: String(localized: "nav.home"), isSelected: selectedTab == 0) {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 0 }
@@ -95,8 +98,8 @@ struct MainTabView: View {
                 .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
                 .padding(.horizontal, DesignSystem.Spacing.large)
                 .padding(.bottom, 0)
-                .ignoresSafeArea(.keyboard)
             }
+            .ignoresSafeArea(.keyboard)
         }
     }
     private func tabScreenName(_ tab: Int) -> String {

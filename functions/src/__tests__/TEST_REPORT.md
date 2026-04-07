@@ -2,24 +2,14 @@
 
 > This report is automatically generated every time `npm test` is executed.
 
-**Last Executed**: 4/7/2026, 1:24:14 PM GMT+2
+**Last Executed**: 4/7/2026, 4:10:46 PM GMT+2
 
 ## 📊 Summary
 - **Test Suites**: 5 passed, 0 failed, 5 total
 - **Tests**: 24 passed, 0 failed, 24 total
-- **Execution Time**: 4.41s
+- **Execution Time**: 8.71s
 
 ## ✅ Passed Test Suites
-
-### icalFeed.test.ts (4 tests passed)
-- ✓ *iCal Feed Function > returns 401 if token is missing*
-- ✓ *iCal Feed Function > returns 401 if token is invalid*
-- ✓ *iCal Feed Function > returns 401 if token is expired*
-- ✓ *iCal Feed Function > generates an iCal feed with events for a valid token*
-
-### messageFilter.test.ts (2 tests passed)
-- ✓ *Message Filter: recheckConversation > throws unauthenticated if no auth is provided*
-- ✓ *Message Filter: recheckConversation > verifies permission mapping and identifies spam conversation successfully*
 
 ### meetProvider.test.ts (6 tests passed)
 - ✓ *Meet Provider tests > generateMeetLink > throws if no valid arguments are provided*
@@ -40,6 +30,16 @@
 - ✓ *Salesforce Functions > getSalesforceContactData > parses languages correctly and maps fields*
 - ✓ *Salesforce Functions > checkAndFetchSalesforceContact > throws if email missing*
 - ✓ *Salesforce Functions > checkAndFetchSalesforceContact > functions correctly combining authorization and data pulling*
+
+### icalFeed.test.ts (4 tests passed)
+- ✓ *iCal Feed Function > returns 401 if token is missing*
+- ✓ *iCal Feed Function > returns 401 if token is invalid*
+- ✓ *iCal Feed Function > returns 401 if token is expired*
+- ✓ *iCal Feed Function > generates an iCal feed with events for a valid token*
+
+### messageFilter.test.ts (2 tests passed)
+- ✓ *Message Filter: recheckConversation > throws unauthenticated if no auth is provided*
+- ✓ *Message Filter: recheckConversation > verifies permission mapping and identifies spam conversation successfully*
 
 ### aiSearch.test.ts (2 tests passed)
 - ✓ *AI Search Function > returns empty results if no other users are found*

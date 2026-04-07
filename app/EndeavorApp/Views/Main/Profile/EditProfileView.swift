@@ -68,17 +68,6 @@ struct EditProfileView: View {
             ZStack {
                 // Immersive background
                 Color.background.edgesIgnoringSafeArea(.all)
-                    .onTapGesture {
-                        focusFirstName = false
-                        focusLastName = false
-                        focusRole = false
-                        focusPersonalBio = false
-                        focusCompanyName = false
-                        focusWebsite = false
-                        focusCompanyBio = false
-                        focusNewEmail = false
-                        focusPassword = false
-                    }
 
                 // Ambient glow
                 Circle()
@@ -133,6 +122,7 @@ struct EditProfileView: View {
                         .padding(.bottom, DesignSystem.Spacing.xxLarge)
                         .animation(.easeInOut(duration: 0.3), value: selectedTab)
                     }
+                    .onTapGesture { dismissKeyboard() }
                 }
             }
             .navigationTitle(String(localized: "profile.edit_profile", defaultValue: "Edit Profile"))
@@ -480,6 +470,18 @@ struct EditProfileView: View {
         }
     }
     
+    private func dismissKeyboard() {
+        focusFirstName = false
+        focusLastName = false
+        focusRole = false
+        focusPersonalBio = false
+        focusCompanyName = false
+        focusWebsite = false
+        focusCompanyBio = false
+        focusNewEmail = false
+        focusPassword = false
+    }
+
     func saveChanges() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         // Validation

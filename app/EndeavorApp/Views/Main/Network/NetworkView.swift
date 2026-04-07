@@ -188,6 +188,10 @@ struct NetworkView: View {
                             } else {
                                 ForEach(categoryFilteredProfiles, id: \.id) { profile in
                                     Button(action: {
+                                        guard !isSearchFocused else {
+                                            isSearchFocused = false
+                                            return
+                                        }
                                         AnalyticsService.shared.logProfileViewed(userId: profile.id.uuidString)
                                         selectedProfile = profile
                                     }) {
@@ -320,6 +324,10 @@ struct NetworkView: View {
                 
                 // Action Buttons (Side by Side)
                 Button(action: {
+                    guard !isSearchFocused else {
+                        isSearchFocused = false
+                        return
+                    }
                     AnalyticsService.shared.logProfileViewed(userId: profile.id.uuidString)
                     selectedProfile = profile
                 }) {

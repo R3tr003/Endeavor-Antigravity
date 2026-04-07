@@ -187,6 +187,7 @@ struct MentorDiscoveryView: View {
                                                     companyName: networkViewModel.companyNames[matchData.profile.id.uuidString] ?? matchData.profile.role,
                                                     reason: matchData.reason,
                                                     onConnect: {
+                                                        guard !isInputFocused else { isInputFocused = false; return }
                                                         AnalyticsService.shared.logAISearchResultTapped(rank: index + 1)
                                                         // Funnel: user searched with AI and then opened a conversation
                                                         let bucket: String

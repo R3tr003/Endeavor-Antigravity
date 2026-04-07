@@ -6,6 +6,7 @@ struct MessagesView: View {
     @EnvironmentObject private var viewModel: ConversationsViewModel
     @State private var searchText: String = ""
     @State private var animateGlow: Bool = false
+    @FocusState private var isSearchFocused: Bool
     @State private var selectedConversation: Conversation? = nil
     @State private var showNewConversation: Bool = false
     @State private var pendingConversationId: String? = nil
@@ -97,6 +98,9 @@ struct MessagesView: View {
                             TextField(String(localized: "messages.search_placeholder", defaultValue: "Search conversations..."), text: $searchText)
                                 .font(.system(size: 16, design: .rounded))
                                 .foregroundColor(.primary)
+                                .focused($isSearchFocused)
+                                .submitLabel(.search)
+                                .onSubmit { isSearchFocused = false }
                         }
                         .padding(DesignSystem.Spacing.standard)
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
@@ -108,6 +112,7 @@ struct MessagesView: View {
                     // Riga "Filtered" — slim, stile WhatsApp
                     if !viewModel.filteredConversations.isEmpty {
                         Button(action: {
+                            guard !isSearchFocused else { isSearchFocused = false; return }
                             AnalyticsService.shared.logFilteredConversationsViewed(count: viewModel.filteredConversations.count)
                             showFilteredConversations = true
                         }) {
@@ -162,6 +167,7 @@ struct MessagesView: View {
                                     }
                                 )
                                 .onTapGesture {
+                                    guard !isSearchFocused else { isSearchFocused = false; return }
                                     selectedConversation = convo
                                 }
                             }
