@@ -14,6 +14,7 @@ const defaultDbMock = {
 const messagingDbMock = {
     collection: jest.fn().mockReturnThis(),
     doc: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
     get: jest.fn(),
     update: jest.fn(),
     set: jest.fn()
