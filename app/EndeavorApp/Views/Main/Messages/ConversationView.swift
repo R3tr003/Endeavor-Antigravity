@@ -310,9 +310,9 @@ struct ConversationView: View {
                                             message: msg,
                                             isFromMe: fromMe,
                                             currentUserId: currentUserId,
-                                            onAccept: {
-                                                guard let eventId = msg.meetingEventId else { return }
-                                                viewModel.acceptMeeting(eventId: eventId)
+                                            onAccept: { resetSpinner in
+                                                guard let eventId = msg.meetingEventId else { resetSpinner(); return }
+                                                viewModel.acceptMeeting(eventId: eventId, onFailure: resetSpinner)
                                             },
                                             onDecline: {
                                                 guard let eventId = msg.meetingEventId else { return }
@@ -328,11 +328,20 @@ struct ConversationView: View {
                                     .id(msg.id)
                                 } else if msg.isSystemMessage {
                                     let isWarning = msg.text.hasPrefix("⚠️")
+                                    let systemText: String = {
+                                        if msg.text == "ai_filter_warning" {
+                                            let flaggedBySender = prevMsg?.senderId == currentUserId
+                                            return flaggedBySender
+                                                ? String(localized: "messages.ai_filter_warning_sender", defaultValue: "Your message was flagged by Endeavor's AI filter as potentially promotional or irrelevant to our network's purpose.")
+                                                : String(localized: "messages.ai_filter_warning_receiver", defaultValue: "The message above was flagged by Endeavor's AI filter as potentially promotional or irrelevant to our network's purpose.")
+                                        }
+                                        return msg.text.replacingOccurrences(of: "⚠️ ", with: "")
+                                    }()
                                     HStack(alignment: .center, spacing: 6) {
                                         Image(systemName: isWarning ? "exclamationmark.triangle.fill" : "info.circle.fill")
                                             .font(.system(size: 14, weight: .semibold))
                                             .foregroundColor(isWarning ? .red : .secondary)
-                                        Text(msg.text.replacingOccurrences(of: "⚠️ ", with: ""))
+                                        Text(systemText)
                                             .font(.system(size: 13, weight: .medium, design: .rounded))
                                             .foregroundColor(.secondary)
                                             .multilineTextAlignment(.center)

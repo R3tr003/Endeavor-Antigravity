@@ -3312,6 +3312,74 @@
         }
       }
     },
+    "messages.ai_filter_warning_receiver" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The message above was flagged by Endeavor's AI filter as potentially promotional or irrelevant to our network's purpose."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El mensaje anterior fue marcado por el filtro de IA de Endeavor como potencialmente promocional o irrelevante para nuestra red."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le message ci-dessus a été signalé par le filtre IA d'Endeavor comme potentiellement promotionnel ou non pertinent pour notre réseau."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il messaggio precedente è stato segnalato dal filtro AI di Endeavor come potenzialmente promozionale o irrilevante per la nostra rete."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A mensagem acima foi sinalizada pelo filtro de IA da Endeavor como potencialmente promocional ou irrelevante para a nossa rede."
+          }
+        }
+      }
+    },
+    "messages.ai_filter_warning_sender" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your message was flagged by Endeavor's AI filter as potentially promotional or irrelevant to our network's purpose."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu mensaje fue marcado por el filtro de IA de Endeavor como potencialmente promocional o irrelevante para nuestra red."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre message a été signalé par le filtre IA d'Endeavor comme potentiellement promotionnel ou non pertinent pour notre réseau."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tuo messaggio è stato segnalato dal filtro AI di Endeavor come potenzialmente promozionale o irrilevante per la nostra rete."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sua mensagem foi sinalizada pelo filtro de IA da Endeavor como potencialmente promocional ou irrelevante para a nossa rede."
+          }
+        }
+      }
+    },
     "messages.awaiting" : {
       "extractionState" : "stale",
       "localizations" : {

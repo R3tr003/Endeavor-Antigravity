@@ -835,10 +835,23 @@ class AppViewModel: ObservableObject {
     }
 
     /// Calls the `saveUserMapping` Cloud Function via Admin SDK so Firestore rules are never bypassed client-side.
+    /// Deduplicates concurrent calls: if a call for the same (firebaseUid, uuid) pair is already
+    /// in flight, the new call is dropped to avoid the GTMSessionFetcher "already running" warning.
+    private static var _saveMappingInFlight: String? = nil
+
     private static func callSaveUserMapping(firebaseUid: String, uuid: String, completion: (() -> Void)? = nil) {
+        let key = "\(firebaseUid):\(uuid)"
+        guard _saveMappingInFlight != key else {
+            DispatchQueue.main.async { completion?() }
+            return
+        }
+        _saveMappingInFlight = key
         let fn = Functions.functions(region: "europe-west1").httpsCallable("saveUserMapping")
         fn.call(["firebaseUid": firebaseUid, "uuid": uuid]) { _, _ in
-            DispatchQueue.main.async { completion?() }
+            DispatchQueue.main.async {
+                _saveMappingInFlight = nil
+                completion?()
+            }
         }
     }
 

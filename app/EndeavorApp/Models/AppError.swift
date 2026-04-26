@@ -38,6 +38,7 @@ public enum AppError: LocalizedError, Equatable {
     case meetGoogleAccountRequired
     case meetGoogleSignInRequired
     case meetTeamsSignInRequired
+    case meetTeamsSignInCancelled
     case meetTeamsConfigurationError
     case meetNoPresentingViewController
 
@@ -131,6 +132,8 @@ extension AppError {
         case .meetTeamsSignInRequired:
             return String(localized: "meet.error_teams_signin_required",
                           defaultValue: "Please sign in with your Microsoft account to use Teams.")
+        case .meetTeamsSignInCancelled:
+            return nil
         case .meetTeamsConfigurationError:
             return String(localized: "meet.error_teams_config",
                           defaultValue: "Microsoft Teams configuration error. Please try again.")

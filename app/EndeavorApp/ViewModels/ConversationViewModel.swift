@@ -216,7 +216,7 @@ class ConversationViewModel: ObservableObject {
         AnalyticsService.shared.logMeetingAccepted(provider: provider.rawValue)
     }
 
-    func acceptMeeting(eventId: String) {
+    func acceptMeeting(eventId: String, onFailure: @escaping () -> Void = {}) {
         Firestore.firestore().collection("events").document(eventId).getDocument { [weak self] snap, _ in
             guard let self = self else { return }
             let data = snap?.data()
@@ -231,7 +231,10 @@ class ConversationViewModel: ObservableObject {
                     status: .confirmed,
                     meetLink: existingLink
                 ) { [weak self] error in
-                    if error != nil { self?.appError = .meetingUpdateFailed; return }
+                    if error != nil {
+                        DispatchQueue.main.async { self?.appError = .meetingUpdateFailed; onFailure() }
+                        return
+                    }
                     self?.notifyMeetingAccepted(provider: provider)
                 }
                 return
@@ -247,18 +250,27 @@ class ConversationViewModel: ObservableObject {
 
                 switch result {
                 case .failure(let error):
-                    // If the recipient has no Google account, accept anyway without a link.
                     if case AppError.meetGoogleAccountRequired = error {
+                        // Recipient has no Google account — accept without a link.
                         self.calendarRepository.updateEventStatus(
                             eventId: eventId,
                             status: .confirmed,
                             meetLink: nil
                         ) { [weak self] updateError in
-                            if updateError != nil { self?.appError = .meetingUpdateFailed; return }
+                            if updateError != nil {
+                                DispatchQueue.main.async { self?.appError = .meetingUpdateFailed; onFailure() }
+                                return
+                            }
                             self?.notifyMeetingAccepted(provider: provider)
                         }
+                    } else if case AppError.meetTeamsSignInCancelled = error {
+                        // User explicitly cancelled Teams auth — reset spinner, no error shown.
+                        DispatchQueue.main.async { onFailure() }
                     } else {
-                        self.appError = .unknown(reason: error.localizedDescription)
+                        DispatchQueue.main.async {
+                            self.appError = .meetTeamsSignInRequired
+                            onFailure()
+                        }
                     }
 
                 case .success(let link):
@@ -268,7 +280,10 @@ class ConversationViewModel: ObservableObject {
                         meetLink: link.isEmpty ? nil : link
                     ) { [weak self] error in
                         guard let self = self else { return }
-                        if error != nil { self.appError = .meetingUpdateFailed; return }
+                        if error != nil {
+                            DispatchQueue.main.async { self.appError = .meetingUpdateFailed; onFailure() }
+                            return
+                        }
                         self.notifyMeetingAccepted(provider: provider)
                     }
                 }

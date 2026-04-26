@@ -5,7 +5,7 @@ struct MeetingInviteCard: View {
     let message: Message
     let isFromMe: Bool
     let currentUserId: String
-    let onAccept: () -> Void
+    let onAccept: (@escaping () -> Void) -> Void
     let onDecline: () -> Void
     let onProposeNew: (CalendarEvent) -> Void
 
@@ -114,7 +114,10 @@ struct MeetingInviteCard: View {
                                 Button(action: {
                                     guard !isAccepting else { return }
                                     isAccepting = true
-                                    onAccept()
+                                    onAccept {
+                                        // Called by the ViewModel on any failure path — reset spinner
+                                        DispatchQueue.main.async { isAccepting = false }
+                                    }
                                 }) {
                                     Group {
                                         if isAccepting {

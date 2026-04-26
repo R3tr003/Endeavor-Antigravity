@@ -20,10 +20,32 @@ class MeetProviderService {
             redirectUri: "msauth.com.endeavor.app://auth",
             authority: msalAuthority
         )
+        // Use the app's own keychain group instead of the default shared
+        // "com.microsoft.adalcache" group, which requires keychain-access-groups
+        // entitlement (not present in this app) and causes errSecMissingEntitlement (-34018).
+        config.cacheConfig.keychainSharingGroup = Bundle.main.bundleIdentifier ?? "com.endeavor.app"
         return try? MSALPublicClientApplication(configuration: config)
     }()
 
     private init() {}
+
+    // MARK: - View Controller Helper
+
+    /// Returns the topmost currently-presented UIViewController so that MSAL
+    /// (and GID scope request) can present their WebView on top of any open sheet.
+    private func topMostViewController(from vc: UIViewController) -> UIViewController {
+        if let presented = vc.presentedViewController {
+            return topMostViewController(from: presented)
+        }
+        return vc
+    }
+
+    private func presentingViewController() -> UIViewController? {
+        guard let windowScene = UIApplication.shared.connectedScenes
+                .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene,
+              let rootVC = windowScene.keyWindow?.rootViewController else { return nil }
+        return topMostViewController(from: rootVC)
+    }
 
     // MARK: - Meet Link Generation
 
@@ -76,13 +98,12 @@ class MeetProviderService {
             refreshAndCall(gidUser: gidUser, eventId: eventId, userId: userId, completion: completion)
         } else {
             // Richiedi scope aggiuntivo — serve la finestra di presentazione
-            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let rootVC = windowScene.windows.first?.rootViewController else {
+            guard let presentingVC = self.presentingViewController() else {
                 completion(.failure(AppError.meetNoPresentingViewController))
                 return
             }
 
-            gidUser.addScopes([calendarScope], presenting: rootVC) { [weak self] signInResult, error in
+            gidUser.addScopes([calendarScope], presenting: presentingVC) { [weak self] signInResult, error in
                 guard let self = self else { return }
                 if let error = error {
                     completion(.failure(error))
@@ -131,22 +152,28 @@ class MeetProviderService {
             return
         }
 
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let rootVC = windowScene.windows.first?.rootViewController else {
-            completion(.failure(AppError.meetNoPresentingViewController))
-            return
-        }
-
         let scopes = ["https://graph.microsoft.com/OnlineMeetings.ReadWrite"]
 
         let acquireInteractive = { [weak self] in
-            let webviewParameters = MSALWebviewParameters(authPresentationViewController: rootVC)
+            guard let self = self, let presentingVC = self.presentingViewController() else {
+                completion(.failure(AppError.meetNoPresentingViewController))
+                return
+            }
+            let webviewParameters = MSALWebviewParameters(authPresentationViewController: presentingVC)
+            // Force in-app WKWebView so the OS never redirects to the Authenticator app
+            webviewParameters.webviewType = .wkWebView
             let interactiveParameters = MSALInteractiveTokenParameters(scopes: scopes, webviewParameters: webviewParameters)
             interactiveParameters.promptType = .selectAccount
 
             msalApp.acquireToken(with: interactiveParameters) { [weak self] result, error in
                 if let error = error {
-                    completion(.failure(error))
+                    let nsError = error as NSError
+                    // MSALErrorDomain code -50002 = user explicitly cancelled the auth flow
+                    if nsError.domain == "MSALErrorDomain" && nsError.code == -50002 {
+                        completion(.failure(AppError.meetTeamsSignInCancelled))
+                    } else {
+                        completion(.failure(AppError.meetTeamsSignInRequired))
+                    }
                     return
                 }
                 guard let result = result else {
