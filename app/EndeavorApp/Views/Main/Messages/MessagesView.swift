@@ -103,8 +103,7 @@ struct MessagesView: View {
                                 .onSubmit { isSearchFocused = false }
                         }
                         .padding(DesignSystem.Spacing.standard)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
+                        .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
 
                     }
                     .padding(.horizontal, DesignSystem.Spacing.large)
@@ -199,12 +198,10 @@ struct MessagesView: View {
                                             Text(String(localized: "messages.start_conversation"))
                                                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                                         }
-                                        .foregroundColor(.white)
                                         .padding(.vertical, 12)
                                         .padding(.horizontal, DesignSystem.Spacing.large)
-                                        .background(Color.brandPrimary, in: Capsule())
-                                        .shadow(color: Color.brandPrimary.opacity(0.3), radius: 8, x: 0, y: 4)
                                     }
+                                    .buttonStyle(.glassProminent)
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(.top, DesignSystem.Spacing.large)
@@ -475,9 +472,7 @@ struct ConversationRow: View {
             }
         }
         .padding(DesignSystem.Spacing.standard)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xxLarge, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xxLarge, style: .continuous).stroke(Color.borderGlare.opacity(0.12), lineWidth: 1))
-        .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+        .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.xxLarge))
     }
 }
 

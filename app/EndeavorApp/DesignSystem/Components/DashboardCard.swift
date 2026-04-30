@@ -22,27 +22,13 @@ struct DashboardCard<Content: View>: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            // Dark: bagliore bianco superiore. Light: accent teal sottile.
-                            colorScheme == .dark ? .white.opacity(0.3) : Color.brandPrimary.opacity(0.3),
-                            colorScheme == .dark ? .clear : Color.brandPrimary.opacity(0.05),
-                            colorScheme == .dark ? .white.opacity(0.1) : Color.brandPrimary.opacity(0.15)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
+                .strokeBorder(.separator, lineWidth: 0.5)
         )
         .shadow(
-            color: colorScheme == .dark
-                ? Color.black.opacity(0.08)
-                : Color.black.opacity(0.12),  // più definita in light
-            radius: colorScheme == .dark ? 12 : 8,
+            color: Color.black.opacity(colorScheme == .dark ? 0.15 : 0.06),
+            radius: 12,
             x: 0,
-            y: colorScheme == .dark ? 6 : 3
+            y: 4
         )
         .scaleEffect(isPressed ? 0.98 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)

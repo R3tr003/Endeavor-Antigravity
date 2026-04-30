@@ -122,7 +122,7 @@ struct UserProfileView: View {
                     .foregroundColor(.brandPrimary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 5)
-                    .background(Color.brandPrimary.opacity(0.15), in: Capsule())
+                    .glassSurface(.regular.tint(Color.brandPrimary.opacity(0.14)), shape: .capsule)
             }
 
             // Role
@@ -272,16 +272,14 @@ struct UserProfileView: View {
                     Text(String(localized: "messages.start_conversation"))
                 }
             }
-            .font(.system(size: 16, weight: .semibold, design: .rounded))
-            .foregroundColor(.white)
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
             .frame(maxWidth: .infinity)
-            .frame(height: DesignSystem.Layout.largeButtonHeight)
-            .background(Color.brandPrimary)
-            .clipShape(Capsule())
         }
+        .buttonStyle(.glassProminent)
+        .controlSize(.large)
         .disabled(isStartingConversation)
         .padding(.horizontal, DesignSystem.Spacing.large)
-        .padding(.vertical, DesignSystem.Spacing.standard)
+        .padding(.vertical, DesignSystem.Spacing.small)
         .background(.ultraThinMaterial)
         .sheet(isPresented: $showConversation) {
             if let conv = activeConversation,
@@ -306,7 +304,7 @@ struct UserProfileView: View {
             .font(.system(size: 13, weight: .medium, design: .rounded))
             .foregroundColor(.primary.opacity(0.85)) // Increased legibility
             .padding(.horizontal, 12).padding(.vertical, 6)
-            .overlay(Capsule().stroke(Color.secondary.opacity(0.3), lineWidth: 1))
+            .glassSurface(.regular, shape: .capsule)
     }
 
     private func infoRow(icon: String, text: String) -> some View {

@@ -32,9 +32,8 @@ struct ProfileView: View {
                             Button(action: { showSettings = true }) {
                                 ZStack {
                                     Circle()
-                                        .fill(.regularMaterial)
                                         .frame(width: 40, height: 40)
-                                        .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
+                                        .glassEffect(.regular.interactive(), in: Circle())
                                     
                                     Image(systemName: "gearshape.fill")
                                         .font(.system(size: 18))
@@ -60,7 +59,6 @@ struct ProfileView: View {
                 
                 // Status bar blur
                 Rectangle()
-                    .fill(.ultraThinMaterial)
                     .frame(height: 0)
                     .ignoresSafeArea(edges: .top)
             }
@@ -114,9 +112,8 @@ struct ProfileView: View {
                 } label: {
                     ZStack {
                         Circle()
-                            .fill(.regularMaterial)
                             .frame(width: 36, height: 36)
-                            .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
+                            .glassEffect(.regular.interactive(), in: Circle())
                         
                         Image(systemName: "camera.fill")
                             .font(.system(size: 14))
@@ -179,28 +176,30 @@ struct ProfileView: View {
     var glassTabs: some View {
         HStack(spacing: DesignSystem.Spacing.small) {
             ForEach(["Personal", "Company"], id: \.self) { tab in
-                Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        selectedTab = tab
+                if selectedTab == tab {
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            selectedTab = tab
+                        }
+                    }) {
+                        Text(tab)
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, DesignSystem.Spacing.standard)
                     }
-                }) {
-                    Text(tab)
-                        .font(.system(size: 14, weight: selectedTab == tab ? .bold : .medium, design: .rounded))
-                        .foregroundColor(selectedTab == tab ? .white : .primary)
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, DesignSystem.Spacing.standard)
-                        .background(
-                            ZStack {
-                                if selectedTab == tab {
-                                    Capsule().fill(Color.brandPrimary)
-                                } else {
-                                    Capsule().fill(.regularMaterial)
-                                }
-                            }
-                        )
-                        .overlay(
-                            Capsule().stroke(Color.borderGlare.opacity(0.15), lineWidth: 1)
-                        )
+                    .buttonStyle(.glassProminent)
+                } else {
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            selectedTab = tab
+                        }
+                    }) {
+                        Text(tab)
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .padding(.vertical, 10)
+                            .padding(.horizontal, DesignSystem.Spacing.standard)
+                    }
+                    .buttonStyle(.glass)
                 }
             }
         }
@@ -229,7 +228,7 @@ struct ProfileView: View {
                         .edgesIgnoringSafeArea(.all)
                     ProgressView(loadingMessage)
                         .padding(DesignSystem.Spacing.large)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
+                        .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
                 }
             }
         }
@@ -248,12 +247,7 @@ struct ProfileView: View {
                 content()
             }
             .padding(DesignSystem.Spacing.medium)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous)
-                    .stroke(Color.brandPrimary.opacity(0.4), lineWidth: 1.5)
-            )
-            .shadow(color: Color.brandPrimary.opacity(0.15), radius: 15, x: 0, y: 8)
+            .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.xLarge))
         }
     }
     

@@ -34,11 +34,27 @@ class ConversationsViewModel: ObservableObject {
 
     init(repository: MessagesRepositoryProtocol = FirebaseMessagesRepository()) {
         self.repository = repository
+        // Stop the listener BEFORE Firebase Auth signOut to avoid a transient
+        // "Missing or insufficient permissions" warning on the active query.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleUserWillLogout),
+            name: .endeavorUserWillLogout,
+            object: nil
+        )
     }
 
     deinit {
         // CRITICO: rimuovere listener per evitare memory leak
         conversationsListener?.remove()
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc private func handleUserWillLogout() {
+        stopListening()
+        conversations = []
+        profileCache.removeAll()
+        companyCache.removeAll()
     }
 
     // MARK: - Start Listening

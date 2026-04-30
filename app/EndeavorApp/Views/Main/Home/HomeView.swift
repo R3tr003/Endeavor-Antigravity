@@ -93,17 +93,14 @@ struct HomeView: View {
                                 Spacer()
                                 Text(String(localized: "home.open_calendar", defaultValue: "Open Calendar"))
                                     .font(.system(size: 13, weight: .semibold, design: .rounded))
-                                    .foregroundColor(.white)
                                     .padding(.horizontal, DesignSystem.Spacing.standard)
                                     .padding(.vertical, DesignSystem.Spacing.xSmall)
-                                    .background(Color.purple, in: Capsule())
+                                    .glassSurface(.regular.tint(Color.purple.opacity(0.16)), shape: .capsule)
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(DesignSystem.Spacing.medium)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.purple.opacity(0.2), lineWidth: 1))
-                        .shadow(color: Color.black.opacity(0.08), radius: 10, x: 0, y: 5)
+                        .glassSurface(.regular.tint(Color.purple.opacity(0.10)), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
                     }
                     .buttonStyle(.plain)
                     .padding(.horizontal, DesignSystem.Spacing.large)
@@ -216,8 +213,7 @@ struct HomeView: View {
                         Spacer()
                     }
                     .padding()
-                    .background(.ultraThinMaterial)
-                    .overlay(Rectangle().frame(height: 1).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .bottom)
+                    .glassEffect(.regular, in: Rectangle())
                     Spacer()
                 }
                 .transition(.opacity.animation(.easeInOut(duration: 0.2)))
@@ -262,12 +258,10 @@ struct RecommendationCard: View {
                 .foregroundColor(color)
                 .padding(.horizontal, DesignSystem.Spacing.small)
                 .padding(.vertical, 6)
-                .background(color.opacity(0.15), in: Capsule())
+                .glassSurface(.regular.tint(color.opacity(0.18)), shape: .capsule)
         }
         .padding(DesignSystem.Spacing.standard)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous).stroke(Color.brandPrimary.opacity(0.3), lineWidth: 1))
-        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+        .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.xLarge))
     }
 }
 
@@ -385,10 +379,7 @@ struct UpcomingEventCard: View {
                 .padding(DesignSystem.Spacing.standard)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge))
-            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge)
-                .stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
-            .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 4)
+            .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.xLarge))
         }
         .buttonStyle(.plain)
         .contextMenu {

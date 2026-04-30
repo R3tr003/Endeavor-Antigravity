@@ -63,41 +63,33 @@ struct MainTabView: View {
             // Floating tab bar pinned to bottom of ZStack — never moves with keyboard
             VStack {
                 Spacer()
-                HStack(spacing: 0) {
-                    TabItem(icon: "house", title: String(localized: "nav.home"), isSelected: selectedTab == 0) {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 0 }
+                GlassEffectContainer(spacing: 12) {
+                    HStack(spacing: 0) {
+                        TabItem(icon: "house", title: String(localized: "nav.home"), isSelected: selectedTab == 0) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 0 }
+                        }
+                        Spacer()
+                        TabItem(icon: "person.3", title: String(localized: "nav.network"), isSelected: selectedTab == 1) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 1 }
+                        }
+                        Spacer()
+                        TabItem(icon: "sparkles", title: String(localized: "nav.discover"), isSelected: selectedTab == 2, selectedIcon: "sparkles") {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 2 }
+                        }
+                        Spacer()
+                        TabItem(icon: "message", title: String(localized: "nav.messages"), isSelected: selectedTab == 3, badgeCount: conversationsViewModel.totalUnreadCount) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 3 }
+                        }
+                        Spacer()
+                        TabItem(icon: "person", title: String(localized: "nav.profile"), isSelected: selectedTab == 4) {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 4 }
+                        }
                     }
-                    Spacer()
-                    TabItem(icon: "person.3", title: String(localized: "nav.network"), isSelected: selectedTab == 1) {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 1 }
-                    }
-                    Spacer()
-                    TabItem(icon: "sparkles", title: String(localized: "nav.discover"), isSelected: selectedTab == 2, selectedIcon: "sparkles") {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 2 }
-                    }
-                    Spacer()
-                    TabItem(icon: "message", title: String(localized: "nav.messages"), isSelected: selectedTab == 3, badgeCount: conversationsViewModel.totalUnreadCount) {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 3 }
-                    }
-                    Spacer()
-                    TabItem(icon: "person", title: String(localized: "nav.profile"), isSelected: selectedTab == 4) {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) { selectedTab = 4 }
-                    }
+                    .padding(.horizontal, DesignSystem.Spacing.medium)
+                    .padding(.vertical, 14)
+                    .glassEffect(in: Capsule())
                 }
-                .padding(.horizontal, DesignSystem.Spacing.medium)
-                .padding(.vertical, 14)
-                .background(.regularMaterial, in: Capsule())
-                .overlay(
-                    Capsule()
-                        .stroke(LinearGradient(
-                            colors: [Color.borderGlare.opacity(0.3), .clear, Color.borderGlare.opacity(0.1)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
                 .padding(.horizontal, DesignSystem.Spacing.large)
-                .padding(.bottom, 0)
             }
             .ignoresSafeArea(.keyboard)
         }
@@ -150,6 +142,7 @@ struct TabItem: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
+                .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isSelected)
                 .foregroundColor(isSelected ? .brandPrimary : .primary.opacity(0.5))
                 .frame(width: DesignSystem.Layout.buttonHeight)
                 

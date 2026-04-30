@@ -33,8 +33,7 @@ struct FilteredConversationsView: View {
                         .padding(.horizontal, DesignSystem.Spacing.medium)
                         .padding(.vertical, 10)
                         .frame(maxWidth: .infinity, alignment: .center)
-                        .background(Color.red.opacity(0.12), in: Capsule())
-                        .overlay(Capsule().stroke(Color.red.opacity(0.3), lineWidth: 1))
+                        .glassSurface(.regular.tint(Color.red.opacity(0.18)), shape: .capsule)
 
                         // Lista conversazioni filtrate
                         VStack(spacing: DesignSystem.Spacing.small) {
@@ -92,9 +91,8 @@ struct FilteredConversationsView: View {
             Button(action: { dismiss() }) {
                 ZStack {
                     Circle()
-                        .fill(.ultraThinMaterial)
                         .frame(width: 36, height: 36)
-                        .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
+                        .glassEffect(.regular.interactive(), in: Circle())
                     Image(systemName: "xmark")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.primary)
@@ -115,8 +113,7 @@ struct FilteredConversationsView: View {
         }
         .padding(.horizontal, DesignSystem.Spacing.medium)
         .padding(.vertical, DesignSystem.Spacing.standard)
-        .background(.regularMaterial)
-        .overlay(Rectangle().frame(height: 1).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .bottom)
+        .glassEffect(.regular, in: Rectangle())
     }
 }
 
@@ -369,14 +366,6 @@ private struct FilteredConversationCard: View {
                 .padding(.vertical, DesignSystem.Spacing.xSmall)
             }
         }
-        .background(
-            .ultraThinMaterial,
-            in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xxLarge, style: .continuous)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xxLarge, style: .continuous)
-                .stroke(Color.red.opacity(0.2), lineWidth: 1)
-        )
-        .shadow(color: Color.red.opacity(0.07), radius: 8, x: 0, y: 4)
+        .glassSurface(.regular.tint(Color.red.opacity(0.10)), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.xxLarge))
     }
 }

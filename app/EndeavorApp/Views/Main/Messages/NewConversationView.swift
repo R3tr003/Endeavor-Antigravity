@@ -51,7 +51,7 @@ struct NewConversationView: View {
                         .tint(.brandPrimary)
                         .scaleEffect(1.5)
                         .padding(24)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        .glassSurface(.regular, shape: .roundedRect(cornerRadius: 16))
                 }
             }
             .navigationTitle(String(localized: "messages.new_message"))
@@ -89,9 +89,7 @@ struct NewConversationView: View {
                 .foregroundColor(.primary)
         }
         .padding(DesignSystem.Spacing.standard)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
-        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-            .stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
+        .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
         .padding(.horizontal, DesignSystem.Spacing.large)
         .padding(.top, DesignSystem.Spacing.medium)
         .padding(.bottom, DesignSystem.Spacing.small)
@@ -171,9 +169,7 @@ struct NewConversationView: View {
                     .foregroundColor(.secondary.opacity(0.4))
             }
             .padding(DesignSystem.Spacing.standard)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
-            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                .stroke(Color.borderGlare.opacity(0.1), lineWidth: 1))
+            .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
         }
         .buttonStyle(.plain)
         .disabled(isCreating)

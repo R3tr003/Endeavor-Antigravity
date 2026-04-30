@@ -6,19 +6,26 @@ struct SelectablePill: View {
     var action: () -> Void
     
     var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.branding.inputLabel)
-                .foregroundColor(isSelected ? .textPrimary : .textSecondary)
-                .padding(.vertical, 8)
-                .padding(.horizontal, 16)
-                .background(isSelected ? Color.cardBackground : Color.inputBackground)
-                .cornerRadius(20)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(isSelected ? Color.brandPrimary : Color.clear, lineWidth: 1)
-                )
+        if isSelected {
+            Button(action: action) {
+                label(foregroundColor: .white)
+            }
+            .buttonStyle(.glassProminent)
+        } else {
+            Button(action: action) {
+                label(foregroundColor: .primary)
+            }
+            .buttonStyle(.glass)
         }
+    }
+    
+    @ViewBuilder
+    private func label(foregroundColor: Color) -> some View {
+        Text(title)
+            .font(.branding.inputLabel)
+            .foregroundColor(foregroundColor)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
     }
 }
 

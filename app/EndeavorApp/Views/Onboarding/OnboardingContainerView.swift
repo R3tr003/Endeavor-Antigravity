@@ -95,12 +95,10 @@ struct OnboardingContainerView: View {
                         }) {
                             Text(String(localized: "common.back"))
                                 .font(.headline)
-                                .foregroundColor(.primary)
                                 .padding(.horizontal, DesignSystem.Spacing.medium)
                                 .padding(.vertical, 14)
-                                .background(.ultraThinMaterial, in: Capsule())
-                                .overlay(Capsule().stroke(Color.primary.opacity(0.1), lineWidth: 1))
                         }
+                        .buttonStyle(.glass)
                     } else {
                         // Exit Button for Step 1
                         Button(action: {
@@ -112,12 +110,10 @@ struct OnboardingContainerView: View {
                         }) {
                             Text(String(localized: "onboarding.exit"))
                                 .font(.headline)
-                                .foregroundColor(.red)
                                 .padding(.horizontal, DesignSystem.Spacing.medium)
                                 .padding(.vertical, 14)
-                                .background(.ultraThinMaterial, in: Capsule())
-                                .overlay(Capsule().stroke(Color.red.opacity(0.2), lineWidth: 1))
                         }
+                        .buttonStyle(.glass)
                     }
                     
                     Spacer()
@@ -150,14 +146,12 @@ struct OnboardingContainerView: View {
                             }
                             Text(viewModel.currentStep == viewModel.totalSteps ? (appViewModel.isLoading ? String(localized: "onboarding.entering") : String(localized: "onboarding.enter_app")) : String(localized: "onboarding.next"))
                                 .font(.headline)
-                                .foregroundColor(.white)
                         }
                         .padding(.vertical, 14)
                         .padding(.horizontal, DesignSystem.Spacing.xLarge)
-                        .background(!isNextEnabled || appViewModel.isLoading ? Color.primary.opacity(0.2) : Color.brandPrimary)
-                        .clipShape(Capsule())
-                        .shadow(color: !isNextEnabled || appViewModel.isLoading ? .clear : Color.brandPrimary.opacity(0.3), radius: 8, x: 0, y: 4)
                     }
+                    .buttonStyle(.glassProminent)
+                    .opacity(!isNextEnabled || appViewModel.isLoading ? 0.55 : 1)
                     .disabled(!isNextEnabled || appViewModel.isLoading)
                 }
                 .padding(.horizontal, DesignSystem.Spacing.large)

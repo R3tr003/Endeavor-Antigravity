@@ -113,18 +113,21 @@ struct MentorDiscoveryView: View {
                             Button(action: { performSearch() }) {
                                 Text(String(localized: "discover.search_button"))
                                     .font(.system(size: 15, weight: .semibold, design: .rounded))
-                                    .foregroundColor(query.trimmingCharacters(in: .whitespaces).isEmpty ? .secondary : .white)
                                     .padding(.horizontal, DesignSystem.Spacing.large)
                                     .padding(.vertical, 10)
-                                    .background(query.trimmingCharacters(in: .whitespaces).isEmpty ? Color.primary.opacity(0.1) : Color.brandPrimary)
-                                    .clipShape(Capsule())
                             }
+                            .buttonStyle(.glassProminent)
                             .disabled(query.trimmingCharacters(in: .whitespaces).isEmpty || isSearching)
                             .padding(.bottom, DesignSystem.Spacing.standard)
                             .padding(.trailing, DesignSystem.Spacing.standard)
                         }
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous).stroke(Color.brandPrimary.opacity(0.3), lineWidth: 1))
+                        .glassEffect(
+                            .regular.tint(Color.brandPrimary.opacity(0.12)),
+                            in: RoundedRectangle(
+                                cornerRadius: DesignSystem.CornerRadius.xLarge,
+                                style: .continuous
+                            )
+                        )
                         
                         // Example Queries OR Results
                         if !hasSearched {
@@ -228,11 +231,10 @@ struct MentorDiscoveryView: View {
                                     }) {
                                         Text(String(localized: "discover.new_search"))
                                             .font(.system(size: 15, weight: .semibold, design: .rounded))
-                                            .foregroundColor(.brandPrimary)
                                             .frame(maxWidth: .infinity)
                                             .padding(.vertical, DesignSystem.Spacing.small)
-                                            .overlay(Capsule().stroke(Color.brandPrimary, lineWidth: 1))
                                     }
+                                    .buttonStyle(.glass)
                                     .padding(.top, DesignSystem.Spacing.medium)
                                 }
                             }
@@ -281,8 +283,7 @@ struct MentorDiscoveryView: View {
                     .foregroundColor(.secondary)
             }
             .padding(DesignSystem.Spacing.standard)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous).stroke(Color.borderGlare.opacity(0.12), lineWidth: 1))
+            .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
         }
     }
 }
@@ -387,12 +388,10 @@ struct MatchCard: View {
                 Button(action: onConnect) {
                     Text(String(localized: "messages.start_conversation"))
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
-                        .background(Color.brandPrimary)
-                        .clipShape(Capsule())
                 }
+                .buttonStyle(.glassProminent)
             }
             .padding(DesignSystem.Spacing.large)
         }

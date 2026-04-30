@@ -141,9 +141,8 @@ struct ConversationView: View {
             Button(action: { dismiss() }) {
                 ZStack {
                     Circle()
-                        .fill(.ultraThinMaterial)
                         .frame(width: 36, height: 36)
-                        .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
+                        .glassEffect(.regular.interactive(), in: Circle())
                     Image(systemName: "xmark")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.primary)
@@ -243,16 +242,14 @@ struct ConversationView: View {
                     Text(String(localized: "messages.schedule", defaultValue: "Schedule"))
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
                 }
-                .foregroundColor(.brandPrimary)
                 .padding(.vertical, 7)
                 .padding(.horizontal, DesignSystem.Spacing.small)
-                .overlay(Capsule().stroke(Color.brandPrimary, lineWidth: 1))
             }
+            .buttonStyle(.glass)
         }
         .padding(.horizontal, DesignSystem.Spacing.medium)
         .padding(.vertical, DesignSystem.Spacing.standard)
-        .background(.regularMaterial)
-        .overlay(Rectangle().frame(height: 1).foregroundColor(Color.borderGlare.opacity(0.1)), alignment: .bottom)
+        .glassEffect(.regular, in: Rectangle())
     }
 
     // MARK: - Messages Scroll View
@@ -610,12 +607,7 @@ struct ConversationView: View {
                 }
                 .padding(.horizontal, DesignSystem.Spacing.standard)
                 .padding(.vertical, 7)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .stroke(isInputFocused ? Color.brandPrimary.opacity(0.5) : Color.borderGlare.opacity(0.15), lineWidth: 1)
-                        .animation(.easeInOut(duration: 0.2), value: isInputFocused)
-                )
+                .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: 20))
 
             // Send/Camera button
             let canSend = !messageText.trimmingCharacters(in: .whitespaces).isEmpty || selectedImage != nil
@@ -740,8 +732,7 @@ struct ConversationView: View {
             .foregroundColor(.secondary)
             .padding(.horizontal, DesignSystem.Spacing.small)
             .padding(.vertical, 5)
-            .background(.ultraThinMaterial, in: Capsule())
-            .overlay(Capsule().stroke(Color.borderGlare.opacity(0.12), lineWidth: 1))
+            .glassSurface(.regular, shape: .capsule)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.vertical, DesignSystem.Spacing.xSmall)
     }

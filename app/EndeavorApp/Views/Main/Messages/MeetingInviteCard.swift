@@ -83,16 +83,18 @@ struct MeetingInviteCard: View {
                         if !isFromMe && event.status == .pending {
                             Divider().opacity(0.3)
                             HStack(spacing: DesignSystem.Spacing.xSmall) {
-                                Button(action: onDecline) {
+                                Button(action: {
+                                    onDecline()
+                                }) {
                                     Text(String(localized: "schedule.decline", defaultValue: "Decline"))
-                                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                                        .foregroundColor(.error)
+                                        .font(.system(size: 13, weight: .semibold, design: .rounded))
                                         .lineLimit(1)
+                                        .minimumScaleFactor(0.8)
                                         .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 8)
-                                        .overlay(Capsule().stroke(Color.error.opacity(0.5), lineWidth: 1))
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(.glass)
+                                .tint(.error)
+                                .controlSize(.small)
                                 .disabled(isAccepting)
 
                                 Button(action: {
@@ -100,22 +102,20 @@ struct MeetingInviteCard: View {
                                     onProposeNew(event)
                                 }) {
                                     Text(String(localized: "schedule.propose_new", defaultValue: "Propose new"))
-                                        .font(.system(size: 11, weight: .semibold, design: .rounded))
-                                        .foregroundColor(.yellow)
+                                        .font(.system(size: 13, weight: .semibold, design: .rounded))
                                         .lineLimit(1)
-                                        .minimumScaleFactor(0.85)
+                                        .minimumScaleFactor(0.7)
                                         .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 8)
-                                        .overlay(Capsule().stroke(Color.yellow.opacity(0.7), lineWidth: 1))
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(.glass)
+                                .tint(.yellow)
+                                .controlSize(.small)
                                 .disabled(isAccepting)
 
                                 Button(action: {
                                     guard !isAccepting else { return }
                                     isAccepting = true
                                     onAccept {
-                                        // Called by the ViewModel on any failure path — reset spinner
                                         DispatchQueue.main.async { isAccepting = false }
                                     }
                                 }) {
@@ -124,19 +124,18 @@ struct MeetingInviteCard: View {
                                             ProgressView()
                                                 .progressViewStyle(.circular)
                                                 .tint(.white)
-                                                .scaleEffect(0.8)
+                                                .scaleEffect(0.7)
                                         } else {
                                             Text(String(localized: "schedule.accept", defaultValue: "Accept"))
-                                                .font(.system(size: 12, weight: .semibold, design: .rounded))
-                                                .foregroundColor(.white)
+                                                .font(.system(size: 13, weight: .semibold, design: .rounded))
                                         }
                                     }
                                     .lineLimit(1)
                                     .frame(maxWidth: .infinity)
-                                    .frame(height: 28)
-                                    .background(Color.brandPrimary.opacity(isAccepting ? 0.6 : 1), in: Capsule())
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(.glassProminent)
+                                .tint(.brandPrimary)
+                                .controlSize(.small)
                                 .disabled(isAccepting)
                             }
                         }
@@ -153,12 +152,10 @@ struct MeetingInviteCard: View {
                                         Text(String(localized: "schedule.join_meeting", defaultValue: "Join Meeting"))
                                             .font(.system(size: 14, weight: .semibold, design: .rounded))
                                     }
-                                    .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 10)
-                                    .background(Color.brandPrimary, in: Capsule())
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(.glassProminent)
                                 .padding(.top, 4)
                             }
                         }
@@ -166,9 +163,7 @@ struct MeetingInviteCard: View {
                 }
                 .padding(DesignSystem.Spacing.standard)
                 .frame(maxWidth: .infinity)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge))
-                .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge)
-                    .stroke(Color.brandPrimary.opacity(0.25), lineWidth: 1))
+                .glassSurface(.regular.tint(Color.brandPrimary.opacity(0.10)), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.xLarge))
                 // Timestamp sotto la card
                 Text(message.createdAt, style: .time)
                     .font(.system(size: 11, design: .rounded))
@@ -196,26 +191,26 @@ struct MeetingInviteCard: View {
                     .font(.system(size: 10, weight: .semibold, design: .rounded))
                     .foregroundColor(.orange)
                     .padding(.horizontal, 8).padding(.vertical, 3)
-                    .background(Color.orange.opacity(0.12), in: Capsule())
+                    .glassSurface(.regular.tint(Color.orange.opacity(0.16)), shape: .capsule)
             case .confirmed:
                 Text(String(localized: "home.confirmed", defaultValue: "Confirmed"))
                     .font(.system(size: 10, weight: .semibold, design: .rounded))
                     .foregroundColor(.success)
                     .padding(.horizontal, 8).padding(.vertical, 3)
-                    .background(Color.success.opacity(0.12), in: Capsule())
+                    .glassSurface(.regular.tint(Color.success.opacity(0.16)), shape: .capsule)
             case .cancelled:
                 if !event.rescheduledBy.isEmpty {
                     Text(String(localized: "schedule.rescheduled", defaultValue: "Rescheduled"))
                         .font(.system(size: 10, weight: .semibold, design: .rounded))
                         .foregroundColor(.yellow)
                         .padding(.horizontal, 8).padding(.vertical, 3)
-                        .background(Color.yellow.opacity(0.12), in: Capsule())
+                        .glassSurface(.regular.tint(Color.yellow.opacity(0.16)), shape: .capsule)
                 } else {
                     Text(String(localized: "schedule.declined_label", defaultValue: "Declined"))
                         .font(.system(size: 10, weight: .semibold, design: .rounded))
                         .foregroundColor(.error)
                         .padding(.horizontal, 8).padding(.vertical, 3)
-                        .background(Color.error.opacity(0.12), in: Capsule())
+                        .glassSurface(.regular.tint(Color.error.opacity(0.16)), shape: .capsule)
                 }
             }
         }

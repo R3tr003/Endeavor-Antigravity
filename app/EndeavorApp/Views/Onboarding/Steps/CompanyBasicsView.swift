@@ -85,9 +85,7 @@ struct CompanyBasicsView: View {
                                 .foregroundColor(.secondary)
                         }
                         .padding(DesignSystem.Spacing.standard)
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(DesignSystem.CornerRadius.medium)
-                        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium).stroke(Color.primary.opacity(0.1), lineWidth: 1))
+                        .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.medium))
                     }
                     .transaction { $0.animation = nil }
                 }
@@ -122,9 +120,7 @@ struct CompanyBasicsView: View {
                                 .foregroundColor(.secondary)
                         }
                         .padding(DesignSystem.Spacing.standard)
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(DesignSystem.CornerRadius.medium)
-                        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium).stroke(Color.primary.opacity(0.1), lineWidth: 1))
+                        .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.medium))
                     }
                     .transaction { $0.animation = nil }
                     .disabled(viewModel.company.hqCountry.isEmpty)
@@ -148,9 +144,7 @@ struct CompanyBasicsView: View {
                             .font(.system(size: 14))
                     }
                     .padding(DesignSystem.Spacing.standard)
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(DesignSystem.CornerRadius.medium)
-                    .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium).stroke(Color.primary.opacity(0.1), lineWidth: 1))
+                    .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.medium))
                 }
                 
                 // Company Stage Dropdown
@@ -177,9 +171,7 @@ struct CompanyBasicsView: View {
                                 .foregroundColor(.secondary)
                         }
                         .padding(DesignSystem.Spacing.standard)
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(DesignSystem.CornerRadius.medium)
-                        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium).stroke(Color.primary.opacity(0.1), lineWidth: 1))
+                        .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.medium))
                     }
                     .transaction { $0.animation = nil }
                 }
@@ -208,9 +200,7 @@ struct CompanyBasicsView: View {
                                 .foregroundColor(.secondary)
                         }
                         .padding(DesignSystem.Spacing.standard)
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(DesignSystem.CornerRadius.medium)
-                        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium).stroke(Color.primary.opacity(0.1), lineWidth: 1))
+                        .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.medium))
                     }
                     .transaction { $0.animation = nil }
                 }

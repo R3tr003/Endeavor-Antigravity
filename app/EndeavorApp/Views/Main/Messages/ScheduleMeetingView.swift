@@ -15,6 +15,7 @@ struct ScheduleMeetingView: View {
     private enum Field { case title, agenda }
 
     private var isProposeMode: Bool { existingEvent != nil }
+    private let durationOptions: [Int] = [30, 60, 90, 120]
 
     init(
         conversationId: String,
@@ -59,10 +60,7 @@ struct ScheduleMeetingView: View {
                             .font(.system(size: 16, design: .rounded))
                             .focused($focusedField, equals: .title)
                             .padding(DesignSystem.Spacing.standard)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
-                            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                                .stroke(focusedField == .title ? Color.brandPrimary : Color.borderGlare.opacity(0.15),
-                                        lineWidth: focusedField == .title ? 1.5 : 1))
+                            .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
                         }
 
                         // Data e ora
@@ -81,9 +79,7 @@ struct ScheduleMeetingView: View {
                             .datePickerStyle(.graphical)
                             .tint(.brandPrimary)
                             .padding(DesignSystem.Spacing.standard)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
-                            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                                .stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
+                            .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
                         }
 
                         // Conflitti nel calendario
@@ -105,7 +101,7 @@ struct ScheduleMeetingView: View {
                                 }
                             }
                             .padding(DesignSystem.Spacing.standard)
-                            .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+                            .glassSurface(.regular.tint(Color.orange.opacity(0.10)), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.medium))
                         }
 
                         // Durata
@@ -119,23 +115,12 @@ struct ScheduleMeetingView: View {
                             .tracking(1.2)
 
                             HStack(spacing: DesignSystem.Spacing.small) {
-                                ForEach([30, 60, 90, 120], id: \.self) { minutes in
-                                    Button(action: { viewModel.durationMinutes = minutes }) {
-                                        Text(minutes < 60 ? "\(minutes)m" : "\(minutes/60)h\(minutes%60 == 0 ? "" : " \(minutes%60)m")")
-                                            .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                            .foregroundColor(viewModel.durationMinutes == minutes ? .white : .primary)
-                                            .padding(.vertical, 8)
-                                            .frame(maxWidth: .infinity)
-                                            .background(
-                                                viewModel.durationMinutes == minutes ? Color.brandPrimary : Color.clear,
-                                                in: Capsule()
-                                            )
-                                            .overlay(Capsule().stroke(
-                                                viewModel.durationMinutes == minutes ? Color.clear : Color.borderGlare.opacity(0.3),
-                                                lineWidth: 1
-                                            ))
-                                    }
-                                    .buttonStyle(.plain)
+                                ForEach(durationOptions, id: \.self) { minutes in
+                                    DurationOptionButton(
+                                        minutes: minutes,
+                                        isSelected: viewModel.durationMinutes == minutes,
+                                        onTap: { viewModel.durationMinutes = minutes }
+                                    )
                                 }
                             }
                         }
@@ -157,10 +142,7 @@ struct ScheduleMeetingView: View {
                             .font(.system(size: 15, design: .rounded))
                             .focused($focusedField, equals: .agenda)
                             .padding(DesignSystem.Spacing.standard)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
-                            .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                                .stroke(focusedField == .agenda ? Color.brandPrimary : Color.borderGlare.opacity(0.15),
-                                        lineWidth: focusedField == .agenda ? 1.5 : 1))
+                            .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
                         }
 
                         // Provider video
@@ -175,41 +157,11 @@ struct ScheduleMeetingView: View {
 
                             HStack(spacing: DesignSystem.Spacing.small) {
                                 ForEach([CalendarEvent.MeetProvider.none, .googleMeet, .microsoftTeams], id: \.rawValue) { provider in
-                                    Button(action: { viewModel.meetProvider = provider }) {
-                                        HStack(spacing: 6) {
-                                            if let assetName = provider.iconAssetName {
-                                                Image(assetName)
-                                                    .resizable()
-                                                    .scaledToFit()
-                                                    .frame(width: provider.iconNeedsWhiteChip ? 16 : 20,
-                                                           height: provider.iconNeedsWhiteChip ? 16 : 20)
-                                                    .padding(provider.iconNeedsWhiteChip ? 2 : 0)
-                                                    .background(
-                                                        provider.iconNeedsWhiteChip ? Color.white : Color.clear,
-                                                        in: RoundedRectangle(cornerRadius: 4)
-                                                    )
-                                            } else {
-                                                Image(systemName: provider.icon)
-                                                    .font(.system(size: 15))
-                                            }
-                                            Text(provider.shortName)
-                                                .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                                .lineLimit(1)
-                                        }
-                                        .foregroundColor(viewModel.meetProvider == provider ? .white : .primary)
-                                        .padding(.vertical, 14)
-                                        .padding(.horizontal, DesignSystem.Spacing.small)
-                                        .frame(maxWidth: .infinity)
-                                        .background(
-                                            viewModel.meetProvider == provider ? Color.brandPrimary : Color.clear,
-                                            in: Capsule()
-                                        )
-                                        .overlay(Capsule().stroke(
-                                            viewModel.meetProvider == provider ? Color.clear : Color.borderGlare.opacity(0.3),
-                                            lineWidth: 1
-                                        ))
-                                    }
-                                    .buttonStyle(.plain)
+                                    MeetProviderOptionButton(
+                                        provider: provider,
+                                        isSelected: viewModel.meetProvider == provider,
+                                        onTap: { viewModel.meetProvider = provider }
+                                    )
                                 }
                             }
 
@@ -247,14 +199,11 @@ struct ScheduleMeetingView: View {
                                 }
                             }
                             .font(.system(size: 16, weight: .semibold, design: .rounded))
-                            .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, DesignSystem.Spacing.standard)
-                            .background(
-                                viewModel.isValid ? Color.brandPrimary : Color.secondary.opacity(0.3),
-                                in: Capsule()
-                            )
                         }
+                        .buttonStyle(.glassProminent)
+                        .opacity(viewModel.isValid ? 1 : 0.55)
                         .disabled(!viewModel.isValid || viewModel.isSending)
 
                         if let error = viewModel.errorMessage {
@@ -279,5 +228,80 @@ struct ScheduleMeetingView: View {
                 }
             }
         }
+    }
+}
+
+private struct DurationOptionButton: View {
+    let minutes: Int
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    private var labelText: String {
+        if minutes < 60 { return "\(minutes)m" }
+        let hours = minutes / 60
+        let remaining = minutes % 60
+        return remaining == 0 ? "\(hours)h" : "\(hours)h \(remaining)m"
+    }
+
+    var body: some View {
+        if isSelected {
+            Button(action: onTap) {
+                Text(labelText)
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.glassProminent)
+        } else {
+            Button(action: onTap) {
+                Text(labelText)
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.glass)
+        }
+    }
+}
+
+private struct MeetProviderOptionButton: View {
+    let provider: CalendarEvent.MeetProvider
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        if isSelected {
+            Button(action: onTap) { label }
+                .buttonStyle(.glassProminent)
+        } else {
+            Button(action: onTap) { label }
+                .buttonStyle(.glass)
+        }
+    }
+
+    private var label: some View {
+        HStack(spacing: 6) {
+            if let assetName = provider.iconAssetName {
+                Image(assetName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: provider.iconNeedsWhiteChip ? 16 : 20,
+                           height: provider.iconNeedsWhiteChip ? 16 : 20)
+                    .padding(provider.iconNeedsWhiteChip ? 2 : 0)
+                    .background(
+                        provider.iconNeedsWhiteChip ? Color.white : Color.clear,
+                        in: RoundedRectangle(cornerRadius: 4)
+                    )
+            } else {
+                Image(systemName: provider.icon)
+                    .font(.system(size: 15))
+            }
+            Text(provider.shortName)
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .lineLimit(1)
+        }
+        .padding(.vertical, 14)
+        .padding(.horizontal, DesignSystem.Spacing.small)
+        .frame(maxWidth: .infinity)
     }
 }

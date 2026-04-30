@@ -74,19 +74,6 @@
     "%lld%%\nMatch" : {
 
     },
-    "%lldh%@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lldh%2$@"
-          }
-        }
-      }
-    },
-    "%lldm" : {
-
-    },
     "0.1.1" : {
 
     },
@@ -8195,6 +8182,9 @@
           }
         }
       }
+    },
+    "Verifying Endeavor Membership..." : {
+
     }
   },
   "version" : "1.0"

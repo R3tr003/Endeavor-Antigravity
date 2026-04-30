@@ -139,6 +139,7 @@ struct EndeavorApp: App {
             .animation(.default, value: appViewModel.isOnboardingComplete)
             .animation(.easeInOut(duration: 0.25), value: biometricService.isLocked)
             .preferredColorScheme(appViewModel.colorScheme)
+            .tint(.brandPrimary)
             .alert(
                 String(localized: "common.no_connection_title", defaultValue: "No Internet Connection"),
                 isPresented: $appViewModel.isOffline

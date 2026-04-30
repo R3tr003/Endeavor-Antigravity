@@ -70,12 +70,10 @@ struct CompanyBioLogoView: View {
                         } label: {
                             Text(String(localized: "profile.upload_image", defaultValue: "Upload Image"))
                                 .font(.headline)
-                                .foregroundColor(.white)
                                 .frame(width: 160)
                                 .padding(.vertical, DesignSystem.Spacing.small)
-                                .background(Color.brandPrimary)
-                                .cornerRadius(DesignSystem.CornerRadius.medium)
                         }
+                        .buttonStyle(.glassProminent)
                         
                         Text(String(localized: "onboarding.upload_limits", defaultValue: "PNG, JPG, SVG up to 5MB."))
                             .font(.caption)
@@ -143,8 +141,7 @@ struct CompanyBioLogoView: View {
                             .font(.body)
                             .foregroundColor(.primary)
                             .scrollContentBackground(.hidden) // Needed for custom background in SwiftUI
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(DesignSystem.CornerRadius.medium)
+                            .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                             .frame(height: 100) // approx 4 lines
                             .focused($isFocusedPersonalBio)
                             .overlay(
@@ -180,8 +177,7 @@ struct CompanyBioLogoView: View {
                             .font(.body)
                             .foregroundColor(.primary)
                             .scrollContentBackground(.hidden)
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(DesignSystem.CornerRadius.medium)
+                            .glassEffect(.regular.interactive(), in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous))
                             .frame(height: 180) // approx 8 lines
                             .focused($isFocusedCompanyBio)
                             .overlay(

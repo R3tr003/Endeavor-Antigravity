@@ -8,7 +8,7 @@ struct NetworkView: View {
     @State private var animateGlow = false
     @FocusState private var isSearchFocused: Bool
     @State private var selectedCategories: Set<String> = ["All"]
-    
+
     @StateObject private var viewModel = NetworkViewModel(repository: FirebaseNetworkRepository())
     @EnvironmentObject private var conversationsViewModel: ConversationsViewModel
     @State private var activeConversation: Conversation?
@@ -112,52 +112,23 @@ struct NetworkView: View {
                                 .onSubmit { isSearchFocused = false }
                         }
                         .padding()
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large, style: .continuous)
-                                .stroke(Color.borderGlare.opacity(0.15), lineWidth: 1)
+                        .glassEffect(
+                            .regular.interactive(),
+                            in: RoundedRectangle(
+                                cornerRadius: DesignSystem.CornerRadius.large,
+                                style: .continuous
+                            )
                         )
-                        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
                         .padding(.horizontal, DesignSystem.Spacing.large)
                         
                         // Category Filters
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: DesignSystem.Spacing.small) {
+                            HStack(spacing: 8) {
                                 ForEach(categories, id: \.self) { category in
-                                    Button(action: {
-                                        withAnimation(.easeInOut) {
-                                            if category == "All" {
-                                                selectedCategories = ["All"]
-                                            } else {
-                                                if selectedCategories.contains("All") {
-                                                    selectedCategories.remove("All")
-                                                }
-                                                
-                                                if selectedCategories.contains(category) {
-                                                    selectedCategories.remove(category)
-                                                    if selectedCategories.isEmpty {
-                                                        selectedCategories.insert("All") // fallback
-                                                    }
-                                                } else {
-                                                    selectedCategories.insert(category)
-                                                }
-                                            }
-                                        }
-                                    }) {
-                                        let isSelected = selectedCategories.contains(category)
-                                        Text(category)
-                                            .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                            .foregroundColor(isSelected ? .white : .primary)
-                                            .padding(.vertical, 10)
-                                            .padding(.horizontal, DesignSystem.Spacing.standard)
-                                            .background(
-                                                isSelected ? AnyShapeStyle(Color.brandPrimary) : AnyShapeStyle(.ultraThinMaterial),
-                                                in: Capsule()
-                                            )
-                                            .overlay(
-                                                Capsule().stroke(Color.borderGlare.opacity(0.15), lineWidth: 1)
-                                            )
-                                    }
+                                    NetworkCategoryPill(
+                                        category: category,
+                                        selectedCategories: $selectedCategories
+                                    )
                                 }
                             }
                             .padding(.horizontal, DesignSystem.Spacing.large)
@@ -225,18 +196,15 @@ struct NetworkView: View {
                         viewModel.fetchUsers(currentUserId: currentUserId, isInitial: true)
                     }
                 }
-                .onTapGesture { isSearchFocused = false }
+                .onTapGesture {
+                    isSearchFocused = false
+                }
                 .toolbar {
                     ToolbarItemGroup(placement: .keyboard) {
                         Spacer()
                         Button("Done") { isSearchFocused = false }
                     }
                 }
-
-                Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .frame(height: 0)
-                    .ignoresSafeArea(edges: .top)
             }
         }
         .sheet(isPresented: $showConversation) {
@@ -332,13 +300,12 @@ struct NetworkView: View {
                     selectedProfile = profile
                 }) {
                     Text(String(localized: "network.view_profile"))
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .foregroundColor(.white)
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color.brandPrimary)
-                        .clipShape(Capsule())
+                        .padding(.vertical, 4)
                 }
+                .buttonStyle(.glassProminent)
+                .controlSize(.large)
             }
             .padding(DesignSystem.Spacing.large)
         }
@@ -351,6 +318,60 @@ struct NetworkView: View {
         case "Staff":        return .green
         default:             return .secondary
         }
+    }
+}
+
+private struct NetworkCategoryPill: View {
+    let category: String
+    @Binding var selectedCategories: Set<String>
+
+    private var isSelected: Bool { selectedCategories.contains(category) }
+
+    var body: some View {
+        Button(action: updateSelection) {
+            Text(category)
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .foregroundColor(isSelected ? .white : .primary)
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+        }
+        .buttonStyle(NetworkPillButtonStyle(isSelected: isSelected))
+    }
+
+    private func updateSelection() {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            if category == "All" {
+                selectedCategories = ["All"]
+            } else {
+                if selectedCategories.contains("All") { selectedCategories.remove("All") }
+                if selectedCategories.contains(category) {
+                    selectedCategories.remove(category)
+                    if selectedCategories.isEmpty { selectedCategories.insert("All") }
+                } else {
+                    selectedCategories.insert(category)
+                }
+            }
+        }
+    }
+}
+
+private struct NetworkPillButtonStyle: ButtonStyle {
+    let isSelected: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .glassEffect(
+                isSelected
+                    ? .regular.tint(Color.brandPrimary)
+                    : .regular,
+                in: Capsule()
+            )
+            .contentShape(Capsule())
+            .scaleEffect(configuration.isPressed ? 0.94 : 1.0)
+            .opacity(configuration.isPressed ? 0.85 : 1.0)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }
 

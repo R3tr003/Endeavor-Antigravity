@@ -59,6 +59,7 @@ firestore-messaging.rules
 claude.md
 test_out.txt
 app/build_log.txt
+.cursor/
 
 # Node / Firebase Functions
 node_modules/

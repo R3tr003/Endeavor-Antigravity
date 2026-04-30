@@ -68,11 +68,10 @@ struct CalendarSubscribeView: View {
                                         }
                                     }
                                     .font(.system(size: 15, weight: .semibold, design: .rounded))
-                                    .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, DesignSystem.Spacing.standard)
-                                    .background(Color.brandPrimary, in: Capsule())
                                 }
+                                .buttonStyle(.glassProminent)
                                 .disabled(isGenerating)
                             } else {
                                 HStack(spacing: DesignSystem.Spacing.small) {
@@ -96,9 +95,7 @@ struct CalendarSubscribeView: View {
                                     }
                                 }
                                 .padding(DesignSystem.Spacing.standard)
-                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
-                                .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                                    .stroke(isCopied ? Color.success.opacity(0.4) : Color.borderGlare.opacity(0.15), lineWidth: 1))
+                                .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.medium))
 
                                 if isCopied {
                                     Text(String(localized: "calendar.copied", defaultValue: "Copied to clipboard!"))
@@ -119,7 +116,7 @@ struct CalendarSubscribeView: View {
                                 .foregroundColor(.secondary)
                         }
                         .padding(DesignSystem.Spacing.standard)
-                        .background(Color.secondary.opacity(0.06), in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium))
+                        .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.medium))
                     }
                     .padding(DesignSystem.Spacing.large)
                 }
@@ -191,8 +188,6 @@ struct CalendarSubscribeView: View {
         }
         .padding(DesignSystem.Spacing.standard)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
-        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-            .stroke(Color.borderGlare.opacity(0.12), lineWidth: 1))
+        .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
     }
 }

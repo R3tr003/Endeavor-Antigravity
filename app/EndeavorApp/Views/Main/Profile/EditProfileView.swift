@@ -202,11 +202,7 @@ struct EditProfileView: View {
                         .foregroundColor(.secondary)
                 }
                 .padding(DesignSystem.Spacing.standard)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
-                .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                        .stroke(Color.borderGlare.opacity(0.15), lineWidth: 1)
-                )
+                .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
             }
             .transaction { $0.animation = nil }
         }
@@ -226,12 +222,7 @@ struct EditProfileView: View {
                 content()
             }
             .padding(DesignSystem.Spacing.medium)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.xLarge, style: .continuous)
-                    .stroke(Color.brandPrimary.opacity(0.4), lineWidth: 1.5)
-            )
-            .shadow(color: Color.brandPrimary.opacity(0.15), radius: 15, x: 0, y: 8)
+            .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.xLarge))
         }
     }
     

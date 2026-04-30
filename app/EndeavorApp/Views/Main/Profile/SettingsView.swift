@@ -135,12 +135,7 @@ struct SettingsView: View {
             VStack(spacing: 0) {
                 content()
             }
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(isDestructive ? Color.red.opacity(0.2) : Color.borderGlare.opacity(0.15), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
+            .glassSurface(.regular, shape: .roundedRect(cornerRadius: 20))
         }
     }
 
@@ -204,7 +199,7 @@ struct SettingsView: View {
                 .tint(.primary)
                 .padding(.horizontal, DesignSystem.Spacing.small)
                 .padding(.vertical, 6)
-                .background(Color.primary.opacity(0.05), in: Capsule())
+                .glassSurface(.regular, shape: .capsule)
             }
             .padding(16)
         }

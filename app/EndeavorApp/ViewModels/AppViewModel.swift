@@ -826,8 +826,17 @@ class AppViewModel: ObservableObject {
     /// Assicura che la mappatura firebaseUid -> uuid esista nel database messaging.
     /// Da chiamare prima di iniziare a ascoltare le conversazioni.
     func ensureMessagingMappingExists(completion: (() -> Void)? = nil) {
-        guard let firebaseUid = Auth.auth().currentUser?.uid,
-              let uuid = currentUser?.id.uuidString else {
+        guard let firebaseUid = Auth.auth().currentUser?.uid else {
+            completion?()
+            return
+        }
+        // Fall back to UserDefaults["userId"] if `currentUser` hasn't been
+        // hydrated yet from Firestore. The conversations listener uses the
+        // same UserDefaults value, so this keeps mapping and listener aligned
+        // and avoids a permission-denied warning on a fresh app launch.
+        let resolvedUuid = currentUser?.id.uuidString
+            ?? UserDefaults.standard.string(forKey: "userId")
+        guard let uuid = resolvedUuid else {
             completion?()
             return
         }
@@ -847,7 +856,12 @@ class AppViewModel: ObservableObject {
         }
         _saveMappingInFlight = key
         let fn = Functions.functions(region: "europe-west1").httpsCallable("saveUserMapping")
-        fn.call(["firebaseUid": firebaseUid, "uuid": uuid]) { _, _ in
+        fn.call(["firebaseUid": firebaseUid, "uuid": uuid]) { _, error in
+            if let error = error {
+                #if DEBUG
+                print("⚠️ saveUserMapping failed for \(firebaseUid): \(error.localizedDescription)")
+                #endif
+            }
             DispatchQueue.main.async {
                 _saveMappingInFlight = nil
                 completion?()
@@ -864,6 +878,13 @@ class AppViewModel: ObservableObject {
     func logout() {
         AnalyticsService.shared.logLogout()
         AnalyticsService.shared.clearUserID()
+
+        // Stop active Firestore listeners BEFORE signing out from Firebase Auth.
+        // Otherwise the listener's next snapshot would fire with `request.auth = null`
+        // and Firestore rules would emit a transient "Missing or insufficient permissions"
+        // warning before the listener gets torn down.
+        NotificationCenter.default.post(name: .endeavorUserWillLogout, object: nil)
+
         authService.logout()
         userRepo.clearState()
         router.clearState()
@@ -885,6 +906,10 @@ class AppViewModel: ObservableObject {
         
         UserDefaults.standard.set(false, forKey: "isLoggedIn")
         UserDefaults.standard.set(false, forKey: "isOnboardingComplete")
+        // Prevent stale userId from leaking to the next login session, which
+        // would otherwise mismatch the new user's userMappings UUID and cause
+        // permission-denied errors on the messaging listener.
+        UserDefaults.standard.removeObject(forKey: "userId")
     }
     
     func changeEmail(newEmail: String, password: String?, completion: @escaping (Result<Void, Error>) -> Void) {

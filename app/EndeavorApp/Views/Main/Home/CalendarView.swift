@@ -21,9 +21,8 @@ struct CalendarView: View {
                         Button(action: { dismiss() }) {
                             ZStack {
                                 Circle()
-                                    .fill(.ultraThinMaterial)
                                     .frame(width: 40, height: 40)
-                                    .overlay(Circle().stroke(Color.borderGlare.opacity(0.2), lineWidth: 1))
+                                    .glassEffect(.regular.interactive(), in: Circle())
                                 Image(systemName: "xmark")
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundColor(.primary)
@@ -150,7 +149,7 @@ struct MonthCalendarGrid: View {
 
             // Weekday headers
             LazyVGrid(columns: columns, spacing: 8) {
-                ForEach(weekdaySymbols, id: \.self) { symbol in
+                ForEach(Array(weekdaySymbols.enumerated()), id: \.offset) { _, symbol in
                     Text(symbol)
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
@@ -177,9 +176,7 @@ struct MonthCalendarGrid: View {
             }
         }
         .padding(DesignSystem.Spacing.medium)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
-        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-            .stroke(Color.borderGlare.opacity(0.15), lineWidth: 1))
+        .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
     }
 
     private func daysInMonth() -> [Date?] {
@@ -280,12 +277,10 @@ struct CalendarEventRow: View {
                 .foregroundColor(eventColor)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
-                .background(eventColor.opacity(0.12), in: Capsule())
+                .glassSurface(.regular.tint(eventColor.opacity(0.16)), shape: .capsule)
         }
         .padding(DesignSystem.Spacing.standard)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
-        .overlay(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-            .stroke(Color.borderGlare.opacity(0.12), lineWidth: 1))
+        .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
     }
 }
 

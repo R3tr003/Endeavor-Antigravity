@@ -1,5 +1,13 @@
 import Foundation
 
+// MARK: - Notifications
+
+extension Notification.Name {
+    /// Posted by AppViewModel.logout() right before Auth.signOut() so that
+    /// active Firestore listeners can be torn down with a still-valid auth context.
+    static let endeavorUserWillLogout = Notification.Name("EndeavorUserWillLogout")
+}
+
 // MARK: - AppError
 
 public enum AppError: LocalizedError, Equatable {

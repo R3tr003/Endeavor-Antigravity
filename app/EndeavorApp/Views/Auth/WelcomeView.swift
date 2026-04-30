@@ -69,12 +69,6 @@ struct WelcomeView: View {
             VStack(alignment: .leading, spacing: DesignSystem.Spacing.xSmall) {
                 TextField(String(localized: "auth.work_email"), text: $email)
                     .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                            .fill(.ultraThinMaterial)
-                            .shadow(color: focusedField == .email ? Color.brandPrimary.opacity(0.15) : .clear, radius: 10, x: 0, y: 0)
-                            .animation(.easeInOut(duration: 0.2), value: focusedField == .email)
-                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
                             .stroke(
@@ -86,6 +80,7 @@ struct WelcomeView: View {
                             .shadow(color: focusedField == .email ? Color.brandPrimary.opacity(0.5) : .clear, radius: 4, x: 0, y: 0)
                             .animation(.easeInOut(duration: 0.2), value: focusedField == .email)
                     )
+                    .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
                     .foregroundColor(.primary)
                     .accentColor(.brandPrimary)
                     .autocapitalization(.none)
@@ -112,12 +107,6 @@ struct WelcomeView: View {
                         TextField(String(localized: "auth.password_placeholder"), text: $password)
                             .padding()
                             .padding(.trailing, DesignSystem.Spacing.xxLarge)
-                            .background(
-                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                                    .fill(.ultraThinMaterial)
-                                    .shadow(color: focusedField == .password ? Color.brandPrimary.opacity(0.15) : .clear, radius: 10, x: 0, y: 0)
-                                    .animation(.easeInOut(duration: 0.2), value: focusedField == .password)
-                            )
                             .foregroundColor(.primary)
                             .accentColor(.brandPrimary)
                             .autocorrectionDisabled(true)
@@ -135,12 +124,6 @@ struct WelcomeView: View {
                         SecureField(String(localized: "auth.password_placeholder"), text: $password)
                             .padding()
                             .padding(.trailing, DesignSystem.Spacing.xxLarge)
-                            .background(
-                                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                                    .fill(.ultraThinMaterial)
-                                    .shadow(color: focusedField == .password ? Color.brandPrimary.opacity(0.15) : .clear, radius: 10, x: 0, y: 0)
-                                    .animation(.easeInOut(duration: 0.2), value: focusedField == .password)
-                            )
                             .foregroundColor(.primary)
                             .accentColor(.brandPrimary)
                             .autocorrectionDisabled(true)
@@ -172,6 +155,7 @@ struct WelcomeView: View {
                             .shadow(color: focusedField == .password ? Color.brandPrimary.opacity(0.5) : .clear, radius: 4, x: 0, y: 0)
                             .animation(.easeInOut(duration: 0.2), value: focusedField == .password)
                     )
+                    .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
                     .transition(.move(edge: .top).combined(with: .opacity))
                     
                     if !password.isEmpty && !passwordErrorMessage.isEmpty {
@@ -218,39 +202,35 @@ struct WelcomeView: View {
                     appViewModel.authenticate(email: email, password: password)
                 }
             }) {
-                HStack(spacing: DesignSystem.Spacing.small) {
-                    if appViewModel.isLoading || appViewModel.isSalesforceChecking {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .scaleEffect(0.8)
-                            .transition(.scale.combined(with: .opacity))
-                    }
-                    
-                    Text(appViewModel.isSalesforceChecking ? "Verifying Endeavor Membership..." : (appViewModel.isLoading ? "Please wait..." : String(localized: "auth.join")))
-                        .font(appViewModel.isSalesforceChecking || appViewModel.isLoading ? .subheadline : .headline.weight(.bold))
-                        .foregroundColor((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty) ? .textInverted : .primary.opacity(0.5))
+                ZStack {
+                    Text("Verifying Endeavor Membership...")
+                        .font(.headline.weight(.semibold))
                         .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                        .id(appViewModel.isSalesforceChecking ? "checking" : (appViewModel.isLoading ? "loading" : "idle"))
-                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                        .opacity(0)
+                        .accessibilityHidden(true)
+
+                    HStack(spacing: DesignSystem.Spacing.small) {
+                        if appViewModel.isLoading || appViewModel.isSalesforceChecking {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(0.8)
+                        }
+
+                        Text(appViewModel.isSalesforceChecking ? "Verifying Endeavor Membership..." : (appViewModel.isLoading ? "Please wait..." : String(localized: "auth.join")))
+                            .font(.headline.weight(.semibold))
+                            .foregroundColor((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty) ? .textInverted : .primary.opacity(0.5))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.85)
+                    }
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: DesignSystem.Layout.buttonHeight)
-                .background(
-                    (isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty)
-                    ? Color.brandPrimary.opacity((appViewModel.isLoading || appViewModel.isSalesforceChecking) ? 0.8 : 1.0)
-                    : Color.primary.opacity(0.1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large))
-                .overlay(
-                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.large)
-                        .stroke(Color.primary.opacity(0.1), lineWidth: 1)
-                )
-                .animation(.easeInOut(duration: 0.3), value: appViewModel.isLoading)
-                .animation(.easeInOut(duration: 0.3), value: appViewModel.isSalesforceChecking)
+                .animation(.easeInOut(duration: 0.25), value: appViewModel.isLoading)
+                .animation(.easeInOut(duration: 0.25), value: appViewModel.isSalesforceChecking)
             }
+            .buttonStyle(.glassProminent)
+            .controlSize(.large)
+            .opacity((isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty) ? 1 : 0.55)
             .disabled(!isValidEmail || !passwordErrorMessage.isEmpty || password.isEmpty || appViewModel.isLoading || appViewModel.isSalesforceChecking)
-            .shadow(color: (isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty) ? Color.brandPrimary.opacity(0.3) : .clear, radius: 10, x: 0, y: 5)
             .animation(.easeInOut(duration: 0.25), value: isValidEmail && passwordErrorMessage.isEmpty && !password.isEmpty)
             
             // Removed separate Salesforce indicator to streamline the button UI
