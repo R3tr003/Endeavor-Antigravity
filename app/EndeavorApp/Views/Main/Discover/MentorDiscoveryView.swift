@@ -334,13 +334,16 @@ struct MatchCard: View {
 
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.xxSmall) {
                         Text(profile.fullName)
-                            .font(.title3.weight(.bold))
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
 
                         if !profile.userType.isEmpty {
                             Text(profile.userType)
                                 .font(.system(size: 11, weight: .semibold, design: .rounded))
                                 .foregroundColor(userTypeColor(profile.userType))
+                                .lineLimit(1)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 3)
                                 .background(userTypeColor(profile.userType).opacity(0.12))
