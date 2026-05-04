@@ -10,10 +10,11 @@ Endeavor is a production iOS application for **Endeavor**, a global nonprofit su
 - **Deferred Firebase Account Creation** — Firebase Auth accounts are created only after full onboarding is completed, preventing orphan accounts
 - **Google Sign-In & Email/Password Auth** — full support for both flows with Salesforce-backed authorization
 - **Salesforce Prefill** — onboarding forms are pre-populated from the user's Salesforce Contact record
+- **Biometric Authentication** — Face ID / Touch ID lock screen protects the app on return from background; `AppSwitcherOverlayView` hides content in the app switcher
 - **Real-time Messaging** — full chat between users with media sharing (images, documents), delivery receipts (sent/delivered/read), message pinning, and swipe-to-ban
-- **AI Message Filtering** — Gemini-powered spam/safety filter runs on every incoming message via Firestore trigger; flagged messages go to a separate "Filtered" inbox
-- **Meeting Scheduling** — schedule meetings directly in chat, with Google Meet or Microsoft Teams link generation (via OAuth)
-- **Calendar** — full calendar view with event management, iCal subscription feed for native calendar integration
+- **AI Message Filtering** — Gemini-powered spam/safety filter runs on every incoming message via Firestore trigger; flagged messages go to a separate "Filtered" inbox with warning messages shown to recipients
+- **Meeting Scheduling** — schedule meetings directly in chat, with Google Meet or Microsoft Teams link generation (via OAuth); rate limiting enforced server-side on meet link generation
+- **Calendar** — full calendar view with event management, iCal subscription feed (token-based auth) for native calendar integration
 - **AI Mentor Discovery** — Genkit + Gemini-powered natural language search across all users
 - **Multi-language** — full localization in English, Spanish, Italian, French, and Brazilian Portuguese
 - **Firebase App Check** — AppAttest in production for integrity verification
@@ -107,7 +108,9 @@ app/EndeavorApp/
 │
 ├── Views/
 │   ├── Auth/
-│   │   └── WelcomeView.swift
+│   │   ├── WelcomeView.swift
+│   │   ├── BiometricLockView.swift        # Biometric prompt shown on app foreground
+│   │   └── AppSwitcherOverlayView.swift   # Hides content in the app switcher
 │   ├── Main/
 │   │   ├── MainTabView.swift              # Bottom tab bar (Home, Discover, Network, Messages, Profile)
 │   │   ├── Home/
@@ -137,13 +140,14 @@ app/EndeavorApp/
 │
 ├── Services/
 │   ├── AnalyticsService.swift             # Typed Firebase Analytics events wrapper
+│   ├── BiometricAuthService.swift         # Face ID / Touch ID wrapper (LAContext)
 │   └── MeetProviderService.swift          # Google Meet (Calendar API) + Teams (Graph API) integration
 │
 ├── DesignSystem/
 │   ├── Colors+Extensions.swift            # Brand colors with light/dark variants
 │   ├── DesignSystem.swift                 # Spacing, corner radius, layout constants
 │   ├── Typography.swift                   # Font styles
-│   └── Components/                        # Reusable UI: CustomTextField, DashboardCard, SelectablePill, etc.
+│   └── Components/                        # Reusable UI: CustomTextField, DashboardCard, SelectablePill, StackNavigationView, etc.
 │
 └── Resources/
     └── Localizable.xcstrings              # Xcode 15 string catalog (EN, ES, IT, FR, PT-BR)
@@ -154,7 +158,10 @@ functions/src/
 ├── aiSearch.ts                            # searchUsersWithAI — Genkit + Gemini 2.0 Flash
 ├── messageFilter.ts                       # classifyMessage (Firestore trigger) + recheckConversation
 ├── meetProvider.ts                        # generateMeetLink — Google Calendar API + Microsoft Graph API
-└── icalFeed.ts                            # HTTP iCal feed endpoint for calendar subscription
+├── icalFeed.ts                            # HTTP iCal feed with token-based auth for calendar subscription
+├── userMapping.ts                         # saveUserMapping — syncs Firebase UID ↔ Salesforce UUID
+├── rateLimiter.ts                         # Server-side rate limiting for meet link generation
+└── __tests__/                             # Jest test suites (iCal, Meet provider, message filter)
 
 EndeavorAppTests/Mocks/
 ├── MockMessagesRepository.swift
@@ -189,11 +196,12 @@ All functions deployed to region `europe-west1`.
 | `getSalesforceContactData` | `onCall` | Fetches contact details by contactId |
 | `checkAndFetchSalesforceContact` | `onCall` | Authorization check + contact fetch in one call |
 | `checkUserExists` | `onCall` | Checks if Firebase user exists for an email |
+| `saveUserMapping` | `onCall` | Syncs Firebase UID ↔ Salesforce UUID in Firestore (deduped client-side) |
 | `searchUsersWithAI` | `onCallGenkit` | AI-powered user search using Genkit + Gemini 2.0 Flash |
 | `classifyMessage` | Firestore trigger | Auto-runs on new message creation, classifies spam/safety |
 | `recheckConversation` | `onCall` | Manual AI recheck for a conversation (7-day cooldown) |
-| `generateMeetLink` | `onCall` | Creates Google Meet (Calendar API) or Teams (Graph API) meeting link |
-| `icalFeed` | HTTP | Returns iCal feed for a user's calendar events |
+| `generateMeetLink` | `onCall` | Creates Google Meet (Calendar API) or Teams (Graph API) meeting link; rate-limited |
+| `icalFeed` | HTTP | Returns token-authenticated iCal feed for a user's calendar events |
 
 ### AI Stack
 - **Framework**: Firebase Genkit v1.29.0
@@ -214,11 +222,15 @@ Meeting scheduling is end-to-end inside the chat:
 6. The confirmed card shows a **Join Meeting** button that opens the link directly
 
 **Google Meet**: requires Google Sign-In with `calendar.events` scope (incremental OAuth).
-**Microsoft Teams**: requires MSAL authentication with `OnlineMeetings.ReadWrite` scope.
+**Microsoft Teams**: requires MSAL authentication with `OnlineMeetings.ReadWrite` scope. MSAL is forced to use WKWebView so the OS never redirects to the Authenticator app. Cancellations are mapped to a silent `meetTeamsSignInCancelled` error (no spinner stuck); all other MSAL errors surface a readable `meetTeamsSignInRequired` message.
+
+**Rate limiting**: the `generateMeetLink` Cloud Function enforces server-side rate limiting via `rateLimiter.ts` to prevent abuse.
 
 ---
 
 ## Design System
+
+The app uses a **Liquid Glass** design language (iOS 26) built on top of `DesignSystem.swift` and `Colors+Extensions.swift`. All material/card surfaces use `.glassEffect()`, `.glassSurface()`, and `GlassEffectContainer` — replacing the legacy `.ultraThinMaterial` + border overlay pattern. Buttons use the `.glass` `ButtonStyle`. A `StackNavigationView` component provides glass-style stack navigation.
 
 All UI constants live in `DesignSystem.swift` and `Colors+Extensions.swift`:
 
@@ -316,11 +328,6 @@ open "app/app.xcodeproj"
 ```
 Select the `app` scheme, choose an iPhone 17 simulator, press `Cmd+R`.
 
-### Unit Tests
-```bash
-./run_tests.sh
-```
-
 ---
 
 ## Cloud Functions
@@ -346,6 +353,24 @@ firebase emulators:start      # Emulator UI at http://localhost:4010
 cd functions && npm run genkit:start   # Genkit Developer UI
 ```
 
+### Cloud Functions tests (Jest)
+```bash
+cd functions && npm test
+```
+
+Jest test suites live in `functions/src/__tests__/` and cover iCal feed, Meet provider, and message filter logic. A custom reporter generates `TEST_REPORT.md` after each run.
+
+---
+
+## Testing
+
+### iOS Unit Tests
+```bash
+./run_tests.sh
+```
+
+Repositories are fully mockable via protocols. Mocks live in `EndeavorAppTests/Mocks/`.
+
 ---
 
 ## Security
@@ -353,8 +378,12 @@ cd functions && npm run genkit:start   # Genkit Developer UI
 - **Firebase App Check** (AppAttest) enabled in production — disabled in DEBUG to allow simulator testing
 - **Email Enumeration Protection** active — user existence checked via Firestore, not `fetchSignInMethods`
 - **Firebase Auth accounts created only after onboarding completes** — no orphan accounts
+- **Biometric lock** — Face ID / Touch ID required on app foreground; content hidden from app switcher via `AppSwitcherOverlayView`
 - **Firestore security rules** enforce participant-only read/write on messaging; AI filter fields are Admin SDK-only
 - **Storage rules** enforce per-user ownership for profile images; 5MB limit on profile images, 10MB on chat media
+- **iCal feed** protected with token-based authentication — tokens stored in Firestore, not derived from UID
+- **Rate limiting** on meet link generation enforced server-side via `rateLimiter.ts`
+- **Ban system** stored in Firestore sub-collections; message deletion restricted to the original sender
 - **All errors** are typed as `AppError` enum cases with localized descriptions — no raw strings exposed to users
 
 ---
