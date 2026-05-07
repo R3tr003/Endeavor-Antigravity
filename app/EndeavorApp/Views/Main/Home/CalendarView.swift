@@ -1,13 +1,31 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
+// MARK: - Sheet discriminator
+private enum CalendarSheet: Identifiable {
+    case personalEvent(CalendarEvent)
+    case endeavourEvent(CalendarEvent)
+    case createEvent
+    case subscribe
+
+    var id: String {
+        switch self {
+        case .personalEvent(let e):  return "personal-\(e.id)"
+        case .endeavourEvent(let e): return "endeavour-\(e.id)"
+        case .createEvent:           return "create"
+        case .subscribe:             return "subscribe"
+        }
+    }
+}
+
 struct CalendarView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @StateObject private var viewModel = CalendarViewModel()
     @AppStorage("userId") private var currentUserId: String = ""
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedEvent: CalendarEvent? = nil
-    @State private var showSubscribeSheet = false
+    @State private var activeSheet: CalendarSheet? = nil
+
+    private var isStaff: Bool { appViewModel.currentUser?.userType == "Staff" }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -16,7 +34,7 @@ struct CalendarView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.xLarge) {
 
-                    // Header row: X | Calendar | Share
+                    // Header row: X | Calendar | [+ Staff] | Share
                     HStack(spacing: DesignSystem.Spacing.standard) {
                         Button(action: { dismiss() }) {
                             ZStack {
@@ -33,12 +51,23 @@ struct CalendarView: View {
                             .font(.system(size: 20, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
                         Spacer()
-                        Button(action: { showSubscribeSheet = true }) {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 17, weight: .semibold))
-                                .foregroundColor(.brandPrimary)
-                                .frame(width: 40, height: 40)
-                                .background(Color.brandPrimary.opacity(0.12), in: Circle())
+                        HStack(spacing: DesignSystem.Spacing.xSmall) {
+                            if isStaff {
+                                Button(action: { activeSheet = .createEvent }) {
+                                    Image(systemName: "plus")
+                                        .font(.system(size: 17, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .frame(width: 40, height: 40)
+                                        .background(Color.brandPrimary, in: Circle())
+                                }
+                            }
+                            Button(action: { activeSheet = .subscribe }) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 17, weight: .semibold))
+                                    .foregroundColor(.brandPrimary)
+                                    .frame(width: 40, height: 40)
+                                    .background(Color.brandPrimary.opacity(0.12), in: Circle())
+                            }
                         }
                     }
                     .padding(.horizontal, DesignSystem.Spacing.large)
@@ -52,7 +81,7 @@ struct CalendarView: View {
                         .padding(.horizontal, DesignSystem.Spacing.large)
                         .padding(.top, DesignSystem.Spacing.standard)
 
-                        // Lista eventi del giorno selezionato
+                        // Events for selected day
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
                             let dayLabel = Calendar.current.isDateInToday(viewModel.selectedDate)
                                 ? String(localized: "calendar.today", defaultValue: "Today")
@@ -66,16 +95,29 @@ struct CalendarView: View {
                             if viewModel.isLoading {
                                 ProgressView().tint(.brandPrimary)
                                     .frame(maxWidth: .infinity)
-                            } else if viewModel.eventsForSelectedDate.isEmpty {
-                                emptyDayView
                             } else {
-                                VStack(spacing: DesignSystem.Spacing.small) {
-                                    ForEach(viewModel.eventsForSelectedDate) { event in
-                                        CalendarEventRow(event: event)
-                                            .onTapGesture { selectedEvent = event }
+                                let personal = viewModel.eventsForSelectedDate
+                                let endeavour = viewModel.endeavourEventsForSelectedDate
+
+                                if personal.isEmpty && endeavour.isEmpty {
+                                    emptyDayView
+                                } else {
+                                    VStack(spacing: DesignSystem.Spacing.small) {
+                                        ForEach(personal) { event in
+                                            Button(action: { activeSheet = .personalEvent(event) }) {
+                                                CalendarEventRow(event: event)
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+                                        ForEach(endeavour) { event in
+                                            Button(action: { activeSheet = .endeavourEvent(event) }) {
+                                                CalendarEventRow(event: event)
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
                                     }
+                                    .padding(.horizontal, DesignSystem.Spacing.large)
                                 }
-                                .padding(.horizontal, DesignSystem.Spacing.large)
                             }
                         }
 
@@ -87,18 +129,36 @@ struct CalendarView: View {
             AnalyticsService.shared.logCalendarOpened()
             if !currentUserId.isEmpty {
                 viewModel.fetchEvents(userId: currentUserId)
+                viewModel.fetchEndeavourEvents()
             }
         }
-        .sheet(item: $selectedEvent) { event in
-            CalendarEventDetailView(
-                event: event,
-                currentUserId: currentUserId,
-                onCancelledLocally: { viewModel.removeEvent(id: event.id) },
-                onRescheduledLocally: { viewModel.fetchEvents(userId: currentUserId) }
-            )
-        }
-        .sheet(isPresented: $showSubscribeSheet) {
-            CalendarSubscribeView(userId: currentUserId)
+        .sheet(item: $activeSheet) { sheet in
+            switch sheet {
+            case .personalEvent(let event):
+                CalendarEventDetailView(
+                    event: event,
+                    currentUserId: currentUserId,
+                    onCancelledLocally: { viewModel.removeEvent(id: event.id) },
+                    onRescheduledLocally: { viewModel.fetchEvents(userId: currentUserId) }
+                )
+            case .endeavourEvent(let event):
+                EndeavourEventDetailView(
+                    event: event,
+                    currentUserId: currentUserId,
+                    userType: appViewModel.currentUser?.userType ?? "",
+                    onRsvpChanged: { viewModel.fetchEndeavourEvents() },
+                    onDeleted: {
+                        viewModel.removeEvent(id: event.id)   // rimozione immediata locale
+                        viewModel.fetchEndeavourEvents()       // poi ri-sincronizza da Firebase
+                    }
+                )
+            case .createEvent:
+                CreateEndeavourEventView(currentUserId: currentUserId) {
+                    viewModel.fetchEndeavourEvents()
+                }
+            case .subscribe:
+                CalendarSubscribeView(userId: currentUserId)
+            }
         }
     }
 
@@ -223,11 +283,11 @@ struct DayCell: View {
             HStack(spacing: 3) {
                 ForEach(Array(eventColors.enumerated()), id: \.offset) { _, color in
                     Circle()
-                        .fill(isSelected ? Color.white.opacity(0.9) : color)
-                        .frame(width: 4, height: 4)
+                        .fill(isSelected ? Color.white : color)
+                        .frame(width: 5, height: 5)
                 }
             }
-            .frame(height: 5)
+            .frame(height: 6)
         }
     }
 }
@@ -239,9 +299,9 @@ struct CalendarEventRow: View {
 
     var eventColor: Color {
         switch event.type {
-        case .meeting: return .purple
-        case .endeavorEvent: return .purple
-        case .mentorship: return .orange
+        case .meeting:       return .purple
+        case .endeavorEvent: return event.category.swiftColor
+        case .mentorship:    return .orange
         }
     }
 
@@ -272,12 +332,18 @@ struct CalendarEventRow: View {
 
             Spacer()
 
-            Text(event.type.displayName)
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
-                .foregroundColor(eventColor)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .glassSurface(.regular.tint(eventColor.opacity(0.16)), shape: .capsule)
+            HStack(spacing: 4) {
+                if event.type == .endeavorEvent {
+                    Image(systemName: event.category.icon)
+                        .font(.system(size: 10, weight: .semibold))
+                }
+                Text(event.type == .endeavorEvent ? event.category.displayName : event.type.displayName)
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+            }
+            .foregroundColor(eventColor)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .glassSurface(.regular.tint(eventColor.opacity(0.16)), shape: .capsule)
         }
         .padding(DesignSystem.Spacing.standard)
         .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))

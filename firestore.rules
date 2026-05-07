@@ -82,21 +82,32 @@ service cloud.firestore {
     }
     
     match /events/{eventId} {
+      // Personal events (meeting/mentorship): only participants can read.
+      // Endeavour events: any authenticated user can read (they are public).
       allow read: if isAuthenticated()
-                  && getUserUuid() in resource.data.participantIds;
+                  && (resource.data.type == "endeavor_event"
+                      || getUserUuid() in resource.data.participantIds);
 
       allow create: if isAuthenticated()
                     && getUserUuid() in request.resource.data.participantIds
                     && getUserUuid() == request.resource.data.createdBy;
 
-      // Participants can update event fields, but:
-      // - createdBy is immutable for everyone
-      // - participantIds can only be changed by the creator
+      // Update rules:
+      // - createdBy is always immutable
+      // - Personal events: participant can update; only creator can change participantIds
+      // - Endeavour events: creator can update any field;
+      //   any authenticated user can RSVP (only participantIds changes)
       allow update: if isAuthenticated()
-                    && getUserUuid() in resource.data.participantIds
                     && request.resource.data.createdBy == resource.data.createdBy
-                    && (request.resource.data.participantIds == resource.data.participantIds
-                        || getUserUuid() == resource.data.createdBy);
+                    && (
+                      (getUserUuid() in resource.data.participantIds
+                        && (request.resource.data.participantIds == resource.data.participantIds
+                            || getUserUuid() == resource.data.createdBy))
+                      || (resource.data.type == "endeavor_event"
+                          && (getUserUuid() == resource.data.createdBy
+                              || request.resource.data.diff(resource.data).affectedKeys()
+                                   .hasOnly(["participantIds"])))
+                    );
 
       allow delete: if isAuthenticated()
                     && getUserUuid() == resource.data.createdBy;

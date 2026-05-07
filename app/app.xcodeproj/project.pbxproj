@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		09506AED6706631A887DE09D /* FirebaseCalendarRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE01DD7D01B901B33B3EE5E /* FirebaseCalendarRepository.swift */; };
+		A1B2C3D4E5F60001A1B2C3D4 /* CreateEndeavourEventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60000A1B2C3D4 /* CreateEndeavourEventView.swift */; };
+		A1B2C3D4E5F60003A1B2C3D4 /* EndeavourEventDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60002A1B2C3D4 /* EndeavourEventDetailView.swift */; };
+		A1B2C3D4E5F60005A1B2C3D4 /* EndeavourEventParticipantsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60004A1B2C3D4 /* EndeavourEventParticipantsView.swift */; };
+		A1B2C3D4E5F60007A1B2C3D4 /* CreateEndeavourEventViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60006A1B2C3D4 /* CreateEndeavourEventViewModel.swift */; };
 		097E89C9228A4A38AFB7F184 /* NavigationRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9B0116D2CC4C7FA275D47E /* NavigationRouter.swift */; };
 		0B3B30F1D6A3F5E81963192F /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A962975DA8043FB12AB15B6 /* Message.swift */; };
 		1583E391872926D57D182C5B /* CalendarViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8503492F26B866F788F8700 /* CalendarViewModel.swift */; };
@@ -108,6 +112,10 @@
 		DB2E4F6C8A0B1D3F5E7A9C1B /* CalendarRepositoryProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CalendarRepositoryProtocol.swift; path = Repositories/Protocols/CalendarRepositoryProtocol.swift; sourceTree = "<group>"; };
 		3502CA0542164640B87EF1DF /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		3C25131A6369598D52497741 /* CalendarSubscribeView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CalendarSubscribeView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60000A1B2C3D4 /* CreateEndeavourEventView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CreateEndeavourEventView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60002A1B2C3D4 /* EndeavourEventDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EndeavourEventDetailView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60004A1B2C3D4 /* EndeavourEventParticipantsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EndeavourEventParticipantsView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60006A1B2C3D4 /* CreateEndeavourEventViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CreateEndeavourEventViewModel.swift; sourceTree = "<group>"; };
 		3DA0B950F88C410689A55668 /* ../Repositories/Firebase/FirebaseUserRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Repositories/Firebase/FirebaseUserRepository.swift; sourceTree = "<group>"; };
 		4596AC3AD53E85365A71AFD3 /* Conversation.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Conversation.swift; sourceTree = "<group>"; };
 		4A962975DA8043FB12AB15B6 /* Message.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
@@ -327,6 +335,7 @@
 				C761D9D2EC4FC43ED00AF553 /* ConversationViewModel.swift */,
 				F8503492F26B866F788F8700 /* CalendarViewModel.swift */,
 				AA500000SCHEDULEMEETVM /* ScheduleMeetingViewModel.swift */,
+				A1B2C3D4E5F60006A1B2C3D4 /* CreateEndeavourEventViewModel.swift */,
 				A7E8F901B1234C56D7890123 /* ../Repositories/Salesforce/SalesforceRepository.swift */,
 			);
 			path = ViewModels;
@@ -371,6 +380,16 @@
 			path = Profile;
 			sourceTree = "<group>";
 		};
+		A1B2C3D4E5F60008A1B2C3D4 /* Events */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60000A1B2C3D4 /* CreateEndeavourEventView.swift */,
+				A1B2C3D4E5F60002A1B2C3D4 /* EndeavourEventDetailView.swift */,
+				A1B2C3D4E5F60004A1B2C3D4 /* EndeavourEventParticipantsView.swift */,
+			);
+			path = Events;
+			sourceTree = "<group>";
+		};
 		651787E72F356B310095C184 /* Main */ = {
 			isa = PBXGroup;
 			children = (
@@ -380,6 +399,7 @@
 				651787E62F356B310095C184 /* MainTabView.swift */,
 				3EC055BC725379585A581385 /* Discover */,
 				4F1FE1174334754478FAD680 /* Messages */,
+				A1B2C3D4E5F60008A1B2C3D4 /* Events */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -640,6 +660,10 @@
 				1583E391872926D57D182C5B /* CalendarViewModel.swift in Sources */,
 				3EDD15FD6EEFB125D9A7112C /* CalendarView.swift in Sources */,
 				1FDAAEDE9FE295E733615E3D /* CalendarSubscribeView.swift in Sources */,
+				A1B2C3D4E5F60007A1B2C3D4 /* CreateEndeavourEventViewModel.swift in Sources */,
+				A1B2C3D4E5F60001A1B2C3D4 /* CreateEndeavourEventView.swift in Sources */,
+				A1B2C3D4E5F60003A1B2C3D4 /* EndeavourEventDetailView.swift in Sources */,
+				A1B2C3D4E5F60005A1B2C3D4 /* EndeavourEventParticipantsView.swift in Sources */,
 				A7E8F903B1234C56D7890123 /* ../Repositories/Salesforce/SalesforceRepository.swift in Sources */,
 				37D493AC9C2597D6BB419F87 /* AnalyticsService.swift in Sources */,
 				AA600001MEETPROVSERVICE /* MeetProviderService.swift in Sources */,

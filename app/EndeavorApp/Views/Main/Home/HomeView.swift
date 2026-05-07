@@ -9,6 +9,7 @@ struct HomeView: View {
     @State private var showCalendar = false
     @State private var selectedEvent: CalendarEvent? = nil
     @State private var rescheduleEvent: CalendarEvent? = nil
+    @State private var selectedEndeavourEvent: CalendarEvent? = nil
 
     // For scroll-based animations
     @State private var scrollOffset: CGFloat = 0
@@ -21,6 +22,33 @@ struct HomeView: View {
         case 18..<22: return String(localized: "home.greeting_evening", defaultValue: "Good evening!")
         default: return String(localized: "home.greeting_night", defaultValue: "Good night!")
         }
+    }
+
+    /// Number of confirmed mentorship sessions in the current week
+    private var weeklyMentorshipCount: Int {
+        let cal = Calendar.current
+        return calendarViewModel.events.filter {
+            $0.type == .mentorship &&
+            $0.status == .confirmed &&
+            cal.isDate($0.startDate, equalTo: Date(), toGranularity: .weekOfYear)
+        }.count
+    }
+
+    /// Total events (personal + Endeavour) in the current month — no double-count
+    private var monthEventCount: Int {
+        let cal = Calendar.current
+        // Exclude .endeavorEvent from the personal array: they are fetched separately
+        // in endeavourEvents and would be double-counted otherwise.
+        let personal = calendarViewModel.events.filter {
+            $0.type != .endeavorEvent &&
+            $0.status != .cancelled &&
+            cal.isDate($0.startDate, equalTo: Date(), toGranularity: .month)
+        }
+        let endeavour = calendarViewModel.endeavourEvents.filter {
+            $0.status != .cancelled &&
+            cal.isDate($0.startDate, equalTo: Date(), toGranularity: .month)
+        }
+        return personal.count + endeavour.count
     }
 
     var body: some View {
@@ -59,9 +87,6 @@ struct HomeView: View {
                             .font(.system(size: 44, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
                             .tracking(-1)
-                        Text(String(localized: "home.sessions_subtitle"))
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
-                            .foregroundColor(.secondary)
                     }
                     .padding(.top, DesignSystem.Spacing.standard)
                     .padding(.horizontal, DesignSystem.Spacing.large)
@@ -79,7 +104,7 @@ struct HomeView: View {
                                         .font(.system(size: 13, weight: .medium, design: .rounded))
                                         .foregroundColor(.secondary)
                                 }
-                                Text("\(calendarViewModel.upcomingEvents.filter { Calendar.current.isDate($0.startDate, equalTo: Date(), toGranularity: .weekOfYear) }.count)")
+                                Text("\(monthEventCount)")
                                     .font(.system(size: 44, weight: .bold, design: .rounded))
                                     .foregroundColor(.primary)
                                     .tracking(-1)
@@ -139,7 +164,7 @@ struct HomeView: View {
                         .padding(.horizontal, DesignSystem.Spacing.large)
                     }
 
-                    // 4. Upcoming Sessions
+                    // 4. My Upcoming Sessions
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
                         Text(String(localized: "home.upcoming_sessions"))
                             .font(.system(size: 24, weight: .bold, design: .rounded))
@@ -148,14 +173,14 @@ struct HomeView: View {
 
                         if calendarViewModel.isLoading {
                             ProgressView().tint(.brandPrimary).frame(maxWidth: .infinity)
-                        } else if calendarViewModel.upcomingEvents.isEmpty {
+                        } else if calendarViewModel.upcomingPersonalEvents.isEmpty {
                             Text(String(localized: "calendar.no_upcoming", defaultValue: "No upcoming events"))
                                 .font(.system(size: 14, design: .rounded))
                                 .foregroundColor(.secondary)
                                 .padding(.horizontal, DesignSystem.Spacing.large)
                         } else {
                             VStack(spacing: DesignSystem.Spacing.small) {
-                                ForEach(calendarViewModel.upcomingEvents.prefix(5)) { event in
+                                ForEach(calendarViewModel.upcomingPersonalEvents.prefix(5)) { event in
                                     UpcomingEventCard(
                                         event: event,
                                         currentUserId: currentUserId,
@@ -170,6 +195,28 @@ struct HomeView: View {
                     }
                     .padding(.top, DesignSystem.Spacing.standard)
 
+                    // 5. Endeavor Events
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.medium) {
+                        Text(String(localized: "home.endeavor_events", defaultValue: "Endeavor Events"))
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+                            .padding(.horizontal, DesignSystem.Spacing.large)
+
+                        if calendarViewModel.upcomingEndeavourEvents.isEmpty {
+                            Text(String(localized: "home.no_endeavor_events", defaultValue: "No upcoming Endeavor events"))
+                                .font(.system(size: 14, design: .rounded))
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, DesignSystem.Spacing.large)
+                        } else {
+                            VStack(spacing: DesignSystem.Spacing.small) {
+                                ForEach(calendarViewModel.upcomingEndeavourEvents.prefix(5)) { event in
+                                    EndeavourEventCard(event: event, onTap: { selectedEndeavourEvent = event })
+                                }
+                            }
+                            .padding(.horizontal, DesignSystem.Spacing.large)
+                        }
+                    }
+
                     Spacer(minLength: DesignSystem.Spacing.bottomSafePadding)
                 }
             }
@@ -180,6 +227,7 @@ struct HomeView: View {
             .onAppear {
                 if !currentUserId.isEmpty {
                     calendarViewModel.fetchEvents(userId: currentUserId)
+                    calendarViewModel.fetchEndeavourEvents()
                 }
             }
             .sheet(isPresented: $showCalendar) {
@@ -194,13 +242,25 @@ struct HomeView: View {
                     onRescheduledLocally: { calendarViewModel.fetchEvents(userId: currentUserId) }
                 )
             }
+            .sheet(item: $selectedEndeavourEvent) { event in
+                EndeavourEventDetailView(
+                    event: event,
+                    currentUserId: currentUserId,
+                    userType: appViewModel.currentUser?.userType ?? "",
+                    onRsvpChanged: { calendarViewModel.fetchEndeavourEvents() },
+                    onDeleted: {
+                        calendarViewModel.removeEvent(id: event.id)
+                        calendarViewModel.fetchEndeavourEvents()
+                    }
+                )
+            }
             .sheet(item: $rescheduleEvent) { event in
                 ScheduleMeetingView(
                     conversationId: event.conversationId ?? "",
                     currentUserId: currentUserId,
                     recipientId: event.participantIds.first(where: { $0 != currentUserId }) ?? "",
                     recipientName: "",
-                    existingEvents: calendarViewModel.upcomingEvents,
+                    existingEvents: calendarViewModel.upcomingPersonalEvents,
                     existingEvent: event
                 )
             }
@@ -279,9 +339,9 @@ struct UpcomingEventCard: View {
 
     var color: Color {
         switch event.type {
-        case .meeting: return .purple
-        case .endeavorEvent: return .purple
-        case .mentorship: return .orange
+        case .meeting:       return .purple
+        case .endeavorEvent: return .brandPrimary
+        case .mentorship:    return .orange
         }
     }
 
@@ -408,6 +468,68 @@ struct UpcomingEventCard: View {
                 participantCompany = (company?.name.isEmpty == false) ? company?.name : nil
             }
         }
+    }
+}
+
+// MARK: - Endeavour Event Card
+
+struct EndeavourEventCard: View {
+    let event: CalendarEvent
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 0) {
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(event.category.swiftColor)
+                    .frame(width: 3)
+                    .padding(.vertical, DesignSystem.Spacing.standard)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .center) {
+                        HStack(spacing: 4) {
+                            Image(systemName: event.category.icon)
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundColor(event.category.swiftColor)
+                            Text(event.category.displayName)
+                                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                .foregroundColor(event.category.swiftColor)
+                        }
+                        .padding(.horizontal, 8).padding(.vertical, 3)
+                        .background(event.category.swiftColor.opacity(0.18), in: Capsule())
+                        Spacer()
+                        if let maxP = event.maxParticipants {
+                            Text("\(event.participantIds.count)/\(maxP)")
+                                .font(.system(size: 11, design: .rounded)).foregroundColor(.secondary)
+                        }
+                    }
+
+                    Text(event.title)
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundColor(.primary).lineLimit(1)
+
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock").font(.system(size: 11)).foregroundColor(.secondary)
+                        Text(event.startDate.formatted(.dateTime.weekday(.abbreviated).day().month().hour().minute()))
+                            .font(.system(size: 12, design: .rounded)).foregroundColor(.secondary)
+                        Text("·").foregroundColor(.secondary)
+                        Text(event.durationFormatted)
+                            .font(.system(size: 12, design: .rounded)).foregroundColor(.secondary)
+                    }
+
+                    if let location = event.location, !location.isEmpty {
+                        HStack(spacing: 4) {
+                            Image(systemName: "mappin").font(.system(size: 11)).foregroundColor(.secondary)
+                            Text(location).font(.system(size: 12, design: .rounded)).foregroundColor(.secondary).lineLimit(1)
+                        }
+                    }
+                }
+                .padding(DesignSystem.Spacing.standard)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.xLarge))
+        }
+        .buttonStyle(.plain)
     }
 }
 

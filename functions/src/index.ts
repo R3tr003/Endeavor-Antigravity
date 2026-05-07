@@ -19,3 +19,5 @@ export { generateMeetLink, cancelCalendarEvent } from "./meetProvider";
 export { icalFeed } from "./icalFeed";
 export { checkMeetingCompletions } from "./meetingCompleted";
 export { saveUserMapping } from "./userMapping";
+export { notifyChapterCoordinators } from "./chapterCoordinators";
+export { notifyEndeavourEventChanges } from "./endeavorEvents";

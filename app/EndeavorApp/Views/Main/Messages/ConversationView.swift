@@ -137,7 +137,13 @@ struct ConversationView: View {
     // MARK: - Header Bar
 
     private var headerBar: some View {
-        HStack(spacing: DesignSystem.Spacing.standard) {
+        let isSystem = conversation.isEndeavourSystemConversation
+        let imageUrl = viewModel.recipientProfile?.profileImageUrl ?? conversation.otherParticipantImageUrl
+        let accentColor = conversation.accentColor(currentUserId: currentUserId)
+        let currentName = viewModel.recipientProfile?.fullName ?? conversation.otherParticipantName
+
+        return HStack(spacing: DesignSystem.Spacing.standard) {
+            // Close button
             Button(action: { dismiss() }) {
                 ZStack {
                     Circle()
@@ -149,103 +155,124 @@ struct ConversationView: View {
                 }
             }
 
-            let imageUrl = viewModel.recipientProfile?.profileImageUrl ?? conversation.otherParticipantImageUrl
-            let accentColor = conversation.accentColor(currentUserId: currentUserId)
-            let currentName = viewModel.recipientProfile?.fullName ?? conversation.otherParticipantName
-
-            Button(action: {
-                if viewModel.recipientProfile != nil { showRecipientProfile = true }
-            }) {
-                HStack(spacing: DesignSystem.Spacing.small) {
+            if isSystem {
+                // MARK: System conversation — centered avatar + name, no Schedule
+                Spacer()
+                VStack(spacing: 2) {
                     ZStack {
                         Circle()
                             .fill(accentColor.opacity(0.15))
                             .frame(width: 38, height: 38)
-
                         if imageUrl.isEmpty {
                             Text(getInitials(from: currentName))
                                 .font(.system(size: 14, weight: .bold, design: .rounded))
                                 .foregroundColor(accentColor)
                         } else {
                             WebImage(url: URL(string: imageUrl)) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 38, height: 38)
-                                    .clipShape(Circle())
-                            } placeholder: {
-                                EmptyView()
-                            }
+                                image.resizable().scaledToFill()
+                                    .frame(width: 38, height: 38).clipShape(Circle())
+                            } placeholder: { EmptyView() }
                             .transition(.fade(duration: 0))
                         }
                     }
                     .transaction { $0.animation = nil }
-                    .frame(width: 38, height: 38)
-                    .clipShape(Circle())
+                    .frame(width: 38, height: 38).clipShape(Circle())
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(currentName)
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
-                            .redacted(reason: viewModel.recipientProfile == nil && conversation.otherParticipantName == "Loading..." ? .placeholder : [])
-                        Group {
-                            let isLoadingCompany = (viewModel.recipientProfile != nil && viewModel.recipientCompanyName == nil)
+                    Text(currentName)
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                }
+                Spacer()
+                // Balance the close button on the left so the name stays truly centered
+                Color.clear.frame(width: 36, height: 36)
 
-                            if isLoadingCompany {
-                                Text(String(localized: "messages.loading_company", defaultValue: "Loading company..."))
-                                    .font(.system(size: 11, design: .rounded))
-                                    .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
-                                    .lineLimit(1)
-                                    .redacted(reason: .placeholder)
+            } else {
+                // MARK: Normal conversation — left-aligned avatar+name, right Schedule button
+                Button(action: {
+                    if viewModel.recipientProfile != nil { showRecipientProfile = true }
+                }) {
+                    HStack(spacing: DesignSystem.Spacing.small) {
+                        ZStack {
+                            Circle()
+                                .fill(accentColor.opacity(0.15))
+                                .frame(width: 38, height: 38)
+                            if imageUrl.isEmpty {
+                                Text(getInitials(from: currentName))
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundColor(accentColor)
                             } else {
-                                let company = viewModel.recipientCompanyName ?? conversation.otherParticipantCompany
-                                let location = viewModel.recipientProfile?.location ?? ""
+                                WebImage(url: URL(string: imageUrl)) { image in
+                                    image.resizable().scaledToFill()
+                                        .frame(width: 38, height: 38).clipShape(Circle())
+                                } placeholder: { EmptyView() }
+                                .transition(.fade(duration: 0))
+                            }
+                        }
+                        .transaction { $0.animation = nil }
+                        .frame(width: 38, height: 38).clipShape(Circle())
 
-                                let subtitle = [company, location].filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: " • ")
-
-                                if !subtitle.isEmpty {
-                                    Text(subtitle)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(currentName)
+                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                                .foregroundColor(.primary)
+                                .lineLimit(1)
+                                .redacted(reason: viewModel.recipientProfile == nil && conversation.otherParticipantName == "Loading..." ? .placeholder : [])
+                            Group {
+                                let isLoadingCompany = (viewModel.recipientProfile != nil && viewModel.recipientCompanyName == nil)
+                                if isLoadingCompany {
+                                    Text(String(localized: "messages.loading_company", defaultValue: "Loading company..."))
                                         .font(.system(size: 11, design: .rounded))
-                                        .foregroundColor(conversation.accentColor(currentUserId: currentUserId))
+                                        .foregroundColor(accentColor)
                                         .lineLimit(1)
+                                        .redacted(reason: .placeholder)
+                                } else {
+                                    let company = viewModel.recipientCompanyName ?? conversation.otherParticipantCompany
+                                    let location = viewModel.recipientProfile?.location ?? ""
+                                    let subtitle = [company, location].filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: " • ")
+                                    if !subtitle.isEmpty {
+                                        Text(subtitle)
+                                            .font(.system(size: 11, design: .rounded))
+                                            .foregroundColor(accentColor)
+                                            .lineLimit(1)
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-            .buttonStyle(.plain)
+                .buttonStyle(.plain)
 
-            Spacer()
+                Spacer()
 
-            Button(action: {
-                let totalMessages = viewModel.messages.filter { !$0.isSystemMessage }.count
-                let myMessages = viewModel.messages.filter { $0.senderId == currentUserId && !$0.isSystemMessage }.count
-                let theirMessages = totalMessages - myMessages
-                guard totalMessages >= 10 && myMessages >= 3 && theirMessages >= 3 else {
-                    AnalyticsService.shared.logMeetingScheduleBlocked(
-                        messageCount: totalMessages,
-                        myCount: myMessages,
-                        theirCount: theirMessages
-                    )
-                    showNotEnoughMessagesAlert = true
-                    return
+                Button(action: {
+                    let totalMessages = viewModel.messages.filter { !$0.isSystemMessage }.count
+                    let myMessages = viewModel.messages.filter { $0.senderId == currentUserId && !$0.isSystemMessage }.count
+                    let theirMessages = totalMessages - myMessages
+                    guard totalMessages >= 10 && myMessages >= 3 && theirMessages >= 3 else {
+                        AnalyticsService.shared.logMeetingScheduleBlocked(
+                            messageCount: totalMessages,
+                            myCount: myMessages,
+                            theirCount: theirMessages
+                        )
+                        showNotEnoughMessagesAlert = true
+                        return
+                    }
+                    AnalyticsService.shared.logMeetingScheduleOpened(conversationMessageCount: totalMessages)
+                    viewModel.triggerAIRecheckIfNeeded(conversation: conversation)
+                    showScheduleMeeting = true
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "calendar")
+                            .font(.system(size: 13))
+                        Text(String(localized: "messages.schedule", defaultValue: "Schedule"))
+                            .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    }
+                    .padding(.vertical, 7)
+                    .padding(.horizontal, DesignSystem.Spacing.small)
                 }
-                AnalyticsService.shared.logMeetingScheduleOpened(conversationMessageCount: totalMessages)
-                viewModel.triggerAIRecheckIfNeeded(conversation: conversation)
-                showScheduleMeeting = true
-            }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "calendar")
-                        .font(.system(size: 13))
-                    Text(String(localized: "messages.schedule", defaultValue: "Schedule"))
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
-                }
-                .padding(.vertical, 7)
-                .padding(.horizontal, DesignSystem.Spacing.small)
+                .buttonStyle(.glass)
             }
-            .buttonStyle(.glass)
         }
         .padding(.horizontal, DesignSystem.Spacing.medium)
         .padding(.vertical, DesignSystem.Spacing.standard)
@@ -367,32 +394,11 @@ struct ConversationView: View {
                                         if fromMe { Spacer() }
                                         VStack(alignment: fromMe ? .trailing : .leading, spacing: 4) {
                                         if let documentUrl = msg.documentUrl, let documentName = msg.documentName {
-                                            Button(action: {
-                                                if let url = URL(string: documentUrl) {
-                                                    UIApplication.shared.open(url)
-                                                }
-                                            }) {
-                                                HStack {
-                                                    Image(systemName: "doc.text.fill")
-                                                        .font(.system(size: 24))
-                                                    Text(documentName)
-                                                        .lineLimit(1)
-                                                        .font(.system(size: 14, design: .rounded))
-                                                }
-                                                .padding(12)
-                                                .foregroundColor(fromMe ? .white : .brandPrimary)
-                                                .background(fromMe ? Color.brandPrimary.opacity(0.8) : Color.borderGlare.opacity(0.1))
-                                                .cornerRadius(DesignSystem.CornerRadius.medium)
-                                            }
-                                            .contextMenu {
-                                                Button {
-                                                    if let url = URL(string: documentUrl) {
-                                                        UIApplication.shared.open(url)
-                                                    }
-                                                } label: {
-                                                    Label(String(localized: "messages.download_document", defaultValue: "Download Document"), systemImage: "arrow.down.circle")
-                                                }
-                                            }
+                                            DocumentBubble(
+                                                urlString: documentUrl,
+                                                fileName: documentName,
+                                                fromMe: fromMe
+                                            )
                                         }
 
                                         if let imageUrl = msg.imageUrl {
@@ -807,6 +813,123 @@ struct ConversationView: View {
                    let rootVC = windowScene.windows.first?.rootViewController {
                     rootVC.present(activityVC, animated: true)
                 }
+            }
+        }.resume()
+    }
+}
+
+// MARK: - Document Bubble
+/// Shows a document attachment as a compact row with an in-app download button.
+/// Tapping downloads the file to a temp directory and presents the system share sheet
+/// (iOS Files, AirDrop, open-with, etc.) — no browser required.
+private struct DocumentBubble: View {
+    let urlString: String
+    let fileName: String
+    let fromMe: Bool
+
+    @State private var isDownloading = false
+    @State private var downloadError = false
+
+    private var fileExtension: String { URL(fileURLWithPath: fileName).pathExtension.lowercased() }
+
+    private var fileIcon: String {
+        switch fileExtension {
+        case "pdf":             return "doc.fill"
+        case "doc", "docx":    return "doc.text.fill"
+        case "txt":             return "doc.plaintext.fill"
+        default:                return "paperclip.circle.fill"
+        }
+    }
+
+    private var fileIconColor: Color { .brandPrimary }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            // File type icon
+            Image(systemName: fileIcon)
+                .font(.system(size: 22))
+                .foregroundColor(fileIconColor)
+                .frame(width: 28)
+
+            // Filename — truncated with ellipsis
+            Text(fileName)
+                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .foregroundColor(fromMe ? .white : .primary)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .frame(maxWidth: 180, alignment: .leading)
+
+            Spacer(minLength: 4)
+
+            // Download / loading indicator
+            if isDownloading {
+                ProgressView()
+                    .tint(fromMe ? .white : .brandPrimary)
+                    .frame(width: 24, height: 24)
+            } else if downloadError {
+                Image(systemName: "exclamationmark.circle")
+                    .font(.system(size: 18))
+                    .foregroundColor(.error)
+            } else {
+                Image(systemName: "arrow.down.circle.fill")
+                    .font(.system(size: 22))
+                    .foregroundColor(fromMe ? .white.opacity(0.85) : .brandPrimary)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(
+            fromMe ? Color.brandPrimary.opacity(0.85) : Color.brandPrimary.opacity(0.10),
+            in: RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium, style: .continuous)
+                .stroke(fromMe ? Color.clear : Color.brandPrimary.opacity(0.45), lineWidth: 1.5)
+        )
+        .onTapGesture { downloadAndShare() }
+        .disabled(isDownloading)
+    }
+
+    private func downloadAndShare() {
+        guard !isDownloading, let remoteUrl = URL(string: urlString) else { return }
+        isDownloading = true
+        downloadError = false
+
+        URLSession.shared.downloadTask(with: remoteUrl) { tempUrl, _, error in
+            DispatchQueue.main.async {
+                isDownloading = false
+                guard error == nil, let tempUrl else { downloadError = true; return }
+
+                // Move to a stable temp path preserving the original filename
+                let dest = FileManager.default.temporaryDirectory
+                    .appendingPathComponent(fileName.isEmpty ? UUID().uuidString : fileName)
+                var shareUrl = tempUrl
+                if (try? FileManager.default.moveItem(at: tempUrl, to: dest)) != nil {
+                    shareUrl = dest
+                }
+
+                // Find the foreground UIWindowScene, then traverse the full
+                // presentation chain to reach the topmost presented VC.
+                // Without this, present() fails silently when a sheet is already open
+                // (e.g. the ConversationView sheet is covering the root VC).
+                guard let windowScene = UIApplication.shared.connectedScenes
+                    .compactMap({ $0 as? UIWindowScene })
+                    .first(where: { $0.activationState == .foregroundActive }),
+                      let root = windowScene.keyWindow?.rootViewController
+                else { downloadError = true; return }
+
+                var topVC = root
+                while let presented = topVC.presentedViewController {
+                    topVC = presented
+                }
+
+                let activityVC = UIActivityViewController(activityItems: [shareUrl], applicationActivities: nil)
+                activityVC.popoverPresentationController?.sourceView = topVC.view
+                activityVC.popoverPresentationController?.sourceRect = CGRect(
+                    x: topVC.view.bounds.midX, y: topVC.view.bounds.midY, width: 0, height: 0
+                )
+                activityVC.popoverPresentationController?.permittedArrowDirections = []
+                topVC.present(activityVC, animated: true)
             }
         }.resume()
     }

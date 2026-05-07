@@ -39,6 +39,11 @@ public enum AppError: LocalizedError, Equatable {
     case conversationDeleteFailed
     case conversationUpdateFailed
 
+    // MARK: Endeavour Events
+    case endeavourEventSaveFailed
+    case endeavourEventUpdateFailed
+    case endeavourEventDeleteFailed
+
     // MARK: Meetings
     case meetingSaveFailed
     case meetingInviteFailed
@@ -120,6 +125,17 @@ extension AppError {
         case .conversationUpdateFailed:
             return String(localized: "messages.error_update_conversation",
                           defaultValue: "Could not update this conversation. Please try again.")
+
+        // MARK: Endeavour Events
+        case .endeavourEventSaveFailed:
+            return String(localized: "event.error.save_failed",
+                          defaultValue: "Could not create the event. Please try again.")
+        case .endeavourEventUpdateFailed:
+            return String(localized: "event.error.update_failed",
+                          defaultValue: "Could not update the event. Please try again.")
+        case .endeavourEventDeleteFailed:
+            return String(localized: "event.error.delete_failed",
+                          defaultValue: "Could not delete the event. Please try again.")
 
         // MARK: Meetings
         case .meetingSaveFailed:

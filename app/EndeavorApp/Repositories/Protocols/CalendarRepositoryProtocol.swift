@@ -19,6 +19,21 @@ protocol CalendarRepositoryProtocol {
         completion: @escaping (Error?) -> Void
     )
 
+    /// Recupera tutti gli eventi Endeavor pubblici (tipo endeavor_event, visibili a tutti)
+    func fetchEndeavourEvents(completion: @escaping (Result<[CalendarEvent], Error>) -> Void)
+
+    /// Recupera un singolo evento Endeavor per ID (per dati freschi nella vista partecipanti)
+    func fetchEndeavourEvent(eventId: String, completion: @escaping (Result<CalendarEvent, Error>) -> Void)
+
+    /// Aggiorna i campi di un evento Endeavor (Staff only)
+    func updateEndeavourEvent(eventId: String, fields: [String: Any], completion: @escaping (Error?) -> Void)
+
+    /// Aggiunge l'utente ai participantIds (RSVP accept)
+    func rsvpEvent(eventId: String, userId: String, completion: @escaping (Error?) -> Void)
+
+    /// Rimuove l'utente dai participantIds (RSVP decline o Staff remove)
+    func removeParticipantFromEvent(eventId: String, userId: String, completion: @escaping (Error?) -> Void)
+
     /// Listener real-time su un singolo evento (per aggiornare la card in chat live)
     func listenToEvent(eventId: String, onUpdate: @escaping (CalendarEvent?) -> Void) -> ListenerRegistration
 }

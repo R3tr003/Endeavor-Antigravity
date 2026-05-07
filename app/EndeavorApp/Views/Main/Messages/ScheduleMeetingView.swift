@@ -273,9 +273,11 @@ private struct MeetProviderOptionButton: View {
         if isSelected {
             Button(action: onTap) { label }
                 .buttonStyle(.glassProminent)
+                .frame(maxWidth: .infinity)
         } else {
             Button(action: onTap) { label }
                 .buttonStyle(.glass)
+                .frame(maxWidth: .infinity)
         }
     }
 
@@ -302,6 +304,5 @@ private struct MeetProviderOptionButton: View {
         }
         .padding(.vertical, 14)
         .padding(.horizontal, DesignSystem.Spacing.small)
-        .frame(maxWidth: .infinity)
     }
 }

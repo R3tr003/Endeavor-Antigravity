@@ -43,6 +43,11 @@ struct Conversation: Identifiable, Equatable, Hashable {
         return "\(first)\(last)".uppercased()
     }
 
+    /// true quando questa è la conversazione di sistema Endeavor (endeavor_system UID)
+    var isEndeavourSystemConversation: Bool {
+        participantIds.contains("endeavor_system")
+    }
+
     /// Colore avatar deterministico basato sul partecipante opposto.
     /// Usa l'UID per garantire che lo stesso utente abbia sempre lo stesso colore.
     func accentColor(currentUserId: String) -> Color {

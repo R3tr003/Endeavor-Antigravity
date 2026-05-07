@@ -60,6 +60,28 @@ service firebase.storage {
       allow delete: if isAuthenticated() && request.auth.uid == resource.metadata['uploaderId'];
     }
 
+    // 4. System assets (Endeavor branding, system avatars)
+    // Publicly readable — no auth required (it's just the app logo).
+    // Write blocked completely: uploaded manually via Admin SDK only.
+    match /system/{fileName} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // 5. Event covers and attachments
+    // Any authenticated user can read; only the uploader can delete.
+    match /event_covers/{eventId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidImage();
+      allow delete: if isAuthenticated() && request.auth.uid == resource.metadata['uploaderId'];
+    }
+
+    match /event_attachments/{eventId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidDocument();
+      allow delete: if isAuthenticated() && request.auth.uid == resource.metadata['uploaderId'];
+    }
+
     // Catch-all (Deny anything else not explicitly matched above)
     match /{allPaths=**} {
       allow read, write: if false;
