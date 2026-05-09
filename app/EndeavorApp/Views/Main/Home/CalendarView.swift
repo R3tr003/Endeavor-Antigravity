@@ -347,6 +347,7 @@ struct CalendarEventRow: View {
         }
         .padding(DesignSystem.Spacing.standard)
         .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
+        .contentShape(Rectangle())
     }
 }
 

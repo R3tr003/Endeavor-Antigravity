@@ -92,6 +92,7 @@ struct CreateEndeavourEventView: View {
                                 }
                                 .padding(DesignSystem.Spacing.standard)
                                 .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
+                                .contentShape(Rectangle())
                             }
                         }
 
@@ -304,6 +305,7 @@ struct CreateEndeavourEventView: View {
                                 }
                                 .padding(DesignSystem.Spacing.standard)
                                 .glassSurface(.regular.interactive(), shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large))
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                         }
@@ -506,6 +508,7 @@ private struct CoverPickerLabel: View {
             .regular.tint(tintColor.opacity(0.1)),
             shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.large)
         )
+        .contentShape(Rectangle())
     }
 }
 

@@ -95,6 +95,7 @@ class CalendarViewModel: ObservableObject {
                 switch result {
                 case .success(let fetched):
                     self?.endeavourEvents = fetched
+                    self?.logCompletedEndeavourEventsIfNeeded(events: fetched)
                 case .failure(let error):
                     print("[CalendarVM] fetchEndeavourEvents failed: \(error.localizedDescription)")
                 }
@@ -121,9 +122,21 @@ class CalendarViewModel: ObservableObject {
         repository.rsvpEvent(eventId: eventId, userId: userId) { [weak self] error in
             guard error == nil else { return }
             DispatchQueue.main.async {
-                // Reflect locally: add userId to participantIds
-                if let idx = self?.endeavourEvents.firstIndex(where: { $0.id == eventId }) {
-                    self?.endeavourEvents[idx].participantIds.append(userId)
+                guard let self else { return }
+                if let idx = self.endeavourEvents.firstIndex(where: { $0.id == eventId }) {
+                    self.endeavourEvents[idx].participantIds.append(userId)
+                    let event = self.endeavourEvents[idx]
+                    let newCount = event.participantIds.count
+                    AnalyticsService.shared.logEndeavourEventJoined(
+                        category: event.category.rawValue,
+                        participantCount: newCount,
+                        maxParticipants: event.maxParticipants
+                    )
+                    let firstJoinKey = "hasLoggedFirstEndeavourEventJoined_\(userId)"
+                    if !UserDefaults.standard.bool(forKey: firstJoinKey) {
+                        AnalyticsService.shared.logFirstEndeavourEventJoined()
+                        UserDefaults.standard.set(true, forKey: firstJoinKey)
+                    }
                 }
             }
         }
@@ -133,14 +146,43 @@ class CalendarViewModel: ObservableObject {
         repository.removeParticipantFromEvent(eventId: eventId, userId: userId) { [weak self] error in
             guard error == nil else { return }
             DispatchQueue.main.async {
-                if let idx = self?.endeavourEvents.firstIndex(where: { $0.id == eventId }) {
-                    self?.endeavourEvents[idx].participantIds.removeAll { $0 == userId }
+                guard let self else { return }
+                if let idx = self.endeavourEvents.firstIndex(where: { $0.id == eventId }) {
+                    self.endeavourEvents[idx].participantIds.removeAll { $0 == userId }
+                    let event = self.endeavourEvents[idx]
+                    AnalyticsService.shared.logEndeavourEventLeft(
+                        category: event.category.rawValue,
+                        participantCount: event.participantIds.count
+                    )
                 }
             }
         }
     }
 
     // MARK: - Analytics
+
+    private func logCompletedEndeavourEventsIfNeeded(events: [CalendarEvent]) {
+        let key = "loggedCompletedEndeavourEventIds"
+        var logged = Set(UserDefaults.standard.stringArray(forKey: key) ?? [])
+        let now = Date()
+        var changed = false
+        for event in events {
+            guard event.type == .endeavorEvent,
+                  event.status != .cancelled,
+                  event.endDate < now,
+                  !logged.contains(event.id) else { continue }
+            let minutes = Int(event.endDate.timeIntervalSince(event.startDate) / 60)
+            AnalyticsService.shared.logEndeavourEventCompleted(
+                category: event.category.rawValue,
+                participantCount: event.participantIds.count,
+                maxParticipants: event.maxParticipants,
+                durationMinutes: minutes
+            )
+            logged.insert(event.id)
+            changed = true
+        }
+        if changed { UserDefaults.standard.set(Array(logged), forKey: key) }
+    }
 
     private func logCompletedMeetingsIfNeeded(events: [CalendarEvent]) {
         let key = "loggedCompletedMeetingIds"

@@ -284,6 +284,12 @@ struct EndeavourEventDetailView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                AnalyticsService.shared.logEndeavourEventViewed(
+                    category: event.category.rawValue,
+                    isPast: event.endDate < Date()
+                )
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(String(localized: "common.done", defaultValue: "Done")) { dismiss() }

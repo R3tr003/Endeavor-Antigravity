@@ -440,6 +440,7 @@ struct UpcomingEventCard: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.xLarge))
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .contextMenu {
@@ -528,6 +529,7 @@ struct EndeavourEventCard: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .glassSurface(.regular, shape: .roundedRect(cornerRadius: DesignSystem.CornerRadius.xLarge))
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }

@@ -350,6 +350,75 @@ final class AnalyticsService {
         Analytics.logEvent("calendar_ical_link_copied", parameters: nil)
     }
 
+    // MARK: - Endeavour Events
+
+    /// Called when a new Endeavour Event is successfully saved.
+    func logEndeavourEventCreated(category: String, hasCoverImage: Bool, hasAttachment: Bool, hasMaxParticipants: Bool, maxParticipants: Int?) {
+        var params: [String: Any] = [
+            "category": category,
+            "has_cover_image": hasCoverImage ? "true" : "false",
+            "has_attachment": hasAttachment ? "true" : "false",
+            "has_max_participants": hasMaxParticipants ? "true" : "false"
+        ]
+        if let max = maxParticipants { params["max_participants"] = max }
+        Analytics.logEvent("endeavour_event_created", parameters: params)
+    }
+
+    /// Conversion: first time this user creates an Endeavour Event.
+    func logFirstEndeavourEventCreated() {
+        Analytics.logEvent("first_endeavour_event_created", parameters: nil)
+    }
+
+    /// Called when an existing Endeavour Event is successfully updated.
+    func logEndeavourEventEdited(category: String) {
+        Analytics.logEvent("endeavour_event_edited", parameters: ["category": category])
+    }
+
+    /// Called when the user opens an Endeavour Event detail sheet.
+    func logEndeavourEventViewed(category: String, isPast: Bool) {
+        Analytics.logEvent("endeavour_event_viewed", parameters: [
+            "category": category,
+            "is_past": isPast ? "true" : "false"
+        ])
+    }
+
+    /// Called when the user successfully RSVPs to an Endeavour Event.
+    func logEndeavourEventJoined(category: String, participantCount: Int, maxParticipants: Int?) {
+        var params: [String: Any] = [
+            "category": category,
+            "participant_count": participantCount
+        ]
+        if let max = maxParticipants { params["max_participants"] = max }
+        Analytics.logEvent("endeavour_event_joined", parameters: params)
+    }
+
+    /// Conversion: first time this user joins an Endeavour Event.
+    func logFirstEndeavourEventJoined() {
+        Analytics.logEvent("first_endeavour_event_joined", parameters: nil)
+    }
+
+    /// Called when the user cancels their RSVP to an Endeavour Event.
+    func logEndeavourEventLeft(category: String, participantCount: Int) {
+        Analytics.logEvent("endeavour_event_left", parameters: [
+            "category": category,
+            "participant_count": participantCount
+        ])
+    }
+
+    /// Called once per event when it ends, capturing final attendance metrics.
+    func logEndeavourEventCompleted(category: String, participantCount: Int, maxParticipants: Int?, durationMinutes: Int) {
+        var params: [String: Any] = [
+            "category": category,
+            "participant_count": participantCount,
+            "duration_minutes": durationMinutes
+        ]
+        if let max = maxParticipants, max > 0 {
+            params["max_participants"] = max
+            params["fill_rate_percent"] = Int((Double(participantCount) / Double(max)) * 100)
+        }
+        Analytics.logEvent("endeavour_event_completed", parameters: params)
+    }
+
     // MARK: - Discover (AI Search)
 
     /// Called when the user submits an AI search query.

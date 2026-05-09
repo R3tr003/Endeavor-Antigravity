@@ -129,6 +129,18 @@ class CreateEndeavourEventViewModel: ObservableObject {
                     guard let self else { return }
                     switch result {
                     case .success(let savedId):
+                        AnalyticsService.shared.logEndeavourEventCreated(
+                            category: self.category.rawValue,
+                            hasCoverImage: self.selectedCoverImage != nil,
+                            hasAttachment: self.attachmentLocalUrl != nil,
+                            hasMaxParticipants: self.enableMaxParticipants,
+                            maxParticipants: self.maxParticipants
+                        )
+                        let firstCreateKey = "hasLoggedFirstEndeavourEventCreated_\(currentUserId)"
+                        if !UserDefaults.standard.bool(forKey: firstCreateKey) {
+                            AnalyticsService.shared.logFirstEndeavourEventCreated()
+                            UserDefaults.standard.set(true, forKey: firstCreateKey)
+                        }
                         if self.meetProvider != .none {
                             MeetProviderService.shared.generateMeetLink(
                                 eventId: savedId,
@@ -190,6 +202,7 @@ class CreateEndeavourEventViewModel: ObservableObject {
                     if let error = error {
                         self.errorMessage = error.localizedDescription
                     } else {
+                        AnalyticsService.shared.logEndeavourEventEdited(category: self.category.rawValue)
                         completion()
                     }
                 }
